@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-09-27T01:12:00+07:00",
+  "updatedAt": "2026-09-27T01:28:00+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -198,7 +198,8 @@
       "evidence": [
         "supabase/migrations/0002_core_authorization.sql, 0003_core_authorization_grants.sql and 0004_fix_review_rpc.sql: auth.uid-based helpers, allowlisted projections, proposal submit/review, audit/outbox and least-privilege grants.",
         "supabase/tests/core_authorization.sql + scripts/test-db-local.mjs: local synthetic DB/RPC test PASS; raw private table access denied for authenticated role.",
-        "packages/contracts/src/index.ts + index.test.ts: person projection and proposal mutation schemas/tests."
+        "packages/contracts/src/index.ts + index.test.ts: person projection and proposal mutation schemas/tests.",
+        "apps/web/src/app/api/v1/people/[id]/route.ts: server-side RPC boundary with public-key client, Zod mapping, no-store response and invalid UUID HTTP smoke 400."
       ]
     },
     {
