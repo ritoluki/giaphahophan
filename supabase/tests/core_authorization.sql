@@ -217,7 +217,7 @@ begin
       'synthetic-stale-hash'
     );
     raise exception 'stale review was allowed';
-  exception when serialization_failure then
+  exception when sqlstate 'P0009' then
     null;
   end;
 end;

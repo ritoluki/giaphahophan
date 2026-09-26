@@ -55,6 +55,7 @@ export function createRequestHash(value: unknown) {
 
 export function rpcErrorStatus(code: string | undefined) {
   if (code === '23505' || code === '23514') return 409;
+  if (code === 'P0008' || code === 'P0009') return 409;
   if (code === "28000") return 401;
   if (code === "42501") return 403;
   if (code === "40001") return 409;

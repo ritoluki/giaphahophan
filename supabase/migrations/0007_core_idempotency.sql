@@ -53,10 +53,10 @@ begin
 
   if found then
     if v_existing.request_hash <> p_request_hash then
-      raise exception using errcode = '40001', message = 'idempotency key was reused with a different request';
+      raise exception using errcode = 'P0008', message = 'idempotency key was reused with a different request';
     end if;
     if v_existing.response is null then
-      raise exception using errcode = '40001', message = 'idempotent request is still in progress';
+      raise exception using errcode = 'P0008', message = 'idempotent request is still in progress';
     end if;
     return query
       select
@@ -90,10 +90,10 @@ begin
       and r.idempotency_key = p_idempotency_key
     for update;
     if v_existing.request_hash <> p_request_hash then
-      raise exception using errcode = '40001', message = 'idempotency key was reused with a different request';
+      raise exception using errcode = 'P0008', message = 'idempotency key was reused with a different request';
     end if;
     if v_existing.response is null then
-      raise exception using errcode = '40001', message = 'idempotent request is still in progress';
+      raise exception using errcode = 'P0008', message = 'idempotent request is still in progress';
     end if;
     return query
       select
@@ -185,10 +185,10 @@ begin
 
   if found then
     if v_existing.request_hash <> p_request_hash then
-      raise exception using errcode = '40001', message = 'idempotency key was reused with a different request';
+      raise exception using errcode = 'P0008', message = 'idempotency key was reused with a different request';
     end if;
     if v_existing.response is null then
-      raise exception using errcode = '40001', message = 'idempotent request is still in progress';
+      raise exception using errcode = 'P0008', message = 'idempotent request is still in progress';
     end if;
     return query
       select
@@ -222,10 +222,10 @@ begin
       and r.idempotency_key = p_idempotency_key
     for update;
     if v_existing.request_hash <> p_request_hash then
-      raise exception using errcode = '40001', message = 'idempotency key was reused with a different request';
+      raise exception using errcode = 'P0008', message = 'idempotency key was reused with a different request';
     end if;
     if v_existing.response is null then
-      raise exception using errcode = '40001', message = 'idempotent request is still in progress';
+      raise exception using errcode = 'P0008', message = 'idempotent request is still in progress';
     end if;
     return query
       select

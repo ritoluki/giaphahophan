@@ -75,7 +75,7 @@ begin
     end if;
 
     if v_item.base_version is distinct from v_person_version then
-      raise exception using errcode = '40001', message = 'person target version is stale';
+      raise exception using errcode = 'P0009', message = 'person target version is stale';
     end if;
 
     update private.persons as p
@@ -269,7 +269,7 @@ begin
       end if;
 
       if v_item.base_version is distinct from v_link.version then
-        raise exception using errcode = '40001', message = 'parent link target version is stale';
+        raise exception using errcode = 'P0009', message = 'parent link target version is stale';
       end if;
 
       update private.parent_links as pl
@@ -362,7 +362,7 @@ begin
   end if;
 
   if p_base_version is distinct from v_proposal.version then
-    raise exception using errcode = '40001', message = 'proposal version is stale';
+    raise exception using errcode = 'P0009', message = 'proposal version is stale';
   end if;
 
   if v_proposal.status not in ('submitted', 'needs_info') then

@@ -15,6 +15,7 @@
     "test": "pnpm -r --if-present test",
     "test:unit": "pnpm --filter @phan/domain test",
     "test:db": "node scripts/test-db-local.mjs",
+    "test:concurrency": "node scripts/test-concurrency-local.mjs",
     "test:auth": "node scripts/test-auth-local.mjs",
     "test:integration": "node scripts/status-not-run.mjs test:integration",
     "test:e2e": "pnpm build && pnpm exec playwright test",
