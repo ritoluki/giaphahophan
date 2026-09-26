@@ -12,4 +12,6 @@
 | ENV-01 | Local Node `22.13.0`, trong khi manifest/CI yêu cầu Node 24 | Node 24-specific verification và release baseline | Typecheck/test/build đã chạy trên Node 22, nhưng không thay thế gate Node 24 |
 | ENV-02 | Docker daemon chưa chạy: `DOCKER_CONFIG=.docker-config docker.exe version` báo named pipe `docker_engine` không tồn tại; config mặc định cũng bị Access denied | Supabase local, migration execution, RLS/DB integration, restore drill | UI, domain unit, contract schemas, migration static review, CI template |
 
+Git push P0: CLEAR — commit `eab975447bd4b5f73daf4685590fac633e4166da` đã đồng bộ trên `origin/main`; không phát sinh blocker quyền truy cập remote.
+
 Agent ghi blocker thực theo mẫu: bằng chứng, nguyên nhân giả thuyết, thử đã làm, rủi ro, hành động còn thiếu, owner, task phụ thuộc. Không lặp yêu cầu người dùng đã hoàn tất.

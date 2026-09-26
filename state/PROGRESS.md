@@ -19,6 +19,6 @@ P0-02/P0-03: DONE theo evidence local. P0-01: BLOCKED do local Node 22.13.0 và 
 Hoàn thiện P0-04/P0-05 bằng Supabase local + RLS/DB tests khi Docker daemon hoạt động; sau đó bắt đầu P1 design system và năm màn hình duyệt phong cách. Không cần dữ liệu thật để tiếp tục.
 
 ## Nhật ký triển khai
-2026-09-26 — P0-01..P0-05: scaffold và foundation code; `pnpm-lock.yaml`; audit sau pin bảo mật; `pnpm typecheck` PASS, `pnpm test` PASS (5 domain tests), `pnpm lint` PASS với 15 warning, `pnpm build` PASS Next 16.3.3, local HTTP smoke PASS (`/` 200, live 200, ready 503 degraded), `pnpm verify` PASS; `pnpm run doctor` BLOCKED Node 24/Docker daemon; DB/browser/E2E NOT_RUN. Đã chuẩn bị bundle để khởi tạo Git và push remote owner cung cấp; chưa commit.
+2026-09-26 — P0-01..P0-05: scaffold và foundation code; `pnpm-lock.yaml`; audit sau pin bảo mật; `pnpm typecheck` PASS, `pnpm test` PASS (5 domain tests), `pnpm lint` PASS với 15 warning, `pnpm build` PASS Next 16.3.3, local HTTP smoke PASS (`/` 200, live 200, ready 503 degraded), `pnpm verify` PASS; `pnpm run doctor` BLOCKED Node 24/Docker daemon; DB/browser/E2E NOT_RUN. Đã khởi tạo Git, commit `eab975447bd4b5f73daf4685590fac633e4166da` và push thành công lên `origin/main`; repo không chứa env/secret thật.
 
 Agent bổ sung theo mẫu: ngày, task, commit, thay đổi, command thực chạy, kết quả, evidence path, việc tiếp theo. Không ghi token/password hoặc dữ liệu thật.

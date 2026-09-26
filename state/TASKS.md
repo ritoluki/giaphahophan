@@ -6,7 +6,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 |---|---|---|---|---|
 | P0-01 | P0 | Kiểm tra môi trường và workspace |  | BLOCKED — Node 24/Docker daemon |
 | P0-02 | P0 | Chốt phiên bản và license | P0-01 | DONE — lockfile + audit sạch |
-| P0-03 | P0 | Scaffold workspace và scripts | P0-02 | DONE — typecheck/test/lint/build |
+| P0-03 | P0 | Scaffold workspace và scripts | P0-02 | DONE — typecheck/test/lint/build; commit/push `eab9754` |
 | P0-04 | P0 | Contract và DB migrations nền | P0-03 | IN_PROGRESS — DB execution NOT_RUN |
 | P0-05 | P0 | CI và test harness | P0-03 | IN_PROGRESS — CI template, integration NOT_RUN |
 | UI-01 | P1 | Design tokens và component stories | P0-03 |  |
