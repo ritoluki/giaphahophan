@@ -1,5 +1,7 @@
 # Blockers
 
+| M03-02 | Full mobile visual/a11y and real-device evidence chưa chạy | M03-02 final UI acceptance | Date precision, originalText persistence, unknown/living redaction and member access PASS local; tiếp tục M03 profile work không cần owner action |
+
 | M03-01 | Full mobile visual/a11y and real-device evidence chưa chạy | M03-01 final UI acceptance | Canonical identity contract, DB authorization, restricted projection and local build/test đã PASS; tiếp tục các M03 date/profile tasks không cần owner action |
 
 | JOBS-01 | Remote CI và credentialed worker runtime adapter chưa chạy | Worker release acceptance and production readiness | Local migration/least-privilege/retry/idempotent publish and typed dispatcher unit tests PASS; continue synthetic side-effect handlers without service-role secret |

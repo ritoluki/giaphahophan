@@ -530,9 +530,15 @@
       "testIds": [
         "TC-M03-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0011_m03_dates_life_status.sql: person_facts table with JSON GenealogyDate, originalText preservation, value_date/value_text integrity and authorized projection; public unknown/living redaction.",
+        "packages/domain/src/index.ts + m03.test.ts: year-only normalization removes invented month/day and protects unknown/living status; 10/10 domain tests PASS.",
+        "packages/contracts/src/index.ts: personFactProjectionSchema validates date/life projection boundary.",
+        "supabase/tests/m03_dates.sql + scripts/test-m03-dates-local.mjs + pnpm test:m03:dates: PASS year-only round-trip, original text, deceased public projection, unknown/living redaction and member access.",
+        "pnpm test, typecheck, lint, test:db, test:m03, test:auth, build and verify PASS local synthetic data; full mobile visual/a11y remains NOT_RUN."
+      ]
     },
     {
       "id": "M03-03",

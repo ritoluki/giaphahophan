@@ -12,7 +12,7 @@ values (
 );
 
 insert into private.persons (
-  id, tree_id, code, display_name, name_search, visibility, protected_minor
+  id, tree_id, code, display_name, name_search, life_status, visibility, protected_minor
 ) values
 (
   '33000000-0000-4000-8000-000000000001',
@@ -20,6 +20,7 @@ insert into private.persons (
   'M03-PERSON-001',
   'Synthetic Nguyễn Trung',
   'synthetic nguyen trung',
+  'deceased',
   'public',
   false
 ),
@@ -29,6 +30,7 @@ insert into private.persons (
   'M03-PERSON-002',
   'Synthetic Nguyễn Trung',
   'synthetic nguyen trung',
+  'deceased',
   'public',
   false
 ),
@@ -38,6 +40,7 @@ insert into private.persons (
   'M03-PERSON-003',
   'Restricted Nguyễn Trung',
   'restricted nguyen trung',
+  'unknown',
   'restricted',
   false
 );

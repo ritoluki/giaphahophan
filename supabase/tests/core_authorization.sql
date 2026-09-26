@@ -19,11 +19,11 @@ values
 insert into private.branches (id, tree_id, created_by, code, name)
 values ('50000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'CORE', 'Synthetic Core Branch');
 
-insert into private.persons (id, tree_id, created_by, code, display_name, name_search, visibility, protected_minor)
+insert into private.persons (id, tree_id, created_by, code, display_name, name_search, life_status, visibility, protected_minor)
 values
-  ('30000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'CORE-PUBLIC', 'Synthetic Public Person', 'synthetic public person', 'public', false),
-  ('30000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'CORE-PROTECTED', 'Synthetic Protected Person', 'synthetic protected person', 'public', true),
-  ('30000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', 'OTHER-RESTRICTED', 'Synthetic Other Tree Person', 'synthetic other tree person', 'restricted', false);
+  ('30000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'CORE-PUBLIC', 'Synthetic Public Person', 'synthetic public person', 'deceased', 'public', false),
+  ('30000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'CORE-PROTECTED', 'Synthetic Protected Person', 'synthetic protected person', 'living', 'public', true),
+  ('30000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', 'OTHER-RESTRICTED', 'Synthetic Other Tree Person', 'synthetic other tree person', 'unknown', 'restricted', false);
 
 insert into private.sources (id, tree_id, created_by, title, kind, provenance)
 values ('40000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'Synthetic source', 'oral', 'Synthetic test fixture only');

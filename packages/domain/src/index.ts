@@ -20,6 +20,16 @@ export function isSameCanonicalPerson(leftId: string, rightId: string): boolean 
   return leftId === rightId;
 }
 
+export function normalizeYearOnlyDate(value: GenealogyDate): GenealogyDate {
+  if (value.precision !== "year") return value;
+  const { month: _month, day: _day, isLeapMonth: _isLeapMonth, ...yearOnly } = value;
+  return yearOnly;
+}
+
+export function protectsUnknownLifeStatus(status: "living" | "deceased" | "unknown"): boolean {
+  return status !== "deceased";
+}
+
 export function normalizeNameSearch(value: string): string {
   return value
     .normalize("NFD")
