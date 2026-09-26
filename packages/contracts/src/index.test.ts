@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { claimReviewInputSchema, claimSubmitInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema } from "./index";
+import { claimReviewInputSchema, claimSubmitInputSchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
   it("accepts the allowlisted person projection shape", () => {
@@ -117,5 +117,23 @@ describe("CORE-01 contracts", () => {
       reason: "Synthetic independent review",
       baseVersion: 1
     }).decision).toBe("approve");
+  });
+
+  it("accepts a soft-delete request and impact projection without erasure fields", () => {
+    expect(personDeletionInputSchema.parse({
+      treeId: "10000000-0000-4000-8000-000000000001",
+      reason: "Synthetic soft-delete request"
+    }).treeId).toBe("10000000-0000-4000-8000-000000000001");
+    expect(personDeletionImpactSchema.parse({
+      personId: "30000000-0000-4000-8000-000000000001",
+      treeId: "10000000-0000-4000-8000-000000000001",
+      version: 1,
+      edgeCount: 2,
+      factCount: 1,
+      sourceCount: 1,
+      edgeIds: ["50000000-0000-4000-8000-000000000001"],
+      factIds: ["60000000-0000-4000-8000-000000000001"],
+      sourceIds: ["40000000-0000-4000-8000-000000000001"]
+    }).sourceCount).toBe(1);
   });
 });

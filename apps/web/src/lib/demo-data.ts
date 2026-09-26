@@ -49,6 +49,7 @@ function uniquePeople(people: Array<DemoPersonSummary | undefined>): DemoPersonS
 }
 
 export const demoTree = {
+  id: fixture.tree.id,
   name: fixture.tree.name,
   slug: fixture.tree.slug,
   warning: fixture.warning

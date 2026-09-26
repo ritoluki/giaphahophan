@@ -60,6 +60,8 @@ test("admin preview keeps restricted state explicit", async ({ page }, testInfo)
 
 test("person profile exposes layered tabs and mobile-safe empty states", async ({ page }) => {
   await page.goto("/nguoi/" + demoPersonId);
+  await expect(page.locator("#deletion-impact-title")).toBeVisible();
+  await expect(page.locator(".deletion-impact-card button")).toBeVisible();
   const tabs = page.getByRole("tab");
   await expect(tabs).toHaveCount(5);
   await tabs.nth(1).click();

@@ -133,6 +133,8 @@ try {
   const claimSelfReviewKey = randomUUID();
   const claimReviewKey = randomUUID();
   const correctionKey = randomUUID();
+  const deletionKey = randomUUID();
+  const deletionReviewKey = randomUUID();
 
   const missingKey = await jsonRequest(webUrl + "/api/v1/proposals", {
     method: "POST",
@@ -346,7 +348,37 @@ try {
     body: JSON.stringify({ treeId, reason: "Synthetic versioned correction", fieldChanges: { biography: "Synthetic proposed correction" }, sourceIds: [sourceId] })
   });
   assert(correction.response.status === 202 && correction.body?.data?.status === "submitted", "versioned person correction did not create a proposal");
-  console.log("PASS local authenticated CORE-02/M03-04/M03-05: BFF login, proposal/relationship review, claim approval, If-Match correction and persistence");
+  const deletionImpact = await jsonRequest(webUrl + "/api/v1/people/" + childPersonId + "/deletion-impact", {
+    method: "GET",
+    headers: { Cookie: cookieA }
+  });
+  assert(deletionImpact.response.status === 200 && deletionImpact.body?.data?.edgeCount === 1 && deletionImpact.body?.data?.sourceCount === 1, "deletion impact preview was not authorized or complete");
+  const missingDeleteIfMatch = await jsonRequest(webUrl + "/api/v1/people/" + childPersonId, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieA },
+    body: JSON.stringify({ treeId, reason: "Synthetic missing delete If-Match" })
+  });
+  assert(missingDeleteIfMatch.response.status === 428, "soft-delete without If-Match was accepted");
+  const deletion = await jsonRequest(webUrl + "/api/v1/people/" + childPersonId, {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": deletionKey, "If-Match": "\"1\"", Cookie: cookieA },
+    body: JSON.stringify({ treeId, reason: "Synthetic versioned soft-delete request" })
+  });
+  assert(deletion.response.status === 202 && deletion.body?.data?.status === "submitted", "soft-delete proposal was not submitted");
+  const deletionReviewed = await jsonRequest(webUrl + "/api/v1/proposals/" + deletion.body.data.id + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": deletionReviewKey, Cookie: cookieB },
+    body: JSON.stringify({
+      decision: "approve",
+      reason: "Synthetic independent soft-delete review",
+      baseVersion: deletion.body.data.version,
+      reviewedSnapshotHash: "synthetic-delete-hash"
+    })
+  });
+  assert(deletionReviewed.response.status === 200 && deletionReviewed.body?.data?.status === "approved", "soft-delete proposal was not approved");
+  const deletionVerified = runPsql("select (select count(*) from private.persons where id = " + sqlString(childPersonId) + " and deleted_at is not null) || '|' || (select count(*) from private.parent_links where tree_id = " + sqlString(treeId) + " and child_id = " + sqlString(childPersonId) + " and deleted_at is null) || '|' || (select count(*) from private.sources where id = " + sqlString(sourceId) + ");");
+  assert(deletionVerified.status === 0 && /1\|0\|1/.test(deletionVerified.stdout), "soft-delete did not hide person/edge while retaining source");
+  console.log("PASS local authenticated CORE-02/M03-04/M03-05/M03-06: BFF login, proposal/relationship review, claim approval, If-Match correction, impact preview, soft-delete approval and persistence");
 } finally {
   const cleanup = [
     "begin;",

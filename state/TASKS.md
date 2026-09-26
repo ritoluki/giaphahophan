@@ -27,7 +27,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M03-03 | P3 | Hồ sơ đa lớp | M03-02 | IN_PROGRESS — mobile tabs overview/family/timeline/sources/media; E2E 21/21 desktop/Pixel5/320 PASS; DB/API aggregate, axe/manual/real-device NOT_RUN |
 | M03-04 | P3 | Person khác account | M03-03 | IN_PROGRESS — claims migration/RPC/BFF, self-review denial, independent approval, idempotency and no auto-capability PASS local; mobile visual/a11y NOT_RUN |
 | M03-05 | P3 | Sửa có version | M03-04 | IN_PROGRESS - GET exposes version; PATCH If-Match/idempotency creates correction proposal; local API/DB/auth tests PASS; conflict diff and full mobile/a11y evidence NOT_RUN |
-| M03-06 | P3 | Xóa có tác động | M03-05 |  |
+| M03-06 | P3 | Xóa có tác động | M03-05 | IN_PROGRESS - impact preview and DELETE If-Match proposal; atomic person/edge soft-delete keeps facts/sources for separate erasure; local DB/BFF/UI tests PASS; axe/manual/real-device NOT_RUN |
 | M04-01 | P4 | Các chế độ cây | M03-06, M06-04 |  |
 | M04-02 | P4 | Pedigree collapse | M04-01 |  |
 | M04-03 | P4 | Giới hạn và expand | M04-02 |  |

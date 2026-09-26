@@ -658,9 +658,13 @@
       "testIds": [
         "TC-M03-06"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0014_m03_soft_delete_impact.sql: authorization-gated impact preview, deleted_at person projection filtering, atomic person/connected-edge soft-delete, audit/outbox, facts/sources retained for separate erasure.",
+        "apps/web/src/app/api/v1/people/[id]/deletion-impact/route.ts and people/[id]/route.ts: authenticated impact GET and DELETE If-Match/idempotent proposal boundary; no direct approval bypass.",
+        "PersonProfile deletion impact UI covers loading, restricted, error, impact summary and submitted states using shared tokens; pnpm test:m03:delete, test:auth, full test, typecheck, build, lint, verify and E2E 21/21 desktop/Pixel5/320 PASS on synthetic local data. Axe/manual/real-device evidence and erasure/purge workflow remain NOT_RUN."
+      ]
     },
     {
       "id": "M04-01",

@@ -101,6 +101,23 @@ export const personCorrectionInputSchema = z.object({
   sourceIds: z.array(z.string().uuid()).max(50).default([])
 });
 
+export const personDeletionInputSchema = z.object({
+  treeId: z.string().uuid(),
+  reason: z.string().trim().min(1).max(4000)
+});
+
+export const personDeletionImpactSchema = z.object({
+  personId: z.string().uuid(),
+  treeId: z.string().uuid(),
+  version: z.number().int().positive(),
+  edgeCount: z.number().int().nonnegative(),
+  factCount: z.number().int().nonnegative(),
+  sourceCount: z.number().int().nonnegative(),
+  edgeIds: z.array(z.string().uuid()),
+  factIds: z.array(z.string().uuid()),
+  sourceIds: z.array(z.string().uuid())
+});
+
 const parentLinkCreateFieldChangesSchema = z.object({
   parent_id: z.string().uuid(),
   child_id: z.string().uuid(),
@@ -119,6 +136,14 @@ export const proposalItemSchema = z.union([
     baseVersion: z.number().int().positive(),
     operation: z.literal('update'),
     fieldChanges: personProposalFieldChangesSchema,
+    sourceIds: z.array(z.string().uuid()).max(50).default([])
+  }).strict(),
+  z.object({
+    targetKind: z.literal('person'),
+    targetId: z.string().uuid(),
+    baseVersion: z.number().int().positive(),
+    operation: z.literal('delete'),
+    fieldChanges: z.object({}).strict(),
     sourceIds: z.array(z.string().uuid()).max(50).default([])
   }).strict(),
   z.object({

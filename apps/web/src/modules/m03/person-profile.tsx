@@ -12,6 +12,8 @@ type PersonProfileProps = {
   person: DemoPersonRecord;
   family: DemoFamilyFocus | null;
   sources: DemoSource[];
+  treeId: string;
+  version: number;
   state?: ProfileState;
 };
 
@@ -117,7 +119,104 @@ function MediaPanel() {
   return <div className="restricted-card profile-state-panel"><strong>Chưa có tư liệu ảnh</strong><p>Ảnh và media chỉ xuất hiện sau khi được tải lên, quét an toàn và cấp quyền.</p></div>;
 }
 
-export function PersonProfile({ person, family, sources, state = "ready" }: PersonProfileProps) {
+type ImpactState = "idle" | "loading" | "ready" | "restricted" | "error" | "submitted";
+
+type DeletionImpact = {
+  version: number;
+  edgeCount: number;
+  factCount: number;
+  sourceCount: number;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function DeletionImpactPanel({ personId, treeId, version }: { personId: string; treeId: string; version: number }) {
+  const [impactState, setImpactState] = useState<ImpactState>("idle");
+  const [impact, setImpact] = useState<DeletionImpact | null>(null);
+  const [reason, setReason] = useState("");
+
+  async function previewImpact() {
+    setImpactState("loading");
+    try {
+      const response = await fetch("/api/v1/people/" + personId + "/deletion-impact", { cache: "no-store" });
+      const body: unknown = await response.json();
+      if (response.status === 401 || response.status === 403) {
+        setImpactState("restricted");
+        return;
+      }
+      if (!response.ok || !isRecord(body) || !isRecord(body.data)) {
+        setImpactState("error");
+        return;
+      }
+      const data = body.data;
+      if (
+        typeof data.version !== "number"
+        || typeof data.edgeCount !== "number"
+        || typeof data.factCount !== "number"
+        || typeof data.sourceCount !== "number"
+      ) {
+        setImpactState("error");
+        return;
+      }
+      setImpact({ version: data.version, edgeCount: data.edgeCount, factCount: data.factCount, sourceCount: data.sourceCount });
+      setImpactState("ready");
+    } catch {
+      setImpactState("error");
+    }
+  }
+
+  async function submitDeletion() {
+    if (!impact || reason.trim().length === 0) return;
+    setImpactState("loading");
+    try {
+      const response = await fetch("/api/v1/people/" + personId, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": crypto.randomUUID(),
+          "If-Match": "\"" + impact.version + "\""
+        },
+        body: JSON.stringify({ treeId, reason: reason.trim() })
+      });
+      if (response.status === 401 || response.status === 403) {
+        setImpactState("restricted");
+        return;
+      }
+      if (response.status === 202) {
+        setImpactState("submitted");
+        return;
+      }
+      setImpactState("error");
+    } catch {
+      setImpactState("error");
+    }
+  }
+
+  return (
+    <section className="card profile-span deletion-impact-card" aria-labelledby="deletion-impact-title">
+      <h2 id="deletion-impact-title">Ẩn hồ sơ theo quy trình</h2>
+      <p>Soft-delete chỉ ẩn hồ sơ và cạnh liên quan sau khi được duyệt. Facts và nguồn vẫn giữ tham chiếu; erasure là quy trình riêng.</p>
+      {impactState === "idle" ? <button className="button-secondary" type="button" onClick={() => void previewImpact()}>Xem tác động trước khi gửi</button> : null}
+      {impactState === "loading" ? <p className="muted" aria-live="polite">Đang kiểm tra tác động…</p> : null}
+      {impactState === "restricted" ? <div className="restricted-card"><strong>Cần quyền biên tập</strong><p>Chỉ thành viên có capability phù hợp mới xem hoặc gửi yêu cầu ẩn hồ sơ.</p></div> : null}
+      {impactState === "error" ? <div className="restricted-card"><strong>Không tải được tác động</strong><p>Hãy thử lại; dữ liệu vẫn chưa thay đổi.</p><button className="button-secondary" type="button" onClick={() => void previewImpact()}>Thử lại</button></div> : null}
+      {impactState === "ready" && impact ? (
+        <div className="deletion-impact-summary">
+          <p aria-live="polite">Ảnh hưởng dự kiến: {impact.edgeCount} cạnh, {impact.factCount} facts và {impact.sourceCount} nguồn được tham chiếu.</p>
+          <label className="field-label" htmlFor="deletion-reason">Lý do yêu cầu</label>
+          <textarea id="deletion-reason" value={reason} onChange={(event) => setReason(event.target.value)} rows={3} maxLength={4000} />
+          <button className="button-danger" type="button" disabled={reason.trim().length === 0} onClick={() => void submitDeletion()}>Gửi yêu cầu ẩn hồ sơ</button>
+        </div>
+      ) : null}
+      {impactState === "submitted" ? <div className="status-label" aria-live="polite">Đã gửi yêu cầu; cần người duyệt độc lập.</div> : null}
+      {impactState === "idle" && version < 1 ? <p className="muted">Phiên bản hồ sơ chưa sẵn sàng.</p> : null}
+    </section>
+  );
+}
+
+export function PersonProfile({ person, family, sources, treeId, version, state = "ready" }: PersonProfileProps) {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   if (state !== "ready") return <StatePanel state={state} />;
 
@@ -127,7 +226,7 @@ export function PersonProfile({ person, family, sources, state = "ready" }: Pers
         {tabs.map((tab) => <button className={activeTab === tab.id ? "profile-tab profile-tab-active" : "profile-tab"} key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} aria-controls={"profile-panel-" + tab.id} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>)}
       </div>
       <div id={"profile-panel-" + activeTab} role="tabpanel" tabIndex={0} className="profile-tab-panel">
-        {activeTab === "overview" ? <OverviewPanel person={person} /> : null}
+        {activeTab === "overview" ? <><OverviewPanel person={person} /><DeletionImpactPanel personId={person.id} treeId={treeId} version={version} /></> : null}
         {activeTab === "family" ? <FamilyPanel family={family} /> : null}
         {activeTab === "timeline" ? <TimelinePanel person={person} /> : null}
         {activeTab === "sources" ? <SourcesPanel sources={sources} /> : null}

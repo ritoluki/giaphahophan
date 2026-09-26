@@ -163,6 +163,12 @@ button, a, input, select { min-height: 44px; }
 .admin-principles { margin-top: 1rem; }
 .admin-principles ul { margin: .75rem 0 0; padding-left: 1.25rem; color: var(--ink-muted); }
 
+.deletion-impact-card { border-color: color-mix(in srgb, var(--danger) 32%, var(--border)); }
+.deletion-impact-summary { display: grid; gap: .75rem; }
+.deletion-impact-summary textarea { min-height: 6rem; resize: vertical; }
+.button-danger { min-height: 44px; width: fit-content; padding: .65rem 1rem; border: 1px solid var(--danger); border-radius: 8px; background: var(--danger); color: #fff; font-weight: 700; cursor: pointer; }
+.button-danger:disabled { opacity: .55; cursor: not-allowed; }
+
 @media (min-width: 768px) {
   .container { width: min(1200px, calc(100% - 64px)); }
   .desktop-nav { display: flex; }
