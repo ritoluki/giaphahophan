@@ -1,0 +1,3165 @@
+{
+  "schemaVersion": "1.0",
+  "dataMode": "demo",
+  "isFictional": true,
+  "warning": "TOÀN BỘ DỮ LIỆU HƯ CẤU. Không được coi là thông tin dòng họ Phan có thật.",
+  "tree": {
+    "id": "dd55bc89-3998-5535-b8f1-fb351b9c0f57",
+    "name": "Họ Phan — dữ liệu minh họa",
+    "slug": "phan-demo"
+  },
+  "branches": [
+    {
+      "id": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "code": "CHI-A",
+      "name": "Chi A (minh họa)"
+    },
+    {
+      "id": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "code": "CHI-B",
+      "name": "Chi B (minh họa)"
+    }
+  ],
+  "sources": [
+    {
+      "id": "93a480c3-c05e-5df5-bd03-d668b0eaaf98",
+      "title": "Bộ dữ liệu hư cấu phục vụ kiểm thử",
+      "kind": "document",
+      "provenance": "Tạo cho agent kit; không phải tư liệu gia đình.",
+      "isFictional": true
+    }
+  ],
+  "persons": [
+    {
+      "id": "0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c",
+      "externalId": "DEMO-P001",
+      "displayName": "Phan Đức An",
+      "names": [
+        {
+          "name": "Phan Đức An",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1870,
+        "originalText": "1870"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "b4d8ebc6-3633-5079-b17d-0f9634041008",
+      "externalId": "DEMO-P002",
+      "displayName": "Phan Hoài Bình",
+      "names": [
+        {
+          "name": "Phan Hoài Bình",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1895,
+        "originalText": "1895"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "1d3680de-c153-5aea-952e-838f42d15771",
+      "externalId": "DEMO-P003",
+      "displayName": "Phan Minh Chi",
+      "names": [
+        {
+          "name": "Phan Minh Chi",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1895,
+        "originalText": "1895"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "14b233fc-9c09-5c13-ac93-c626c692cf0c",
+      "externalId": "DEMO-P004",
+      "displayName": "Phan Hoài Dũng",
+      "names": [
+        {
+          "name": "Phan Hoài Dũng",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1920,
+        "originalText": "1920"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "da6fe88f-b3cc-5be1-96dd-9c8bf7a65a9c",
+      "externalId": "DEMO-P005",
+      "displayName": "Phan Minh Giang",
+      "names": [
+        {
+          "name": "Phan Minh Giang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1920,
+        "originalText": "1920"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "d40cd965-0cdf-5c87-ba4e-a593806382b8",
+      "externalId": "DEMO-P006",
+      "displayName": "Phan Hoài Hải",
+      "names": [
+        {
+          "name": "Phan Hoài Hải",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1920,
+        "originalText": "1920"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "22f02980-f126-538c-b984-36cbff451540",
+      "externalId": "DEMO-P007",
+      "displayName": "Phan Minh Hạnh",
+      "names": [
+        {
+          "name": "Phan Minh Hạnh",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1920,
+        "originalText": "1920"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "566a45e4-8448-549f-a636-f9e940e3727c",
+      "externalId": "DEMO-P008",
+      "displayName": "Phan Hoài Khang",
+      "names": [
+        {
+          "name": "Phan Hoài Khang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1945,
+        "originalText": "1945"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "f3fd9334-94aa-564b-b0ca-a3ba6e2fecc6",
+      "externalId": "DEMO-P009",
+      "displayName": "Phan Minh Lan",
+      "names": [
+        {
+          "name": "Phan Minh Lan",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1945,
+        "originalText": "1945"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "7e41337f-d75b-59b1-862c-b98822dcdf5c",
+      "externalId": "DEMO-P010",
+      "displayName": "Phan Hoài Minh",
+      "names": [
+        {
+          "name": "Phan Hoài Minh",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1945,
+        "originalText": "1945"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "93b44889-6946-5de6-837b-a9e57dc13c02",
+      "externalId": "DEMO-P011",
+      "displayName": "Phan Minh Ngọc",
+      "names": [
+        {
+          "name": "Phan Minh Ngọc",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1945,
+        "originalText": "1945"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "9839cbbd-8197-5f72-b538-e6ca93c28365",
+      "externalId": "DEMO-P012",
+      "displayName": "Phan Hoài Phúc",
+      "names": [
+        {
+          "name": "Phan Hoài Phúc",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1945,
+        "originalText": "1945"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "64e33f45-c746-532e-b24f-b41e53f473e1",
+      "externalId": "DEMO-P013",
+      "displayName": "Phan Minh Quang",
+      "names": [
+        {
+          "name": "Phan Minh Quang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1945,
+        "originalText": "1945"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "331d54cb-f10d-52a3-a1e7-0b7c9cfd6318",
+      "externalId": "DEMO-P014",
+      "displayName": "Phan Hoài Sơn",
+      "names": [
+        {
+          "name": "Phan Hoài Sơn",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1945,
+        "originalText": "1945"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "a8cba04c-296c-5e9c-b0dd-664c68d04c39",
+      "externalId": "DEMO-P015",
+      "displayName": "Phan Minh Thảo",
+      "names": [
+        {
+          "name": "Phan Minh Thảo",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1945,
+        "originalText": "1945"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "ffb732c6-7f66-5c3e-ab12-5f5e636753f7",
+      "externalId": "DEMO-P016",
+      "displayName": "Phan Hoài Thu",
+      "names": [
+        {
+          "name": "Phan Hoài Thu",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "32c8e4e1-dd37-5be9-9111-154e4c80afa4",
+      "externalId": "DEMO-P017",
+      "displayName": "Phan Minh Trang",
+      "names": [
+        {
+          "name": "Phan Minh Trang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "8725f53a-ea74-545b-9299-5eeb4bddd56b",
+      "externalId": "DEMO-P018",
+      "displayName": "Phan Hoài Trung",
+      "names": [
+        {
+          "name": "Phan Hoài Trung",
+          "kind": "preferred",
+          "isPreferred": true
+        },
+        {
+          "name": "Tên gọi trong nhà (demo)",
+          "kind": "alias",
+          "isPreferred": false
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "45d3b4c3-04ff-5483-847f-b173eb86a550",
+      "externalId": "DEMO-P019",
+      "displayName": "Phan Minh Tú",
+      "names": [
+        {
+          "name": "Phan Minh Tú",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "a1752c69-41cc-57ef-b4ea-5888c24d8593",
+      "externalId": "DEMO-P020",
+      "displayName": "Phan Hoài Vân",
+      "names": [
+        {
+          "name": "Phan Hoài Vân",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "547022a5-93bf-5464-9f89-938e186ba903",
+      "externalId": "DEMO-P021",
+      "displayName": "Phan Minh An",
+      "names": [
+        {
+          "name": "Phan Minh An",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "unknown",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "e30876e2-0214-5011-a322-e1f8b7cefa5f",
+      "externalId": "DEMO-P022",
+      "displayName": "Phan Hoài Bình",
+      "names": [
+        {
+          "name": "Phan Hoài Bình",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "5587b649-4d7a-5fff-bb3b-6cf87ea95f82",
+      "externalId": "DEMO-P023",
+      "displayName": "Phan Minh Chi",
+      "names": [
+        {
+          "name": "Phan Minh Chi",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "223a1f23-a278-5f47-9190-10054d204a98",
+      "externalId": "DEMO-P024",
+      "displayName": "Phan Hoài Dũng",
+      "names": [
+        {
+          "name": "Phan Hoài Dũng",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "3ec3c634-d443-5d99-a325-e5c8e1db90c9",
+      "externalId": "DEMO-P025",
+      "displayName": "Phan Minh Giang",
+      "names": [
+        {
+          "name": "Phan Minh Giang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "8381510e-b788-566b-8e49-1acd0dba2bf7",
+      "externalId": "DEMO-P026",
+      "displayName": "Phan Hoài Hải",
+      "names": [
+        {
+          "name": "Phan Hoài Hải",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "2d98d486-b47b-51dd-86bc-364efc2a8642",
+      "externalId": "DEMO-P027",
+      "displayName": "Phan Minh Hạnh",
+      "names": [
+        {
+          "name": "Phan Minh Hạnh",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "918f1d0c-35aa-52a3-b544-3e2bf836e227",
+      "externalId": "DEMO-P028",
+      "displayName": "Phan Hoài Khang",
+      "names": [
+        {
+          "name": "Phan Hoài Khang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "1f5cbd5b-ff95-5e9a-a414-76b609eafd04",
+      "externalId": "DEMO-P029",
+      "displayName": "Phan Minh Lan",
+      "names": [
+        {
+          "name": "Phan Minh Lan",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "e3ce1c28-e909-5855-a72b-fe5497c5b36f",
+      "externalId": "DEMO-P030",
+      "displayName": "Phan Hoài Minh",
+      "names": [
+        {
+          "name": "Phan Hoài Minh",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "d909e172-9fba-5160-9975-f41c80859a00",
+      "externalId": "DEMO-P031",
+      "displayName": "Phan Minh Ngọc",
+      "names": [
+        {
+          "name": "Phan Minh Ngọc",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1970,
+        "originalText": "1970"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "2e4dfafe-48ff-5d4a-b49e-348ef5491d1b",
+      "externalId": "DEMO-P032",
+      "displayName": "Phan Hoài Phúc",
+      "names": [
+        {
+          "name": "Phan Hoài Phúc",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "0bfd3668-90a7-591e-a4da-856d2253e09c",
+      "externalId": "DEMO-P033",
+      "displayName": "Phan Minh Quang",
+      "names": [
+        {
+          "name": "Phan Minh Quang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "c4c6fec0-a1b5-5710-88d9-ef41f23e8dac",
+      "externalId": "DEMO-P034",
+      "displayName": "Phan Minh An",
+      "names": [
+        {
+          "name": "Phan Minh An",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "8f8d7dd0-3897-52dc-8bb6-bed138223cf7",
+      "externalId": "DEMO-P035",
+      "displayName": "Phan Minh Thảo",
+      "names": [
+        {
+          "name": "Phan Minh Thảo",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "2c516c6d-b11c-561e-b6a7-a4b4c16f694e",
+      "externalId": "DEMO-P036",
+      "displayName": "Phan Hoài Thu",
+      "names": [
+        {
+          "name": "Phan Hoài Thu",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "b949c764-e10a-5739-b38f-a9e702755f8b",
+      "externalId": "DEMO-P037",
+      "displayName": "Phan Minh Trang",
+      "names": [
+        {
+          "name": "Phan Minh Trang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "40339f9e-fe44-5f9f-933b-19201cb2df50",
+      "externalId": "DEMO-P038",
+      "displayName": "Phan Hoài Trung",
+      "names": [
+        {
+          "name": "Phan Hoài Trung",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "unknown",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "unknown",
+        "precision": "text",
+        "originalText": "Khoảng đầu thế kỷ XX; thông tin hư cấu để kiểm thử"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "f899a68b-2e78-50b7-911b-97a2b55b0b23",
+      "externalId": "DEMO-P039",
+      "displayName": "Phan Minh Tú",
+      "names": [
+        {
+          "name": "Phan Minh Tú",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "a7d7fd69-bed5-5dfb-8cd9-76f382455d45",
+      "externalId": "DEMO-P040",
+      "displayName": "Phan Hoài Vân",
+      "names": [
+        {
+          "name": "Phan Hoài Vân",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "71afb367-18ae-538c-93b1-2d8b132a9876",
+      "externalId": "DEMO-P041",
+      "displayName": "Phan Minh An",
+      "names": [
+        {
+          "name": "Phan Minh An",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "c4f11604-1a2e-5d66-a2a5-d6ebefcdefe4",
+      "externalId": "DEMO-P042",
+      "displayName": "Phan Hoài Bình",
+      "names": [
+        {
+          "name": "Phan Hoài Bình",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "da1166d2-6104-5a16-9201-8f86453ff188",
+      "externalId": "DEMO-P043",
+      "displayName": "Phan Minh Chi",
+      "names": [
+        {
+          "name": "Phan Minh Chi",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "09f481da-8e22-5a9c-9634-782011bad55b",
+      "externalId": "DEMO-P044",
+      "displayName": "Phan Hoài Dũng",
+      "names": [
+        {
+          "name": "Phan Hoài Dũng",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "48bfe871-760f-5638-ba67-f87e7ee061e6",
+      "externalId": "DEMO-P045",
+      "displayName": "Phan Minh Giang",
+      "names": [
+        {
+          "name": "Phan Minh Giang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "f9845b86-e1b2-5a5a-a9d4-0de9bffaba27",
+      "externalId": "DEMO-P046",
+      "displayName": "Phan Hoài Hải",
+      "names": [
+        {
+          "name": "Phan Hoài Hải",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "b5ad2871-b29a-5a60-8f7d-df69b81ef90b",
+      "externalId": "DEMO-P047",
+      "displayName": "Phan Minh An",
+      "names": [
+        {
+          "name": "Phan Minh An",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "bb04fd21-80c1-5003-88b9-0fefa401c070",
+      "externalId": "DEMO-P048",
+      "displayName": "Phan Hoài Khang",
+      "names": [
+        {
+          "name": "Phan Hoài Khang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "e54f2e54-ca34-5831-9d08-d76efd08a928",
+      "externalId": "DEMO-P049",
+      "displayName": "Phan Minh Lan",
+      "names": [
+        {
+          "name": "Phan Minh Lan",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "1c4cbf45-16c1-5106-8d53-0894052b756f",
+      "externalId": "DEMO-P050",
+      "displayName": "Phan Hoài Minh",
+      "names": [
+        {
+          "name": "Phan Hoài Minh",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "45909004-f726-54de-b61b-60e4f1751708",
+      "externalId": "DEMO-P051",
+      "displayName": "Phan Minh Ngọc",
+      "names": [
+        {
+          "name": "Phan Minh Ngọc",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "b7feb53b-fd86-582a-adde-5c23bfda2833",
+      "externalId": "DEMO-P052",
+      "displayName": "Phan Hoài Phúc",
+      "names": [
+        {
+          "name": "Phan Hoài Phúc",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "3faa6016-a951-5c69-8acd-a16f7c39e8a4",
+      "externalId": "DEMO-P053",
+      "displayName": "Phan Minh Quang",
+      "names": [
+        {
+          "name": "Phan Minh Quang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "3d8ded01-d785-5cf9-8133-f3e4b69aec32",
+      "externalId": "DEMO-P054",
+      "displayName": "Phan Hoài Sơn",
+      "names": [
+        {
+          "name": "Phan Hoài Sơn",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "0de4d79e-5af4-5a9f-9c62-f9328bf1c2b2",
+      "externalId": "DEMO-P055",
+      "displayName": "Phan Minh Thảo",
+      "names": [
+        {
+          "name": "Phan Minh Thảo",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "722b8e2b-cf2a-5e97-857f-869cfa4fe547",
+      "externalId": "DEMO-P056",
+      "displayName": "Phan Hoàng Minh Nguyệt Cát Tường",
+      "names": [
+        {
+          "name": "Phan Hoàng Minh Nguyệt Cát Tường",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "8199a9f6-67f9-5868-bec5-6de2fe2aea36",
+      "externalId": "DEMO-P057",
+      "displayName": "Phan Minh Trang",
+      "names": [
+        {
+          "name": "Phan Minh Trang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "79ae5d0d-00c9-510e-bb70-392a8ce8fecb",
+      "externalId": "DEMO-P058",
+      "displayName": "Phan Hoài Trung",
+      "names": [
+        {
+          "name": "Phan Hoài Trung",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "2859ba5c-bd70-55a7-bfd1-a8dc8f265125",
+      "externalId": "DEMO-P059",
+      "displayName": "Phan Minh Tú",
+      "names": [
+        {
+          "name": "Phan Minh Tú",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "67c4a58d-b937-5e7b-a36e-46e334d5620d",
+      "externalId": "DEMO-P060",
+      "displayName": "Phan Hoài Vân",
+      "names": [
+        {
+          "name": "Phan Hoài Vân",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": true,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 2014,
+        "originalText": "2014"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "64d1340e-b4ec-54a9-93f5-b59e2e04b0d7",
+      "externalId": "DEMO-P061",
+      "displayName": "Phan Minh An",
+      "names": [
+        {
+          "name": "Phan Minh An",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": true,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 2015,
+        "originalText": "2015"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "296d3e4a-f33c-5321-afd4-5f3c229dfb12",
+      "externalId": "DEMO-P062",
+      "displayName": "Phan Hoài Bình",
+      "names": [
+        {
+          "name": "Phan Hoài Bình",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": true,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 2016,
+        "originalText": "2016"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "499d05cb-83be-5a1d-a341-1838c6acf31c",
+      "externalId": "DEMO-P063",
+      "displayName": "Phan Minh Chi",
+      "names": [
+        {
+          "name": "Phan Minh Chi",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1995,
+        "originalText": "1995"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "af747b8d-993e-508d-ad86-9100b72f6996",
+      "externalId": "DEMO-P064",
+      "displayName": "Lê Hoài Dũng",
+      "names": [
+        {
+          "name": "Lê Hoài Dũng",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1871,
+        "originalText": "1871"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "22c8219f-0a80-5a1b-9bd7-2250cdef6ed0",
+      "externalId": "DEMO-P065",
+      "displayName": "Trần Minh Giang",
+      "names": [
+        {
+          "name": "Trần Minh Giang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1896,
+        "originalText": "1896"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "5e99c6df-9d76-58d2-b760-f27c89c6837d",
+      "externalId": "DEMO-P066",
+      "displayName": "Nguyễn Hoài Hải",
+      "names": [
+        {
+          "name": "Nguyễn Hoài Hải",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1896,
+        "originalText": "1896"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "095c5e0a-73b5-5a86-b433-1e81cc513b55",
+      "externalId": "DEMO-P067",
+      "displayName": "Lê Minh Hạnh",
+      "names": [
+        {
+          "name": "Lê Minh Hạnh",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1921,
+        "originalText": "1921"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "1793e556-f8ec-5a9b-b78b-ea6e5eae79cb",
+      "externalId": "DEMO-P068",
+      "displayName": "Trần Hoài Khang",
+      "names": [
+        {
+          "name": "Trần Hoài Khang",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1921,
+        "originalText": "1921"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "55b22d51-f6aa-511e-b0cd-73ef2549382f",
+      "externalId": "DEMO-P069",
+      "displayName": "Nguyễn Minh Lan",
+      "names": [
+        {
+          "name": "Nguyễn Minh Lan",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1921,
+        "originalText": "1921"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "520c817f-ff07-5443-8170-3c991a711b53",
+      "externalId": "DEMO-P070",
+      "displayName": "Lê Hoài Minh",
+      "names": [
+        {
+          "name": "Lê Hoài Minh",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "deceased",
+      "visibility": "members",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1921,
+        "originalText": "1921"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "548e40e6-840c-528b-8605-eb348dd1eb48",
+      "externalId": "DEMO-P071",
+      "displayName": "Trần Minh Ngọc",
+      "names": [
+        {
+          "name": "Trần Minh Ngọc",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "M",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "4c4b04f5-db79-536c-b681-fa55ee77917e",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1946,
+        "originalText": "1946"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "fabcd6ab-852d-5806-968a-a551971a4f27",
+      "externalId": "DEMO-P072",
+      "displayName": "Nguyễn Hoài Phúc",
+      "names": [
+        {
+          "name": "Nguyễn Hoài Phúc",
+          "kind": "preferred",
+          "isPreferred": true
+        }
+      ],
+      "recordedSex": "F",
+      "lifeStatus": "living",
+      "visibility": "restricted",
+      "protectedMinor": false,
+      "branchId": "feac95e5-77e3-505e-9145-8e2acada1425",
+      "birth": {
+        "calendar": "gregorian",
+        "precision": "year",
+        "year": 1946,
+        "originalText": "1946"
+      },
+      "biography": "Nhân vật hư cấu phục vụ thiết kế và kiểm thử. Không phải lịch sử hoặc người thật của dòng họ.",
+      "isFictional": true,
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    }
+  ],
+  "parentLinks": [
+    {
+      "id": "5c03fdcd-525e-55d5-a2c0-cd6afec58f6f",
+      "parentId": "0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c",
+      "childId": "b4d8ebc6-3633-5079-b17d-0f9634041008",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "816f65c2-3d7b-5588-b053-ee95ef25d074",
+      "parentId": "0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c",
+      "childId": "1d3680de-c153-5aea-952e-838f42d15771",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "9af4d7a1-0929-5f36-ba6b-8b8144ebb55c",
+      "parentId": "b4d8ebc6-3633-5079-b17d-0f9634041008",
+      "childId": "14b233fc-9c09-5c13-ac93-c626c692cf0c",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "7a3ee321-456f-5476-9d1c-37d79161053b",
+      "parentId": "b4d8ebc6-3633-5079-b17d-0f9634041008",
+      "childId": "da6fe88f-b3cc-5be1-96dd-9c8bf7a65a9c",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "3e20c86a-0431-5d09-8d71-eb6dc8afec98",
+      "parentId": "1d3680de-c153-5aea-952e-838f42d15771",
+      "childId": "d40cd965-0cdf-5c87-ba4e-a593806382b8",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "0e7ec77e-3411-5e55-a3ba-309b9fa41f41",
+      "parentId": "1d3680de-c153-5aea-952e-838f42d15771",
+      "childId": "22f02980-f126-538c-b984-36cbff451540",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "ce692c1d-40a0-5f67-9a26-9c8da26a2adc",
+      "parentId": "14b233fc-9c09-5c13-ac93-c626c692cf0c",
+      "childId": "566a45e4-8448-549f-a636-f9e940e3727c",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "581abe84-a0fa-5337-a8cb-9d33815fa2e1",
+      "parentId": "14b233fc-9c09-5c13-ac93-c626c692cf0c",
+      "childId": "f3fd9334-94aa-564b-b0ca-a3ba6e2fecc6",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "78eb63ce-d780-55be-b94a-98bd3d7675cb",
+      "parentId": "da6fe88f-b3cc-5be1-96dd-9c8bf7a65a9c",
+      "childId": "7e41337f-d75b-59b1-862c-b98822dcdf5c",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "448ed108-3158-58a0-a7b5-8d8b14f194cc",
+      "parentId": "da6fe88f-b3cc-5be1-96dd-9c8bf7a65a9c",
+      "childId": "93b44889-6946-5de6-837b-a9e57dc13c02",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "55ee0ee2-b1c8-5720-9e18-d66ec4922ab8",
+      "parentId": "d40cd965-0cdf-5c87-ba4e-a593806382b8",
+      "childId": "9839cbbd-8197-5f72-b538-e6ca93c28365",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "71442e67-f61f-5396-9586-a83bc28ea18b",
+      "parentId": "d40cd965-0cdf-5c87-ba4e-a593806382b8",
+      "childId": "64e33f45-c746-532e-b24f-b41e53f473e1",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "60a4d08d-5484-568e-a50b-96e00b0573e8",
+      "parentId": "22f02980-f126-538c-b984-36cbff451540",
+      "childId": "331d54cb-f10d-52a3-a1e7-0b7c9cfd6318",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "53dc14dc-61dc-5267-90ee-7bb9e0263a0a",
+      "parentId": "22f02980-f126-538c-b984-36cbff451540",
+      "childId": "a8cba04c-296c-5e9c-b0dd-664c68d04c39",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "185ded65-0c4b-5742-ba91-e80436189f88",
+      "parentId": "566a45e4-8448-549f-a636-f9e940e3727c",
+      "childId": "ffb732c6-7f66-5c3e-ab12-5f5e636753f7",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "321f1cd1-c615-5549-9c01-bf060f8466cc",
+      "parentId": "566a45e4-8448-549f-a636-f9e940e3727c",
+      "childId": "32c8e4e1-dd37-5be9-9111-154e4c80afa4",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "3cb0cff3-125f-57b1-b832-971937d7a8e7",
+      "parentId": "f3fd9334-94aa-564b-b0ca-a3ba6e2fecc6",
+      "childId": "8725f53a-ea74-545b-9299-5eeb4bddd56b",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "08988ec0-46e4-544a-8c43-b4675b9a7adf",
+      "parentId": "f3fd9334-94aa-564b-b0ca-a3ba6e2fecc6",
+      "childId": "45d3b4c3-04ff-5483-847f-b173eb86a550",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "921ff340-ed8d-5295-a487-d797282b6c32",
+      "parentId": "7e41337f-d75b-59b1-862c-b98822dcdf5c",
+      "childId": "a1752c69-41cc-57ef-b4ea-5888c24d8593",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "1a33b031-d8cd-5306-9fb4-8bcf24bb80ef",
+      "parentId": "7e41337f-d75b-59b1-862c-b98822dcdf5c",
+      "childId": "547022a5-93bf-5464-9f89-938e186ba903",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "3d88630d-ffb5-5427-a601-d3dcf7a4877d",
+      "parentId": "93b44889-6946-5de6-837b-a9e57dc13c02",
+      "childId": "e30876e2-0214-5011-a322-e1f8b7cefa5f",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "47013abf-7d84-5ed0-a8a5-e6e2e122e9a3",
+      "parentId": "93b44889-6946-5de6-837b-a9e57dc13c02",
+      "childId": "5587b649-4d7a-5fff-bb3b-6cf87ea95f82",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "872d6a06-1ec9-5891-b2d6-65b785c4125f",
+      "parentId": "9839cbbd-8197-5f72-b538-e6ca93c28365",
+      "childId": "223a1f23-a278-5f47-9190-10054d204a98",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "34620579-1811-55eb-b4ce-e1948f9f8cdd",
+      "parentId": "9839cbbd-8197-5f72-b538-e6ca93c28365",
+      "childId": "3ec3c634-d443-5d99-a325-e5c8e1db90c9",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "17a66896-3b9f-546c-8f37-8c38488a897d",
+      "parentId": "64e33f45-c746-532e-b24f-b41e53f473e1",
+      "childId": "8381510e-b788-566b-8e49-1acd0dba2bf7",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "8aece045-7653-5915-8f95-ce507f264a03",
+      "parentId": "64e33f45-c746-532e-b24f-b41e53f473e1",
+      "childId": "2d98d486-b47b-51dd-86bc-364efc2a8642",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "160b09cf-63dc-5adf-a087-d2397a83606b",
+      "parentId": "331d54cb-f10d-52a3-a1e7-0b7c9cfd6318",
+      "childId": "918f1d0c-35aa-52a3-b544-3e2bf836e227",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "8fdcc8bc-c6a1-5f87-a904-0d0927e18c77",
+      "parentId": "331d54cb-f10d-52a3-a1e7-0b7c9cfd6318",
+      "childId": "1f5cbd5b-ff95-5e9a-a414-76b609eafd04",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "8c1fc340-dd6e-5b35-97bf-4e9694b108c3",
+      "parentId": "a8cba04c-296c-5e9c-b0dd-664c68d04c39",
+      "childId": "e3ce1c28-e909-5855-a72b-fe5497c5b36f",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "49f375c8-bc89-5584-8f32-be3357959ef4",
+      "parentId": "a8cba04c-296c-5e9c-b0dd-664c68d04c39",
+      "childId": "d909e172-9fba-5160-9975-f41c80859a00",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "c7176069-c879-557c-b0f1-9039091a6071",
+      "parentId": "ffb732c6-7f66-5c3e-ab12-5f5e636753f7",
+      "childId": "2e4dfafe-48ff-5d4a-b49e-348ef5491d1b",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "c966094e-0725-5086-9b78-037e6455bda2",
+      "parentId": "ffb732c6-7f66-5c3e-ab12-5f5e636753f7",
+      "childId": "0bfd3668-90a7-591e-a4da-856d2253e09c",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "2863735b-9243-5ea0-89a8-1cd69a057df5",
+      "parentId": "32c8e4e1-dd37-5be9-9111-154e4c80afa4",
+      "childId": "c4c6fec0-a1b5-5710-88d9-ef41f23e8dac",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "88123fc6-0c25-5d61-bcd9-ff07d94a8039",
+      "parentId": "32c8e4e1-dd37-5be9-9111-154e4c80afa4",
+      "childId": "8f8d7dd0-3897-52dc-8bb6-bed138223cf7",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "37ded809-f860-55e3-8c9f-e0c1f405d53a",
+      "parentId": "8725f53a-ea74-545b-9299-5eeb4bddd56b",
+      "childId": "2c516c6d-b11c-561e-b6a7-a4b4c16f694e",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "2c38e8f4-bf6a-56c6-af01-3e0982a2caac",
+      "parentId": "8725f53a-ea74-545b-9299-5eeb4bddd56b",
+      "childId": "b949c764-e10a-5739-b38f-a9e702755f8b",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "9674515e-f377-5dc8-ac08-c5a0f92ef99b",
+      "parentId": "45d3b4c3-04ff-5483-847f-b173eb86a550",
+      "childId": "40339f9e-fe44-5f9f-933b-19201cb2df50",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "115ba7e3-afa0-5eb2-a7cd-f9a56a70ecfb",
+      "parentId": "45d3b4c3-04ff-5483-847f-b173eb86a550",
+      "childId": "f899a68b-2e78-50b7-911b-97a2b55b0b23",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "6597b67e-fd23-594e-b0cb-af4de65b9a01",
+      "parentId": "a1752c69-41cc-57ef-b4ea-5888c24d8593",
+      "childId": "a7d7fd69-bed5-5dfb-8cd9-76f382455d45",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "50ce0ee2-09f9-58a9-8761-aee792ba6dde",
+      "parentId": "a1752c69-41cc-57ef-b4ea-5888c24d8593",
+      "childId": "71afb367-18ae-538c-93b1-2d8b132a9876",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "ed69bc1d-524a-56c5-af12-6a662fcfb5ec",
+      "parentId": "547022a5-93bf-5464-9f89-938e186ba903",
+      "childId": "c4f11604-1a2e-5d66-a2a5-d6ebefcdefe4",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "3f9571ce-00fe-5f5d-b91d-4c9d6c570102",
+      "parentId": "547022a5-93bf-5464-9f89-938e186ba903",
+      "childId": "da1166d2-6104-5a16-9201-8f86453ff188",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "373da5a7-6b1b-511d-9610-3b83751c2a47",
+      "parentId": "e30876e2-0214-5011-a322-e1f8b7cefa5f",
+      "childId": "09f481da-8e22-5a9c-9634-782011bad55b",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "a14a5093-2793-5101-bc5d-d9f39fc43946",
+      "parentId": "e30876e2-0214-5011-a322-e1f8b7cefa5f",
+      "childId": "48bfe871-760f-5638-ba67-f87e7ee061e6",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "645e56c8-bfa0-5763-bec2-047296f38705",
+      "parentId": "5587b649-4d7a-5fff-bb3b-6cf87ea95f82",
+      "childId": "f9845b86-e1b2-5a5a-a9d4-0de9bffaba27",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "6d286a6e-749f-5254-a3ce-313fdad1f85e",
+      "parentId": "5587b649-4d7a-5fff-bb3b-6cf87ea95f82",
+      "childId": "b5ad2871-b29a-5a60-8f7d-df69b81ef90b",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "de247a74-6e74-5e2f-a452-641216ca28cc",
+      "parentId": "223a1f23-a278-5f47-9190-10054d204a98",
+      "childId": "bb04fd21-80c1-5003-88b9-0fefa401c070",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "7d5edf8b-bb2c-5769-b5d5-2e37b46b2c43",
+      "parentId": "223a1f23-a278-5f47-9190-10054d204a98",
+      "childId": "e54f2e54-ca34-5831-9d08-d76efd08a928",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "ab59e909-eb0b-54fb-b287-d10784d4eb5f",
+      "parentId": "3ec3c634-d443-5d99-a325-e5c8e1db90c9",
+      "childId": "1c4cbf45-16c1-5106-8d53-0894052b756f",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "38da58d5-789f-5e28-a5a8-1a18b29456e3",
+      "parentId": "3ec3c634-d443-5d99-a325-e5c8e1db90c9",
+      "childId": "45909004-f726-54de-b61b-60e4f1751708",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "2e016659-a953-5338-abaf-3e4e574f8c6f",
+      "parentId": "8381510e-b788-566b-8e49-1acd0dba2bf7",
+      "childId": "b7feb53b-fd86-582a-adde-5c23bfda2833",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "e17e4b17-b567-5296-adee-6b614ea24913",
+      "parentId": "8381510e-b788-566b-8e49-1acd0dba2bf7",
+      "childId": "3faa6016-a951-5c69-8acd-a16f7c39e8a4",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "b5916237-6e7f-5bf1-aba0-1f372460b60d",
+      "parentId": "2d98d486-b47b-51dd-86bc-364efc2a8642",
+      "childId": "3d8ded01-d785-5cf9-8133-f3e4b69aec32",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "874510e2-00b9-583a-8636-a3b94329f15b",
+      "parentId": "2d98d486-b47b-51dd-86bc-364efc2a8642",
+      "childId": "0de4d79e-5af4-5a9f-9c62-f9328bf1c2b2",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "ac89efe3-ea95-598c-88b1-ff5762310f77",
+      "parentId": "918f1d0c-35aa-52a3-b544-3e2bf836e227",
+      "childId": "722b8e2b-cf2a-5e97-857f-869cfa4fe547",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "8969bf34-6f86-55dd-83f8-58b7114469c1",
+      "parentId": "918f1d0c-35aa-52a3-b544-3e2bf836e227",
+      "childId": "8199a9f6-67f9-5868-bec5-6de2fe2aea36",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "8cc142ec-7df0-562f-9ec2-191e10cafa4c",
+      "parentId": "1f5cbd5b-ff95-5e9a-a414-76b609eafd04",
+      "childId": "79ae5d0d-00c9-510e-bb70-392a8ce8fecb",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "9a760010-6d47-51ae-8f7b-1d9f6a314701",
+      "parentId": "1f5cbd5b-ff95-5e9a-a414-76b609eafd04",
+      "childId": "2859ba5c-bd70-55a7-bfd1-a8dc8f265125",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "943fa421-6988-58d5-85a7-1363300a24d1",
+      "parentId": "e3ce1c28-e909-5855-a72b-fe5497c5b36f",
+      "childId": "67c4a58d-b937-5e7b-a36e-46e334d5620d",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "045b76a6-8677-5fa4-b819-8e4fb6420c09",
+      "parentId": "e3ce1c28-e909-5855-a72b-fe5497c5b36f",
+      "childId": "64d1340e-b4ec-54a9-93f5-b59e2e04b0d7",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "edce599f-a32f-5d99-baac-037845df8d69",
+      "parentId": "d909e172-9fba-5160-9975-f41c80859a00",
+      "childId": "296d3e4a-f33c-5321-afd4-5f3c229dfb12",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "32b6165f-8f07-5292-9f56-6478ab6fdea3",
+      "parentId": "d909e172-9fba-5160-9975-f41c80859a00",
+      "childId": "499d05cb-83be-5a1d-a341-1838c6acf31c",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "e4ccfb88-06f5-52a8-bbe0-62f499bb2d87",
+      "parentId": "1f5cbd5b-ff95-5e9a-a414-76b609eafd04",
+      "childId": "499d05cb-83be-5a1d-a341-1838c6acf31c",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "89a89c90-14e3-5cba-983d-2367b4875552",
+      "parentId": "2d98d486-b47b-51dd-86bc-364efc2a8642",
+      "childId": "296d3e4a-f33c-5321-afd4-5f3c229dfb12",
+      "kind": "adoptive",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "ed9be1bf-cb4d-51da-a93c-fb177b949554",
+      "parentId": "8381510e-b788-566b-8e49-1acd0dba2bf7",
+      "childId": "64d1340e-b4ec-54a9-93f5-b59e2e04b0d7",
+      "kind": "guardian",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "86ceb562-ce10-530d-b48b-5fad88a55835",
+      "parentId": "223a1f23-a278-5f47-9190-10054d204a98",
+      "childId": "79ae5d0d-00c9-510e-bb70-392a8ce8fecb",
+      "kind": "biological",
+      "status": "disputed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "a4bcfd7d-1ee6-5855-8680-37558e91ba84",
+      "parentId": "af747b8d-993e-508d-ad86-9100b72f6996",
+      "childId": "b4d8ebc6-3633-5079-b17d-0f9634041008",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "d0587e97-ab9d-5913-959b-25c187dc043e",
+      "parentId": "af747b8d-993e-508d-ad86-9100b72f6996",
+      "childId": "1d3680de-c153-5aea-952e-838f42d15771",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "bf5c19d0-f9a5-5974-bf21-e1afbbae5e82",
+      "parentId": "22c8219f-0a80-5a1b-9bd7-2250cdef6ed0",
+      "childId": "14b233fc-9c09-5c13-ac93-c626c692cf0c",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "20a4affb-11f1-511f-b3b3-f58080129a19",
+      "parentId": "22c8219f-0a80-5a1b-9bd7-2250cdef6ed0",
+      "childId": "da6fe88f-b3cc-5be1-96dd-9c8bf7a65a9c",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "53b8c693-5b2e-5242-9d80-d39b674acc3e",
+      "parentId": "5e99c6df-9d76-58d2-b760-f27c89c6837d",
+      "childId": "d40cd965-0cdf-5c87-ba4e-a593806382b8",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "ef555b86-8b25-5a33-8065-eae94f33d321",
+      "parentId": "5e99c6df-9d76-58d2-b760-f27c89c6837d",
+      "childId": "22f02980-f126-538c-b984-36cbff451540",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "98a0349e-c8d7-5afc-b455-1719fd977fc0",
+      "parentId": "095c5e0a-73b5-5a86-b433-1e81cc513b55",
+      "childId": "566a45e4-8448-549f-a636-f9e940e3727c",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "37a72a24-278a-54b5-92ef-1ae199f87545",
+      "parentId": "095c5e0a-73b5-5a86-b433-1e81cc513b55",
+      "childId": "f3fd9334-94aa-564b-b0ca-a3ba6e2fecc6",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "72d1d49e-e49b-5607-b813-81e9d3f99ef0",
+      "parentId": "1793e556-f8ec-5a9b-b78b-ea6e5eae79cb",
+      "childId": "7e41337f-d75b-59b1-862c-b98822dcdf5c",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "27d48b01-a8c4-5458-9a67-440e48b48fc8",
+      "parentId": "1793e556-f8ec-5a9b-b78b-ea6e5eae79cb",
+      "childId": "93b44889-6946-5de6-837b-a9e57dc13c02",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "20405c8e-4755-58c0-ab01-09d405348427",
+      "parentId": "55b22d51-f6aa-511e-b0cd-73ef2549382f",
+      "childId": "9839cbbd-8197-5f72-b538-e6ca93c28365",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "ba3164e2-750f-557c-bf5e-9ac57c4db567",
+      "parentId": "55b22d51-f6aa-511e-b0cd-73ef2549382f",
+      "childId": "64e33f45-c746-532e-b24f-b41e53f473e1",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "7b733339-e4fa-51c6-9477-d82ccd55d46a",
+      "parentId": "520c817f-ff07-5443-8170-3c991a711b53",
+      "childId": "331d54cb-f10d-52a3-a1e7-0b7c9cfd6318",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "4bc2524e-a986-5b56-ba19-6d3c135252f4",
+      "parentId": "520c817f-ff07-5443-8170-3c991a711b53",
+      "childId": "a8cba04c-296c-5e9c-b0dd-664c68d04c39",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "c921b62c-4147-5ccb-b8b3-7a1fe10f3f0e",
+      "parentId": "548e40e6-840c-528b-8605-eb348dd1eb48",
+      "childId": "ffb732c6-7f66-5c3e-ab12-5f5e636753f7",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "6e03e986-229c-59fe-a7ea-7b699e8a9fdd",
+      "parentId": "548e40e6-840c-528b-8605-eb348dd1eb48",
+      "childId": "32c8e4e1-dd37-5be9-9111-154e4c80afa4",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "5ff0f477-ed5a-57f0-bbdd-7c59a338bc2f",
+      "parentId": "fabcd6ab-852d-5806-968a-a551971a4f27",
+      "childId": "8725f53a-ea74-545b-9299-5eeb4bddd56b",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "2f445768-2214-5545-a5a1-25fc3f915282",
+      "parentId": "fabcd6ab-852d-5806-968a-a551971a4f27",
+      "childId": "45d3b4c3-04ff-5483-847f-b173eb86a550",
+      "kind": "biological",
+      "status": "confirmed",
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    }
+  ],
+  "unions": [
+    {
+      "id": "ed4acfd1-bfff-5476-a62a-8b87b23a59b9",
+      "partnerIds": [
+        "0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c",
+        "af747b8d-993e-508d-ad86-9100b72f6996"
+      ],
+      "kind": "marriage",
+      "status": "widowed",
+      "childIds": [
+        "b4d8ebc6-3633-5079-b17d-0f9634041008",
+        "1d3680de-c153-5aea-952e-838f42d15771"
+      ],
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "c0501311-34b9-5ed4-bcf1-bc914adcbbc5",
+      "partnerIds": [
+        "b4d8ebc6-3633-5079-b17d-0f9634041008",
+        "22c8219f-0a80-5a1b-9bd7-2250cdef6ed0"
+      ],
+      "kind": "marriage",
+      "status": "widowed",
+      "childIds": [
+        "14b233fc-9c09-5c13-ac93-c626c692cf0c",
+        "da6fe88f-b3cc-5be1-96dd-9c8bf7a65a9c"
+      ],
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "01f45b03-a5cd-5717-9160-62a437f8ced4",
+      "partnerIds": [
+        "1d3680de-c153-5aea-952e-838f42d15771",
+        "5e99c6df-9d76-58d2-b760-f27c89c6837d"
+      ],
+      "kind": "marriage",
+      "status": "widowed",
+      "childIds": [
+        "d40cd965-0cdf-5c87-ba4e-a593806382b8",
+        "22f02980-f126-538c-b984-36cbff451540"
+      ],
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "a5154f56-35b9-5587-9f75-99ba7d75e6c1",
+      "partnerIds": [
+        "14b233fc-9c09-5c13-ac93-c626c692cf0c",
+        "095c5e0a-73b5-5a86-b433-1e81cc513b55"
+      ],
+      "kind": "marriage",
+      "status": "unknown",
+      "childIds": [
+        "566a45e4-8448-549f-a636-f9e940e3727c",
+        "f3fd9334-94aa-564b-b0ca-a3ba6e2fecc6"
+      ],
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "7003c69b-7faf-5a60-b016-05e342cd8340",
+      "partnerIds": [
+        "da6fe88f-b3cc-5be1-96dd-9c8bf7a65a9c",
+        "1793e556-f8ec-5a9b-b78b-ea6e5eae79cb"
+      ],
+      "kind": "marriage",
+      "status": "unknown",
+      "childIds": [
+        "7e41337f-d75b-59b1-862c-b98822dcdf5c",
+        "93b44889-6946-5de6-837b-a9e57dc13c02"
+      ],
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "f0fc2b49-39ff-53fd-be42-8bf1ade8d11d",
+      "partnerIds": [
+        "d40cd965-0cdf-5c87-ba4e-a593806382b8",
+        "55b22d51-f6aa-511e-b0cd-73ef2549382f"
+      ],
+      "kind": "marriage",
+      "status": "unknown",
+      "childIds": [
+        "9839cbbd-8197-5f72-b538-e6ca93c28365",
+        "64e33f45-c746-532e-b24f-b41e53f473e1"
+      ],
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "1e943655-8a12-58c6-8e5c-7d693ffc0637",
+      "partnerIds": [
+        "22f02980-f126-538c-b984-36cbff451540",
+        "520c817f-ff07-5443-8170-3c991a711b53"
+      ],
+      "kind": "marriage",
+      "status": "unknown",
+      "childIds": [
+        "331d54cb-f10d-52a3-a1e7-0b7c9cfd6318",
+        "a8cba04c-296c-5e9c-b0dd-664c68d04c39"
+      ],
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "91143e97-5091-5fc1-acad-27bde35e8c3c",
+      "partnerIds": [
+        "566a45e4-8448-549f-a636-f9e940e3727c",
+        "548e40e6-840c-528b-8605-eb348dd1eb48"
+      ],
+      "kind": "marriage",
+      "status": "unknown",
+      "childIds": [
+        "ffb732c6-7f66-5c3e-ab12-5f5e636753f7",
+        "32c8e4e1-dd37-5be9-9111-154e4c80afa4"
+      ],
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "2b11db91-faf6-52bb-af08-75df3b7383ed",
+      "partnerIds": [
+        "f3fd9334-94aa-564b-b0ca-a3ba6e2fecc6",
+        "fabcd6ab-852d-5806-968a-a551971a4f27"
+      ],
+      "kind": "marriage",
+      "status": "unknown",
+      "childIds": [
+        "8725f53a-ea74-545b-9299-5eeb4bddd56b",
+        "45d3b4c3-04ff-5483-847f-b173eb86a550"
+      ],
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    },
+    {
+      "id": "a50d7b15-2a1f-529b-8cd4-b49699c731b3",
+      "partnerIds": [
+        "da6fe88f-b3cc-5be1-96dd-9c8bf7a65a9c",
+        "fabcd6ab-852d-5806-968a-a551971a4f27"
+      ],
+      "kind": "partnership",
+      "status": "separated",
+      "childIds": [],
+      "sourceIds": [
+        "93a480c3-c05e-5df5-bd03-d668b0eaaf98"
+      ]
+    }
+  ],
+  "eventRules": [
+    {
+      "id": "8b4dbfd1-7cef-54e9-87b9-dd49d3b8d1d5",
+      "title": "Giỗ tổ — minh họa, chưa có ngày thật",
+      "sourceDate": {
+        "calendar": "vietnamese_lunar",
+        "precision": "month_day",
+        "month": 3,
+        "day": 10,
+        "isLeapMonth": false,
+        "originalText": "Mùng 10 tháng 3 âm lịch (demo)"
+      },
+      "recurrence": "annual_lunar",
+      "leapPolicy": "regular_only",
+      "shortMonthPolicy": "last_day",
+      "reviewStatus": "needs_review",
+      "isFictional": true
+    },
+    {
+      "id": "deb3e5bb-198d-50b1-b192-65379597001b",
+      "title": "Ngày giỗ tháng nhuận — test policy",
+      "sourceDate": {
+        "calendar": "vietnamese_lunar",
+        "precision": "month_day",
+        "month": 6,
+        "day": 30,
+        "isLeapMonth": true,
+        "originalText": "30 tháng 6 nhuận, chưa biết năm (demo)"
+      },
+      "recurrence": "annual_lunar",
+      "leapPolicy": null,
+      "shortMonthPolicy": "manual_override",
+      "reviewStatus": "needs_review",
+      "isFictional": true
+    }
+  ],
+  "fund": {
+    "id": "af708b49-3136-5195-bf19-82b2ce8ddc13",
+    "name": "Quỹ minh họa",
+    "currency": "VND",
+    "accounts": [
+      {
+        "id": "5c43f740-d82c-5cbf-93a3-d677c0fbb3e0",
+        "code": "CASH",
+        "kind": "asset"
+      },
+      {
+        "id": "c3c94da7-5667-5403-a6ba-02e3275959e7",
+        "code": "CONTRIBUTION",
+        "kind": "income"
+      },
+      {
+        "id": "0af4dabf-10bc-5d1b-b4f0-a4b5a6d4d64d",
+        "code": "SCHOLARSHIP",
+        "kind": "expense"
+      }
+    ],
+    "entries": [
+      {
+        "id": "4e953b17-d5b7-5a44-954c-d0b902aa7d1a",
+        "status": "posted",
+        "entryDate": "2026-09-01",
+        "description": "Thu quỹ minh họa",
+        "lines": [
+          {
+            "accountId": "5c43f740-d82c-5cbf-93a3-d677c0fbb3e0",
+            "signedAmountVnd": "1000000"
+          },
+          {
+            "accountId": "c3c94da7-5667-5403-a6ba-02e3275959e7",
+            "signedAmountVnd": "-1000000"
+          }
+        ]
+      },
+      {
+        "id": "0f9f5ac8-c792-5297-9788-59190d0c0dd8",
+        "status": "posted",
+        "entryDate": "2026-09-02",
+        "description": "Chi khuyến học minh họa",
+        "lines": [
+          {
+            "accountId": "0af4dabf-10bc-5d1b-b4f0-a4b5a6d4d64d",
+            "signedAmountVnd": "300000"
+          },
+          {
+            "accountId": "5c43f740-d82c-5cbf-93a3-d677c0fbb3e0",
+            "signedAmountVnd": "-300000"
+          }
+        ]
+      }
+    ]
+  },
+  "demoRoles": [
+    {
+      "handle": "demo-owner",
+      "role": "owner"
+    },
+    {
+      "handle": "demo-reviewer",
+      "role": "reviewer"
+    },
+    {
+      "handle": "demo-editor",
+      "role": "editor"
+    },
+    {
+      "handle": "demo-member",
+      "role": "member"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+Bạn là lead agent chịu trách nhiệm triển khai website Phan Gia Phả end-to-end trong workspace này. Chủ dự án chủ yếu duyệt; bạn phải tự làm các việc có đủ quyền và công cụ, không yêu cầu chủ dự án chia task vụn hoặc code hộ.
+
+Đọc theo thứ tự: AGENTS.md → START_HERE.md → README.md → docs/01_PRODUCT_BRIEF.md → docs/02_PRD_AND_SCOPE.md → docs/15_ARCHITECTURE_STACK.md → docs/17_AGENT_DELIVERY_WORKFLOW.md → docs/26_DECISION_LOG_ADR.md. Sau đó đọc toàn bộ docs còn lại và contracts liên quan trước khi triển khai từng module. TASKS.json là backlog canonical; không thay bản đầy đủ bằng landing page/MVP nhỏ.
+
+Bắt đầu P0 ngay: kiểm tra repo và môi trường Windows hiện tại, bảo toàn mọi file sẵn có, chốt exact dependency versions có nguồn, scaffold app và scripts đã đặc tả. Không coi bất kỳ script pnpm trong tài liệu là đã tồn tại; bạn phải tạo và chạy thật. Không bật trả phí, thay cấu hình hệ điều hành, xóa dữ liệu, gửi email thật hoặc deploy production khi chưa có approval.
+
+Mục tiêu thiết kế: trang nghiêm, giấy ngà/đỏ trầm/vàng đồng tiết chế, chữ Việt rõ, Noto Sans cho giao diện/Noto Serif cho tiêu đề, mobile là ưu tiên. design/preview.html là mẫu phong cách, không phải app hoàn chỉnh hoặc giới hạn màn hình. Xây toàn bộ màn hình/empty/loading/error/permission states theo docs/04 và kiểm thử 320/360/390/412/768/1440. Đưa H1 để người dùng duyệt phong cách nhưng tiếp tục việc backend độc lập trong lúc chờ.
+
+Kiến trúc và an toàn: person khác auth user; dữ liệu raw private, BFF user-scoped; helpers SQL authorization rõ; không bypass bằng service key. Quan hệ gia phả có nguồn và chống cycle/concurrent cycle; calendar Việt phải có golden dates độc lập; người sống/không rõ và trẻ em riêng tư mặc định. Dữ liệu demo có nhãn, không suy diễn lịch sử thật. Dữ liệu thật về sau qua staging/dry-run/H5, không đè demo trực tiếp.
+
+Với mỗi ticket: xác minh dependency → đọc spec/test → sửa contract/migration/code cùng nhau → chạy kiểm thử → review → cập nhật state. Có thể dùng subagent nếu được hỗ trợ, nhưng một integration agent chịu trách nhiệm contract và test toàn hệ thống. Không dựng fake API success, không đánh dấu PASS nếu chỉ đọc code. P0 chưa có app; PACKAGE_VALIDATION chỉ là kiểm tra bộ tài liệu.
+
+Cập nhật state/ENVIRONMENT.md, PROGRESS.md, TASKS.json, TASKS.md, TEST_REPORT.md, BLOCKERS.md, HUMAN_ACTIONS.md và HANDOFF.md sau mỗi chặng. APPROVALS H1–H5 chỉ ghi APPROVED khi có bằng chứng người dùng duyệt đúng phạm vi; H4 ràng release manifest; H5 ràng hash dữ liệu thật. Khi thiếu quyền hoặc credential, ghi hướng dẫn thao tác cụ thể trong HUMAN_ACTIONS rồi tiếp tục việc không bị phụ thuộc, không dừng toàn dự án để hỏi lại điều đã được chốt.
+
+Kết thúc mỗi phiên với: đã làm, evidence thật, lỗi/blocker, việc tiếp theo và tối đa một nhóm yêu cầu người dùng thực sự cần xử lý. Không hứa làm nền; hoàn thành công việc trong phiên và để trạng thái đủ cho agent sau tiếp tục.

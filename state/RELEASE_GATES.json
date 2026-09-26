@@ -1,0 +1,34 @@
+{
+  "gates": [
+    {
+      "id": "G1_PRODUCT_UI",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "G2_DOMAIN_DATA",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "G3_SECURITY",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "G4_OPERATIONS",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "G5_TESTS_APPROVALS",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "G6_POST_DEPLOY_SMOKE",
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  ]
+}

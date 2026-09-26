@@ -1,0 +1,17 @@
+{
+  "name": "@phan/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@phan/config": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "4.19.2"
+  }
+}

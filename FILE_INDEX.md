@@ -1,0 +1,51 @@
+# Mục lục bộ hồ sơ
+
+Bắt đầu: [README](README.md), [hướng dẫn triển khai](START_HERE.md), [quy tắc agent](AGENTS.md).
+
+## Tài liệu chuyên môn
+
+- [01. Tầm nhìn và phạm vi sản phẩm](docs/01_PRODUCT_BRIEF.md)
+- [02. Đặc tả sản phẩm và module bản 1](docs/02_PRD_AND_SCOPE.md)
+- [03. Kiến trúc thông tin và điều hướng](docs/03_INFORMATION_ARCHITECTURE.md)
+- [04. Đặc tả màn hình chi tiết](docs/04_SCREEN_SPECS.md)
+- [05. Hệ thống thiết kế — Gia phả số trang nghiêm](docs/05_DESIGN_SYSTEM.md)
+- [06. Mobile-first và khả năng tiếp cận](docs/06_MOBILE_ACCESSIBILITY.md)
+- [07. Quy tắc nghiệp vụ gia phả](docs/07_GENEALOGY_RULES.md)
+- [08. Mô hình dữ liệu và bất biến lưu trữ](docs/08_DATA_MODEL.md)
+- [09. Hợp đồng API](docs/09_API_CONTRACT.md)
+- [10. Danh tính, quyền và riêng tư](docs/10_AUTH_PERMISSIONS_PRIVACY.md)
+- [11. Nhập liệu, trao đổi dữ liệu và đưa tư liệu thật vào hệ thống](docs/11_IMPORT_EXPORT_REAL_DATA.md)
+- [12. Lịch âm Việt Nam, giỗ và sự kiện](docs/12_LUNAR_CALENDAR_EVENTS.md)
+- [13. Tư liệu, nội dung và địa điểm](docs/13_MEDIA_CONTENT_PLACES.md)
+- [14. Quỹ họ, công đức và khuyến học](docs/14_FUND_SCHOLARSHIP.md)
+- [15. Kiến trúc và công nghệ](docs/15_ARCHITECTURE_STACK.md)
+- [16. Khởi tạo từ số 0 trên Windows](docs/16_LOCAL_SETUP_WINDOWS.md)
+- [17. Quy trình agent triển khai xuyên suốt](docs/17_AGENT_DELIVERY_WORKFLOW.md)
+- [18. Chiến lược kiểm thử và nghiệm thu](docs/18_TEST_PLAN_ACCEPTANCE.md)
+- [19. Threat model và kiểm soát an toàn](docs/19_SECURITY_THREAT_MODEL.md)
+- [20. Từ local đến production](docs/20_DEPLOYMENT_PRODUCTION.md)
+- [21. Vận hành, sao lưu và phục hồi](docs/21_OPERATIONS_BACKUP_RESTORE.md)
+- [22. Ngân sách, quyền sở hữu và quyết định cần duyệt](docs/22_BUDGET_OWNERSHIP.md)
+- [23. Checklist phát hành và định nghĩa “đã lên production”](docs/23_RELEASE_CHECKLIST.md)
+- [24. Nội dung demo và chuyển sang dữ liệu thật](docs/24_CONTENT_DEMO_REAL_TRANSITION.md)
+- [25. Nguồn tham khảo và cách sử dụng](docs/25_SOURCES.md)
+- [26. Nhật ký quyết định kiến trúc](docs/26_DECISION_LOG_ADR.md)
+- [27. Ma trận truy vết yêu cầu → ticket → test](docs/27_TRACEABILITY.md)
+- [28. Hướng dẫn vận hành cho gia đình và quản trị viên](docs/28_USER_ADMIN_GUIDE.md)
+- [29. Runbook xử lý lỗi và sự cố](docs/29_FAILURE_RECOVERY_RUNBOOK.md)
+- [30. Chi tiết triển khai các luồng khó](docs/30_IMPLEMENTATION_DETAILS.md)
+- [31. Từ điển dữ liệu chi tiết](docs/31_DATA_DICTIONARY.md)
+- [32. AI hỗ trợ nhập liệu — tách khỏi đường chạy cốt lõi](docs/32_OPTIONAL_AI_AND_INTAKE.md)
+
+## Tệp dùng trực tiếp
+
+- [Sổ tay chủ dự án](OWNER_HANDBOOK.docx)
+- [Mẫu giao diện responsive](design/preview.html)
+- [Prompt khởi động](prompts/START-CODEX.txt)
+- [Prompt tiếp tục](prompts/CONTINUE.txt)
+- [Backlog canonical](state/TASKS.json)
+- [Đặc tả API](contracts/openapi.yaml)
+- [Kiểu TypeScript](contracts/domain.types.ts)
+- [SQL blueprint](database/schema.blueprint.sql)
+- [Dữ liệu hư cấu](fixtures/demo-family.json)
+- [Phạm vi kiểm tra bộ hồ sơ](PACKAGE_QA.md)

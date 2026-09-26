@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/phan-gia-pha/genealogy-date",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "calendar": {
+      "type": "string",
+      "enum": [
+        "gregorian",
+        "vietnamese_lunar",
+        "julian",
+        "unknown"
+      ]
+    },
+    "precision": {
+      "type": "string",
+      "enum": [
+        "exact",
+        "month",
+        "month_day",
+        "year",
+        "about",
+        "before",
+        "after",
+        "range",
+        "text",
+        "unknown"
+      ]
+    },
+    "year": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9999
+    },
+    "month": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12
+    },
+    "day": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 31
+    },
+    "isLeapMonth": {
+      "type": "boolean"
+    },
+    "originalText": {
+      "type": "string",
+      "maxLength": 1000
+    },
+    "rangeEnd": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "year": {
+          "type": "integer"
+        },
+        "month": {
+          "type": "integer"
+        },
+        "day": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "year"
+      ]
+    },
+    "timezone": {
+      "type": "string",
+      "const": "Asia/Ho_Chi_Minh"
+    }
+  },
+  "required": [
+    "calendar",
+    "precision",
+    "originalText"
+  ],
+  "description": "Ngày nguồn không bị suy diễn. Validate cross-field và ngày thực trong domain; không tự gán 01/01. Julian chỉ lưu/hiển thị nếu chưa có adapter đã kiểm chứng.",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "precision": {
+            "const": "exact"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "year",
+          "month",
+          "day"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "precision": {
+            "const": "month"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "year",
+          "month"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "precision": {
+            "const": "year"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "year"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "precision": {
+            "const": "range"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "year",
+          "rangeEnd"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "calendar": {
+            "const": "vietnamese_lunar"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "day": {
+            "maximum": 30
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "precision": {
+            "const": "month_day"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "month",
+          "day"
+        ],
+        "not": {
+          "required": [
+            "year"
+          ]
+        }
+      }
+    }
+  ]
+}

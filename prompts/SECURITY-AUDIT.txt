@@ -1,0 +1,5 @@
+Thực hiện audit Phan Gia Phả theo docs/10,19,21,30 và ASVS checklist có nguồn. Đọc code, migrations, bucket policies, exposed schemas, grants và edge helper privileges thực tế. Threat-model assets/trust boundaries trước khi thử. Chỉ kiểm thử môi trường được phép, không tấn công dịch vụ không thuộc dự án.
+
+Bắt buộc chứng minh: anon/member/editor/reviewer/admin và suspended-user khác quyền; không self-review; không cross-tree; no raw select exposed; private helper tự authorization; SSR/RSC/cache/searchcounts/sitemap/media/export không rò living/minor; CSRF, version conflict, idempotency, upload quarantine/scan, archive zip-bomb, XSS rich text, CSV formula, concurrent ancestry cycle, concurrent journal posting. Recheck auth revocation/MFA cho tác vụ đặc quyền và worker execution.
+
+Kết quả ghi command, environment, actor fixtures, expected/actual, severity, remediation, retest. Không đưa secret/PII vào report. Không cấp security PASS nếu chỉ scanner không báo lỗi. Các mục chưa chạy ghi NOT_RUN và chặn release phù hợp; không sửa production policy trực tiếp khi chưa approval.

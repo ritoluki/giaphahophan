@@ -1,0 +1,6764 @@
+{
+  "version": "1.0",
+  "status": "BLUEPRINT_NOT_IMPLEMENTED",
+  "tables": [
+    {
+      "name": "trees",
+      "description": "Dòng họ/miền dữ liệu",
+      "treeScoped": false,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "slug",
+          "sqlType": "text",
+          "description": "Slug tree",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "name",
+          "sqlType": "text",
+          "description": "Tên dòng/chi được xác nhận",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "data_mode",
+          "sqlType": "text",
+          "description": "Tách demo/real",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": [
+            "demo",
+            "real"
+          ]
+        },
+        {
+          "name": "policy_version",
+          "sqlType": "bigint",
+          "description": "Tăng khi quyền/policy đổi",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "graph_revision",
+          "sqlType": "bigint",
+          "description": "Tăng khi cấu trúc đổi",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "settings",
+          "sqlType": "jsonb",
+          "description": "Settings có schema, không secrets",
+          "nullable": false,
+          "references": null,
+          "default": "'{}'::jsonb",
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "slug"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "branches",
+      "description": "Chi nhánh và tổ chức phả hệ",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "code",
+          "sqlType": "text",
+          "description": "Mã chi",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "name",
+          "sqlType": "text",
+          "description": "Tên chi",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "parent_branch_id",
+          "sqlType": "uuid",
+          "description": "Chi cha, chống cycle",
+          "nullable": true,
+          "references": "branches",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "founder_person_id",
+          "sqlType": "uuid",
+          "description": "Không bắt buộc biết thủy tổ",
+          "nullable": true,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "description",
+          "sqlType": "text",
+          "description": "Phả ký của chi",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Giới hạn đọc",
+          "nullable": false,
+          "references": null,
+          "default": "'restricted'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "code"
+        ]
+      ],
+      "checks": [
+        "parent_branch_id IS NULL OR parent_branch_id <> id"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "memberships",
+      "description": "Quyền tham gia tree",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "auth_user_id",
+          "sqlType": "uuid",
+          "description": "Auth identity được xác minh",
+          "nullable": false,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "role",
+          "sqlType": "text",
+          "description": "Base role",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": [
+            "owner",
+            "admin",
+            "reviewer",
+            "editor",
+            "member"
+          ]
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Không tự active khi đăng ký",
+          "nullable": false,
+          "references": null,
+          "default": "'pending'",
+          "enum": [
+            "pending",
+            "active",
+            "suspended",
+            "revoked"
+          ]
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Claim được duyệt, không tự nối",
+          "nullable": true,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "approved_by",
+          "sqlType": "uuid",
+          "description": "Reviewer",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "auth_user_id"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "capability_grants",
+      "description": "Capability theo phạm vi",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "membership_id",
+          "sqlType": "uuid",
+          "description": "Người nhận quyền",
+          "nullable": false,
+          "references": "memberships",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "capability",
+          "sqlType": "text",
+          "description": "Quyền allowlist",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "branch_id",
+          "sqlType": "uuid",
+          "description": "Null = tree scope đã được duyệt",
+          "nullable": true,
+          "references": "branches",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "expires_at",
+          "sqlType": "timestamptz",
+          "description": "Hết hạn quyền",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "revoked_at",
+          "sqlType": "timestamptz",
+          "description": "Thu hồi quyền",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "invitations",
+      "description": "Lời mời có giới hạn",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "email_hash",
+          "sqlType": "text",
+          "description": "Match email normalized không log plaintext",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "email_ciphertext",
+          "sqlType": "text",
+          "description": "Email mã hóa để gửi nếu cần",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "token_hash",
+          "sqlType": "text",
+          "description": "Không lưu raw token",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "intended_role",
+          "sqlType": "text",
+          "description": "Role allowlist, không nhận từ URL",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "expires_at",
+          "sqlType": "timestamptz",
+          "description": "TTL",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "accepted_at",
+          "sqlType": "timestamptz",
+          "description": "Single-use",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "revoked_at",
+          "sqlType": "timestamptz",
+          "description": "Thu hồi",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "token_hash"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "person_claims",
+      "description": "Claim tài khoản với hồ sơ",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "membership_id",
+          "sqlType": "uuid",
+          "description": "Người đề nghị",
+          "nullable": false,
+          "references": "memberships",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Hồ sơ muốn liên kết",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Quy trình xác minh",
+          "nullable": false,
+          "references": null,
+          "default": "'pending'",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected",
+            "withdrawn"
+          ]
+        },
+        {
+          "name": "reviewed_by",
+          "sqlType": "uuid",
+          "description": "Khác requester",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "reason",
+          "sqlType": "text",
+          "description": "Lý do, tối thiểu PII",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "persons",
+      "description": "Hồ sơ canonical",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "code",
+          "sqlType": "text",
+          "description": "Mã hiển thị stable",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "display_name",
+          "sqlType": "text",
+          "description": "Unicode NFC, không unique",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "name_search",
+          "sqlType": "text",
+          "description": "Khóa tìm kiếm không dấu",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "recorded_sex",
+          "sqlType": "text",
+          "description": "Theo nguồn, không suy từ tên",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": [
+            "M",
+            "F",
+            "X",
+            "U"
+          ]
+        },
+        {
+          "name": "life_status",
+          "sqlType": "text",
+          "description": "Unknown bảo vệ như living",
+          "nullable": false,
+          "references": null,
+          "default": "'unknown'",
+          "enum": [
+            "living",
+            "deceased",
+            "unknown"
+          ]
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Intent; effective policy có thể chặt hơn",
+          "nullable": false,
+          "references": null,
+          "default": "'restricted'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        },
+        {
+          "name": "protected_minor",
+          "sqlType": "boolean",
+          "description": "Đánh dấu thận trọng; derive/review theo nguồn",
+          "nullable": false,
+          "references": null,
+          "default": "false",
+          "enum": null
+        },
+        {
+          "name": "primary_branch_id",
+          "sqlType": "uuid",
+          "description": "Chỉ hiển thị, không tự cấp quyền",
+          "nullable": true,
+          "references": "branches",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "portrait_asset_id",
+          "sqlType": "uuid",
+          "description": "Asset có policy độc lập",
+          "nullable": true,
+          "references": "media_assets",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "biography",
+          "sqlType": "text",
+          "description": "Tiểu sử đã lọc theo audience",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "confidence",
+          "sqlType": "text",
+          "description": "Mức xác minh",
+          "nullable": false,
+          "references": null,
+          "default": "'unverified'",
+          "enum": [
+            "unverified",
+            "supported",
+            "verified",
+            "disputed"
+          ]
+        },
+        {
+          "name": "merged_into_id",
+          "sqlType": "uuid",
+          "description": "Tombstone redirect",
+          "nullable": true,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "deleted_at",
+          "sqlType": "timestamptz",
+          "description": "Soft deletion",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "code"
+        ]
+      ],
+      "checks": [
+        "merged_into_id IS NULL OR merged_into_id <> id"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "person_names",
+      "description": "Tên gọi khác, không gộp theo tên",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Chủ tên",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "name",
+          "sqlType": "text",
+          "description": "Tên nguyên văn",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "name_search",
+          "sqlType": "text",
+          "description": "Search key",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "Tên chính/tự/hiệu/khác",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "is_preferred",
+          "sqlType": "boolean",
+          "description": "Một preferred active/person",
+          "nullable": false,
+          "references": null,
+          "default": "false",
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "person_private",
+      "description": "Dữ liệu cần giới hạn đặc biệt",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Chủ thông tin",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "contact_ciphertext",
+          "sqlType": "text",
+          "description": "Encrypted contact payload, không API thường",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "key_id",
+          "sqlType": "text",
+          "description": "Key ở vault tách backup",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "last_verified_at",
+          "sqlType": "timestamptz",
+          "description": "Kiểm tra mục đích/đúng dữ liệu",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "person_id"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "person_branches",
+      "description": "Một người có thể liên quan nhiều chi",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Person",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "branch_id",
+          "sqlType": "uuid",
+          "description": "Branch",
+          "nullable": false,
+          "references": "branches",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "membership_kind",
+          "sqlType": "text",
+          "description": "Theo nguồn, không auth membership",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "source_id",
+          "sqlType": "uuid",
+          "description": "Nguồn",
+          "nullable": true,
+          "references": "sources",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "generation_note",
+          "sqlType": "text",
+          "description": "Đời được ghi nguyên văn theo root/source",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "person_id",
+          "branch_id",
+          "membership_kind"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "unions",
+      "description": "Hôn phối/gia đình không tự suy quan hệ sinh học",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "Kiểu quan hệ",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": [
+            "marriage",
+            "partnership",
+            "unknown"
+          ]
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Tình trạng theo nguồn",
+          "nullable": false,
+          "references": null,
+          "default": "'unknown'",
+          "enum": [
+            "active",
+            "separated",
+            "divorced",
+            "widowed",
+            "unknown"
+          ]
+        },
+        {
+          "name": "start_date",
+          "sqlType": "jsonb",
+          "description": "GenealogyDate",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "end_date",
+          "sqlType": "jsonb",
+          "description": "GenealogyDate",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "notes",
+          "sqlType": "text",
+          "description": "Ghi chú có quyền",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Visibility",
+          "nullable": false,
+          "references": null,
+          "default": "'restricted'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "union_partners",
+      "description": "Các người tham gia union",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "union_id",
+          "sqlType": "uuid",
+          "description": "Union",
+          "nullable": false,
+          "references": "unions",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Partner",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "role_label",
+          "sqlType": "text",
+          "description": "Nguyên văn theo nguồn, không ép giới tính",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "union_id",
+          "person_id"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "union_children",
+      "description": "Nhóm hiển thị, không thay parent_links",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "union_id",
+          "sqlType": "uuid",
+          "description": "Nhóm family",
+          "nullable": false,
+          "references": "unions",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "child_id",
+          "sqlType": "uuid",
+          "description": "Child",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "ordinal",
+          "sqlType": "integer",
+          "description": "Thứ tự khi có nguồn",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "source_id",
+          "sqlType": "uuid",
+          "description": "Nguồn xác nhận nhóm/thứ tự",
+          "nullable": true,
+          "references": "sources",
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "union_id",
+          "child_id"
+        ]
+      ],
+      "checks": [
+        "ordinal IS NULL OR ordinal > 0"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "parent_links",
+      "description": "Quan hệ có hướng, mutation cần ancestry lock",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "parent_id",
+          "sqlType": "uuid",
+          "description": "Parent",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "child_id",
+          "sqlType": "uuid",
+          "description": "Child",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "Loại quan hệ",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": [
+            "biological",
+            "adoptive",
+            "guardian",
+            "step"
+          ]
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Confirmed/disputed",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": [
+            "confirmed",
+            "disputed"
+          ]
+        },
+        {
+          "name": "ordinal",
+          "sqlType": "integer",
+          "description": "Thứ tự có nguồn trong nhóm",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "source_id",
+          "sqlType": "uuid",
+          "description": "Nguồn tối thiểu",
+          "nullable": false,
+          "references": "sources",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "deleted_at",
+          "sqlType": "timestamptz",
+          "description": "Soft deletion",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [
+        "parent_id <> child_id",
+        "ordinal IS NULL OR ordinal > 0"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "person_facts",
+      "description": "Facts/sự kiện đời người",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Subject person",
+          "nullable": true,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "union_id",
+          "sqlType": "uuid",
+          "description": "Hoặc subject union",
+          "nullable": true,
+          "references": "unions",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "birth/death/burial/occupation/other",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "value_date",
+          "sqlType": "jsonb",
+          "description": "GenealogyDate, không fake exact",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "value_text",
+          "sqlType": "text",
+          "description": "Nội dung theo nguồn",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "place_id",
+          "sqlType": "uuid",
+          "description": "Place",
+          "nullable": true,
+          "references": "places",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "confidence",
+          "sqlType": "text",
+          "description": "Mức xác minh",
+          "nullable": false,
+          "references": null,
+          "default": "'unverified'",
+          "enum": [
+            "unverified",
+            "supported",
+            "verified",
+            "disputed"
+          ]
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Field scope",
+          "nullable": false,
+          "references": null,
+          "default": "'restricted'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        }
+      ],
+      "unique": [],
+      "checks": [
+        "num_nonnulls(person_id, union_id) = 1"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "sources",
+      "description": "Nguồn chứng cứ không mặc định public",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "title",
+          "sqlType": "text",
+          "description": "Tên nguồn",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "book/document/oral/photo/web/other",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "provider_name",
+          "sqlType": "text",
+          "description": "Người/tổ chức cung cấp; policy riêng",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "provenance",
+          "sqlType": "text",
+          "description": "Nguồn gốc/quyền sử dụng",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "recorded_date",
+          "sqlType": "jsonb",
+          "description": "GenealogyDate",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "original_asset_id",
+          "sqlType": "uuid",
+          "description": "Tư liệu nguyên gốc",
+          "nullable": true,
+          "references": "media_assets",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Policy của source",
+          "nullable": false,
+          "references": null,
+          "default": "'restricted'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        },
+        {
+          "name": "rights_note",
+          "sqlType": "text",
+          "description": "Được phép dùng vào việc gì",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "citations",
+      "description": "Liên kết source có FK thật",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "source_id",
+          "sqlType": "uuid",
+          "description": "Nguồn",
+          "nullable": false,
+          "references": "sources",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Đối tượng được trích nguồn",
+          "nullable": true,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "fact_id",
+          "sqlType": "uuid",
+          "description": "Đối tượng được trích nguồn",
+          "nullable": true,
+          "references": "person_facts",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "parent_link_id",
+          "sqlType": "uuid",
+          "description": "Đối tượng được trích nguồn",
+          "nullable": true,
+          "references": "parent_links",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "union_id",
+          "sqlType": "uuid",
+          "description": "Đối tượng được trích nguồn",
+          "nullable": true,
+          "references": "unions",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "content_revision_id",
+          "sqlType": "uuid",
+          "description": "Đối tượng được trích nguồn",
+          "nullable": true,
+          "references": "content_revisions",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "place_id",
+          "sqlType": "uuid",
+          "description": "Đối tượng được trích nguồn",
+          "nullable": true,
+          "references": "places",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "event_rule_id",
+          "sqlType": "uuid",
+          "description": "Đối tượng được trích nguồn",
+          "nullable": true,
+          "references": "event_rules",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "locator",
+          "sqlType": "text",
+          "description": "Trang/mục/crop/timecode",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "quoted_text",
+          "sqlType": "text",
+          "description": "Trích ngắn có quyền",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "confidence",
+          "sqlType": "text",
+          "description": "Mức hỗ trợ claim",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [
+        "num_nonnulls(person_id, fact_id, parent_link_id, union_id, content_revision_id, place_id, event_rule_id) = 1"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "media_assets",
+      "description": "Files private và derivatives",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "bucket",
+          "sqlType": "text",
+          "description": "Private bucket",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "object_key",
+          "sqlType": "text",
+          "description": "Server-generated opaque key",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "sha256",
+          "sqlType": "text",
+          "description": "Content hash sau finalize",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "mime_type",
+          "sqlType": "text",
+          "description": "Magic-verified MIME",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "size_bytes",
+          "sqlType": "bigint",
+          "description": "Kích thước thực",
+          "nullable": false,
+          "references": null,
+          "default": "0",
+          "enum": null
+        },
+        {
+          "name": "state",
+          "sqlType": "text",
+          "description": "Upload/scan lifecycle",
+          "nullable": false,
+          "references": null,
+          "default": "'requested'",
+          "enum": [
+            "requested",
+            "uploading",
+            "uploaded",
+            "scanning",
+            "processing",
+            "ready",
+            "rejected",
+            "failed",
+            "quarantined"
+          ]
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Policy độc lập",
+          "nullable": false,
+          "references": null,
+          "default": "'restricted'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        },
+        {
+          "name": "alt_text",
+          "sqlType": "text",
+          "description": "Mô tả ảnh",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "derivatives",
+          "sqlType": "jsonb",
+          "description": "Object versions, không public URLs",
+          "nullable": false,
+          "references": null,
+          "default": "'[]'::jsonb",
+          "enum": null
+        },
+        {
+          "name": "deleted_at",
+          "sqlType": "timestamptz",
+          "description": "Cleanup theo manifest",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "bucket",
+          "object_key"
+        ]
+      ],
+      "checks": [
+        "size_bytes >= 0"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "media_links",
+      "description": "Link không làm nâng quyền asset",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "asset_id",
+          "sqlType": "uuid",
+          "description": "Media",
+          "nullable": false,
+          "references": "media_assets",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Subject",
+          "nullable": true,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "source_id",
+          "sqlType": "uuid",
+          "description": "Subject",
+          "nullable": true,
+          "references": "sources",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "content_revision_id",
+          "sqlType": "uuid",
+          "description": "Subject",
+          "nullable": true,
+          "references": "content_revisions",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "place_id",
+          "sqlType": "uuid",
+          "description": "Subject",
+          "nullable": true,
+          "references": "places",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "event_rule_id",
+          "sqlType": "uuid",
+          "description": "Subject",
+          "nullable": true,
+          "references": "event_rules",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "caption",
+          "sqlType": "text",
+          "description": "Caption có scope",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [
+        "num_nonnulls(person_id, source_id, content_revision_id, place_id, event_rule_id) = 1"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "albums",
+      "description": "Nhóm media",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "title",
+          "sqlType": "text",
+          "description": "Album",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "description",
+          "sqlType": "text",
+          "description": "Mô tả",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Scope",
+          "nullable": false,
+          "references": null,
+          "default": "'restricted'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "album_items",
+      "description": "Mục album",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "album_id",
+          "sqlType": "uuid",
+          "description": "Album",
+          "nullable": false,
+          "references": "albums",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "asset_id",
+          "sqlType": "uuid",
+          "description": "Asset",
+          "nullable": false,
+          "references": "media_assets",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "ordinal",
+          "sqlType": "integer",
+          "description": "Thứ tự",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "album_id",
+          "asset_id"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "content_pages",
+      "description": "Content identity",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "slug",
+          "sqlType": "text",
+          "description": "Slug không lộ PII",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "history/news/guide/policy",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "published_revision_id",
+          "sqlType": "uuid",
+          "description": "Revision đã duyệt",
+          "nullable": true,
+          "references": "content_revisions",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Scope",
+          "nullable": false,
+          "references": null,
+          "default": "'restricted'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "slug"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "content_revisions",
+      "description": "Revision bất biến sau publish theo policy",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "page_id",
+          "sqlType": "uuid",
+          "description": "Page",
+          "nullable": false,
+          "references": "content_pages",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "title",
+          "sqlType": "text",
+          "description": "Title",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "body",
+          "sqlType": "jsonb",
+          "description": "Rich text allowlist",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Draft không public",
+          "nullable": false,
+          "references": null,
+          "default": "'draft'",
+          "enum": [
+            "draft",
+            "submitted",
+            "approved",
+            "published",
+            "archived"
+          ]
+        },
+        {
+          "name": "approved_by",
+          "sqlType": "uuid",
+          "description": "Reviewer",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "publish_at",
+          "sqlType": "timestamptz",
+          "description": "Schedule tùy chọn",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "publications",
+      "description": "Projection không thay current authorization",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "revision_id",
+          "sqlType": "uuid",
+          "description": "Source revision",
+          "nullable": false,
+          "references": "content_revisions",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "projection",
+          "sqlType": "jsonb",
+          "description": "Allowlisted public DTO",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "policy_version",
+          "sqlType": "bigint",
+          "description": "Phải recheck khi đọc",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "revoked_at",
+          "sqlType": "timestamptz",
+          "description": "Ngừng publish",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "places",
+      "description": "Địa điểm và nơi thờ",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "name",
+          "sqlType": "text",
+          "description": "Tên địa điểm",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "Loại địa điểm",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "address_text",
+          "sqlType": "text",
+          "description": "Địa chỉ có scope",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "latitude",
+          "sqlType": "numeric(10,7)",
+          "description": "Không gửi provider tự động",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "longitude",
+          "sqlType": "numeric(10,7)",
+          "description": "Không gửi provider tự động",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Scope",
+          "nullable": false,
+          "references": null,
+          "default": "'restricted'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        },
+        {
+          "name": "coordinate_visibility",
+          "sqlType": "text",
+          "description": "Scope riêng tọa độ",
+          "nullable": false,
+          "references": null,
+          "default": "'restricted'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        }
+      ],
+      "unique": [],
+      "checks": [
+        "latitude IS NULL OR latitude BETWEEN -90 AND 90",
+        "longitude IS NULL OR longitude BETWEEN -180 AND 180"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "burial_records",
+      "description": "Mộ phần có quyền riêng",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Người",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "place_id",
+          "sqlType": "uuid",
+          "description": "Nơi an táng",
+          "nullable": false,
+          "references": "places",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "locator",
+          "sqlType": "text",
+          "description": "Khu/lô restricted",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "source_id",
+          "sqlType": "uuid",
+          "description": "Nguồn",
+          "nullable": true,
+          "references": "sources",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Scope",
+          "nullable": false,
+          "references": null,
+          "default": "'restricted'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "event_rules",
+      "description": "Quy tắc ngày giỗ/sự kiện là nguồn thật",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "title",
+          "sqlType": "text",
+          "description": "Tên sự kiện",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "Giỗ/họp/khuyến học/khác",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Nếu liên quan người",
+          "nullable": true,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "source_date",
+          "sqlType": "jsonb",
+          "description": "Ngày nguồn, có precision",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "recurrence",
+          "sqlType": "text",
+          "description": "Kiểu lặp",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": [
+            "once",
+            "annual_lunar",
+            "annual_solar"
+          ]
+        },
+        {
+          "name": "leap_policy",
+          "sqlType": "text",
+          "description": "Theo gia đình",
+          "nullable": false,
+          "references": null,
+          "default": "'regular_only'",
+          "enum": [
+            "regular_only",
+            "leap_only_skip",
+            "prefer_leap_else_regular",
+            "both_if_exists"
+          ]
+        },
+        {
+          "name": "short_month_policy",
+          "sqlType": "text",
+          "description": "Ngày 30 không tồn tại",
+          "nullable": false,
+          "references": null,
+          "default": "'last_day'",
+          "enum": [
+            "last_day",
+            "next_month_first",
+            "skip",
+            "manual_override"
+          ]
+        },
+        {
+          "name": "timezone",
+          "sqlType": "text",
+          "description": "Zone nguồn",
+          "nullable": false,
+          "references": null,
+          "default": "'Asia/Ho_Chi_Minh'",
+          "enum": null
+        },
+        {
+          "name": "review_status",
+          "sqlType": "text",
+          "description": "Không gửi nếu chưa duyệt",
+          "nullable": false,
+          "references": null,
+          "default": "'needs_review'",
+          "enum": [
+            "needs_review",
+            "approved",
+            "cancelled"
+          ]
+        },
+        {
+          "name": "place_id",
+          "sqlType": "uuid",
+          "description": "Địa điểm",
+          "nullable": true,
+          "references": "places",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Scope",
+          "nullable": false,
+          "references": null,
+          "default": "'members'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "event_occurrences",
+      "description": "Cache lần diễn ra, không thay ngày nguồn",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "rule_id",
+          "sqlType": "uuid",
+          "description": "Rule",
+          "nullable": false,
+          "references": "event_rules",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "logical_key",
+          "sqlType": "text",
+          "description": "Giữ ổn định qua sửa lịch",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "rule_version",
+          "sqlType": "bigint",
+          "description": "Phiên bản nguồn",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "algorithm_version",
+          "sqlType": "text",
+          "description": "Adapter/calculation version",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "occurs_on",
+          "sqlType": "date",
+          "description": "Ngày dương địa phương",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "starts_at",
+          "sqlType": "timestamptz",
+          "description": "Giờ nếu có",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "ends_at",
+          "sqlType": "timestamptz",
+          "description": "Giờ kết thúc",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "override_reason",
+          "sqlType": "text",
+          "description": "Override cần reviewer",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Trạng thái",
+          "nullable": false,
+          "references": null,
+          "default": "'scheduled'",
+          "enum": [
+            "scheduled",
+            "cancelled",
+            "completed"
+          ]
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "rule_id",
+          "logical_key"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "event_rsvps",
+      "description": "RSVP private",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "occurrence_id",
+          "sqlType": "uuid",
+          "description": "Event",
+          "nullable": false,
+          "references": "event_occurrences",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "membership_id",
+          "sqlType": "uuid",
+          "description": "Người RSVP",
+          "nullable": false,
+          "references": "memberships",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "response",
+          "sqlType": "text",
+          "description": "Lựa chọn",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": [
+            "yes",
+            "no",
+            "maybe"
+          ]
+        },
+        {
+          "name": "headcount",
+          "sqlType": "integer",
+          "description": "Người đi cùng tính theo quy định",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "note",
+          "sqlType": "text",
+          "description": "Ghi chú restricted",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "occurrence_id",
+          "membership_id"
+        ]
+      ],
+      "checks": [
+        "headcount BETWEEN 0 AND 20"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "proposals",
+      "description": "Đề nghị thay đổi",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "Loại thay đổi",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Lifecycle",
+          "nullable": false,
+          "references": null,
+          "default": "'draft'",
+          "enum": [
+            "draft",
+            "submitted",
+            "needs_info",
+            "approved",
+            "rejected",
+            "withdrawn"
+          ]
+        },
+        {
+          "name": "submitted_by",
+          "sqlType": "uuid",
+          "description": "Actor thật",
+          "nullable": false,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "branch_id",
+          "sqlType": "uuid",
+          "description": "Phạm vi review",
+          "nullable": true,
+          "references": "branches",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "reason",
+          "sqlType": "text",
+          "description": "Lý do",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "base_snapshot_hash",
+          "sqlType": "text",
+          "description": "Diff snapshot hash",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "submitted_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm submit",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "proposal_items",
+      "description": "Lệnh thay đổi typed; target integrity ở apply transaction",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "proposal_id",
+          "sqlType": "uuid",
+          "description": "Proposal",
+          "nullable": false,
+          "references": "proposals",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "target_kind",
+          "sqlType": "text",
+          "description": "Typed allowlist",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "target_id",
+          "sqlType": "uuid",
+          "description": "Existing hoặc planned ID theo schema",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "base_version",
+          "sqlType": "bigint",
+          "description": "Optimistic lock",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "patch",
+          "sqlType": "jsonb",
+          "description": "Typed commands, không raw SQL",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "source_ids",
+          "sqlType": "jsonb",
+          "description": "Citation/source staging",
+          "nullable": false,
+          "references": null,
+          "default": "'[]'::jsonb",
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "review_decisions",
+      "description": "Review history",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "proposal_id",
+          "sqlType": "uuid",
+          "description": "Proposal",
+          "nullable": false,
+          "references": "proposals",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "reviewer_id",
+          "sqlType": "uuid",
+          "description": "Reviewer thật",
+          "nullable": false,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "decision",
+          "sqlType": "text",
+          "description": "Decision",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": [
+            "approve",
+            "reject",
+            "needs_info"
+          ]
+        },
+        {
+          "name": "reason",
+          "sqlType": "text",
+          "description": "Lý do",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "applied_version",
+          "sqlType": "bigint",
+          "description": "Version sau apply",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "audit_events",
+      "description": "Audit append-only, retention riêng",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "actor_id",
+          "sqlType": "uuid",
+          "description": "Actor hoặc null system",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "action",
+          "sqlType": "text",
+          "description": "Action allowlist",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "resource_kind",
+          "sqlType": "text",
+          "description": "Type",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "resource_id",
+          "sqlType": "uuid",
+          "description": "ID, không PII",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "before_version",
+          "sqlType": "bigint",
+          "description": "Version",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "after_version",
+          "sqlType": "bigint",
+          "description": "Version",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "redacted_diff",
+          "sqlType": "jsonb",
+          "description": "Không lưu secret/PII dư thừa",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "request_id",
+          "sqlType": "uuid",
+          "description": "Correlation",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "reason",
+          "sqlType": "text",
+          "description": "Lý do",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "import_jobs",
+      "description": "Import staged và idempotent",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "source_asset_id",
+          "sqlType": "uuid",
+          "description": "Original",
+          "nullable": false,
+          "references": "media_assets",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "file_sha256",
+          "sqlType": "text",
+          "description": "Nguồn immutable",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "mapping_version",
+          "sqlType": "text",
+          "description": "Mapping version",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "parser_version",
+          "sqlType": "text",
+          "description": "Parser version",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Progress state",
+          "nullable": false,
+          "references": null,
+          "default": "'queued'",
+          "enum": [
+            "queued",
+            "parsing",
+            "needs_review",
+            "ready",
+            "applying",
+            "partially_applied",
+            "completed",
+            "failed",
+            "cancelled"
+          ]
+        },
+        {
+          "name": "approval_hash",
+          "sqlType": "text",
+          "description": "H5/scope hash",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "counters",
+          "sqlType": "jsonb",
+          "description": "Processed/succeeded/failed/skipped",
+          "nullable": false,
+          "references": null,
+          "default": "'{}'::jsonb",
+          "enum": null
+        },
+        {
+          "name": "manifest",
+          "sqlType": "jsonb",
+          "description": "Applied chunks and warnings",
+          "nullable": false,
+          "references": null,
+          "default": "'{}'::jsonb",
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "file_sha256",
+          "mapping_version"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "import_rows",
+      "description": "Rows staging không tự canonical",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "job_id",
+          "sqlType": "uuid",
+          "description": "Job",
+          "nullable": false,
+          "references": "import_jobs",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "row_number",
+          "sqlType": "integer",
+          "description": "Source position",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "external_id",
+          "sqlType": "text",
+          "description": "Source ID",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "raw_payload",
+          "sqlType": "jsonb",
+          "description": "Private original record",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "normalized",
+          "sqlType": "jsonb",
+          "description": "Typed staging",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Row state",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "errors",
+          "sqlType": "jsonb",
+          "description": "Errors sans extra PII",
+          "nullable": false,
+          "references": null,
+          "default": "'[]'::jsonb",
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "job_id",
+          "row_number"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "external_id_map",
+      "description": "Map chống nhập trùng",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "source_namespace",
+          "sqlType": "text",
+          "description": "File/dataset namespace",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "external_id",
+          "sqlType": "text",
+          "description": "Source key",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "entity_kind",
+          "sqlType": "text",
+          "description": "Type",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "canonical_id",
+          "sqlType": "uuid",
+          "description": "Canonical mapping",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "source_namespace",
+          "external_id",
+          "entity_kind"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "merge_operations",
+      "description": "Merge with manifest",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "survivor_id",
+          "sqlType": "uuid",
+          "description": "Person sống sót",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "loser_id",
+          "sqlType": "uuid",
+          "description": "Redirect person",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "proposal_id",
+          "sqlType": "uuid",
+          "description": "Approval",
+          "nullable": false,
+          "references": "proposals",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "manifest",
+          "sqlType": "jsonb",
+          "description": "All references before/after",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "applied/compensated",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "compensated_by_id",
+          "sqlType": "uuid",
+          "description": "Operation bù",
+          "nullable": true,
+          "references": "merge_operations",
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [
+        "survivor_id <> loser_id"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "notification_preferences",
+      "description": "Preferences",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "membership_id",
+          "sqlType": "uuid",
+          "description": "Người nhận",
+          "nullable": false,
+          "references": "memberships",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "channel",
+          "sqlType": "text",
+          "description": "email/in_app",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "event_kind",
+          "sqlType": "text",
+          "description": "Loại notification",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "enabled",
+          "sqlType": "boolean",
+          "description": "Opt-in",
+          "nullable": false,
+          "references": null,
+          "default": "false",
+          "enum": null
+        },
+        {
+          "name": "settings",
+          "sqlType": "jsonb",
+          "description": "Hour/lead days schema",
+          "nullable": false,
+          "references": null,
+          "default": "'{}'::jsonb",
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "membership_id",
+          "channel",
+          "event_kind"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "notifications",
+      "description": "Không lưu snapshot tên private không cần thiết",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "membership_id",
+          "sqlType": "uuid",
+          "description": "Người nhận",
+          "nullable": false,
+          "references": "memberships",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "Loại",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "resource_kind",
+          "sqlType": "text",
+          "description": "Type",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "resource_id",
+          "sqlType": "uuid",
+          "description": "Resource to re-authorize",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "dedupe_key",
+          "sqlType": "text",
+          "description": "Business idempotency",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "read_at",
+          "sqlType": "timestamptz",
+          "description": "Đã đọc",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "expires_at",
+          "sqlType": "timestamptz",
+          "description": "Retention",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "membership_id",
+          "dedupe_key"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "delivery_attempts",
+      "description": "Delivery audit",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "notification_id",
+          "sqlType": "uuid",
+          "description": "Notification",
+          "nullable": false,
+          "references": "notifications",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "channel",
+          "sqlType": "text",
+          "description": "Provider channel",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "queued/accepted/sent/failed/suppressed",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "provider_message_id",
+          "sqlType": "text",
+          "description": "Reconciliation",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "idempotency_key",
+          "sqlType": "text",
+          "description": "Provider business key",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "attempt_count",
+          "sqlType": "integer",
+          "description": "Retry count",
+          "nullable": false,
+          "references": null,
+          "default": "0",
+          "enum": null
+        },
+        {
+          "name": "last_error_code",
+          "sqlType": "text",
+          "description": "No raw provider payload",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "outbox",
+      "description": "Transactional outbox",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "event_type",
+          "sqlType": "text",
+          "description": "Allowlisted event",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "resource_kind",
+          "sqlType": "text",
+          "description": "Type",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "resource_id",
+          "sqlType": "uuid",
+          "description": "No sensitive body",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "resource_version",
+          "sqlType": "bigint",
+          "description": "Version",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "dedupe_key",
+          "sqlType": "text",
+          "description": "Unique event key",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "requested_by",
+          "sqlType": "uuid",
+          "description": "Server assigned",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "pending/published/failed",
+          "nullable": false,
+          "references": null,
+          "default": "'pending'",
+          "enum": null
+        },
+        {
+          "name": "available_at",
+          "sqlType": "timestamptz",
+          "description": "Due",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "dedupe_key"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "funds",
+      "description": "Quỹ nội bộ",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "name",
+          "sqlType": "text",
+          "description": "Tên quỹ",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "currency",
+          "sqlType": "text",
+          "description": "VND only",
+          "nullable": false,
+          "references": null,
+          "default": "'VND'",
+          "enum": [
+            "VND"
+          ]
+        },
+        {
+          "name": "closed_through",
+          "sqlType": "date",
+          "description": "Kỳ đã khóa",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "visibility",
+          "sqlType": "text",
+          "description": "Report scope",
+          "nullable": false,
+          "references": null,
+          "default": "'members'",
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "fund_accounts",
+      "description": "Tài khoản sổ",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "fund_id",
+          "sqlType": "uuid",
+          "description": "Quỹ",
+          "nullable": false,
+          "references": "funds",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "code",
+          "sqlType": "text",
+          "description": "Account code",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "Loại tài khoản sổ",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": [
+            "asset",
+            "income",
+            "expense",
+            "equity"
+          ]
+        },
+        {
+          "name": "name",
+          "sqlType": "text",
+          "description": "Tên dễ hiểu",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "fund_id",
+          "code"
+        ],
+        [
+          "tree_id",
+          "fund_id",
+          "id"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "journal_entries",
+      "description": "Ledger entries immutable when posted",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "fund_id",
+          "sqlType": "uuid",
+          "description": "Quỹ",
+          "nullable": false,
+          "references": "funds",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "code",
+          "sqlType": "text",
+          "description": "Mã phiếu",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "entry_date",
+          "sqlType": "date",
+          "description": "Ngày phiếu",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "description",
+          "sqlType": "text",
+          "description": "Nội dung",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Workflow",
+          "nullable": false,
+          "references": null,
+          "default": "'draft'",
+          "enum": [
+            "draft",
+            "submitted",
+            "posted",
+            "rejected"
+          ]
+        },
+        {
+          "name": "submitted_by",
+          "sqlType": "uuid",
+          "description": "Tác giả",
+          "nullable": false,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "approved_by",
+          "sqlType": "uuid",
+          "description": "Khác tác giả",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "posted_at",
+          "sqlType": "timestamptz",
+          "description": "Bất biến sau post",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "reverses_entry_id",
+          "sqlType": "uuid",
+          "description": "Phiếu đảo",
+          "nullable": true,
+          "references": "journal_entries",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "proof_asset_id",
+          "sqlType": "uuid",
+          "description": "Chứng từ private",
+          "nullable": true,
+          "references": "media_assets",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "donor_person_id",
+          "sqlType": "uuid",
+          "description": "Thông tin riêng tư",
+          "nullable": true,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "code"
+        ],
+        [
+          "tree_id",
+          "fund_id",
+          "id"
+        ]
+      ],
+      "checks": [
+        "approved_by IS NULL OR approved_by <> submitted_by",
+        "reverses_entry_id IS NULL OR reverses_entry_id <> id"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "journal_lines",
+      "description": "Lines must balance at posting; trigger/RPC required",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "fund_id",
+          "sqlType": "uuid",
+          "description": "Same fund across entry/account",
+          "nullable": false,
+          "references": "funds",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "entry_id",
+          "sqlType": "uuid",
+          "description": "Journal",
+          "nullable": false,
+          "references": "journal_entries",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "account_id",
+          "sqlType": "uuid",
+          "description": "Account",
+          "nullable": false,
+          "references": "fund_accounts",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "signed_amount_vnd",
+          "sqlType": "bigint",
+          "description": "Debit positive, credit negative",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [
+        "signed_amount_vnd <> 0"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "scholarship_programs",
+      "description": "Chương trình khuyến học",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "fund_id",
+          "sqlType": "uuid",
+          "description": "Quỹ tài trợ",
+          "nullable": false,
+          "references": "funds",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "title",
+          "sqlType": "text",
+          "description": "Chương trình",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "criteria",
+          "sqlType": "jsonb",
+          "description": "Tiêu chí có schema",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "closes_at",
+          "sqlType": "timestamptz",
+          "description": "Deadline",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "draft/open/closed/archived",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "scholarship_applications",
+      "description": "Ứng viên/thành tích restricted",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "program_id",
+          "sqlType": "uuid",
+          "description": "Program",
+          "nullable": false,
+          "references": "scholarship_programs",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Ứng viên",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "submitted_by",
+          "sqlType": "uuid",
+          "description": "Người đề cử",
+          "nullable": false,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Workflow",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "statement",
+          "sqlType": "text",
+          "description": "Restricted",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "evidence_asset_id",
+          "sqlType": "uuid",
+          "description": "Private proof",
+          "nullable": true,
+          "references": "media_assets",
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "program_id",
+          "person_id"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "scholarship_awards",
+      "description": "Award không tự đồng nghĩa paid",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "application_id",
+          "sqlType": "uuid",
+          "description": "Application",
+          "nullable": false,
+          "references": "scholarship_applications",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "amount_vnd",
+          "sqlType": "bigint",
+          "description": "Số tiền integer",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "approved_by",
+          "sqlType": "uuid",
+          "description": "Reviewer",
+          "nullable": false,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "paid_journal_entry_id",
+          "sqlType": "uuid",
+          "description": "Chỉ khi posted",
+          "nullable": true,
+          "references": "journal_entries",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "approved/paid/reversed/withdrawn",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "application_id"
+        ]
+      ],
+      "checks": [
+        "amount_vnd > 0"
+      ],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "consent_records",
+      "description": "Consent granular, không là checkbox global",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Data subject",
+          "nullable": false,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "audience",
+          "sqlType": "text",
+          "description": "Purpose/audience",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": [
+            "public",
+            "members",
+            "restricted"
+          ]
+        },
+        {
+          "name": "field_groups",
+          "sqlType": "jsonb",
+          "description": "Nhóm field được cho phép",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "purpose",
+          "sqlType": "text",
+          "description": "Mục đích",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "evidence_asset_id",
+          "sqlType": "uuid",
+          "description": "Bằng chứng có quyền",
+          "nullable": true,
+          "references": "media_assets",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "representative_person_id",
+          "sqlType": "uuid",
+          "description": "Nếu cần người đại diện",
+          "nullable": true,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "effective_at",
+          "sqlType": "timestamptz",
+          "description": "Hiệu lực",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "expires_at",
+          "sqlType": "timestamptz",
+          "description": "Tùy policy",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "withdrawn_at",
+          "sqlType": "timestamptz",
+          "description": "Thu hồi",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "privacy_requests",
+      "description": "Quyền dữ liệu và xử lý yêu cầu",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "person_id",
+          "sqlType": "uuid",
+          "description": "Subject",
+          "nullable": true,
+          "references": "persons",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "kind",
+          "sqlType": "text",
+          "description": "access/correction/restrict/erase",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "Workflow",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "verification_state",
+          "sqlType": "text",
+          "description": "Không đòi dư giấy tờ",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "manifest",
+          "sqlType": "jsonb",
+          "description": "Affected resources/actions",
+          "nullable": false,
+          "references": null,
+          "default": "'{}'::jsonb",
+          "enum": null
+        },
+        {
+          "name": "completed_at",
+          "sqlType": "timestamptz",
+          "description": "Kết quả",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "export_jobs",
+      "description": "Export có quyền lúc tạo/chạy/tải",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "requested_by",
+          "sqlType": "uuid",
+          "description": "Actor thật",
+          "nullable": false,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "format",
+          "sqlType": "text",
+          "description": "json/csv/gedcom/pdf/svg",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "scope",
+          "sqlType": "jsonb",
+          "description": "Allowlisted scope",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "policy_version",
+          "sqlType": "bigint",
+          "description": "Recheck current",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "queued/running/complete/failed/cancelled",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "result_asset_id",
+          "sqlType": "uuid",
+          "description": "Private output",
+          "nullable": true,
+          "references": "media_assets",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "expires_at",
+          "sqlType": "timestamptz",
+          "description": "TTL",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "warnings",
+          "sqlType": "jsonb",
+          "description": "Loss report",
+          "nullable": false,
+          "references": null,
+          "default": "'[]'::jsonb",
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "retention_jobs",
+      "description": "Purge/retention, không xóa bừa",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "policy_id",
+          "sqlType": "text",
+          "description": "Policy/version",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "cutoff_at",
+          "sqlType": "timestamptz",
+          "description": "Cutoff",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "manifest",
+          "sqlType": "jsonb",
+          "description": "Objects/records + tombstones",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "status",
+          "sqlType": "text",
+          "description": "planned/approved/running/completed/failed",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "approved_by",
+          "sqlType": "uuid",
+          "description": "Approval",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    },
+    {
+      "name": "idempotency_records",
+      "description": "Mutation dedupe",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "id",
+          "sqlType": "uuid",
+          "description": "Canonical UUID",
+          "nullable": false,
+          "references": null,
+          "default": "gen_random_uuid()",
+          "enum": null
+        },
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Bắt buộc cô lập tree",
+          "nullable": false,
+          "references": "trees",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "version",
+          "sqlType": "bigint",
+          "description": "Optimistic locking",
+          "nullable": false,
+          "references": null,
+          "default": "1",
+          "enum": null
+        },
+        {
+          "name": "created_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm ghi UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "updated_at",
+          "sqlType": "timestamptz",
+          "description": "Thời điểm cập nhật UTC",
+          "nullable": false,
+          "references": null,
+          "default": "now()",
+          "enum": null
+        },
+        {
+          "name": "created_by",
+          "sqlType": "uuid",
+          "description": "Actor; không suy từ payload",
+          "nullable": true,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "actor_id",
+          "sqlType": "uuid",
+          "description": "Requester",
+          "nullable": false,
+          "references": "auth.users",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "operation",
+          "sqlType": "text",
+          "description": "Operation scope",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "key",
+          "sqlType": "text",
+          "description": "Client UUID",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "request_hash",
+          "sqlType": "text",
+          "description": "Hash canonical body",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "result",
+          "sqlType": "jsonb",
+          "description": "Allowlisted stored outcome",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "expires_at",
+          "sqlType": "timestamptz",
+          "description": "TTL",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        }
+      ],
+      "unique": [
+        [
+          "tree_id",
+          "actor_id",
+          "operation",
+          "key"
+        ]
+      ],
+      "checks": [],
+      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+    }
+  ]
+}

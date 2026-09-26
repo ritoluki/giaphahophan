@@ -1,0 +1,188 @@
+{
+  "scope": "Static offline HTML only; not application E2E or physical-device test",
+  "viewports": [
+    {
+      "width": 320,
+      "view": "home",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 320,
+      "view": "family",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 320,
+      "view": "profile",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 320,
+      "view": "calendar",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 320,
+      "view": "more",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 320,
+      "view": "review",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "view": "home",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "view": "family",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "view": "profile",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "view": "calendar",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "view": "more",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 360,
+      "view": "review",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "view": "home",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "view": "family",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "view": "profile",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "view": "calendar",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "view": "more",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 390,
+      "view": "review",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 412,
+      "view": "home",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 412,
+      "view": "family",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 412,
+      "view": "profile",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 412,
+      "view": "calendar",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 412,
+      "view": "more",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 412,
+      "view": "review",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 768,
+      "view": "home",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 768,
+      "view": "family",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 768,
+      "view": "profile",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 768,
+      "view": "calendar",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 768,
+      "view": "more",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 768,
+      "view": "review",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "view": "home",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "view": "family",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "view": "profile",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "view": "calendar",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "view": "more",
+      "horizontalOverflow": false
+    },
+    {
+      "width": 1440,
+      "view": "review",
+      "horizontalOverflow": false
+    }
+  ],
+  "errors": [],
+  "status": "PASS",
+  "interactionTests": "Search accent-folding, empty state, branch filter, profile navigation and modal open/close across six widths."
+}

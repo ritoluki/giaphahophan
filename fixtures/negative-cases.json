@@ -1,0 +1,113 @@
+[
+  {
+    "id": "NEG-01",
+    "case": "self_parent",
+    "candidate": {
+      "parentId": "0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c",
+      "childId": "0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c",
+      "kind": "biological"
+    },
+    "expected": "422 SELF_RELATIONSHIP"
+  },
+  {
+    "id": "NEG-02",
+    "case": "cycle",
+    "candidate": {
+      "parentId": "499d05cb-83be-5a1d-a341-1838c6acf31c",
+      "childId": "0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c",
+      "kind": "biological"
+    },
+    "expected": "422 ANCESTRY_CYCLE"
+  },
+  {
+    "id": "NEG-03",
+    "case": "unknown_person",
+    "candidate": {
+      "parentId": "e5692bb6-37dc-5e75-aafb-235590e3d9de",
+      "childId": "b4d8ebc6-3633-5079-b17d-0f9634041008",
+      "kind": "biological"
+    },
+    "expected": "404 RESOURCE_NOT_FOUND"
+  },
+  {
+    "id": "NEG-04",
+    "case": "duplicate_not_merge",
+    "personIds": [
+      "c4c6fec0-a1b5-5710-88d9-ef41f23e8dac",
+      "b5ad2871-b29a-5a60-8f7d-df69b81ef90b"
+    ],
+    "expected": "TWO_DISTINCT_PERSONS"
+  },
+  {
+    "id": "NEG-05",
+    "case": "minor_public",
+    "personId": "67c4a58d-b937-5e7b-a36e-46e334d5620d",
+    "visibility": "public",
+    "expected": "422 PUBLICATION_NOT_ALLOWED"
+  },
+  {
+    "id": "NEG-06",
+    "case": "unbalanced_journal",
+    "lines": [
+      {
+        "accountId": "5c43f740-d82c-5cbf-93a3-d677c0fbb3e0",
+        "signedAmountVnd": "1000"
+      },
+      {
+        "accountId": "c3c94da7-5667-5403-a6ba-02e3275959e7",
+        "signedAmountVnd": "-999"
+      }
+    ],
+    "expected": "422 UNBALANCED_JOURNAL"
+  },
+  {
+    "id": "NEG-07",
+    "case": "leap_without_policy",
+    "eventId": "deb3e5bb-198d-50b1-b192-65379597001b",
+    "expected": "NEEDS_POLICY_REVIEW"
+  },
+  {
+    "id": "NEG-08",
+    "case": "conflict",
+    "baseVersion": 2,
+    "currentVersion": 3,
+    "expected": "409 VERSION_CONFLICT"
+  },
+  {
+    "id": "NEG-09",
+    "case": "csv_formula",
+    "value": "=HYPERLINK(\"https://example.invalid\",\"x\")",
+    "expected": "EXPORT_NEUTRALIZED_TEXT"
+  },
+  {
+    "id": "NEG-10",
+    "case": "precision_missing_year",
+    "value": {
+      "calendar": "gregorian",
+      "precision": "exact",
+      "month": 2,
+      "day": 1,
+      "originalText": "invalid"
+    },
+    "expected": "422 DATE_PRECISION_INVALID"
+  },
+  {
+    "id": "NEG-11",
+    "case": "invalid_day",
+    "value": {
+      "calendar": "gregorian",
+      "precision": "exact",
+      "year": 2025,
+      "month": 2,
+      "day": 30,
+      "originalText": "30/2/2025"
+    },
+    "expected": "422 DATE_INVALID"
+  },
+  {
+    "id": "NEG-12",
+    "case": "ledger_float",
+    "amount": "1000.50",
+    "expected": "422 MONEY_NOT_INTEGER"
+  }
+]

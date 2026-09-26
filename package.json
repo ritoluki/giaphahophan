@@ -1,0 +1,44 @@
+{
+  "name": "phan-gia-pha-agent-kit",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.6.0",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "scripts": {
+    "doctor": "node scripts/doctor.mjs",
+    "dev": "pnpm --filter @phan/web dev",
+    "dev:worker": "pnpm --filter @phan/worker dev",
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "test:unit": "pnpm --filter @phan/domain test",
+    "test:db": "node scripts/status-not-run.mjs test:db",
+    "test:integration": "node scripts/status-not-run.mjs test:integration",
+    "test:e2e": "node scripts/status-not-run.mjs test:e2e",
+    "test:a11y": "node scripts/status-not-run.mjs test:a11y",
+    "test:visual": "node scripts/status-not-run.mjs test:visual",
+    "test:load": "node scripts/status-not-run.mjs test:load",
+    "build": "pnpm --filter @phan/web build",
+    "verify": "node scripts/verify.mjs",
+    "release:check": "node scripts/release-check.mjs",
+    "db:migrate:local": "node scripts/status-not-run.mjs db:migrate:local",
+    "seed:demo": "node scripts/status-not-run.mjs seed:demo",
+    "seed:benchmark": "node scripts/status-not-run.mjs seed:benchmark",
+    "backup:check": "node scripts/status-not-run.mjs backup:check",
+    "restore:verify": "node scripts/status-not-run.mjs restore:verify"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.1",
+    "@types/node": "24.0.10",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
+    "eslint": "9.35.0",
+    "eslint-config-next": "16.3.1",
+    "fast-check": "4.3.0",
+    "jsdom": "26.1.0",
+    "typescript": "5.9.2",
+    "vitest": "4.1.11"
+  }
+}

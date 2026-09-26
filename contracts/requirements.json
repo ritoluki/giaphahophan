@@ -1,0 +1,962 @@
+{
+  "version": "1.0",
+  "requirements": [
+    {
+      "id": "REQ-M01-01",
+      "module": "M01",
+      "title": "Public projection",
+      "acceptance": "Khách chỉ nhận nội dung đã published; HTML/RSC/counts không chứa người ẩn.",
+      "phase": "P1",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M01-01"
+      ]
+    },
+    {
+      "id": "REQ-M01-02",
+      "module": "M01",
+      "title": "Tra cứu nổi bật",
+      "acceptance": "Từ home thành viên nhập tên và mở đúng hồ sơ trong tối đa 3 thao tác; trùng tên có ngữ cảnh.",
+      "phase": "P1",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M01-02"
+      ]
+    },
+    {
+      "id": "REQ-M01-03",
+      "module": "M01",
+      "title": "Nội dung có thứ bậc",
+      "acceptance": "Hero, tìm kiếm, lịch tới, tin họ, nguồn gốc và footer có bố cục responsive; không tự bịa lịch sử.",
+      "phase": "P1",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M01-03"
+      ]
+    },
+    {
+      "id": "REQ-M01-04",
+      "module": "M01",
+      "title": "Demo và empty state",
+      "acceptance": "Demo có nhãn thường trực; real rỗng hiển thị hướng dẫn chứ không tự lấy dữ liệu giả.",
+      "phase": "P1",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M01-04"
+      ]
+    },
+    {
+      "id": "REQ-M02-01",
+      "module": "M02",
+      "title": "Phả ký có nguồn",
+      "acceptance": "Mỗi mốc/tuyên bố quan trọng có source/citation hoặc nhãn chưa xác minh.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M02-01"
+      ]
+    },
+    {
+      "id": "REQ-M02-02",
+      "module": "M02",
+      "title": "Timeline bất định",
+      "acceptance": "Hỗ trợ năm/khoảng năm/nguyên văn, không ép ngày exact và không tự nối khoảng trống.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M02-02"
+      ]
+    },
+    {
+      "id": "REQ-M02-03",
+      "module": "M02",
+      "title": "Chi họ nhiều root",
+      "acceptance": "Branch hierarchy không cycle; các chi chưa biết quan hệ vẫn cùng tồn tại không nối giả.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M02-03"
+      ]
+    },
+    {
+      "id": "REQ-M02-04",
+      "module": "M02",
+      "title": "Xuất bản có duyệt",
+      "acceptance": "Draft khác published revision; thay draft không làm đổi public trước approval.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M02-04"
+      ]
+    },
+    {
+      "id": "REQ-M03-01",
+      "module": "M03",
+      "title": "Canonical identity",
+      "acceptance": "UUID/mã ổn định, tên có alias và trùng tên; không dùng tên/email làm unique identity.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M03-01"
+      ]
+    },
+    {
+      "id": "REQ-M03-02",
+      "module": "M03",
+      "title": "Dates và life status",
+      "acceptance": "Year-only giữ null tháng/ngày; unknown được bảo vệ như living; date gốc không bị ghi đè.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M03-02"
+      ]
+    },
+    {
+      "id": "REQ-M03-03",
+      "module": "M03",
+      "title": "Hồ sơ đa lớp",
+      "acceptance": "Có overview, family, timeline, sources và media với quyền đồng nhất.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M03-03"
+      ]
+    },
+    {
+      "id": "REQ-M03-04",
+      "module": "M03",
+      "title": "Person khác account",
+      "acceptance": "Tạo hồ sơ không tạo login; claim tài khoản phải duyệt và không tự cấp quyền.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M03-04"
+      ]
+    },
+    {
+      "id": "REQ-M03-05",
+      "module": "M03",
+      "title": "Sửa có version",
+      "acceptance": "Cập nhật dùng If-Match/baseVersion; concurrent edit trả conflict có diff.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M03-05"
+      ]
+    },
+    {
+      "id": "REQ-M03-06",
+      "module": "M03",
+      "title": "Xóa có tác động",
+      "acceptance": "Soft delete và erasure tách; preview cạnh/facts/sources bị ảnh hưởng, không orphan.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M03-06"
+      ]
+    },
+    {
+      "id": "REQ-M04-01",
+      "module": "M04",
+      "title": "Các chế độ cây",
+      "acceptance": "Ancestor, descendant, family focus và disconnected roots hoạt động với union/adoption.",
+      "phase": "P4",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M04-01"
+      ]
+    },
+    {
+      "id": "REQ-M04-02",
+      "module": "M04",
+      "title": "Pedigree collapse",
+      "acceptance": "Nhiều occurrence cùng một person ID; click đều về một hồ sơ; không tạo người trùng.",
+      "phase": "P4",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M04-02"
+      ]
+    },
+    {
+      "id": "REQ-M04-03",
+      "module": "M04",
+      "title": "Giới hạn và expand",
+      "acceptance": "Mobile tối đa 120, desktop 300 occurrences/request; truncated có chỉ dẫn, không dump toàn graph.",
+      "phase": "P4",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M04-03"
+      ]
+    },
+    {
+      "id": "REQ-M04-04",
+      "module": "M04",
+      "title": "Mobile/keyboard",
+      "acceptance": "Có family-list thay thế, nút zoom/exit, không nuốt scroll trang và dùng được bàn phím.",
+      "phase": "P4",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M04-04"
+      ]
+    },
+    {
+      "id": "REQ-M04-05",
+      "module": "M04",
+      "title": "Cycle concurrency",
+      "acceptance": "Hai mutation tạo chu trình chạy đồng thời không cùng thành công; lock và transaction thực.",
+      "phase": "P4",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M04-05"
+      ]
+    },
+    {
+      "id": "REQ-M04-06",
+      "module": "M04",
+      "title": "Đời tương đối",
+      "acceptance": "Generation tính theo root/path; multiple depths không bị ép thành một đời tuyệt đối.",
+      "phase": "P4",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M04-06"
+      ]
+    },
+    {
+      "id": "REQ-M05-01",
+      "module": "M05",
+      "title": "Path có quyền",
+      "acceptance": "BFS chỉ dùng node/edge được phép, không đi qua người ẩn hoặc tiết lộ hidden count.",
+      "phase": "P4",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M05-01"
+      ]
+    },
+    {
+      "id": "REQ-M05-02",
+      "module": "M05",
+      "title": "Semantics quan hệ",
+      "acceptance": "Sinh học/nuôi/hôn phối/giám hộ được phân biệt; disputed không vào ancestry mặc định.",
+      "phase": "P4",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M05-02"
+      ]
+    },
+    {
+      "id": "REQ-M05-03",
+      "module": "M05",
+      "title": "Giới hạn rõ",
+      "acceptance": "Tối đa 12 bước/10k visited/timeout; trả limit_reached thay vì kết luận không có họ.",
+      "phase": "P4",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M05-03"
+      ]
+    },
+    {
+      "id": "REQ-M05-04",
+      "module": "M05",
+      "title": "Xưng hô thận trọng",
+      "acceptance": "Chỉ gợi ý cho rule đủ dữ kiện; mơ hồ trả mô tả đường nối, không đoán giới tính/vùng.",
+      "phase": "P4",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M05-04"
+      ]
+    },
+    {
+      "id": "REQ-M06-01",
+      "module": "M06",
+      "title": "Tên có và không dấu",
+      "acceptance": "Phan Đỗ và phan do có thể tìm cùng canonical name; giữ display nguyên gốc và alias.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M06-01"
+      ]
+    },
+    {
+      "id": "REQ-M06-02",
+      "module": "M06",
+      "title": "Filter và cursor",
+      "acceptance": "Lọc chi/trạng thái/năm theo quyền; cursor ổn định không duplicate/missing khi back.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M06-02"
+      ]
+    },
+    {
+      "id": "REQ-M06-03",
+      "module": "M06",
+      "title": "Không lộ metadata",
+      "acceptance": "Counts/autocomplete/snippets/error messages không lộ người hoặc source bị ẩn.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M06-03"
+      ]
+    },
+    {
+      "id": "REQ-M06-04",
+      "module": "M06",
+      "title": "Tải lớn",
+      "acceptance": "10k dataset, p95 theo budget; kiểm tra index/N+1 và abort request cũ.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M06-04"
+      ]
+    },
+    {
+      "id": "REQ-M07-01",
+      "module": "M07",
+      "title": "Invitation",
+      "acceptance": "Token hash, TTL, single-use, đúng email/tree; email verified chưa phải membership active.",
+      "phase": "P2",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M07-01"
+      ]
+    },
+    {
+      "id": "REQ-M07-02",
+      "module": "M07",
+      "title": "Session và logout",
+      "acceptance": "Refresh cookie đúng; no-store Set-Cookie; sensitive action deny phiên đã revoked.",
+      "phase": "P2",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M07-02"
+      ]
+    },
+    {
+      "id": "REQ-M07-03",
+      "module": "M07",
+      "title": "MFA đặc quyền",
+      "acceptance": "Owner/reviewer/finance thao tác nhạy cảm cần MFA; không bỏ qua ở API trực tiếp.",
+      "phase": "P2",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M07-03"
+      ]
+    },
+    {
+      "id": "REQ-M07-04",
+      "module": "M07",
+      "title": "Membership và owner",
+      "acceptance": "Suspend/revoke hiệu lực server; không self-promote, không xóa owner cuối.",
+      "phase": "P2",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M07-04"
+      ]
+    },
+    {
+      "id": "REQ-M07-05",
+      "module": "M07",
+      "title": "Recovery và claim",
+      "acceptance": "Reset/callback không enumeration/open redirect; claim person có người khác duyệt.",
+      "phase": "P2",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M07-05"
+      ]
+    },
+    {
+      "id": "REQ-M08-01",
+      "module": "M08",
+      "title": "Đề nghị có nguồn",
+      "acceptance": "Tạo/sửa/quan hệ đi proposal, có mã theo dõi và source; chưa approve không đổi canonical.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M08-01"
+      ]
+    },
+    {
+      "id": "REQ-M08-02",
+      "module": "M08",
+      "title": "Diff và conflict",
+      "acceptance": "Hiển thị base/current/proposed; stale version trả 409 và không silently overwrite.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M08-02"
+      ]
+    },
+    {
+      "id": "REQ-M08-03",
+      "module": "M08",
+      "title": "Approve atomic",
+      "acceptance": "Ghi target/proposal/audit/outbox cùng transaction; retry không duyệt hai lần.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M08-03"
+      ]
+    },
+    {
+      "id": "REQ-M08-04",
+      "module": "M08",
+      "title": "Scope và 2 người",
+      "acceptance": "Reviewer chi khác bị deny; structural/merge/public-living cần người khác tác giả.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M08-04"
+      ]
+    },
+    {
+      "id": "REQ-M08-05",
+      "module": "M08",
+      "title": "Lifecycle rõ",
+      "acceptance": "Draft/submitted/needs_info/approved/rejected/withdrawn có transition valid và history.",
+      "phase": "P3",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M08-05"
+      ]
+    },
+    {
+      "id": "REQ-M09-01",
+      "module": "M09",
+      "title": "Upload an toàn",
+      "acceptance": "Intent path server-generated; size/magic/quota/scan; pending không thành ready khi scan lỗi.",
+      "phase": "P5",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M09-01"
+      ]
+    },
+    {
+      "id": "REQ-M09-02",
+      "module": "M09",
+      "title": "Original và derivative",
+      "acceptance": "Original checksum immutable/private; derivative strip EXIF GPS; private URLs hết hạn.",
+      "phase": "P5",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M09-02"
+      ]
+    },
+    {
+      "id": "REQ-M09-03",
+      "module": "M09",
+      "title": "Citation thật",
+      "acceptance": "Facts/edges/content có source+page/locator, foreign keys không orphan.",
+      "phase": "P5",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M09-03"
+      ]
+    },
+    {
+      "id": "REQ-M09-04",
+      "module": "M09",
+      "title": "Quyền liên kết",
+      "acceptance": "Asset/source có quyền riêng; link vào bài public không tự nâng visibility.",
+      "phase": "P5",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M09-04"
+      ]
+    },
+    {
+      "id": "REQ-M09-05",
+      "module": "M09",
+      "title": "Viewer mobile",
+      "acceptance": "Ảnh/PDF/audio/video có controls và fallback; không autoplay/active content; mobile không tràn.",
+      "phase": "P5",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M09-05"
+      ]
+    },
+    {
+      "id": "REQ-M10-01",
+      "module": "M10",
+      "title": "Adapter Việt Nam",
+      "acceptance": "Golden và round-trip trong range đã công bố; không dùng lịch UTC+8 thay thế.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M10-01"
+      ]
+    },
+    {
+      "id": "REQ-M10-02",
+      "module": "M10",
+      "title": "Recurrence policy",
+      "acceptance": "Leap/short-month policy rõ; nguồn leap chưa duyệt không gửi tự động.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M10-02"
+      ]
+    },
+    {
+      "id": "REQ-M10-03",
+      "module": "M10",
+      "title": "Ngày gốc và lần tới",
+      "acceptance": "EventRule không bị thay bởi solar occurrences; query xét năm âm qua ranh năm dương.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M10-03"
+      ]
+    },
+    {
+      "id": "REQ-M10-04",
+      "module": "M10",
+      "title": "Override/version",
+      "acceptance": "Override giữ logical key và lý do; rule update không nhân đôi occurrence.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M10-04"
+      ]
+    },
+    {
+      "id": "REQ-M10-05",
+      "module": "M10",
+      "title": "RSVP",
+      "acceptance": "Yes/no/maybe và headcount có version/idempotency; danh sách khách không public.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M10-05"
+      ]
+    },
+    {
+      "id": "REQ-M10-06",
+      "module": "M10",
+      "title": "ICS đúng ngày",
+      "acceptance": "Solar date export, all-day DTEND exclusive, UID ổn định, riêng tư theo scope.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M10-06"
+      ]
+    },
+    {
+      "id": "REQ-M11-01",
+      "module": "M11",
+      "title": "Outbox atomic",
+      "acceptance": "DB commit có outbox, worker downtime không mất việc; dispatcher retry có dedupe.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M11-01"
+      ]
+    },
+    {
+      "id": "REQ-M11-02",
+      "module": "M11",
+      "title": "Gửi idempotent",
+      "acceptance": "Crash sau provider accepted không gửi trùng vô hạn; lưu/reconcile provider ID.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M11-02"
+      ]
+    },
+    {
+      "id": "REQ-M11-03",
+      "module": "M11",
+      "title": "Privacy và preference",
+      "acceptance": "Opt-in, quiet/default hour, unsubscribe/suppression, recheck consent lúc gửi.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M11-03"
+      ]
+    },
+    {
+      "id": "REQ-M11-04",
+      "module": "M11",
+      "title": "Counters và failure",
+      "acceptance": "Queued/processed/succeeded/failed/skipped đúng; failed jobs có retry audit, không giả complete.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M11-04"
+      ]
+    },
+    {
+      "id": "REQ-M12-01",
+      "module": "M12",
+      "title": "Rich text an toàn",
+      "acceptance": "Allowlist schema, sanitize server, safe link/media; stored XSS không thực thi.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M12-01"
+      ]
+    },
+    {
+      "id": "REQ-M12-02",
+      "module": "M12",
+      "title": "Revision/publish",
+      "acceptance": "Draft/preview/published/scheduled khác nhau; preview không index và token có hạn.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M12-02"
+      ]
+    },
+    {
+      "id": "REQ-M12-03",
+      "module": "M12",
+      "title": "Public SEO",
+      "acceptance": "Sitemap/OG chỉ nội dung public duyệt; không private names/photos trong metadata.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M12-03"
+      ]
+    },
+    {
+      "id": "REQ-M12-04",
+      "module": "M12",
+      "title": "Tìm đọc mobile",
+      "acceptance": "Danh sách/bài dài/ảnh/heading rõ, font dấu Việt và 200% zoom không cắt.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M12-04"
+      ]
+    },
+    {
+      "id": "REQ-M13-01",
+      "module": "M13",
+      "title": "Place/burial model",
+      "acceptance": "Nhà thờ/mộ/khu vực có source và locator, không đồng nhất với địa chỉ nhà người sống.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M13-01"
+      ]
+    },
+    {
+      "id": "REQ-M13-02",
+      "module": "M13",
+      "title": "Coordinates private",
+      "acceptance": "Không tự gửi tọa độ/địa chỉ private đến map/geocoding; explicit external link.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M13-02"
+      ]
+    },
+    {
+      "id": "REQ-M13-03",
+      "module": "M13",
+      "title": "Media và directions",
+      "acceptance": "Ảnh và hướng dẫn có quyền; không có provider vẫn xem được địa điểm text.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M13-03"
+      ]
+    },
+    {
+      "id": "REQ-M13-04",
+      "module": "M13",
+      "title": "Map adapter gate",
+      "acceptance": "Provider adapter/flag có quota và H2; flag client không thay authorization server.",
+      "phase": "P6",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M13-04"
+      ]
+    },
+    {
+      "id": "REQ-M14-01",
+      "module": "M14",
+      "title": "Balanced ledger",
+      "acceptance": "Journal lines integer bigint VND sum=0; API tiền string, không float.",
+      "phase": "P7",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M14-01"
+      ]
+    },
+    {
+      "id": "REQ-M14-02",
+      "module": "M14",
+      "title": "2-person post",
+      "acceptance": "Tác giả không tự approve kể cả owner; grant+MFA+version kiểm tra DB.",
+      "phase": "P7",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M14-02"
+      ]
+    },
+    {
+      "id": "REQ-M14-03",
+      "module": "M14",
+      "title": "Immutable/reversal",
+      "acceptance": "Posted không PATCH/delete; đảo/thay thế có link và approval, không đảo trùng.",
+      "phase": "P7",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M14-03"
+      ]
+    },
+    {
+      "id": "REQ-M14-04",
+      "module": "M14",
+      "title": "Reports và privacy",
+      "acceptance": "Opening/receipt/payment/closing balance đúng; donor/proof private không lộ qua export.",
+      "phase": "P7",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M14-04"
+      ]
+    },
+    {
+      "id": "REQ-M14-05",
+      "module": "M14",
+      "title": "Đối chiếu kỳ",
+      "acceptance": "Kỳ đã khóa không sửa, phiếu thật có proof trạng thái rõ, không giả đồng bộ ngân hàng.",
+      "phase": "P7",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M14-05"
+      ]
+    },
+    {
+      "id": "REQ-M15-01",
+      "module": "M15",
+      "title": "Chương trình/đề cử",
+      "acceptance": "Tiêu chí/hạn/quỹ và application status có workflow, người phụ trách rõ.",
+      "phase": "P7",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M15-01"
+      ]
+    },
+    {
+      "id": "REQ-M15-02",
+      "module": "M15",
+      "title": "Minors và nguồn",
+      "acceptance": "Thông tin học tập/chứng từ restricted; publish thành tích cần approval riêng.",
+      "phase": "P7",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M15-02"
+      ]
+    },
+    {
+      "id": "REQ-M15-03",
+      "module": "M15",
+      "title": "Award và thanh toán",
+      "acceptance": "Approved award không đồng nghĩa paid; journal posted liên kết một lần và reversal được phản ánh.",
+      "phase": "P7",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M15-03"
+      ]
+    },
+    {
+      "id": "REQ-M15-04",
+      "module": "M15",
+      "title": "Báo cáo",
+      "acceptance": "Tổng hỗ trợ đúng, donor/ứng viên chỉ hiện theo quyền, không export hồ sơ trẻ em ngoài scope.",
+      "phase": "P7",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M15-04"
+      ]
+    },
+    {
+      "id": "REQ-M16-01",
+      "module": "M16",
+      "title": "Intake/dry-run",
+      "acceptance": "Original checksum và classification; parser staging chưa ghi canonical; counts/warnings/source links đúng.",
+      "phase": "P5",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M16-01"
+      ]
+    },
+    {
+      "id": "REQ-M16-02",
+      "module": "M16",
+      "title": "Structured schema",
+      "acceptance": "CSV/JSON mapping có version và validation; unknown dates không bị đổi thành exact.",
+      "phase": "P5",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M16-02"
+      ]
+    },
+    {
+      "id": "REQ-M16-03",
+      "module": "M16",
+      "title": "GEDCOM subset",
+      "acceptance": "5.5.1/7 supported tags có report; unknown raw preserved; lunar/privacy sidecar không mất âm thầm.",
+      "phase": "P5",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M16-03"
+      ]
+    },
+    {
+      "id": "REQ-M16-04",
+      "module": "M16",
+      "title": "Idempotent import",
+      "acceptance": "Cùng file+mapping+tree không nhân người/cạnh; external IDs ổn định.",
+      "phase": "P5",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M16-04"
+      ]
+    },
+    {
+      "id": "REQ-M16-05",
+      "module": "M16",
+      "title": "Partial/cancel/undo",
+      "acceptance": "Chunks có manifest; partial không báo rolled_back; cancel/compensate không xóa edits mới.",
+      "phase": "P5",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M16-05"
+      ]
+    },
+    {
+      "id": "REQ-M16-06",
+      "module": "M16",
+      "title": "Permission exports",
+      "acceptance": "JSON/CSV/GEDCOM/PDF redacted, MFA bulk, expiry và recheck download; CSV injection neutralized.",
+      "phase": "P5",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M16-06"
+      ]
+    },
+    {
+      "id": "REQ-M17-01",
+      "module": "M17",
+      "title": "Quality queue",
+      "acceptance": "Missing source, unresolved root, duplicate candidate và disputed có hàng đợi không tự sửa.",
+      "phase": "P8",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M17-01"
+      ]
+    },
+    {
+      "id": "REQ-M17-02",
+      "module": "M17",
+      "title": "Merge preview",
+      "acceptance": "Liệt kê toàn bộ references, version, graph check, survivor mapping; không merge theo tên.",
+      "phase": "P8",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M17-02"
+      ]
+    },
+    {
+      "id": "REQ-M17-03",
+      "module": "M17",
+      "title": "Merge compensation",
+      "acceptance": "Undo xử lý edits sau merge và giữ manifest; không restore một row đè dữ liệu mới.",
+      "phase": "P8",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M17-03"
+      ]
+    },
+    {
+      "id": "REQ-M17-04",
+      "module": "M17",
+      "title": "Audit tối thiểu",
+      "acceptance": "Ai/lúc nào/đối tượng/version/reason, quyền xem; không lưu PII vô hạn trong diff.",
+      "phase": "P8",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M17-04"
+      ]
+    },
+    {
+      "id": "REQ-M17-05",
+      "module": "M17",
+      "title": "Privacy workflow",
+      "acceptance": "Request verify/restrict/purge/projection/export/jobs/backup tombstone đầy đủ và có evidence.",
+      "phase": "P8",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M17-05"
+      ]
+    },
+    {
+      "id": "REQ-M18-01",
+      "module": "M18",
+      "title": "Env/ownership",
+      "acceptance": "Dev/staging/prod tách; account owner, MFA, secrets, budget/region H2 được ghi.",
+      "phase": "P9",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M18-01"
+      ]
+    },
+    {
+      "id": "REQ-M18-02",
+      "module": "M18",
+      "title": "CI/release artifacts",
+      "acceptance": "Lockfile/image digest/contract/schema versions gắn nhau; required tests thực chạy.",
+      "phase": "P9",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M18-02"
+      ]
+    },
+    {
+      "id": "REQ-M18-03",
+      "module": "M18",
+      "title": "Backup đầy đủ",
+      "acceptance": "DB+objects+identity plan+keys; manifest checksum và restore drill qua quyền/login.",
+      "phase": "P9",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M18-03"
+      ]
+    },
+    {
+      "id": "REQ-M18-04",
+      "module": "M18",
+      "title": "Monitoring/runbooks",
+      "acceptance": "Heartbeat/queue/backup/auth/budget alerts được gửi thử cho người thật.",
+      "phase": "P9",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M18-04"
+      ]
+    },
+    {
+      "id": "REQ-M18-05",
+      "module": "M18",
+      "title": "Deployment gate",
+      "acceptance": "H4 exact release và H5 real data khi cần; HTTPS/smoke/rollback, không mock production.",
+      "phase": "P9",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M18-05"
+      ]
+    },
+    {
+      "id": "REQ-M18-06",
+      "module": "M18",
+      "title": "Handover",
+      "acceptance": "Owner có recovery/account/keys/runbook/manual; NOT_RUN còn lại nêu đúng, không claim quá mức.",
+      "phase": "P9",
+      "requiredForV1": true,
+      "testIds": [
+        "TC-M18-06"
+      ]
+    }
+  ]
+}

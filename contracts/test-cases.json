@@ -1,0 +1,1572 @@
+{
+  "version": "1.0",
+  "note": "Kịch bản nghiệm thu để agent chi tiết hóa thành code; chưa phải test đã chạy.",
+  "cases": [
+    {
+      "id": "TC-M01-01",
+      "requirementIds": [
+        "REQ-M01-01"
+      ],
+      "title": "Public projection",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Khách chỉ nhận nội dung đã published; HTML/RSC/counts không chứa người ẩn.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M01-02",
+      "requirementIds": [
+        "REQ-M01-02"
+      ],
+      "title": "Tra cứu nổi bật",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Từ home thành viên nhập tên và mở đúng hồ sơ trong tối đa 3 thao tác; trùng tên có ngữ cảnh.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M01-03",
+      "requirementIds": [
+        "REQ-M01-03"
+      ],
+      "title": "Nội dung có thứ bậc",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Hero, tìm kiếm, lịch tới, tin họ, nguồn gốc và footer có bố cục responsive; không tự bịa lịch sử.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M01-04",
+      "requirementIds": [
+        "REQ-M01-04"
+      ],
+      "title": "Demo và empty state",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Demo có nhãn thường trực; real rỗng hiển thị hướng dẫn chứ không tự lấy dữ liệu giả.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M02-01",
+      "requirementIds": [
+        "REQ-M02-01"
+      ],
+      "title": "Phả ký có nguồn",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Mỗi mốc/tuyên bố quan trọng có source/citation hoặc nhãn chưa xác minh.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M02-02",
+      "requirementIds": [
+        "REQ-M02-02"
+      ],
+      "title": "Timeline bất định",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Hỗ trợ năm/khoảng năm/nguyên văn, không ép ngày exact và không tự nối khoảng trống.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M02-03",
+      "requirementIds": [
+        "REQ-M02-03"
+      ],
+      "title": "Chi họ nhiều root",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Branch hierarchy không cycle; các chi chưa biết quan hệ vẫn cùng tồn tại không nối giả.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M02-04",
+      "requirementIds": [
+        "REQ-M02-04"
+      ],
+      "title": "Xuất bản có duyệt",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Draft khác published revision; thay draft không làm đổi public trước approval.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M03-01",
+      "requirementIds": [
+        "REQ-M03-01"
+      ],
+      "title": "Canonical identity",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "UUID/mã ổn định, tên có alias và trùng tên; không dùng tên/email làm unique identity.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M03-02",
+      "requirementIds": [
+        "REQ-M03-02"
+      ],
+      "title": "Dates và life status",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Year-only giữ null tháng/ngày; unknown được bảo vệ như living; date gốc không bị ghi đè.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M03-03",
+      "requirementIds": [
+        "REQ-M03-03"
+      ],
+      "title": "Hồ sơ đa lớp",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Có overview, family, timeline, sources và media với quyền đồng nhất.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M03-04",
+      "requirementIds": [
+        "REQ-M03-04"
+      ],
+      "title": "Person khác account",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Tạo hồ sơ không tạo login; claim tài khoản phải duyệt và không tự cấp quyền.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M03-05",
+      "requirementIds": [
+        "REQ-M03-05"
+      ],
+      "title": "Sửa có version",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Cập nhật dùng If-Match/baseVersion; concurrent edit trả conflict có diff.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M03-06",
+      "requirementIds": [
+        "REQ-M03-06"
+      ],
+      "title": "Xóa có tác động",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Soft delete và erasure tách; preview cạnh/facts/sources bị ảnh hưởng, không orphan.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M04-01",
+      "requirementIds": [
+        "REQ-M04-01"
+      ],
+      "title": "Các chế độ cây",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Ancestor, descendant, family focus và disconnected roots hoạt động với union/adoption.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M04-02",
+      "requirementIds": [
+        "REQ-M04-02"
+      ],
+      "title": "Pedigree collapse",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Nhiều occurrence cùng một person ID; click đều về một hồ sơ; không tạo người trùng.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M04-03",
+      "requirementIds": [
+        "REQ-M04-03"
+      ],
+      "title": "Giới hạn và expand",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Mobile tối đa 120, desktop 300 occurrences/request; truncated có chỉ dẫn, không dump toàn graph.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M04-04",
+      "requirementIds": [
+        "REQ-M04-04"
+      ],
+      "title": "Mobile/keyboard",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Có family-list thay thế, nút zoom/exit, không nuốt scroll trang và dùng được bàn phím.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M04-05",
+      "requirementIds": [
+        "REQ-M04-05"
+      ],
+      "title": "Cycle concurrency",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Hai mutation tạo chu trình chạy đồng thời không cùng thành công; lock và transaction thực.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M04-06",
+      "requirementIds": [
+        "REQ-M04-06"
+      ],
+      "title": "Đời tương đối",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Generation tính theo root/path; multiple depths không bị ép thành một đời tuyệt đối.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M05-01",
+      "requirementIds": [
+        "REQ-M05-01"
+      ],
+      "title": "Path có quyền",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "BFS chỉ dùng node/edge được phép, không đi qua người ẩn hoặc tiết lộ hidden count.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M05-02",
+      "requirementIds": [
+        "REQ-M05-02"
+      ],
+      "title": "Semantics quan hệ",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Sinh học/nuôi/hôn phối/giám hộ được phân biệt; disputed không vào ancestry mặc định.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M05-03",
+      "requirementIds": [
+        "REQ-M05-03"
+      ],
+      "title": "Giới hạn rõ",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Tối đa 12 bước/10k visited/timeout; trả limit_reached thay vì kết luận không có họ.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M05-04",
+      "requirementIds": [
+        "REQ-M05-04"
+      ],
+      "title": "Xưng hô thận trọng",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Chỉ gợi ý cho rule đủ dữ kiện; mơ hồ trả mô tả đường nối, không đoán giới tính/vùng.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M06-01",
+      "requirementIds": [
+        "REQ-M06-01"
+      ],
+      "title": "Tên có và không dấu",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Phan Đỗ và phan do có thể tìm cùng canonical name; giữ display nguyên gốc và alias.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M06-02",
+      "requirementIds": [
+        "REQ-M06-02"
+      ],
+      "title": "Filter và cursor",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Lọc chi/trạng thái/năm theo quyền; cursor ổn định không duplicate/missing khi back.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M06-03",
+      "requirementIds": [
+        "REQ-M06-03"
+      ],
+      "title": "Không lộ metadata",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Counts/autocomplete/snippets/error messages không lộ người hoặc source bị ẩn.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M06-04",
+      "requirementIds": [
+        "REQ-M06-04"
+      ],
+      "title": "Tải lớn",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "10k dataset, p95 theo budget; kiểm tra index/N+1 và abort request cũ.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M07-01",
+      "requirementIds": [
+        "REQ-M07-01"
+      ],
+      "title": "Invitation",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Token hash, TTL, single-use, đúng email/tree; email verified chưa phải membership active.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M07-02",
+      "requirementIds": [
+        "REQ-M07-02"
+      ],
+      "title": "Session và logout",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Refresh cookie đúng; no-store Set-Cookie; sensitive action deny phiên đã revoked.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M07-03",
+      "requirementIds": [
+        "REQ-M07-03"
+      ],
+      "title": "MFA đặc quyền",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Owner/reviewer/finance thao tác nhạy cảm cần MFA; không bỏ qua ở API trực tiếp.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M07-04",
+      "requirementIds": [
+        "REQ-M07-04"
+      ],
+      "title": "Membership và owner",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Suspend/revoke hiệu lực server; không self-promote, không xóa owner cuối.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M07-05",
+      "requirementIds": [
+        "REQ-M07-05"
+      ],
+      "title": "Recovery và claim",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Reset/callback không enumeration/open redirect; claim person có người khác duyệt.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M08-01",
+      "requirementIds": [
+        "REQ-M08-01"
+      ],
+      "title": "Đề nghị có nguồn",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Tạo/sửa/quan hệ đi proposal, có mã theo dõi và source; chưa approve không đổi canonical.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M08-02",
+      "requirementIds": [
+        "REQ-M08-02"
+      ],
+      "title": "Diff và conflict",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Hiển thị base/current/proposed; stale version trả 409 và không silently overwrite.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M08-03",
+      "requirementIds": [
+        "REQ-M08-03"
+      ],
+      "title": "Approve atomic",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Ghi target/proposal/audit/outbox cùng transaction; retry không duyệt hai lần.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M08-04",
+      "requirementIds": [
+        "REQ-M08-04"
+      ],
+      "title": "Scope và 2 người",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Reviewer chi khác bị deny; structural/merge/public-living cần người khác tác giả.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M08-05",
+      "requirementIds": [
+        "REQ-M08-05"
+      ],
+      "title": "Lifecycle rõ",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Draft/submitted/needs_info/approved/rejected/withdrawn có transition valid và history.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M09-01",
+      "requirementIds": [
+        "REQ-M09-01"
+      ],
+      "title": "Upload an toàn",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Intent path server-generated; size/magic/quota/scan; pending không thành ready khi scan lỗi.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M09-02",
+      "requirementIds": [
+        "REQ-M09-02"
+      ],
+      "title": "Original và derivative",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Original checksum immutable/private; derivative strip EXIF GPS; private URLs hết hạn.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M09-03",
+      "requirementIds": [
+        "REQ-M09-03"
+      ],
+      "title": "Citation thật",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Facts/edges/content có source+page/locator, foreign keys không orphan.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M09-04",
+      "requirementIds": [
+        "REQ-M09-04"
+      ],
+      "title": "Quyền liên kết",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Asset/source có quyền riêng; link vào bài public không tự nâng visibility.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M09-05",
+      "requirementIds": [
+        "REQ-M09-05"
+      ],
+      "title": "Viewer mobile",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Ảnh/PDF/audio/video có controls và fallback; không autoplay/active content; mobile không tràn.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M10-01",
+      "requirementIds": [
+        "REQ-M10-01"
+      ],
+      "title": "Adapter Việt Nam",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Golden và round-trip trong range đã công bố; không dùng lịch UTC+8 thay thế.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M10-02",
+      "requirementIds": [
+        "REQ-M10-02"
+      ],
+      "title": "Recurrence policy",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Leap/short-month policy rõ; nguồn leap chưa duyệt không gửi tự động.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M10-03",
+      "requirementIds": [
+        "REQ-M10-03"
+      ],
+      "title": "Ngày gốc và lần tới",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "EventRule không bị thay bởi solar occurrences; query xét năm âm qua ranh năm dương.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M10-04",
+      "requirementIds": [
+        "REQ-M10-04"
+      ],
+      "title": "Override/version",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Override giữ logical key và lý do; rule update không nhân đôi occurrence.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M10-05",
+      "requirementIds": [
+        "REQ-M10-05"
+      ],
+      "title": "RSVP",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Yes/no/maybe và headcount có version/idempotency; danh sách khách không public.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M10-06",
+      "requirementIds": [
+        "REQ-M10-06"
+      ],
+      "title": "ICS đúng ngày",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Solar date export, all-day DTEND exclusive, UID ổn định, riêng tư theo scope.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M11-01",
+      "requirementIds": [
+        "REQ-M11-01"
+      ],
+      "title": "Outbox atomic",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "DB commit có outbox, worker downtime không mất việc; dispatcher retry có dedupe.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M11-02",
+      "requirementIds": [
+        "REQ-M11-02"
+      ],
+      "title": "Gửi idempotent",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Crash sau provider accepted không gửi trùng vô hạn; lưu/reconcile provider ID.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M11-03",
+      "requirementIds": [
+        "REQ-M11-03"
+      ],
+      "title": "Privacy và preference",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Opt-in, quiet/default hour, unsubscribe/suppression, recheck consent lúc gửi.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M11-04",
+      "requirementIds": [
+        "REQ-M11-04"
+      ],
+      "title": "Counters và failure",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Queued/processed/succeeded/failed/skipped đúng; failed jobs có retry audit, không giả complete.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M12-01",
+      "requirementIds": [
+        "REQ-M12-01"
+      ],
+      "title": "Rich text an toàn",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Allowlist schema, sanitize server, safe link/media; stored XSS không thực thi.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M12-02",
+      "requirementIds": [
+        "REQ-M12-02"
+      ],
+      "title": "Revision/publish",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Draft/preview/published/scheduled khác nhau; preview không index và token có hạn.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M12-03",
+      "requirementIds": [
+        "REQ-M12-03"
+      ],
+      "title": "Public SEO",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Sitemap/OG chỉ nội dung public duyệt; không private names/photos trong metadata.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M12-04",
+      "requirementIds": [
+        "REQ-M12-04"
+      ],
+      "title": "Tìm đọc mobile",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Danh sách/bài dài/ảnh/heading rõ, font dấu Việt và 200% zoom không cắt.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M13-01",
+      "requirementIds": [
+        "REQ-M13-01"
+      ],
+      "title": "Place/burial model",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Nhà thờ/mộ/khu vực có source và locator, không đồng nhất với địa chỉ nhà người sống.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M13-02",
+      "requirementIds": [
+        "REQ-M13-02"
+      ],
+      "title": "Coordinates private",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Không tự gửi tọa độ/địa chỉ private đến map/geocoding; explicit external link.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M13-03",
+      "requirementIds": [
+        "REQ-M13-03"
+      ],
+      "title": "Media và directions",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Ảnh và hướng dẫn có quyền; không có provider vẫn xem được địa điểm text.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M13-04",
+      "requirementIds": [
+        "REQ-M13-04"
+      ],
+      "title": "Map adapter gate",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Provider adapter/flag có quota và H2; flag client không thay authorization server.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M14-01",
+      "requirementIds": [
+        "REQ-M14-01"
+      ],
+      "title": "Balanced ledger",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Journal lines integer bigint VND sum=0; API tiền string, không float.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M14-02",
+      "requirementIds": [
+        "REQ-M14-02"
+      ],
+      "title": "2-person post",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Tác giả không tự approve kể cả owner; grant+MFA+version kiểm tra DB.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M14-03",
+      "requirementIds": [
+        "REQ-M14-03"
+      ],
+      "title": "Immutable/reversal",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Posted không PATCH/delete; đảo/thay thế có link và approval, không đảo trùng.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M14-04",
+      "requirementIds": [
+        "REQ-M14-04"
+      ],
+      "title": "Reports và privacy",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Opening/receipt/payment/closing balance đúng; donor/proof private không lộ qua export.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M14-05",
+      "requirementIds": [
+        "REQ-M14-05"
+      ],
+      "title": "Đối chiếu kỳ",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Kỳ đã khóa không sửa, phiếu thật có proof trạng thái rõ, không giả đồng bộ ngân hàng.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M15-01",
+      "requirementIds": [
+        "REQ-M15-01"
+      ],
+      "title": "Chương trình/đề cử",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Tiêu chí/hạn/quỹ và application status có workflow, người phụ trách rõ.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M15-02",
+      "requirementIds": [
+        "REQ-M15-02"
+      ],
+      "title": "Minors và nguồn",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Thông tin học tập/chứng từ restricted; publish thành tích cần approval riêng.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M15-03",
+      "requirementIds": [
+        "REQ-M15-03"
+      ],
+      "title": "Award và thanh toán",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Approved award không đồng nghĩa paid; journal posted liên kết một lần và reversal được phản ánh.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M15-04",
+      "requirementIds": [
+        "REQ-M15-04"
+      ],
+      "title": "Báo cáo",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Tổng hỗ trợ đúng, donor/ứng viên chỉ hiện theo quyền, không export hồ sơ trẻ em ngoài scope.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M16-01",
+      "requirementIds": [
+        "REQ-M16-01"
+      ],
+      "title": "Intake/dry-run",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Original checksum và classification; parser staging chưa ghi canonical; counts/warnings/source links đúng.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M16-02",
+      "requirementIds": [
+        "REQ-M16-02"
+      ],
+      "title": "Structured schema",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "CSV/JSON mapping có version và validation; unknown dates không bị đổi thành exact.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M16-03",
+      "requirementIds": [
+        "REQ-M16-03"
+      ],
+      "title": "GEDCOM subset",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "5.5.1/7 supported tags có report; unknown raw preserved; lunar/privacy sidecar không mất âm thầm.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M16-04",
+      "requirementIds": [
+        "REQ-M16-04"
+      ],
+      "title": "Idempotent import",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Cùng file+mapping+tree không nhân người/cạnh; external IDs ổn định.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M16-05",
+      "requirementIds": [
+        "REQ-M16-05"
+      ],
+      "title": "Partial/cancel/undo",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Chunks có manifest; partial không báo rolled_back; cancel/compensate không xóa edits mới.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M16-06",
+      "requirementIds": [
+        "REQ-M16-06"
+      ],
+      "title": "Permission exports",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "JSON/CSV/GEDCOM/PDF redacted, MFA bulk, expiry và recheck download; CSV injection neutralized.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M17-01",
+      "requirementIds": [
+        "REQ-M17-01"
+      ],
+      "title": "Quality queue",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Missing source, unresolved root, duplicate candidate và disputed có hàng đợi không tự sửa.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M17-02",
+      "requirementIds": [
+        "REQ-M17-02"
+      ],
+      "title": "Merge preview",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Liệt kê toàn bộ references, version, graph check, survivor mapping; không merge theo tên.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M17-03",
+      "requirementIds": [
+        "REQ-M17-03"
+      ],
+      "title": "Merge compensation",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Undo xử lý edits sau merge và giữ manifest; không restore một row đè dữ liệu mới.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M17-04",
+      "requirementIds": [
+        "REQ-M17-04"
+      ],
+      "title": "Audit tối thiểu",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Ai/lúc nào/đối tượng/version/reason, quyền xem; không lưu PII vô hạn trong diff.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M17-05",
+      "requirementIds": [
+        "REQ-M17-05"
+      ],
+      "title": "Privacy workflow",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Request verify/restrict/purge/projection/export/jobs/backup tombstone đầy đủ và có evidence.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M18-01",
+      "requirementIds": [
+        "REQ-M18-01"
+      ],
+      "title": "Env/ownership",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Dev/staging/prod tách; account owner, MFA, secrets, budget/region H2 được ghi.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M18-02",
+      "requirementIds": [
+        "REQ-M18-02"
+      ],
+      "title": "CI/release artifacts",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Lockfile/image digest/contract/schema versions gắn nhau; required tests thực chạy.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M18-03",
+      "requirementIds": [
+        "REQ-M18-03"
+      ],
+      "title": "Backup đầy đủ",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "DB+objects+identity plan+keys; manifest checksum và restore drill qua quyền/login.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M18-04",
+      "requirementIds": [
+        "REQ-M18-04"
+      ],
+      "title": "Monitoring/runbooks",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Heartbeat/queue/backup/auth/budget alerts được gửi thử cho người thật.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M18-05",
+      "requirementIds": [
+        "REQ-M18-05"
+      ],
+      "title": "Deployment gate",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "H4 exact release và H5 real data khi cần; HTTPS/smoke/rollback, không mock production.",
+      "status": "NOT_RUN",
+      "evidence": []
+    },
+    {
+      "id": "TC-M18-06",
+      "requirementIds": [
+        "REQ-M18-06"
+      ],
+      "title": "Handover",
+      "fixture": "fixtures/demo-family.json + boundary cases",
+      "setup": "Môi trường local/staging với DB thật; chọn actor đúng scope và một actor bị từ chối.",
+      "steps": [
+        "Thiết lập dữ liệu phù hợp tiêu chí, ghi version/role/tree.",
+        "Thực hiện happy path và tải lại để xác nhận persistence.",
+        "Thử input sai/quyền sai hoặc race/retry tương ứng nghiệp vụ.",
+        "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
+      ],
+      "expected": "Owner có recovery/account/keys/runbook/manual; NOT_RUN còn lại nêu đúng, không claim quá mức.",
+      "status": "NOT_RUN",
+      "evidence": []
+    }
+  ]
+}

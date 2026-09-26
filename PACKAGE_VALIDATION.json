@@ -1,0 +1,125 @@
+{
+  "packageVersion": "1.0",
+  "checkedAtUtc": "2026-09-26T13:15:40.680689+00:00",
+  "scope": "DOCUMENTATION_FIXTURE_PROTOTYPE_ONLY",
+  "applicationStatus": "NOT_IMPLEMENTED_NOT_TESTED",
+  "productionStatus": "NOT_DEPLOYED",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "JSON syntax",
+      "status": "PASS",
+      "detail": {
+        "jsonFiles": 15
+      }
+    },
+    {
+      "name": "Requirement-test-task references and dependency DAG",
+      "status": "PASS",
+      "detail": {
+        "requirements": 87,
+        "plannedTests": 87,
+        "tasks": 102,
+        "screens": 45,
+        "modules": 18
+      }
+    },
+    {
+      "name": "API references and schema structure",
+      "status": "PASS",
+      "detail": {
+        "operations": 117,
+        "paths": 95,
+        "schemas": 92,
+        "scope": "Internal refs, JSON Schema vocabulary and declared preconditions; not full OpenAPI conformance or live endpoint tests."
+      }
+    },
+    {
+      "name": "Demo fixture invariants",
+      "status": "PASS",
+      "detail": {
+        "persons": 72,
+        "parentLinks": 84,
+        "unions": 10,
+        "scope": "Fixture structure, references, graph DAG, source dates structure, balanced sample ledger. No astronomical correctness or app security proof."
+      }
+    },
+    {
+      "name": "SQL blueprint static coverage",
+      "status": "PASS",
+      "detail": {
+        "tables": 53,
+        "scope": "Static table coverage and RLS declarations only. SQL execution, policies, triggers and authorization NOT_RUN."
+      }
+    },
+    {
+      "name": "Core text-token contrast",
+      "status": "PASS",
+      "detail": {
+        "textPairs": {
+          "ink/background": 13.99,
+          "inkMuted/background": 6.01,
+          "brand/surface": 9.93,
+          "accent/background": 4.93,
+          "surface/brand": 9.93
+        },
+        "scope": "Token pair ratios, not comprehensive accessibility audit."
+      }
+    },
+    {
+      "name": "Initial status honesty",
+      "status": "PASS",
+      "detail": "Application is not implemented; no false PASS/approval in initial state."
+    },
+    {
+      "name": "Deliverable presence",
+      "status": "PASS",
+      "detail": {
+        "mainDocuments": 32,
+        "requiredEntryFiles": 13,
+        "fontFiles": 0
+      }
+    },
+    {
+      "name": "DTO TypeScript compile",
+      "status": "PASS",
+      "detail": "DTO-only TypeScript compile. Not Next app build, lint or runtime validation."
+    },
+    {
+      "name": "Static HTML browser QA",
+      "status": "PASS",
+      "detail": {
+        "viewportWidths": [
+          320,
+          360,
+          390,
+          412,
+          768,
+          1440
+        ],
+        "views": 6,
+        "layoutChecks": 36,
+        "interactions": "Search accent-folding, empty state, branch filter, profile navigation and modal open/close across six widths.",
+        "limitations": "Chromium viewport emulation only, not physical mobile or full app E2E. Used set_content due to file-URL restrictions in test browser."
+      }
+    },
+    {
+      "name": "Owner handbook render and visual inspection",
+      "status": "PASS",
+      "detail": {
+        "pages": 12,
+        "allPagesVisuallyReviewed": true,
+        "scope": "Document layout only. No clipped text, blank spill page or broken tables in final render."
+      }
+    },
+    {
+      "name": "Synthetic benchmark generator smoke",
+      "status": "PASS",
+      "detail": {
+        "personsGenerated": 10000,
+        "edgesGenerated": 9999,
+        "scope": "Generator execution only; no application load test performed."
+      }
+    }
+  ]
+}

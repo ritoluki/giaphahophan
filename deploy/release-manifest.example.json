@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "1.0",
+  "status": "TEMPLATE_NOT_APPROVED",
+  "environment": "production",
+  "launchMode": "demo",
+  "commitSha": null,
+  "webImageDigest": null,
+  "workerImageDigest": null,
+  "migrationVersion": null,
+  "contractSha256": null,
+  "configNamesOnly": [],
+  "approvedRegion": null,
+  "approvedMonthlyBudgetUsd": null,
+  "domain": null,
+  "backupManifestId": null,
+  "restoreDrillEvidence": null,
+  "uatEvidence": null,
+  "securityEvidence": null,
+  "rollbackPlanPath": "docs/29_FAILURE_RECOVERY_RUNBOOK.md",
+  "ownerApproval": {"gate": "H4", "status": "PENDING", "approvedBy": null, "approvedAt": null, "manifestSha256": null},
+  "warning": "No secrets here. Every null must be resolved or explicitly justified before production. Template does not authorize deployment."
+}

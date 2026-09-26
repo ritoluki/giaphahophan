@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.0",
+  "approvals": [
+    {
+      "id": "H1",
+      "status": "PENDING",
+      "approvedBy": null,
+      "approvedAt": null,
+      "scope": "Visual style and mobile navigation",
+      "evidence": null
+    },
+    {
+      "id": "H2",
+      "status": "PENDING",
+      "approvedBy": null,
+      "approvedAt": null,
+      "scope": "Provider accounts, region, budget and domain",
+      "evidence": null
+    },
+    {
+      "id": "H3",
+      "status": "PENDING",
+      "approvedBy": null,
+      "approvedAt": null,
+      "scope": "Data governance, reviewers and lunar recurrence policies",
+      "evidence": null
+    },
+    {
+      "id": "H4",
+      "status": "PENDING",
+      "approvedBy": null,
+      "approvedAt": null,
+      "scope": "Exact release manifest and production launch mode",
+      "evidence": null
+    },
+    {
+      "id": "H5",
+      "status": "PENDING",
+      "approvedBy": null,
+      "approvedAt": null,
+      "scope": "Real-data import batch hash and publication permissions",
+      "evidence": null
+    }
+  ]
+}

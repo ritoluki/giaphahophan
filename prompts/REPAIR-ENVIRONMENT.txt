@@ -1,0 +1,3 @@
+Sửa blocker local của Phan Gia Phả với thay đổi tối thiểu. Đọc state/ENVIRONMENT.md và logs trước; kiểm tra Node/pnpm/PATH/Docker client và Docker Server riêng, cổng đang dùng, quyền workspace. Không kill process không thuộc project, không reset WSL/Docker, không dùng quyền Administrator hoặc xóa node_modules toàn ổ khi chưa người dùng duyệt. Không dùng git reset --hard hoặc git clean -fd.
+
+Ưu tiên sửa project-local config, lockfile-compatible install, mở lại terminal sau khi PATH thay đổi nếu thực sự cần. Ghi lệnh và kết quả. Việc cần thao tác GUI/quyền hệ điều hành thì viết từng bước ngắn trong HUMAN_ACTIONS; tiếp tục các task không cần dependency đang hỏng. Re-run test bị block sau khi sửa; NOT_RUN cũ không tự thành PASS.

@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F8F5EF;
+  --surface: #FFFFFF;
+  --muted: #EEE8DF;
+  --ink: #292520;
+  --ink-muted: #655C54;
+  --brand: #702D34;
+  --brand-hover: #59242A;
+  --accent: #86652E;
+  --border: #DED7CC;
+  --success: #405D4A;
+  --danger: #A12D36;
+  --focus: #702D34;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--background); }
+body { margin: 0; background: var(--background); color: var(--ink); font-family: "Noto Sans", Arial, sans-serif; font-size: 17px; line-height: 1.65; }
+a { color: inherit; text-decoration: none; }
+button, input { font: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.skip-link { position: absolute; left: 1rem; top: -4rem; z-index: 20; background: var(--surface); padding: .75rem 1rem; border-radius: .5rem; }
+.skip-link:focus { top: 1rem; }
+.site-shell { min-height: 100dvh; padding-bottom: 92px; }
+.container { width: min(1200px, calc(100% - 32px)); margin-inline: auto; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 1rem; }
+.brand-lockup { display: inline-flex; align-items: center; gap: .75rem; color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-weight: 700; line-height: 1.1; }
+.brand-lockup img { width: 48px; height: 48px; object-fit: contain; }
+.brand-lockup small { display: block; color: var(--accent); font-family: "Noto Sans", Arial, sans-serif; font-size: .64rem; letter-spacing: .12em; font-weight: 600; margin-top: .25rem; }
+.desktop-nav { display: none; align-items: center; gap: 1.25rem; color: var(--ink-muted); font-size: .95rem; }
+.desktop-nav a:hover { color: var(--brand); }
+.hero { position: relative; overflow: hidden; border-radius: 20px; min-height: 520px; display: flex; align-items: end; padding: 2rem; color: #fff; background: linear-gradient(180deg, rgba(41,37,32,.03) 0%, rgba(41,37,32,.78) 88%), url('/assets/hero-mobile.png') center 32% / cover; }
+.hero-content { max-width: 680px; }
+.eyebrow { color: var(--accent); font-size: .8rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.hero .eyebrow { color: #F4DDAA; }
+.hero h1 { margin: .4rem 0 .75rem; font-family: "Noto Serif", Georgia, serif; font-size: clamp(2.2rem, 8vw, 4.5rem); line-height: 1.08; }
+.hero p { max-width: 58ch; margin: 0; color: #FFF9EE; }
+.button-primary, .button-secondary { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; border-radius: 8px; padding: .65rem 1rem; font-weight: 700; cursor: pointer; }
+.button-primary { background: var(--brand); color: #fff; border: 1px solid var(--brand); }
+.button-primary:hover { background: var(--brand-hover); }
+.button-secondary { background: var(--surface); border: 1px solid var(--brand); color: var(--brand); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+.search-panel { position: relative; z-index: 1; margin: -1.5rem 1rem 0; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 8px 24px rgba(41,37,32,.08); }
+.search-panel label { display: block; margin-bottom: .4rem; color: var(--ink-muted); font-size: .85rem; font-weight: 700; }
+.search-row { display: flex; gap: .5rem; }
+.search-row input { min-width: 0; width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: .7rem .8rem; color: var(--ink); background: var(--surface); }
+.section { padding-block: 2.5rem; }
+.section-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+.section-heading h2 { margin: 0; color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: 1.8rem; line-height: 1.2; }
+.section-heading a { color: var(--brand); font-size: .9rem; font-weight: 700; }
+.cards { display: grid; gap: 1rem; }
+.card { background: rgba(255,255,255,.86); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; }
+.card h3 { margin: 0 0 .35rem; color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: 1.25rem; }
+.card p { margin: 0; color: var(--ink-muted); }
+.event-card { display: grid; grid-template-columns: 72px 1fr; gap: 1rem; align-items: center; }
+.event-date { display: grid; place-items: center; min-height: 76px; padding: .5rem; border-radius: 12px; background: var(--muted); color: var(--brand); text-align: center; font-weight: 700; }
+.event-date strong { font-size: 1.7rem; line-height: 1; }
+.demo-banner { margin-top: 1rem; padding: .75rem 1rem; border-left: 4px solid var(--accent); background: #FBF1DE; color: #594A38; font-size: .9rem; }
+.bottom-nav { position: fixed; z-index: 10; right: 0; bottom: 0; left: 0; display: grid; grid-template-columns: repeat(5, 1fr); padding: .5rem .5rem calc(.5rem + env(safe-area-inset-bottom)); background: rgba(255,255,255,.96); border-top: 1px solid var(--border); box-shadow: 0 -4px 16px rgba(41,37,32,.08); }
+.bottom-nav a { display: grid; justify-items: center; gap: .15rem; min-height: 48px; padding: .25rem; color: var(--ink-muted); font-size: .7rem; font-weight: 700; }
+.bottom-nav a[aria-current="page"] { color: var(--brand); }
+.bottom-nav span:first-child { font-size: 1.1rem; }
+.page { padding-block: 2rem; }
+.page h1 { color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: clamp(2rem, 7vw, 3rem); line-height: 1.15; }
+.admin-shell { border-top: 6px solid var(--brand); }
+.muted { color: var(--ink-muted); }
+@media (min-width: 768px) {
+  .container { width: min(1200px, calc(100% - 64px)); }
+  .desktop-nav { display: flex; }
+  .topbar .menu-button { display: none; }
+  .hero { min-height: 580px; padding: 3.5rem; }
+  .search-panel { margin-inline: 2rem; }
+  .cards { grid-template-columns: repeat(3, 1fr); }
+  .bottom-nav { display: none; }
+  .site-shell { padding-bottom: 0; }
+}
+@media (max-width: 767px) {
+  .hero { min-height: 480px; }
+  .topbar { min-height: 64px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }

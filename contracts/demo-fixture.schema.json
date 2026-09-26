@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Phan demo canonical fixture",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "dataMode",
+    "isFictional",
+    "tree",
+    "persons",
+    "parentLinks",
+    "unions",
+    "sources",
+    "branches",
+    "fund"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "dataMode": {
+      "const": "demo"
+    },
+    "isFictional": {
+      "const": true
+    },
+    "tree": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "persons": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "externalId",
+          "displayName",
+          "lifeStatus",
+          "visibility",
+          "isFictional",
+          "birth"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "isFictional": {
+            "const": true
+          },
+          "lifeStatus": {
+            "enum": [
+              "living",
+              "deceased",
+              "unknown"
+            ]
+          },
+          "visibility": {
+            "enum": [
+              "public",
+              "members",
+              "restricted"
+            ]
+          }
+        }
+      }
+    },
+    "parentLinks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "parentId",
+          "childId",
+          "kind",
+          "status"
+        ]
+      }
+    },
+    "unions": {
+      "type": "array"
+    },
+    "sources": {
+      "type": "array"
+    },
+    "branches": {
+      "type": "array"
+    },
+    "fund": {
+      "type": "object"
+    }
+  }
+}

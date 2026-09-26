@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0",
+  "status": "TEMPLATE_NOT_EXECUTED",
+  "snapshotId": null,
+  "environment": "production",
+  "capturedAt": null,
+  "database": {"format": null, "encryptedObjectKey": null, "sha256": null, "schemasIncluded": [], "schemasExcluded": [], "rowCounts": {}},
+  "storage": {"objectInventoryEncryptedKey": null, "objectsCount": null, "bytesCount": null, "checksumsVerified": false},
+  "authAndRoles": {"restorationProcedure": null, "customRolePasswordsRestoredSeparately": true, "providerConfigVerified": false},
+  "keys": {"keyId": null, "custodian": null, "recoveryTestEvidence": null},
+  "restoreDrill": {"targetEnvironment": null, "startedAt": null, "completedAt": null, "rpoHoursMeasured": null, "rtoHoursMeasured": null, "evidence": null},
+  "warning": "Only safe metadata in repository. Private paths/manifests encrypted and access-controlled; no credentials or family PII here."
+}

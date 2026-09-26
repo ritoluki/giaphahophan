@@ -1,0 +1,7 @@
+Chuẩn bị và triển khai production Phan Gia Phả theo docs/20,21,22,23 và state/RELEASE_GATES.json. Đầu tiên xác minh evidence của QA, security, restore drill, mobile actual-device sign-off, ownership, H1–H3. Ghi chính xác commit SHA, web/worker image digest, migration version, contract hash, SBOM và env-name-only trong release manifest. Không đưa giá trị secret vào repo/report.
+
+H4 phải duyệt manifest chính xác, domain, region, budget, launch mode demo/real và rollback. Chưa H4 chỉ chuẩn bị staging và dry-run, không phát hành. H5 là approval riêng cho batch thật; có thể production-demo được dán nhãn nếu H4 ghi rõ.
+
+Run migration expand/compatible bằng privileged one-off job, không migration mỗi web boot. Verify worker compatibility/outbox, health/readiness, custom domain/HTTPS, SMTP SPF/DKIM/DMARC theo provider, public indexing đúng mode, backups cả DB lẫn object đã kiểm restore. Smoke tests role boundary, genealogy, calendar, edit/review, upload and restore paths; watch errors và logs đã redacted. Rollback app image chỉ khi schema backward-compatible; destructive migration phục hồi từ backup đã kiểm thử với quyền owner. Không xóa/migrate rollback tùy tiện.
+
+Bàn giao tài khoản thuộc chủ dự án, runbooks, chi phí, backup keys custody, lịch maintenance và evidence. Không nói PRODUCTION READY nếu gate NOT_RUN/FAIL hoặc thiếu owner approval. Không gửi email hàng loạt để thử; dùng allowlisted test recipients trước.

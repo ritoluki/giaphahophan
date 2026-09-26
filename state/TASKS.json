@@ -1,0 +1,2734 @@
+{
+  "schemaVersion": "1.0",
+  "canonical": true,
+  "updatedAt": "2026-09-26T22:52:00+07:00",
+  "tasks": [
+    {
+      "id": "P0-01",
+      "title": "Kiểm tra môi trường và workspace",
+      "phase": "P0",
+      "module": "FOUNDATION",
+      "dependencies": [],
+      "requirementIds": [],
+      "outputs": [
+        "state/ENVIRONMENT.md"
+      ],
+      "acceptance": [
+        "Không thay hệ thống/kill tiến trình khác; ghi Docker client và daemon."
+      ],
+      "testIds": [],
+      "status": "BLOCKED",
+      "approvalRequired": [],
+      "evidence": [
+        "pnpm run doctor: Node 22.13.0 found; Node 24 baseline BLOCKED; Docker 29.8.0 client found; daemon BLOCKED by access denied reading Docker config.",
+        "state/ENVIRONMENT.md"
+      ]
+    },
+    {
+      "id": "P0-02",
+      "title": "Chốt phiên bản và license",
+      "phase": "P0",
+      "module": "FOUNDATION",
+      "dependencies": [
+        "P0-01"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "VERSIONS.md",
+        "pnpm-lock.yaml"
+      ],
+      "acceptance": [
+        "Exact versions/advisories/peer ranges, không latest trong lockfile."
+      ],
+      "testIds": [],
+      "status": "DONE",
+      "approvalRequired": [],
+      "evidence": [
+        "pnpm-lock.yaml generated with pnpm 12.6.0.",
+        "pnpm audit --audit-level high: exit 0; pnpm audit --audit-level moderate: exit 0; no known vulnerabilities after patched pins.",
+        "VERSIONS.md"
+      ]
+    },
+    {
+      "id": "P0-03",
+      "title": "Scaffold workspace và scripts",
+      "phase": "P0",
+      "module": "FOUNDATION",
+      "dependencies": [
+        "P0-02"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "apps/web",
+        "apps/worker",
+        "packages/config"
+      ],
+      "acceptance": [
+        "doctor/lint/typecheck/test/build chạy có log, shutdown clean."
+      ],
+      "testIds": [],
+      "status": "DONE",
+      "approvalRequired": [],
+      "evidence": [
+        "pnpm typecheck: exit 0.",
+        "pnpm test: exit 0; 5 domain tests pass, empty package suites explicitly passWithNoTests.",
+        "pnpm lint: exit 0 with warnings only.",
+        "pnpm build: exit 0 on Next.js 16.3.3; foundation routes generated.",
+        "apps/web, apps/worker, packages/config, packages/contracts, packages/domain, packages/ui, packages/lunar"
+      ]
+    },
+    {
+      "id": "P0-04",
+      "title": "Contract và DB migrations nền",
+      "phase": "P0",
+      "module": "FOUNDATION",
+      "dependencies": [
+        "P0-03"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "supabase/migrations",
+        "packages/contracts"
+      ],
+      "acceptance": [
+        "Private schema fail-closed, types và schema tests; không chạy blueprint remote."
+      ],
+      "testIds": [],
+      "status": "IN_PROGRESS",
+      "approvalRequired": [],
+      "evidence": [
+        "supabase/migrations/0001_foundation.sql: private/api/jobs schemas, core domain tables, composite same-tree FKs, RLS FORCE, revoke-all grants.",
+        "packages/contracts/src/index.ts: runtime genealogy date/person/API error schemas.",
+        "Database execution and RLS negative tests NOT_RUN because Docker/Supabase daemon is blocked."
+      ]
+    },
+    {
+      "id": "P0-05",
+      "title": "CI và test harness",
+      "phase": "P0",
+      "module": "FOUNDATION",
+      "dependencies": [
+        "P0-03"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        ".github/workflows",
+        "tests"
+      ],
+      "acceptance": [
+        "Ephemeral test DB, browser matrix, secrets không cấp cho untrusted PR."
+      ],
+      "testIds": [],
+      "status": "IN_PROGRESS",
+      "approvalRequired": [],
+      "evidence": [
+        ".github/workflows/ci.yml created with Node 24, frozen lockfile, lint/typecheck/test/build/verify.",
+        "Foundation unit tests executed locally; DB/browser/ephemeral integration remains NOT_RUN.",
+        "CI is a template only; no remote workflow run evidence yet."
+      ]
+    },
+    {
+      "id": "UI-01",
+      "title": "Design tokens và component stories",
+      "phase": "P1",
+      "module": "FOUNDATION",
+      "dependencies": [
+        "P0-03"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "packages/ui"
+      ],
+      "acceptance": [
+        "Đúng docs05–06, 320/390/1440px và tiếng Việt."
+      ],
+      "testIds": [],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "UI-02",
+      "title": "Năm màn hình duyệt phong cách",
+      "phase": "P1",
+      "module": "FOUNDATION",
+      "dependencies": [
+        "UI-01"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "reports/design-review"
+      ],
+      "acceptance": [
+        "Home/search/person/calendar/admin preview rõ demo và screenshot."
+      ],
+      "testIds": [],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "CORE-01",
+      "title": "Auth/RPC/permission foundation",
+      "phase": "P2",
+      "module": "FOUNDATION",
+      "dependencies": [
+        "P0-04"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "apps/web/server",
+        "supabase/tests"
+      ],
+      "acceptance": [
+        "Verify user, membership/capability, field projections, RLS/grants negative tests."
+      ],
+      "testIds": [],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "CORE-02",
+      "title": "Vertical slice có DB và review",
+      "phase": "P2",
+      "module": "FOUNDATION",
+      "dependencies": [
+        "CORE-01",
+        "P0-05"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "tests/integration/vertical-slice"
+      ],
+      "acceptance": [
+        "Đăng nhập → đọc người → proposal → người khác duyệt → audit/persistence."
+      ],
+      "testIds": [],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "JOBS-01",
+      "title": "Outbox/worker nền",
+      "phase": "P2",
+      "module": "FOUNDATION",
+      "dependencies": [
+        "P0-04"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "apps/worker",
+        "supabase/tests/jobs"
+      ],
+      "acceptance": [
+        "Job role least privilege, migration trước runtime, idempotency và retry."
+      ],
+      "testIds": [],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M01-01",
+      "title": "Public projection",
+      "phase": "P1",
+      "module": "M01",
+      "dependencies": [
+        "UI-02",
+        "CORE-02"
+      ],
+      "requirementIds": [
+        "REQ-M01-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m01",
+        "packages/domain/m01",
+        "tests/TC-M01-01"
+      ],
+      "acceptance": [
+        "Khách chỉ nhận nội dung đã published; HTML/RSC/counts không chứa người ẩn.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M01-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M01-02",
+      "title": "Tra cứu nổi bật",
+      "phase": "P1",
+      "module": "M01",
+      "dependencies": [
+        "M01-01"
+      ],
+      "requirementIds": [
+        "REQ-M01-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m01",
+        "packages/domain/m01",
+        "tests/TC-M01-02"
+      ],
+      "acceptance": [
+        "Từ home thành viên nhập tên và mở đúng hồ sơ trong tối đa 3 thao tác; trùng tên có ngữ cảnh.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M01-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M01-03",
+      "title": "Nội dung có thứ bậc",
+      "phase": "P1",
+      "module": "M01",
+      "dependencies": [
+        "M01-02"
+      ],
+      "requirementIds": [
+        "REQ-M01-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m01",
+        "packages/domain/m01",
+        "tests/TC-M01-03"
+      ],
+      "acceptance": [
+        "Hero, tìm kiếm, lịch tới, tin họ, nguồn gốc và footer có bố cục responsive; không tự bịa lịch sử.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M01-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M01-04",
+      "title": "Demo và empty state",
+      "phase": "P1",
+      "module": "M01",
+      "dependencies": [
+        "M01-03"
+      ],
+      "requirementIds": [
+        "REQ-M01-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m01",
+        "packages/domain/m01",
+        "tests/TC-M01-04"
+      ],
+      "acceptance": [
+        "Demo có nhãn thường trực; real rỗng hiển thị hướng dẫn chứ không tự lấy dữ liệu giả.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M01-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M02-01",
+      "title": "Phả ký có nguồn",
+      "phase": "P6",
+      "module": "M02",
+      "dependencies": [
+        "M12-04",
+        "M09-05"
+      ],
+      "requirementIds": [
+        "REQ-M02-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m02",
+        "packages/domain/m02",
+        "tests/TC-M02-01"
+      ],
+      "acceptance": [
+        "Mỗi mốc/tuyên bố quan trọng có source/citation hoặc nhãn chưa xác minh.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M02-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M02-02",
+      "title": "Timeline bất định",
+      "phase": "P6",
+      "module": "M02",
+      "dependencies": [
+        "M02-01"
+      ],
+      "requirementIds": [
+        "REQ-M02-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m02",
+        "packages/domain/m02",
+        "tests/TC-M02-02"
+      ],
+      "acceptance": [
+        "Hỗ trợ năm/khoảng năm/nguyên văn, không ép ngày exact và không tự nối khoảng trống.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M02-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M02-03",
+      "title": "Chi họ nhiều root",
+      "phase": "P6",
+      "module": "M02",
+      "dependencies": [
+        "M02-02"
+      ],
+      "requirementIds": [
+        "REQ-M02-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m02",
+        "packages/domain/m02",
+        "tests/TC-M02-03"
+      ],
+      "acceptance": [
+        "Branch hierarchy không cycle; các chi chưa biết quan hệ vẫn cùng tồn tại không nối giả.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M02-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M02-04",
+      "title": "Xuất bản có duyệt",
+      "phase": "P6",
+      "module": "M02",
+      "dependencies": [
+        "M02-03"
+      ],
+      "requirementIds": [
+        "REQ-M02-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m02",
+        "packages/domain/m02",
+        "tests/TC-M02-04"
+      ],
+      "acceptance": [
+        "Draft khác published revision; thay draft không làm đổi public trước approval.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M02-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M03-01",
+      "title": "Canonical identity",
+      "phase": "P3",
+      "module": "M03",
+      "dependencies": [
+        "CORE-02"
+      ],
+      "requirementIds": [
+        "REQ-M03-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m03",
+        "packages/domain/m03",
+        "tests/TC-M03-01"
+      ],
+      "acceptance": [
+        "UUID/mã ổn định, tên có alias và trùng tên; không dùng tên/email làm unique identity.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M03-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M03-02",
+      "title": "Dates và life status",
+      "phase": "P3",
+      "module": "M03",
+      "dependencies": [
+        "M03-01"
+      ],
+      "requirementIds": [
+        "REQ-M03-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m03",
+        "packages/domain/m03",
+        "tests/TC-M03-02"
+      ],
+      "acceptance": [
+        "Year-only giữ null tháng/ngày; unknown được bảo vệ như living; date gốc không bị ghi đè.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M03-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M03-03",
+      "title": "Hồ sơ đa lớp",
+      "phase": "P3",
+      "module": "M03",
+      "dependencies": [
+        "M03-02"
+      ],
+      "requirementIds": [
+        "REQ-M03-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m03",
+        "packages/domain/m03",
+        "tests/TC-M03-03"
+      ],
+      "acceptance": [
+        "Có overview, family, timeline, sources và media với quyền đồng nhất.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M03-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M03-04",
+      "title": "Person khác account",
+      "phase": "P3",
+      "module": "M03",
+      "dependencies": [
+        "M03-03"
+      ],
+      "requirementIds": [
+        "REQ-M03-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m03",
+        "packages/domain/m03",
+        "tests/TC-M03-04"
+      ],
+      "acceptance": [
+        "Tạo hồ sơ không tạo login; claim tài khoản phải duyệt và không tự cấp quyền.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M03-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M03-05",
+      "title": "Sửa có version",
+      "phase": "P3",
+      "module": "M03",
+      "dependencies": [
+        "M03-04"
+      ],
+      "requirementIds": [
+        "REQ-M03-05"
+      ],
+      "outputs": [
+        "apps/web/modules/m03",
+        "packages/domain/m03",
+        "tests/TC-M03-05"
+      ],
+      "acceptance": [
+        "Cập nhật dùng If-Match/baseVersion; concurrent edit trả conflict có diff.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M03-05"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M03-06",
+      "title": "Xóa có tác động",
+      "phase": "P3",
+      "module": "M03",
+      "dependencies": [
+        "M03-05"
+      ],
+      "requirementIds": [
+        "REQ-M03-06"
+      ],
+      "outputs": [
+        "apps/web/modules/m03",
+        "packages/domain/m03",
+        "tests/TC-M03-06"
+      ],
+      "acceptance": [
+        "Soft delete và erasure tách; preview cạnh/facts/sources bị ảnh hưởng, không orphan.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M03-06"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M04-01",
+      "title": "Các chế độ cây",
+      "phase": "P4",
+      "module": "M04",
+      "dependencies": [
+        "M03-06",
+        "M06-04"
+      ],
+      "requirementIds": [
+        "REQ-M04-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m04",
+        "packages/domain/m04",
+        "tests/TC-M04-01"
+      ],
+      "acceptance": [
+        "Ancestor, descendant, family focus và disconnected roots hoạt động với union/adoption.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M04-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M04-02",
+      "title": "Pedigree collapse",
+      "phase": "P4",
+      "module": "M04",
+      "dependencies": [
+        "M04-01"
+      ],
+      "requirementIds": [
+        "REQ-M04-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m04",
+        "packages/domain/m04",
+        "tests/TC-M04-02"
+      ],
+      "acceptance": [
+        "Nhiều occurrence cùng một person ID; click đều về một hồ sơ; không tạo người trùng.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M04-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M04-03",
+      "title": "Giới hạn và expand",
+      "phase": "P4",
+      "module": "M04",
+      "dependencies": [
+        "M04-02"
+      ],
+      "requirementIds": [
+        "REQ-M04-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m04",
+        "packages/domain/m04",
+        "tests/TC-M04-03"
+      ],
+      "acceptance": [
+        "Mobile tối đa 120, desktop 300 occurrences/request; truncated có chỉ dẫn, không dump toàn graph.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M04-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M04-04",
+      "title": "Mobile/keyboard",
+      "phase": "P4",
+      "module": "M04",
+      "dependencies": [
+        "M04-03"
+      ],
+      "requirementIds": [
+        "REQ-M04-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m04",
+        "packages/domain/m04",
+        "tests/TC-M04-04"
+      ],
+      "acceptance": [
+        "Có family-list thay thế, nút zoom/exit, không nuốt scroll trang và dùng được bàn phím.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M04-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M04-05",
+      "title": "Cycle concurrency",
+      "phase": "P4",
+      "module": "M04",
+      "dependencies": [
+        "M04-04"
+      ],
+      "requirementIds": [
+        "REQ-M04-05"
+      ],
+      "outputs": [
+        "apps/web/modules/m04",
+        "packages/domain/m04",
+        "tests/TC-M04-05"
+      ],
+      "acceptance": [
+        "Hai mutation tạo chu trình chạy đồng thời không cùng thành công; lock và transaction thực.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M04-05"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M04-06",
+      "title": "Đời tương đối",
+      "phase": "P4",
+      "module": "M04",
+      "dependencies": [
+        "M04-05"
+      ],
+      "requirementIds": [
+        "REQ-M04-06"
+      ],
+      "outputs": [
+        "apps/web/modules/m04",
+        "packages/domain/m04",
+        "tests/TC-M04-06"
+      ],
+      "acceptance": [
+        "Generation tính theo root/path; multiple depths không bị ép thành một đời tuyệt đối.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M04-06"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M05-01",
+      "title": "Path có quyền",
+      "phase": "P4",
+      "module": "M05",
+      "dependencies": [
+        "M04-06"
+      ],
+      "requirementIds": [
+        "REQ-M05-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m05",
+        "packages/domain/m05",
+        "tests/TC-M05-01"
+      ],
+      "acceptance": [
+        "BFS chỉ dùng node/edge được phép, không đi qua người ẩn hoặc tiết lộ hidden count.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M05-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M05-02",
+      "title": "Semantics quan hệ",
+      "phase": "P4",
+      "module": "M05",
+      "dependencies": [
+        "M05-01"
+      ],
+      "requirementIds": [
+        "REQ-M05-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m05",
+        "packages/domain/m05",
+        "tests/TC-M05-02"
+      ],
+      "acceptance": [
+        "Sinh học/nuôi/hôn phối/giám hộ được phân biệt; disputed không vào ancestry mặc định.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M05-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M05-03",
+      "title": "Giới hạn rõ",
+      "phase": "P4",
+      "module": "M05",
+      "dependencies": [
+        "M05-02"
+      ],
+      "requirementIds": [
+        "REQ-M05-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m05",
+        "packages/domain/m05",
+        "tests/TC-M05-03"
+      ],
+      "acceptance": [
+        "Tối đa 12 bước/10k visited/timeout; trả limit_reached thay vì kết luận không có họ.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M05-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M05-04",
+      "title": "Xưng hô thận trọng",
+      "phase": "P4",
+      "module": "M05",
+      "dependencies": [
+        "M05-03"
+      ],
+      "requirementIds": [
+        "REQ-M05-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m05",
+        "packages/domain/m05",
+        "tests/TC-M05-04"
+      ],
+      "acceptance": [
+        "Chỉ gợi ý cho rule đủ dữ kiện; mơ hồ trả mô tả đường nối, không đoán giới tính/vùng.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M05-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M06-01",
+      "title": "Tên có và không dấu",
+      "phase": "P3",
+      "module": "M06",
+      "dependencies": [
+        "M03-06"
+      ],
+      "requirementIds": [
+        "REQ-M06-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m06",
+        "packages/domain/m06",
+        "tests/TC-M06-01"
+      ],
+      "acceptance": [
+        "Phan Đỗ và phan do có thể tìm cùng canonical name; giữ display nguyên gốc và alias.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M06-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M06-02",
+      "title": "Filter và cursor",
+      "phase": "P3",
+      "module": "M06",
+      "dependencies": [
+        "M06-01"
+      ],
+      "requirementIds": [
+        "REQ-M06-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m06",
+        "packages/domain/m06",
+        "tests/TC-M06-02"
+      ],
+      "acceptance": [
+        "Lọc chi/trạng thái/năm theo quyền; cursor ổn định không duplicate/missing khi back.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M06-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M06-03",
+      "title": "Không lộ metadata",
+      "phase": "P3",
+      "module": "M06",
+      "dependencies": [
+        "M06-02"
+      ],
+      "requirementIds": [
+        "REQ-M06-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m06",
+        "packages/domain/m06",
+        "tests/TC-M06-03"
+      ],
+      "acceptance": [
+        "Counts/autocomplete/snippets/error messages không lộ người hoặc source bị ẩn.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M06-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M06-04",
+      "title": "Tải lớn",
+      "phase": "P3",
+      "module": "M06",
+      "dependencies": [
+        "M06-03"
+      ],
+      "requirementIds": [
+        "REQ-M06-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m06",
+        "packages/domain/m06",
+        "tests/TC-M06-04"
+      ],
+      "acceptance": [
+        "10k dataset, p95 theo budget; kiểm tra index/N+1 và abort request cũ.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M06-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M07-01",
+      "title": "Invitation",
+      "phase": "P2",
+      "module": "M07",
+      "dependencies": [
+        "CORE-01"
+      ],
+      "requirementIds": [
+        "REQ-M07-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m07",
+        "packages/domain/m07",
+        "tests/TC-M07-01"
+      ],
+      "acceptance": [
+        "Token hash, TTL, single-use, đúng email/tree; email verified chưa phải membership active.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M07-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M07-02",
+      "title": "Session và logout",
+      "phase": "P2",
+      "module": "M07",
+      "dependencies": [
+        "M07-01"
+      ],
+      "requirementIds": [
+        "REQ-M07-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m07",
+        "packages/domain/m07",
+        "tests/TC-M07-02"
+      ],
+      "acceptance": [
+        "Refresh cookie đúng; no-store Set-Cookie; sensitive action deny phiên đã revoked.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M07-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M07-03",
+      "title": "MFA đặc quyền",
+      "phase": "P2",
+      "module": "M07",
+      "dependencies": [
+        "M07-02"
+      ],
+      "requirementIds": [
+        "REQ-M07-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m07",
+        "packages/domain/m07",
+        "tests/TC-M07-03"
+      ],
+      "acceptance": [
+        "Owner/reviewer/finance thao tác nhạy cảm cần MFA; không bỏ qua ở API trực tiếp.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M07-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M07-04",
+      "title": "Membership và owner",
+      "phase": "P2",
+      "module": "M07",
+      "dependencies": [
+        "M07-03"
+      ],
+      "requirementIds": [
+        "REQ-M07-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m07",
+        "packages/domain/m07",
+        "tests/TC-M07-04"
+      ],
+      "acceptance": [
+        "Suspend/revoke hiệu lực server; không self-promote, không xóa owner cuối.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M07-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M07-05",
+      "title": "Recovery và claim",
+      "phase": "P2",
+      "module": "M07",
+      "dependencies": [
+        "M07-04"
+      ],
+      "requirementIds": [
+        "REQ-M07-05"
+      ],
+      "outputs": [
+        "apps/web/modules/m07",
+        "packages/domain/m07",
+        "tests/TC-M07-05"
+      ],
+      "acceptance": [
+        "Reset/callback không enumeration/open redirect; claim person có người khác duyệt.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M07-05"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M08-01",
+      "title": "Đề nghị có nguồn",
+      "phase": "P3",
+      "module": "M08",
+      "dependencies": [
+        "M03-06",
+        "M07-05"
+      ],
+      "requirementIds": [
+        "REQ-M08-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m08",
+        "packages/domain/m08",
+        "tests/TC-M08-01"
+      ],
+      "acceptance": [
+        "Tạo/sửa/quan hệ đi proposal, có mã theo dõi và source; chưa approve không đổi canonical.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M08-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M08-02",
+      "title": "Diff và conflict",
+      "phase": "P3",
+      "module": "M08",
+      "dependencies": [
+        "M08-01"
+      ],
+      "requirementIds": [
+        "REQ-M08-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m08",
+        "packages/domain/m08",
+        "tests/TC-M08-02"
+      ],
+      "acceptance": [
+        "Hiển thị base/current/proposed; stale version trả 409 và không silently overwrite.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M08-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M08-03",
+      "title": "Approve atomic",
+      "phase": "P3",
+      "module": "M08",
+      "dependencies": [
+        "M08-02"
+      ],
+      "requirementIds": [
+        "REQ-M08-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m08",
+        "packages/domain/m08",
+        "tests/TC-M08-03"
+      ],
+      "acceptance": [
+        "Ghi target/proposal/audit/outbox cùng transaction; retry không duyệt hai lần.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M08-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M08-04",
+      "title": "Scope và 2 người",
+      "phase": "P3",
+      "module": "M08",
+      "dependencies": [
+        "M08-03"
+      ],
+      "requirementIds": [
+        "REQ-M08-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m08",
+        "packages/domain/m08",
+        "tests/TC-M08-04"
+      ],
+      "acceptance": [
+        "Reviewer chi khác bị deny; structural/merge/public-living cần người khác tác giả.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M08-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M08-05",
+      "title": "Lifecycle rõ",
+      "phase": "P3",
+      "module": "M08",
+      "dependencies": [
+        "M08-04"
+      ],
+      "requirementIds": [
+        "REQ-M08-05"
+      ],
+      "outputs": [
+        "apps/web/modules/m08",
+        "packages/domain/m08",
+        "tests/TC-M08-05"
+      ],
+      "acceptance": [
+        "Draft/submitted/needs_info/approved/rejected/withdrawn có transition valid và history.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M08-05"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M09-01",
+      "title": "Upload an toàn",
+      "phase": "P5",
+      "module": "M09",
+      "dependencies": [
+        "CORE-02",
+        "JOBS-01"
+      ],
+      "requirementIds": [
+        "REQ-M09-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m09",
+        "packages/domain/m09",
+        "tests/TC-M09-01"
+      ],
+      "acceptance": [
+        "Intent path server-generated; size/magic/quota/scan; pending không thành ready khi scan lỗi.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M09-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M09-02",
+      "title": "Original và derivative",
+      "phase": "P5",
+      "module": "M09",
+      "dependencies": [
+        "M09-01"
+      ],
+      "requirementIds": [
+        "REQ-M09-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m09",
+        "packages/domain/m09",
+        "tests/TC-M09-02"
+      ],
+      "acceptance": [
+        "Original checksum immutable/private; derivative strip EXIF GPS; private URLs hết hạn.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M09-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M09-03",
+      "title": "Citation thật",
+      "phase": "P5",
+      "module": "M09",
+      "dependencies": [
+        "M09-02"
+      ],
+      "requirementIds": [
+        "REQ-M09-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m09",
+        "packages/domain/m09",
+        "tests/TC-M09-03"
+      ],
+      "acceptance": [
+        "Facts/edges/content có source+page/locator, foreign keys không orphan.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M09-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M09-04",
+      "title": "Quyền liên kết",
+      "phase": "P5",
+      "module": "M09",
+      "dependencies": [
+        "M09-03"
+      ],
+      "requirementIds": [
+        "REQ-M09-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m09",
+        "packages/domain/m09",
+        "tests/TC-M09-04"
+      ],
+      "acceptance": [
+        "Asset/source có quyền riêng; link vào bài public không tự nâng visibility.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M09-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M09-05",
+      "title": "Viewer mobile",
+      "phase": "P5",
+      "module": "M09",
+      "dependencies": [
+        "M09-04"
+      ],
+      "requirementIds": [
+        "REQ-M09-05"
+      ],
+      "outputs": [
+        "apps/web/modules/m09",
+        "packages/domain/m09",
+        "tests/TC-M09-05"
+      ],
+      "acceptance": [
+        "Ảnh/PDF/audio/video có controls và fallback; không autoplay/active content; mobile không tràn.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M09-05"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M10-01",
+      "title": "Adapter Việt Nam",
+      "phase": "P6",
+      "module": "M10",
+      "dependencies": [
+        "M03-06",
+        "M09-05"
+      ],
+      "requirementIds": [
+        "REQ-M10-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m10",
+        "packages/domain/m10",
+        "tests/TC-M10-01"
+      ],
+      "acceptance": [
+        "Golden và round-trip trong range đã công bố; không dùng lịch UTC+8 thay thế.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M10-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M10-02",
+      "title": "Recurrence policy",
+      "phase": "P6",
+      "module": "M10",
+      "dependencies": [
+        "M10-01"
+      ],
+      "requirementIds": [
+        "REQ-M10-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m10",
+        "packages/domain/m10",
+        "tests/TC-M10-02"
+      ],
+      "acceptance": [
+        "Leap/short-month policy rõ; nguồn leap chưa duyệt không gửi tự động.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M10-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M10-03",
+      "title": "Ngày gốc và lần tới",
+      "phase": "P6",
+      "module": "M10",
+      "dependencies": [
+        "M10-02"
+      ],
+      "requirementIds": [
+        "REQ-M10-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m10",
+        "packages/domain/m10",
+        "tests/TC-M10-03"
+      ],
+      "acceptance": [
+        "EventRule không bị thay bởi solar occurrences; query xét năm âm qua ranh năm dương.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M10-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M10-04",
+      "title": "Override/version",
+      "phase": "P6",
+      "module": "M10",
+      "dependencies": [
+        "M10-03"
+      ],
+      "requirementIds": [
+        "REQ-M10-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m10",
+        "packages/domain/m10",
+        "tests/TC-M10-04"
+      ],
+      "acceptance": [
+        "Override giữ logical key và lý do; rule update không nhân đôi occurrence.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M10-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M10-05",
+      "title": "RSVP",
+      "phase": "P6",
+      "module": "M10",
+      "dependencies": [
+        "M10-04"
+      ],
+      "requirementIds": [
+        "REQ-M10-05"
+      ],
+      "outputs": [
+        "apps/web/modules/m10",
+        "packages/domain/m10",
+        "tests/TC-M10-05"
+      ],
+      "acceptance": [
+        "Yes/no/maybe và headcount có version/idempotency; danh sách khách không public.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M10-05"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M10-06",
+      "title": "ICS đúng ngày",
+      "phase": "P6",
+      "module": "M10",
+      "dependencies": [
+        "M10-05"
+      ],
+      "requirementIds": [
+        "REQ-M10-06"
+      ],
+      "outputs": [
+        "apps/web/modules/m10",
+        "packages/domain/m10",
+        "tests/TC-M10-06"
+      ],
+      "acceptance": [
+        "Solar date export, all-day DTEND exclusive, UID ổn định, riêng tư theo scope.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M10-06"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M11-01",
+      "title": "Outbox atomic",
+      "phase": "P6",
+      "module": "M11",
+      "dependencies": [
+        "M10-06",
+        "JOBS-01"
+      ],
+      "requirementIds": [
+        "REQ-M11-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m11",
+        "packages/domain/m11",
+        "tests/TC-M11-01"
+      ],
+      "acceptance": [
+        "DB commit có outbox, worker downtime không mất việc; dispatcher retry có dedupe.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M11-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M11-02",
+      "title": "Gửi idempotent",
+      "phase": "P6",
+      "module": "M11",
+      "dependencies": [
+        "M11-01"
+      ],
+      "requirementIds": [
+        "REQ-M11-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m11",
+        "packages/domain/m11",
+        "tests/TC-M11-02"
+      ],
+      "acceptance": [
+        "Crash sau provider accepted không gửi trùng vô hạn; lưu/reconcile provider ID.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M11-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M11-03",
+      "title": "Privacy và preference",
+      "phase": "P6",
+      "module": "M11",
+      "dependencies": [
+        "M11-02"
+      ],
+      "requirementIds": [
+        "REQ-M11-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m11",
+        "packages/domain/m11",
+        "tests/TC-M11-03"
+      ],
+      "acceptance": [
+        "Opt-in, quiet/default hour, unsubscribe/suppression, recheck consent lúc gửi.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M11-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M11-04",
+      "title": "Counters và failure",
+      "phase": "P6",
+      "module": "M11",
+      "dependencies": [
+        "M11-03"
+      ],
+      "requirementIds": [
+        "REQ-M11-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m11",
+        "packages/domain/m11",
+        "tests/TC-M11-04"
+      ],
+      "acceptance": [
+        "Queued/processed/succeeded/failed/skipped đúng; failed jobs có retry audit, không giả complete.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M11-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M12-01",
+      "title": "Rich text an toàn",
+      "phase": "P6",
+      "module": "M12",
+      "dependencies": [
+        "M09-05",
+        "M08-05"
+      ],
+      "requirementIds": [
+        "REQ-M12-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m12",
+        "packages/domain/m12",
+        "tests/TC-M12-01"
+      ],
+      "acceptance": [
+        "Allowlist schema, sanitize server, safe link/media; stored XSS không thực thi.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M12-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M12-02",
+      "title": "Revision/publish",
+      "phase": "P6",
+      "module": "M12",
+      "dependencies": [
+        "M12-01"
+      ],
+      "requirementIds": [
+        "REQ-M12-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m12",
+        "packages/domain/m12",
+        "tests/TC-M12-02"
+      ],
+      "acceptance": [
+        "Draft/preview/published/scheduled khác nhau; preview không index và token có hạn.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M12-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M12-03",
+      "title": "Public SEO",
+      "phase": "P6",
+      "module": "M12",
+      "dependencies": [
+        "M12-02"
+      ],
+      "requirementIds": [
+        "REQ-M12-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m12",
+        "packages/domain/m12",
+        "tests/TC-M12-03"
+      ],
+      "acceptance": [
+        "Sitemap/OG chỉ nội dung public duyệt; không private names/photos trong metadata.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M12-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M12-04",
+      "title": "Tìm đọc mobile",
+      "phase": "P6",
+      "module": "M12",
+      "dependencies": [
+        "M12-03"
+      ],
+      "requirementIds": [
+        "REQ-M12-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m12",
+        "packages/domain/m12",
+        "tests/TC-M12-04"
+      ],
+      "acceptance": [
+        "Danh sách/bài dài/ảnh/heading rõ, font dấu Việt và 200% zoom không cắt.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M12-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M13-01",
+      "title": "Place/burial model",
+      "phase": "P6",
+      "module": "M13",
+      "dependencies": [
+        "M09-05"
+      ],
+      "requirementIds": [
+        "REQ-M13-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m13",
+        "packages/domain/m13",
+        "tests/TC-M13-01"
+      ],
+      "acceptance": [
+        "Nhà thờ/mộ/khu vực có source và locator, không đồng nhất với địa chỉ nhà người sống.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M13-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M13-02",
+      "title": "Coordinates private",
+      "phase": "P6",
+      "module": "M13",
+      "dependencies": [
+        "M13-01"
+      ],
+      "requirementIds": [
+        "REQ-M13-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m13",
+        "packages/domain/m13",
+        "tests/TC-M13-02"
+      ],
+      "acceptance": [
+        "Không tự gửi tọa độ/địa chỉ private đến map/geocoding; explicit external link.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M13-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M13-03",
+      "title": "Media và directions",
+      "phase": "P6",
+      "module": "M13",
+      "dependencies": [
+        "M13-02"
+      ],
+      "requirementIds": [
+        "REQ-M13-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m13",
+        "packages/domain/m13",
+        "tests/TC-M13-03"
+      ],
+      "acceptance": [
+        "Ảnh và hướng dẫn có quyền; không có provider vẫn xem được địa điểm text.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M13-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M13-04",
+      "title": "Map adapter gate",
+      "phase": "P6",
+      "module": "M13",
+      "dependencies": [
+        "M13-03"
+      ],
+      "requirementIds": [
+        "REQ-M13-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m13",
+        "packages/domain/m13",
+        "tests/TC-M13-04"
+      ],
+      "acceptance": [
+        "Provider adapter/flag có quota và H2; flag client không thay authorization server.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M13-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M14-01",
+      "title": "Balanced ledger",
+      "phase": "P7",
+      "module": "M14",
+      "dependencies": [
+        "M07-05",
+        "M09-05"
+      ],
+      "requirementIds": [
+        "REQ-M14-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m14",
+        "packages/domain/m14",
+        "tests/TC-M14-01"
+      ],
+      "acceptance": [
+        "Journal lines integer bigint VND sum=0; API tiền string, không float.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M14-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M14-02",
+      "title": "2-person post",
+      "phase": "P7",
+      "module": "M14",
+      "dependencies": [
+        "M14-01"
+      ],
+      "requirementIds": [
+        "REQ-M14-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m14",
+        "packages/domain/m14",
+        "tests/TC-M14-02"
+      ],
+      "acceptance": [
+        "Tác giả không tự approve kể cả owner; grant+MFA+version kiểm tra DB.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M14-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M14-03",
+      "title": "Immutable/reversal",
+      "phase": "P7",
+      "module": "M14",
+      "dependencies": [
+        "M14-02"
+      ],
+      "requirementIds": [
+        "REQ-M14-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m14",
+        "packages/domain/m14",
+        "tests/TC-M14-03"
+      ],
+      "acceptance": [
+        "Posted không PATCH/delete; đảo/thay thế có link và approval, không đảo trùng.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M14-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M14-04",
+      "title": "Reports và privacy",
+      "phase": "P7",
+      "module": "M14",
+      "dependencies": [
+        "M14-03"
+      ],
+      "requirementIds": [
+        "REQ-M14-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m14",
+        "packages/domain/m14",
+        "tests/TC-M14-04"
+      ],
+      "acceptance": [
+        "Opening/receipt/payment/closing balance đúng; donor/proof private không lộ qua export.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M14-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M14-05",
+      "title": "Đối chiếu kỳ",
+      "phase": "P7",
+      "module": "M14",
+      "dependencies": [
+        "M14-04"
+      ],
+      "requirementIds": [
+        "REQ-M14-05"
+      ],
+      "outputs": [
+        "apps/web/modules/m14",
+        "packages/domain/m14",
+        "tests/TC-M14-05"
+      ],
+      "acceptance": [
+        "Kỳ đã khóa không sửa, phiếu thật có proof trạng thái rõ, không giả đồng bộ ngân hàng.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M14-05"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M15-01",
+      "title": "Chương trình/đề cử",
+      "phase": "P7",
+      "module": "M15",
+      "dependencies": [
+        "M14-05"
+      ],
+      "requirementIds": [
+        "REQ-M15-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m15",
+        "packages/domain/m15",
+        "tests/TC-M15-01"
+      ],
+      "acceptance": [
+        "Tiêu chí/hạn/quỹ và application status có workflow, người phụ trách rõ.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M15-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M15-02",
+      "title": "Minors và nguồn",
+      "phase": "P7",
+      "module": "M15",
+      "dependencies": [
+        "M15-01"
+      ],
+      "requirementIds": [
+        "REQ-M15-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m15",
+        "packages/domain/m15",
+        "tests/TC-M15-02"
+      ],
+      "acceptance": [
+        "Thông tin học tập/chứng từ restricted; publish thành tích cần approval riêng.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M15-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M15-03",
+      "title": "Award và thanh toán",
+      "phase": "P7",
+      "module": "M15",
+      "dependencies": [
+        "M15-02"
+      ],
+      "requirementIds": [
+        "REQ-M15-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m15",
+        "packages/domain/m15",
+        "tests/TC-M15-03"
+      ],
+      "acceptance": [
+        "Approved award không đồng nghĩa paid; journal posted liên kết một lần và reversal được phản ánh.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M15-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M15-04",
+      "title": "Báo cáo",
+      "phase": "P7",
+      "module": "M15",
+      "dependencies": [
+        "M15-03"
+      ],
+      "requirementIds": [
+        "REQ-M15-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m15",
+        "packages/domain/m15",
+        "tests/TC-M15-04"
+      ],
+      "acceptance": [
+        "Tổng hỗ trợ đúng, donor/ứng viên chỉ hiện theo quyền, không export hồ sơ trẻ em ngoài scope.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M15-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M16-01",
+      "title": "Intake/dry-run",
+      "phase": "P5",
+      "module": "M16",
+      "dependencies": [
+        "M03-06",
+        "M08-05",
+        "M09-05"
+      ],
+      "requirementIds": [
+        "REQ-M16-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m16",
+        "packages/domain/m16",
+        "tests/TC-M16-01"
+      ],
+      "acceptance": [
+        "Original checksum và classification; parser staging chưa ghi canonical; counts/warnings/source links đúng.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M16-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M16-02",
+      "title": "Structured schema",
+      "phase": "P5",
+      "module": "M16",
+      "dependencies": [
+        "M16-01"
+      ],
+      "requirementIds": [
+        "REQ-M16-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m16",
+        "packages/domain/m16",
+        "tests/TC-M16-02"
+      ],
+      "acceptance": [
+        "CSV/JSON mapping có version và validation; unknown dates không bị đổi thành exact.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M16-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M16-03",
+      "title": "GEDCOM subset",
+      "phase": "P5",
+      "module": "M16",
+      "dependencies": [
+        "M16-02"
+      ],
+      "requirementIds": [
+        "REQ-M16-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m16",
+        "packages/domain/m16",
+        "tests/TC-M16-03"
+      ],
+      "acceptance": [
+        "5.5.1/7 supported tags có report; unknown raw preserved; lunar/privacy sidecar không mất âm thầm.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M16-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M16-04",
+      "title": "Idempotent import",
+      "phase": "P5",
+      "module": "M16",
+      "dependencies": [
+        "M16-03"
+      ],
+      "requirementIds": [
+        "REQ-M16-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m16",
+        "packages/domain/m16",
+        "tests/TC-M16-04"
+      ],
+      "acceptance": [
+        "Cùng file+mapping+tree không nhân người/cạnh; external IDs ổn định.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M16-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M16-05",
+      "title": "Partial/cancel/undo",
+      "phase": "P5",
+      "module": "M16",
+      "dependencies": [
+        "M16-04"
+      ],
+      "requirementIds": [
+        "REQ-M16-05"
+      ],
+      "outputs": [
+        "apps/web/modules/m16",
+        "packages/domain/m16",
+        "tests/TC-M16-05"
+      ],
+      "acceptance": [
+        "Chunks có manifest; partial không báo rolled_back; cancel/compensate không xóa edits mới.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M16-05"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M16-06",
+      "title": "Permission exports",
+      "phase": "P5",
+      "module": "M16",
+      "dependencies": [
+        "M16-05"
+      ],
+      "requirementIds": [
+        "REQ-M16-06"
+      ],
+      "outputs": [
+        "apps/web/modules/m16",
+        "packages/domain/m16",
+        "tests/TC-M16-06"
+      ],
+      "acceptance": [
+        "JSON/CSV/GEDCOM/PDF redacted, MFA bulk, expiry và recheck download; CSV injection neutralized.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M16-06"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M17-01",
+      "title": "Quality queue",
+      "phase": "P8",
+      "module": "M17",
+      "dependencies": [
+        "M08-05",
+        "M04-06",
+        "M16-06"
+      ],
+      "requirementIds": [
+        "REQ-M17-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m17",
+        "packages/domain/m17",
+        "tests/TC-M17-01"
+      ],
+      "acceptance": [
+        "Missing source, unresolved root, duplicate candidate và disputed có hàng đợi không tự sửa.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M17-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M17-02",
+      "title": "Merge preview",
+      "phase": "P8",
+      "module": "M17",
+      "dependencies": [
+        "M17-01"
+      ],
+      "requirementIds": [
+        "REQ-M17-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m17",
+        "packages/domain/m17",
+        "tests/TC-M17-02"
+      ],
+      "acceptance": [
+        "Liệt kê toàn bộ references, version, graph check, survivor mapping; không merge theo tên.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M17-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M17-03",
+      "title": "Merge compensation",
+      "phase": "P8",
+      "module": "M17",
+      "dependencies": [
+        "M17-02"
+      ],
+      "requirementIds": [
+        "REQ-M17-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m17",
+        "packages/domain/m17",
+        "tests/TC-M17-03"
+      ],
+      "acceptance": [
+        "Undo xử lý edits sau merge và giữ manifest; không restore một row đè dữ liệu mới.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M17-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M17-04",
+      "title": "Audit tối thiểu",
+      "phase": "P8",
+      "module": "M17",
+      "dependencies": [
+        "M17-03"
+      ],
+      "requirementIds": [
+        "REQ-M17-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m17",
+        "packages/domain/m17",
+        "tests/TC-M17-04"
+      ],
+      "acceptance": [
+        "Ai/lúc nào/đối tượng/version/reason, quyền xem; không lưu PII vô hạn trong diff.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M17-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M17-05",
+      "title": "Privacy workflow",
+      "phase": "P8",
+      "module": "M17",
+      "dependencies": [
+        "M17-04"
+      ],
+      "requirementIds": [
+        "REQ-M17-05"
+      ],
+      "outputs": [
+        "apps/web/modules/m17",
+        "packages/domain/m17",
+        "tests/TC-M17-05"
+      ],
+      "acceptance": [
+        "Request verify/restrict/purge/projection/export/jobs/backup tombstone đầy đủ và có evidence.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M17-05"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M18-01",
+      "title": "Env/ownership",
+      "phase": "P9",
+      "module": "M18",
+      "dependencies": [
+        "P0-05",
+        "JOBS-01"
+      ],
+      "requirementIds": [
+        "REQ-M18-01"
+      ],
+      "outputs": [
+        "apps/web/modules/m18",
+        "packages/domain/m18",
+        "tests/TC-M18-01"
+      ],
+      "acceptance": [
+        "Dev/staging/prod tách; account owner, MFA, secrets, budget/region H2 được ghi.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M18-01"
+      ],
+      "status": "TODO",
+      "approvalRequired": [
+        "H2"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "M18-02",
+      "title": "CI/release artifacts",
+      "phase": "P9",
+      "module": "M18",
+      "dependencies": [
+        "M18-01"
+      ],
+      "requirementIds": [
+        "REQ-M18-02"
+      ],
+      "outputs": [
+        "apps/web/modules/m18",
+        "packages/domain/m18",
+        "tests/TC-M18-02"
+      ],
+      "acceptance": [
+        "Lockfile/image digest/contract/schema versions gắn nhau; required tests thực chạy.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M18-02"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M18-03",
+      "title": "Backup đầy đủ",
+      "phase": "P9",
+      "module": "M18",
+      "dependencies": [
+        "M18-02"
+      ],
+      "requirementIds": [
+        "REQ-M18-03"
+      ],
+      "outputs": [
+        "apps/web/modules/m18",
+        "packages/domain/m18",
+        "tests/TC-M18-03"
+      ],
+      "acceptance": [
+        "DB+objects+identity plan+keys; manifest checksum và restore drill qua quyền/login.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M18-03"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M18-04",
+      "title": "Monitoring/runbooks",
+      "phase": "P9",
+      "module": "M18",
+      "dependencies": [
+        "M18-03"
+      ],
+      "requirementIds": [
+        "REQ-M18-04"
+      ],
+      "outputs": [
+        "apps/web/modules/m18",
+        "packages/domain/m18",
+        "tests/TC-M18-04"
+      ],
+      "acceptance": [
+        "Heartbeat/queue/backup/auth/budget alerts được gửi thử cho người thật.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M18-04"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M18-05",
+      "title": "Chuẩn bị công cụ và checklist deployment gate",
+      "phase": "P9",
+      "module": "M18",
+      "dependencies": [
+        "M18-04"
+      ],
+      "requirementIds": [
+        "REQ-M18-05"
+      ],
+      "outputs": [
+        "apps/web/modules/m18",
+        "packages/domain/m18",
+        "tests/TC-M18-05"
+      ],
+      "acceptance": [
+        "H4 exact release và H5 real data khi cần; HTTPS/smoke/rollback, không mock production.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ.",
+        "Chỉ chuẩn bị tooling/checklist, không deploy production; RELEASE-01 mới yêu cầu H4."
+      ],
+      "testIds": [
+        "TC-M18-05"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "M18-06",
+      "title": "Handover",
+      "phase": "P9",
+      "module": "M18",
+      "dependencies": [
+        "M18-05"
+      ],
+      "requirementIds": [
+        "REQ-M18-06"
+      ],
+      "outputs": [
+        "apps/web/modules/m18",
+        "packages/domain/m18",
+        "tests/TC-M18-06"
+      ],
+      "acceptance": [
+        "Owner có recovery/account/keys/runbook/manual; NOT_RUN còn lại nêu đúng, không claim quá mức.",
+        "Có loading/empty/error/restricted/mobile cho UI và DB/API tests khi thay nghiệp vụ."
+      ],
+      "testIds": [
+        "TC-M18-06"
+      ],
+      "status": "TODO",
+      "approvalRequired": [],
+      "evidence": []
+    },
+    {
+      "id": "QA-ALL",
+      "title": "Kiểm tra toàn bộ phạm vi bản 1",
+      "phase": "P8",
+      "module": "RELEASE",
+      "dependencies": [
+        "M01-04",
+        "M02-04",
+        "M03-06",
+        "M04-06",
+        "M05-04",
+        "M06-04",
+        "M07-05",
+        "M08-05",
+        "M09-05",
+        "M10-06",
+        "M11-04",
+        "M12-04",
+        "M13-04",
+        "M14-05",
+        "M15-04",
+        "M16-06",
+        "M17-05"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "reports/release",
+        "state/HANDOFF.md"
+      ],
+      "acceptance": [
+        "Toàn bộ required requirements PASS; không có P0/P1; visual/security/perf/real devices có evidence."
+      ],
+      "testIds": [],
+      "status": "TODO",
+      "approvalRequired": [
+        "H1"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "STAGE-01",
+      "title": "UAT và diễn tập restore trên staging",
+      "phase": "P9",
+      "module": "RELEASE",
+      "dependencies": [
+        "QA-ALL",
+        "M18-06"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "reports/release",
+        "state/HANDOFF.md"
+      ],
+      "acceptance": [
+        "Hạ tầng thật synthetic, backup DB+objects+identity, smoke/reset/private isolation."
+      ],
+      "testIds": [],
+      "status": "TODO",
+      "approvalRequired": [
+        "H2",
+        "H3"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "RELEASE-01",
+      "title": "Phát hành production theo mode đã duyệt",
+      "phase": "P10",
+      "module": "RELEASE",
+      "dependencies": [
+        "STAGE-01"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "reports/release",
+        "state/HANDOFF.md"
+      ],
+      "acceptance": [
+        "Exact manifest, H4, DNS/HTTPS/smoke/monitor/rollback, demo banner hoặc real policy."
+      ],
+      "testIds": [],
+      "status": "TODO",
+      "approvalRequired": [
+        "H4"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "REAL-01",
+      "title": "Intake và cutover dữ liệu thật",
+      "phase": "P11",
+      "module": "RELEASE",
+      "dependencies": [
+        "RELEASE-01",
+        "M16-06"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "reports/release",
+        "state/HANDOFF.md"
+      ],
+      "acceptance": [
+        "H5 approve batch hash; reconcile; không lẫn demo; public content có quyền."
+      ],
+      "testIds": [],
+      "status": "TODO",
+      "approvalRequired": [
+        "H5"
+      ],
+      "evidence": []
+    },
+    {
+      "id": "HANDOVER-01",
+      "title": "Bàn giao và đào tạo người phụ trách",
+      "phase": "P11",
+      "module": "RELEASE",
+      "dependencies": [
+        "RELEASE-01"
+      ],
+      "requirementIds": [],
+      "outputs": [
+        "reports/release",
+        "state/HANDOFF.md"
+      ],
+      "acceptance": [
+        "Owner có tài khoản/recovery/keys/runbooks; tự tra cứu, duyệt, backup và khôi phục được."
+      ],
+      "testIds": [],
+      "status": "TODO",
+      "approvalRequired": [
+        "H4"
+      ],
+      "evidence": []
+    }
+  ]
+}
