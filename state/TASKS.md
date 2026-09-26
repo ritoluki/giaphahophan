@@ -10,7 +10,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | P0-04 | P0 | Contract và DB migrations nền | P0-03 | IN_PROGRESS — DB execution NOT_RUN |
 | P0-05 | P0 | CI và test harness | P0-03 | IN_PROGRESS — CI template, integration NOT_RUN |
 | UI-01 | P1 | Design tokens và component stories | P0-03 | IN_PROGRESS — shared components/tokens + Chromium E2E PASS; full stories/a11y NOT_RUN |
-| UI-02 | P1 | Năm màn hình duyệt phong cách | UI-01 | IN_PROGRESS — 10 desktop/mobile screenshots generated; H1 approval PENDING |
+| UI-02 | P1 | Năm màn hình duyệt phong cách | UI-01 | IN_PROGRESS — admin preview included; 12 desktop/mobile screenshots generated; H1 approval PENDING |
 | CORE-01 | P2 | Auth/RPC/permission foundation | P0-04 |  |
 | CORE-02 | P2 | Vertical slice có DB và review | CORE-01, P0-05 |  |
 | JOBS-01 | P2 | Outbox/worker nền | P0-04 |  |

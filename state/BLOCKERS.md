@@ -11,7 +11,7 @@
 | DEP-05 | Tài liệu thật và H5 | Import dữ liệu thật | Toàn bộ demo và import engine |
 | ENV-01 | Local Node `22.13.0`, trong khi manifest/CI yêu cầu Node 24 | Node 24-specific verification và release baseline | Typecheck/test/build đã chạy trên Node 22, nhưng không thay thế gate Node 24 |
 | ENV-02 | Docker daemon chưa chạy: `DOCKER_CONFIG=.docker-config docker.exe version` báo named pipe `docker_engine` không tồn tại; config mặc định cũng bị Access denied | Supabase local, migration execution, RLS/DB integration, restore drill | UI, domain unit, contract schemas, migration static review, CI template |
-| P1-01 | H1 visual approval và full accessibility review chưa có; WebKit/real-device chưa chạy | UI-01/UI-02 completion và final visual gate | Chromium desktop/mobile E2E 8/8, 10 screenshots, fixture-driven routes, typecheck/lint/build |
+| P1-01 | H1 visual approval và full accessibility review chưa có; WebKit/real-device chưa chạy | UI-01/UI-02 completion và final visual gate | Chromium desktop/mobile E2E 10/10, 12 screenshots, fixture-driven routes, typecheck/lint/build |
 
 Git push P0: CLEAR — commit `eab975447bd4b5f73daf4685590fac633e4166da` đã đồng bộ trên `origin/main`; không phát sinh blocker quyền truy cập remote.
 

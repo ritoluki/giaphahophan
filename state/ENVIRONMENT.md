@@ -1,6 +1,6 @@
 # Môi trường cần agent xác minh
 
-Trạng thái: PARTIALLY_VERIFIED trên workspace ngày 26/09/2026 22:52 Asia/Saigon.
+Trạng thái: PARTIALLY_VERIFIED trên workspace ngày 27/09/2026 00:02 Asia/Saigon.
 
 | Hạng mục | Giá trị dự kiến | Kết quả thực tế |
 |---|---|---|
@@ -11,7 +11,7 @@ Trạng thái: PARTIALLY_VERIFIED trên workspace ngày 26/09/2026 22:52 Asia/Sa
 | Docker client | docker version | PASS — Docker `29.8.0`, build `88096ef` |
 | Docker daemon | docker info / Server section | BLOCKED — với `DOCKER_CONFIG=.docker-config`, client báo không tìm thấy `//./pipe/docker_engine`; Docker daemon chưa chạy. Config mặc định cũng bị `Access is denied` |
 | Supabase local | CLI + Docker | NOT_RUN — phụ thuộc Docker daemon; chưa cài/chạy CLI |
-| Browser | Chromium và WebKit test; real mobile riêng | PARTIAL — Chromium 140.0.7339.186 installed; desktop + Pixel 5 emulation E2E PASS 8/8; WebKit/real device NOT_RUN |
+| Browser | Chromium và WebKit test; real mobile riêng | PARTIAL — Chromium 140.0.7339.186 installed; desktop + Pixel 5 emulation E2E PASS 10/10; WebKit/real device NOT_RUN |
 | Git | repo riêng, không lẫn project công việc | PASS — `main` sạch và đồng bộ `origin/main`; staged audit không có env/secret thật |
 
 ## Bằng chứng lệnh

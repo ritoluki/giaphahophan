@@ -64,6 +64,21 @@ export function SiteShell({ children, active }: { children: ReactNode; active: N
   );
 }
 
+export function AdminShell({ children }: { children: ReactNode }) {
+  return (
+    <div className="site-shell admin-shell">
+      <header className="container admin-topbar">
+        <Link className="brand-lockup" href="/" aria-label="Phan Gia Phả - Trang chủ">
+          <Image src="/assets/logo-mark.png" alt="" width={40} height={40} priority />
+          <span>Phan Gia Phả<small>Khu vực quản trị</small></span>
+        </Link>
+        <Link className="button-secondary" href="/">Về trang chính</Link>
+      </header>
+      {children}
+    </div>
+  );
+}
+
 export function DemoNotice() {
   return <div className="demo-banner" role="note">Dữ liệu minh họa — các tên, ngày và chi trong bản demo đều hư cấu.</div>;
 }

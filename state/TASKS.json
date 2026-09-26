@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-09-26T23:40:00+07:00",
+  "updatedAt": "2026-09-27T00:02:55+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -172,7 +172,7 @@
       "evidence": [
         "Implemented demo vertical slice routes: /, /tra-cuu, /gia-pha, /nguoi/[id], /lich-ho, /tu-lieu.",
         "Standalone HTTP smoke: all six product routes returned 200; /api/v1/health/live returned 200.",
-        "10 screenshots generated for home/person/family-focus/calendar/sources at desktop and Pixel 5 mobile; H1 visual approval remains PENDING."
+        "12 screenshots generated for home/person/family-focus/calendar/sources/admin at desktop and Pixel 5 mobile; H1 visual approval remains PENDING."
       ]
     },
     {

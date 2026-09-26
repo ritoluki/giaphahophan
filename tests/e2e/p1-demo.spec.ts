@@ -48,3 +48,12 @@ test("calendar and sources preserve uncertainty labels", async ({ page }, testIn
   await expect(page.getByText("Nguồn hư cấu · Chỉ phục vụ kiểm thử", { exact: true })).toBeVisible();
   await capture(page, "sources", testInfo.project.name);
 });
+
+test("admin preview keeps restricted state explicit", async ({ page }, testInfo) => {
+  await page.goto("/quan-tri");
+  await expect(page.getByRole("heading", { name: "Tổng quan quản trị" })).toBeVisible();
+  await expect(page.getByText("Truy cập bị giới hạn", { exact: true })).toBeVisible();
+  await expect(page.getByText("Không có thao tác thay đổi dữ liệu trong bản preview.", { exact: false })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Đăng nhập theo lời mời" })).toBeVisible();
+  await capture(page, "admin", testInfo.project.name);
+});
