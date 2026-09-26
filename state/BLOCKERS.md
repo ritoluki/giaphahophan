@@ -12,8 +12,8 @@
 | ENV-01 | RESOLVED — Node `24.21.0` active và `pnpm run doctor` exit 0 | — | Node 24 quality checks đã chạy; giữ Node 24 cho CI/release |
 | ENV-02 | RESOLVED — Docker Desktop daemon đã chạy và Supabase local stack healthy | — | DB/RLS local integration có thể tiếp tục; giữ bằng chứng container/endpoint trong state |
 | P1-01 | H1 visual approval và full accessibility review chưa có; WebKit/real-device chưa chạy | UI-01/UI-02 completion và final visual gate | Chromium responsive/a11y smoke 18/18, 18 screenshots, fixture-driven routes, typecheck/lint/build |
-| CORE-01 | True concurrent race, idempotency matrix và remote CI chưa hoàn tất | CORE-02 broader role acceptance và CI closure | Authenticated session, stale serialization conflict, full private raw-table denial, capability/membership denial and tree-scoped target checks PASS on local synthetic DB |
-| CORE-02 | Broader proposal item kinds, true concurrency, idempotency and remote CI chưa hoàn tất | DB-backed vertical slice final acceptance | Person correction approval now atomically updates canonical person/version and writes proposal/person audit-outbox; BFF integration PASS; không cần dữ liệu thật |
+| CORE-01 | True concurrent race và remote CI chưa hoàn tất | CORE-02 broader role acceptance và CI closure | Authenticated session, stale serialization conflict, idempotency replay/conflict, full private raw-table denial, capability/membership denial and tree-scoped target checks PASS on local synthetic DB |
+| CORE-02 | Broader proposal item kinds, true concurrency and remote CI chưa hoàn tất | DB-backed vertical slice final acceptance | Person correction approval atomically updates canonical person/version; Idempotency-Key boundary/replay/conflict and BFF integration PASS; không cần dữ liệu thật |
 
 Git push P0: CLEAR — commit `eab975447bd4b5f73daf4685590fac633e4166da` đã đồng bộ trên `origin/main`; không phát sinh blocker quyền truy cập remote.
 

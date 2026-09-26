@@ -121,6 +121,28 @@ try {
 
   const cookieA = await loginThroughBff(emailA, passwordA);
   const cookieB = await loginThroughBff(emailB, passwordB);
+  const submitKey = randomUUID();
+  const selfReviewKey = randomUUID();
+  const reviewKey = randomUUID();
+
+  const missingKey = await jsonRequest(webUrl + "/api/v1/proposals", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: cookieA },
+    body: JSON.stringify({
+      treeId,
+      kind: "correction",
+      reason: "Synthetic missing idempotency key",
+      items: [{
+        targetKind: "person",
+        targetId: personId,
+        baseVersion: 1,
+        operation: "update",
+        fieldChanges: { display_name: "Denied" },
+        sourceIds: [sourceId]
+      }]
+    })
+  });
+  assert(missingKey.response.status === 428, "mutation without Idempotency-Key was accepted");
   const proposalPayload = {
     treeId,
     kind: "correction",
@@ -139,16 +161,30 @@ try {
 
   const submitted = await jsonRequest(webUrl + "/api/v1/proposals", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Cookie: cookieA },
+    headers: { "Content-Type": "application/json", "Idempotency-Key": submitKey, Cookie: cookieA },
     body: JSON.stringify(proposalPayload)
   });
   assert(submitted.response.status === 201 && submitted.body && submitted.body.data && submitted.body.data.status === "submitted", "authenticated proposal submit failed");
   const proposalId = submitted.body.data.id;
   const proposalVersion = submitted.body.data.version;
 
+  const replayedSubmit = await jsonRequest(webUrl + "/api/v1/proposals", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": submitKey, Cookie: cookieA },
+    body: JSON.stringify(proposalPayload)
+  });
+  assert(replayedSubmit.response.status === 201 && replayedSubmit.body?.data?.id === proposalId, "same submit idempotency key did not replay the original result");
+
+  const conflictingSubmit = await jsonRequest(webUrl + "/api/v1/proposals", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": submitKey, Cookie: cookieA },
+    body: JSON.stringify({ ...proposalPayload, reason: "Synthetic changed request under same key" })
+  });
+  assert(conflictingSubmit.response.status === 409, "same submit idempotency key with a different body was accepted");
+
   const selfReview = await jsonRequest(webUrl + "/api/v1/proposals/" + proposalId + "/review", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Cookie: cookieA },
+    headers: { "Content-Type": "application/json", "Idempotency-Key": selfReviewKey, Cookie: cookieA },
     body: JSON.stringify({
       decision: "approve",
       reason: "Synthetic self review must be denied",
@@ -160,7 +196,7 @@ try {
 
   const reviewed = await jsonRequest(webUrl + "/api/v1/proposals/" + proposalId + "/review", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Cookie: cookieB },
+    headers: { "Content-Type": "application/json", "Idempotency-Key": reviewKey, Cookie: cookieB },
     body: JSON.stringify({
       decision: "approve",
       reason: "Synthetic independent review",
@@ -169,6 +205,18 @@ try {
     })
   });
   assert(reviewed.response.status === 200 && reviewed.body && reviewed.body.data && reviewed.body.data.status === "approved", "independent review did not approve");
+
+  const replayedReview = await jsonRequest(webUrl + "/api/v1/proposals/" + proposalId + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": reviewKey, Cookie: cookieB },
+    body: JSON.stringify({
+      decision: "approve",
+      reason: "Synthetic independent review",
+      baseVersion: proposalVersion,
+      reviewedSnapshotHash: "synthetic-hash"
+    })
+  });
+  assert(replayedReview.response.status === 200 && replayedReview.body?.data?.id === proposalId && replayedReview.body?.data?.status === "approved", "same review idempotency key did not replay the original result");
 
   const verified = runPsql("select p.status, p.version, person.display_name, person.version, (select count(*) from private.audit_events where resource_id = p.id) as audit_count, (select count(*) from private.outbox where resource_id = p.id) as proposal_outbox_count, (select count(*) from private.outbox where resource_id = person.id and event_type = 'person.updated') as person_outbox_count from private.proposals p join private.persons person on person.id = " + sqlString(personId) + " and person.tree_id = p.tree_id where p.id = " + sqlString(proposalId) + ";");
   assert(verified.status === 0 && /approved\s+\|\s+2\s+\|\s+Synthetic Auth Person Updated\s+\|\s+2\s+\|\s+2\s+\|\s+2\s+\|\s+1/.test(verified.stdout), "proposal projection/audit/outbox verification failed");

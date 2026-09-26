@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { parsePublicEnv } from "@phan/config";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
@@ -35,6 +36,21 @@ export async function getVerifiedUser(
   const { data, error } = await client.auth.getUser();
   if (error || !data.user) return null;
   return data.user;
+}
+
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.keys(record).sort().map((key) => [key, canonicalize(record[key])])
+    );
+  }
+  return value;
+}
+
+export function createRequestHash(value: unknown) {
+  return createHash("sha256").update(JSON.stringify(canonicalize(value))).digest("hex");
 }
 
 export function rpcErrorStatus(code: string | undefined) {

@@ -143,18 +143,45 @@ end;
 $$;
 
 select id, version
-from api.proposal_submit(
+from api.proposal_submit_idempotent(
   '10000000-0000-4000-8000-000000000001',
   'correction',
   'Synthetic correction proposal',
   '50000000-0000-4000-8000-000000000001',
   '{"graphRevision":1}'::jsonb,
-  '[{"target_kind":"person","target_id":"30000000-0000-4000-8000-000000000001","base_version":1,"operation":"update","field_changes":{"display_name":"Synthetic Updated Person"},"source_ids":["40000000-0000-4000-8000-000000000001"]}]'::jsonb
+  '[{"target_kind":"person","target_id":"30000000-0000-4000-8000-000000000001","base_version":1,"operation":"update","field_changes":{"display_name":"Synthetic Updated Person"},"source_ids":["40000000-0000-4000-8000-000000000001"]}]'::jsonb,
+  '80000000-0000-4000-8000-000000000001',
+  'synthetic-submit-hash'
 )
 \gset submitted_
 
 select set_config('test.submitted_id', :'submitted_id', true);
 select set_config('test.submitted_version', :'submitted_version', true);
+
+do $$
+declare
+  v_id uuid;
+  v_version bigint;
+begin
+  select id, version
+  into v_id, v_version
+  from api.proposal_submit_idempotent(
+    '10000000-0000-4000-8000-000000000001',
+    'correction',
+    'Synthetic correction proposal',
+    '50000000-0000-4000-8000-000000000001',
+    '{"graphRevision":1}'::jsonb,
+    '[{"target_kind":"person","target_id":"30000000-0000-4000-8000-000000000001","base_version":1,"operation":"update","field_changes":{"display_name":"Synthetic Updated Person"},"source_ids":["40000000-0000-4000-8000-000000000001"]}]'::jsonb,
+    '80000000-0000-4000-8000-000000000001',
+    'synthetic-submit-hash'
+  );
+  if v_id <> current_setting('test.submitted_id')::uuid
+    or v_version <> current_setting('test.submitted_version')::bigint
+  then
+    raise exception 'idempotent submit replay returned a different result';
+  end if;
+end;
+$$;
 
 do $$
 declare

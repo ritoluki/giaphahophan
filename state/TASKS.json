@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-09-27T02:20:00+07:00",
+  "updatedAt": "2026-09-27T02:45:00+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -201,7 +201,7 @@
         "packages/contracts/src/index.ts + index.test.ts: person projection and proposal mutation schemas/tests.",
         "apps/web/src/app/api/v1/people/[id]/route.ts: server-side RPC boundary with public-key client, Zod mapping, no-store response and invalid UUID HTTP smoke 400.",
         "apps/web/src/proxy.ts + apps/web/src/lib/server/supabase-api.ts: Next 16 session refresh via getClaims and verified-user lookup via getUser; mutation routes reject missing sessions with HTTP 401.",
-        "Migrations 0005-0006 add tree-scoped proposal targets, stale serialization conflict and atomic person projection apply; full private raw-table denial and capability/membership negative matrix PASS. True concurrent race, idempotency and CI remote run remain NOT_RUN; task stays IN_PROGRESS."
+        "Migrations 0005-0006 add tree-scoped proposal targets, stale serialization conflict and atomic person projection apply; full private raw-table denial and capability/membership negative matrix PASS. Migration 0007 idempotency wrappers are exercised through the authenticated test. True concurrent race and CI remote run remain NOT_RUN; task stays IN_PROGRESS."
       ]
     },
     {
@@ -227,7 +227,7 @@
         "apps/web/src/app/api/v1/proposals/route.ts and proposals/[id]/review/route.ts: schema-validated server mutation boundaries using Supabase SSR cookies and allowlisted RPCs; actor/role never accepted from payload.",
         "Standalone HTTP smoke: invalid submit/review payloads return HTTP 400 with redacted error envelopes and request IDs.",
         "apps/web/src/app/api/v1/auth/login/route.ts, apps/web/src/app/xac-thuc/route.ts and apps/web/src/app/dang-nhap/login-form.tsx: email/password BFF login, safe PKCE callback and mobile-first form with redacted errors.",
-        "scripts/test-auth-local.mjs + pnpm test:auth: local synthetic Auth session submits proposal, denies self-review, approves by independent reviewer, applies allowlisted person correction/version 2 and verifies separate proposal/person audit-outbox persistence. Broader proposal item kinds, true concurrency, idempotency and remote CI remain NOT_RUN."
+        "scripts/test-auth-local.mjs + pnpm test:auth: local synthetic Auth session checks missing-key 428, submits/replays proposal, rejects same-key different-body with 409, denies self-review, approves by independent reviewer, replays review, applies person correction/version 2 and verifies separate proposal/person audit-outbox persistence. Broader proposal item kinds, true concurrency and remote CI remain NOT_RUN."
       ]
     },
     {

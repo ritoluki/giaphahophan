@@ -1,5 +1,5 @@
-import { proposalReviewInputSchema, proposalMutationResultSchema } from "@phan/contracts";
-import { apiJson, createRequestSupabaseClient, getVerifiedUser, rpcErrorStatus } from "@/lib/server/supabase-api";
+import { idempotencyKeySchema, proposalReviewInputSchema, proposalMutationResultSchema } from "@phan/contracts";
+import { apiJson, createRequestHash, createRequestSupabaseClient, getVerifiedUser, rpcErrorStatus } from "@/lib/server/supabase-api";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -12,16 +12,23 @@ export async function POST(request: Request, context: RouteContext) {
     return apiJson({ code: "INVALID_REVIEW", message: "Review payload is invalid" }, 400);
   }
 
+  const idempotencyKey = idempotencyKeySchema.safeParse(request.headers.get("Idempotency-Key"));
+  if (!idempotencyKey.success) {
+    return apiJson({ code: "IDEMPOTENCY_KEY_REQUIRED", message: "Idempotency-Key must be a UUID" }, 428);
+  }
+
   const client = await createRequestSupabaseClient();
   if (!(await getVerifiedUser(client))) {
     return apiJson({ code: "AUTH_REQUIRED", message: "A verified session is required" }, 401);
   }
-  const { data, error } = await client.schema("api").rpc("proposal_review", {
+  const { data, error } = await client.schema("api").rpc("proposal_review_idempotent", {
     p_proposal_id: input.proposalId,
     p_decision: input.decision,
     p_reason: input.reason,
     p_base_version: input.baseVersion,
-    p_reviewed_snapshot_hash: input.reviewedSnapshotHash
+    p_reviewed_snapshot_hash: input.reviewedSnapshotHash,
+    p_idempotency_key: idempotencyKey.data,
+    p_request_hash: createRequestHash(input)
   });
 
   if (error) return apiJson({ code: "PROPOSAL_REVIEW_FAILED", message: "Proposal review was not accepted" }, rpcErrorStatus(error.code));

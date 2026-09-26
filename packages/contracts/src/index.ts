@@ -88,6 +88,8 @@ export const loginInputSchema = z.object({
   password: z.string().min(8).max(128)
 });
 
+export const idempotencyKeySchema = z.string().uuid();
+
 export const apiMetaSchema = z.object({ requestId: z.string().min(1), version: z.number().int().positive().optional() });
 export const errorResponseSchema = z.object({ error: z.object({ code: z.string(), message: z.string(), fieldErrors: z.record(z.string(), z.array(z.string())).optional(), requestId: z.string(), retryable: z.boolean() }) });
 
