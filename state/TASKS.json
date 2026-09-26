@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-09-27T00:20:45+07:00",
+  "updatedAt": "2026-09-27T00:48:00+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -20,7 +20,8 @@
       "status": "BLOCKED",
       "approvalRequired": [],
       "evidence": [
-        "pnpm run doctor: Node 22.13.0 found; Node 24 baseline BLOCKED; Docker 29.8.0 client found; daemon BLOCKED by access denied reading Docker config.",
+        "pnpm run doctor: Node 22.13.0 found; Node 24 release baseline BLOCKED; Docker 29.8.0 client/server PASS.",
+        "pnpm exec supabase --version: 2.118.0; local stack started on network phan-local; REST/Studio/Mailpit endpoint smoke 200.",
         "state/ENVIRONMENT.md"
       ]
     },
@@ -99,7 +100,7 @@
       "evidence": [
         "supabase/migrations/0001_foundation.sql: private/api/jobs schemas, core domain tables, composite same-tree FKs, RLS FORCE, revoke-all grants.",
         "packages/contracts/src/index.ts: runtime genealogy date/person/API error schemas.",
-        "Database execution and RLS negative tests NOT_RUN because Docker/Supabase daemon is blocked."
+        "pnpm exec supabase start --network-id phan-local: exit 0; migration 0001_foundation.sql applied locally. RLS negative/integration tests remain NOT_RUN."
       ]
     },
     {

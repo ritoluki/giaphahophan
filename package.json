@@ -38,6 +38,7 @@
     "eslint-config-next": "16.3.1",
     "fast-check": "4.3.0",
     "jsdom": "26.1.0",
+    "supabase": "2.118.0",
     "typescript": "5.9.2",
     "vitest": "4.1.11"
   }

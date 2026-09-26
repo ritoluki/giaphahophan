@@ -29,7 +29,7 @@ const nodeMajor = Number.parseInt(nodeVersion.split(".")[0] ?? "0", 10);
 results.push({ label: "Node.js 24 LTS baseline", status: nodeMajor >= 24 ? "PASS" : "BLOCKED", detail: `found ${nodeVersion}` });
 command("pnpm", process.platform === "win32" ? "pnpm.cmd" : "pnpm", ["--version"]);
 command("Docker client", process.platform === "win32" ? "docker.exe" : "docker", ["--version"]);
-command("Docker daemon", process.platform === "win32" ? "docker.exe" : "docker", ["version", "--format", "{{.Server.Version}}"], { DOCKER_CONFIG: resolve(root, ".docker-config") });
+command("Docker daemon", process.platform === "win32" ? "docker.exe" : "docker", ["version", "--format", "{{.Server.Version}}"]);
 file("workspace package", "package.json");
 file("workspace lockfile", "pnpm-lock.yaml");
 file("environment template", ".env.example");

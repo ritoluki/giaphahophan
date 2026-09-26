@@ -4,14 +4,14 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 
 | ID | Chặng | Công việc | Phụ thuộc | Duyệt |
 |---|---|---|---|---|
-| P0-01 | P0 | Kiểm tra môi trường và workspace |  | BLOCKED — Node 24/Docker daemon |
+| P0-01 | P0 | Kiểm tra môi trường và workspace |  | BLOCKED — Node 24 release baseline; Docker PASS |
 | P0-02 | P0 | Chốt phiên bản và license | P0-01 | DONE — lockfile + audit sạch |
 | P0-03 | P0 | Scaffold workspace và scripts | P0-02 | DONE — typecheck/test/lint/build; commit/push `eab9754` |
-| P0-04 | P0 | Contract và DB migrations nền | P0-03 | IN_PROGRESS — DB execution NOT_RUN |
-| P0-05 | P0 | CI và test harness | P0-03 | IN_PROGRESS — CI template, integration NOT_RUN |
+| P0-04 | P0 | Contract và DB migrations nền | P0-03 | IN_PROGRESS — foundation migration applied local; RLS/integration tests NOT_RUN |
+| P0-05 | P0 | CI và test harness | P0-03 | IN_PROGRESS — CI template + browser smoke; DB integration NOT_RUN |
 | UI-01 | P1 | Design tokens và component stories | P0-03 | IN_PROGRESS — shared components/tokens + responsive/a11y smoke 18/18; full stories/axe/manual audit NOT_RUN |
 | UI-02 | P1 | Năm màn hình duyệt phong cách | UI-01 | IN_PROGRESS — admin preview included; 18 screenshots at 1440/Pixel 5/320; H1 approval PENDING |
-| CORE-01 | P2 | Auth/RPC/permission foundation | P0-04 |  |
+| CORE-01 | P2 | Auth/RPC/permission foundation | P0-04 | IN_PROGRESS — local Supabase stack ready; implementation next |
 | CORE-02 | P2 | Vertical slice có DB và review | CORE-01, P0-05 |  |
 | JOBS-01 | P2 | Outbox/worker nền | P0-04 |  |
 | M01-01 | P1 | Public projection | UI-02, CORE-02 |  |

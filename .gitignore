@@ -16,6 +16,7 @@ test-results/
 reports/local/
 reports/playwright/
 supabase/.temp/
+supabase/.branches/
 .docker-config/
 *.log
 *.local
