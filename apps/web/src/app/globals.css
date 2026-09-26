@@ -132,6 +132,21 @@ button, a, input, select { min-height: 44px; }
 .source-note { margin-top: 1rem !important; font-size: .88rem; }
 .profile-family { margin-top: 1rem; }
 .profile-family .button-primary { margin-top: 1rem; }
+.profile-tabs-shell { margin-top: 1.25rem; }
+.profile-tabs { display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .35rem; scrollbar-width: thin; }
+.profile-tab { flex: 0 0 auto; min-height: 44px; padding: .55rem .8rem; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--ink-muted); font-weight: 700; cursor: pointer; white-space: nowrap; }
+.profile-tab:hover, .profile-tab-active { border-color: var(--brand); color: var(--brand); background: #FBF1DE; }
+.profile-tab-panel { margin-top: .75rem; }
+.profile-name-list { display: grid; gap: .65rem; margin: 0; padding: 0; list-style: none; }
+.profile-name-list li { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem; padding-bottom: .55rem; border-bottom: 1px solid var(--border); }
+.profile-name-list li:last-child { border-bottom: 0; }
+.profile-name-list span { font-weight: 700; overflow-wrap: anywhere; }
+.profile-name-list small { color: var(--ink-muted); }
+.profile-span { grid-column: 1 / -1; }
+.profile-state-panel { display: grid; gap: .55rem; }
+.profile-state-panel .button-secondary { width: fit-content; }
+.skeleton-line { display: block; width: 70%; height: 1rem; border-radius: .35rem; background: var(--muted); }
+.skeleton-line-short { width: 42%; }
 .site-footer { display: flex; justify-content: space-between; gap: 1rem; padding-block: 1.5rem 2rem; color: var(--ink-muted); font-size: .82rem; }
 .admin-shell { border-top: 6px solid var(--brand); }
 .admin-topbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 1rem; }

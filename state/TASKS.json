@@ -563,9 +563,14 @@
       "testIds": [
         "TC-M03-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "apps/web/src/modules/m03/person-profile.tsx: mobile-first tabs for overview, family, timeline, sources and media with loading/empty/error/restricted states.",
+        "apps/web/src/app/nguoi/[id]/page.tsx + globals.css: profile route uses shared shell, approved tokens, responsive tab overflow and existing family/source primitives; no new logo/palette/background.",
+        "tests/e2e/p1-demo.spec.ts + pnpm test:e2e: 21/21 PASS across desktop Chromium, Pixel 5 and 320px; tabs, family, timeline and media empty state verified.",
+        "Real DB/API aggregated profile projection, live media permission path, axe/manual audit and real-device evidence remain NOT_RUN; demo data remains synthetic."
+      ]
     },
     {
       "id": "M03-04",

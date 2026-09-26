@@ -17,7 +17,14 @@ export type DemoFamilyFocus = {
   links: Array<{ id: string; kind: string; status: string }>;
 };
 
-type DemoPersonRecord = (typeof fixture.persons)[number];
+export type DemoPersonRecord = (typeof fixture.persons)[number];
+
+export type DemoSource = {
+  id: string;
+  title: string;
+  kind: string;
+  provenance: string;
+};
 
 function normalizeLifeStatus(value: string): DemoPersonSummary["lifeStatus"] {
   if (value === "living" || value === "deceased") return value;
@@ -55,7 +62,7 @@ export const demoBranches = fixture.branches.map((branch) => ({
 
 export const demoPeople = summaries;
 
-export const demoSources = fixture.sources.map((source) => ({
+export const demoSources: DemoSource[] = fixture.sources.map((source) => ({
   id: source.id,
   title: source.title,
   kind: source.kind,

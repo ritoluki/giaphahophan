@@ -24,7 +24,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M02-04 | P6 | Xuất bản có duyệt | M02-03 |  |
 | M03-01 | P3 | Canonical identity | CORE-02 | IN_PROGRESS — migration 0010, duplicate-name/alias/restricted projection test PASS local; contract/domain/API typecheck and build PASS; full mobile visual/a11y NOT_RUN |
 | M03-02 | P3 | Dates và life status | M03-01 | IN_PROGRESS — migration 0011 person_facts, year-only/originalText/privacy test PASS local; regression/typecheck/build PASS; mobile visual/a11y NOT_RUN |
-| M03-03 | P3 | Hồ sơ đa lớp | M03-02 |  |
+| M03-03 | P3 | Hồ sơ đa lớp | M03-02 | IN_PROGRESS — mobile tabs overview/family/timeline/sources/media; E2E 21/21 desktop/Pixel5/320 PASS; DB/API aggregate, axe/manual/real-device NOT_RUN |
 | M03-04 | P3 | Person khác account | M03-03 |  |
 | M03-05 | P3 | Sửa có version | M03-04 |  |
 | M03-06 | P3 | Xóa có tác động | M03-05 |  |

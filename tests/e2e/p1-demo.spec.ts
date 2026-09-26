@@ -58,6 +58,18 @@ test("admin preview keeps restricted state explicit", async ({ page }, testInfo)
   await capture(page, "admin", testInfo.project.name);
 });
 
+test("person profile exposes layered tabs and mobile-safe empty states", async ({ page }) => {
+  await page.goto("/nguoi/" + demoPersonId);
+  const tabs = page.getByRole("tab");
+  await expect(tabs).toHaveCount(5);
+  await tabs.nth(1).click();
+  await expect(page.getByRole("heading", { name: "Cha mẹ" })).toBeVisible();
+  await tabs.nth(2).click();
+  await expect(page.getByRole("heading", { name: /Sinh năm/ })).toBeVisible();
+  await tabs.nth(4).click();
+  await expect(page.getByText("Chưa có tư liệu ảnh", { exact: true })).toBeVisible();
+});
+
 test("keyboard and basic accessibility contracts remain available", async ({ page }) => {
   await page.goto("/");
   await page.keyboard.press("Tab");

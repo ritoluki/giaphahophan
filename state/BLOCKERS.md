@@ -1,5 +1,7 @@
 # Blockers
 
+| M03-03 | DB/API aggregate profile projection, axe/manual audit và real-device evidence chưa chạy | M03-03 final acceptance | Demo profile layers and E2E 21/21 PASS on desktop/Pixel5/320; tiếp tục API projection/media permission work không cần owner action |
+
 | M03-02 | Full mobile visual/a11y and real-device evidence chưa chạy | M03-02 final UI acceptance | Date precision, originalText persistence, unknown/living redaction and member access PASS local; tiếp tục M03 profile work không cần owner action |
 
 | M03-01 | Full mobile visual/a11y and real-device evidence chưa chạy | M03-01 final UI acceptance | Canonical identity contract, DB authorization, restricted projection and local build/test đã PASS; tiếp tục các M03 date/profile tasks không cần owner action |
