@@ -1,1 +1,25 @@
-export default function CalendarPage() { return <div className="site-shell"><main className="container page"><a href="/" className="muted">← Trang chủ</a><p className="eyebrow">Âm lịch Việt Nam · Asia/Ho_Chi_Minh</p><h1>Lịch họ & sự kiện</h1><p className="muted">Ngày giỗ sẽ luôn hiển thị cả ngày âm, ngày dương và quy ước tháng nhuận. Bộ chuyển đổi lịch âm chưa được bật trước khi qua golden tests.</p><div className="card"><h2>Chưa có sự kiện được công bố</h2><p>Trong bản demo, lịch hiển thị empty state thay vì tự tạo ngày hoặc lặp 365 ngày.</p></div></main><nav className="bottom-nav" aria-label="Điều hướng trên điện thoại"><a href="/"><span>⌂</span>Trang chủ</a><a href="/gia-pha"><span>⌘</span>Gia phả</a><a href="/tu-lieu"><span>▤</span>Tư liệu</a><a href="/lich-ho" aria-current="page"><span>♧</span>Lịch họ</a><a href="/them"><span>⋯</span>Thêm</a></nav></div>; }
+import Link from "next/link";
+import { DemoNotice, SiteShell } from "../_components/site-chrome";
+import { demoEvents } from "../../lib/demo-data";
+
+export default function CalendarPage() {
+  return (
+    <SiteShell active="calendar">
+      <main id="main-content" className="container page">
+        <p className="eyebrow">Âm lịch Việt Nam · Asia/Ho_Chi_Minh</p>
+        <h1>Lịch họ & sự kiện</h1>
+        <p className="page-lede">Ngày giỗ hiển thị ngày âm, ngày dương và quy ước tháng nhuận. Bộ chuyển đổi ngày âm sẽ chỉ bật sau golden tests.</p>
+        <DemoNotice />
+        <section className="timeline" aria-label="Danh sách sự kiện minh họa">
+          {demoEvents.map((event) => (
+            <article className="timeline-item" key={event.id}>
+              <div className="timeline-marker" aria-hidden="true" />
+              <div className="card"><p className="eyebrow">{event.recurrence === "annual_lunar" ? "Hằng năm · Âm lịch" : "Sự kiện"}</p><h2>{event.title}</h2><p>{event.lunarLabel}</p><span className="status-label">{event.reviewStatus === "approved" ? "Đã duyệt" : "Cần đối chiếu trước khi công bố"}</span></div>
+            </article>
+          ))}
+        </section>
+        <div className="restricted-card"><strong>Không tự sinh ngày</strong><p>Demo giữ trạng thái chờ đối chiếu thay vì lặp sự kiện mỗi 365 ngày hoặc tự chuyển lịch chưa có adapter.</p><Link href="/gioi-thieu">Đọc nguyên tắc dữ liệu →</Link></div>
+      </main>
+    </SiteShell>
+  );
+}

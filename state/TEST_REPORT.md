@@ -1,14 +1,14 @@
 # Báo cáo kiểm thử ứng dụng
 
-Application status: FOUNDATION_EXECUTED; product acceptance remains NOT_RUN. Không dùng PACKAGE_VALIDATION.json để đổi trạng thái ứng dụng.
+Application status: FOUNDATION_AND_P1_DEMO_EXECUTED; product acceptance remains NOT_RUN. Không dùng PACKAGE_VALIDATION.json để đổi trạng thái ứng dụng.
 
 | Nhóm | Trạng thái | Evidence |
 |---|---|---|
-| Lint ứng dụng | PASS | `pnpm lint`, local Windows Node 22.13.0, exit 0; 15 warnings không error |
+| Lint ứng dụng | PASS | `pnpm lint`, local Windows Node 22.13.0, exit 0; 1 warning PostCSS không error |
 | Typecheck ứng dụng/packages | PASS | `pnpm typecheck`, local Windows Node 22.13.0, exit 0 |
-| Build foundation | PASS | `pnpm build`, Next 16.3.3, exit 0; 12 app routes + health live/ready trong log |
+| Build foundation + P1 demo | PASS | `pnpm build`, Next 16.3.3, exit 0; 14 app routes + health live/ready trong log |
 | Unit/domain/property | PASS (foundation only) | `pnpm test`, Vitest 4.1.11, 5 domain tests pass; empty suites explicitly passWithNoTests |
-| Local HTTP smoke | PASS (foundation only) | Standalone artifact `apps/web/.next/standalone/apps/web/server.js`; `/` 200 + title; `/api/v1/health/live` 200; `/api/v1/health/ready` 503 degraded đúng khi DB chưa cấu hình |
+| Local HTTP smoke | PASS (P1 demo only) | Standalone artifact `apps/web/.next/standalone/apps/web/server.js`; `/`, `/tra-cuu?q=Phan`, `/gia-pha`, `/nguoi/0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c`, `/lich-ho`, `/tu-lieu`, `/api/v1/health/live` đều 200; `/api/v1/health/ready` vẫn 503 degraded khi DB chưa cấu hình |
 | DB/RLS/authorization/concurrency | NOT_RUN | — |
 | API contract/integration | NOT_RUN | — |
 | E2E local/staging | NOT_RUN | — |

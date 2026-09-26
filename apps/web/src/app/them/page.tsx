@@ -1,1 +1,21 @@
-export default function MorePage() { return <div className="site-shell"><main className="container page"><a href="/" className="muted">← Trang chủ</a><p className="eyebrow">Mục lục</p><h1>Thêm</h1><div className="cards"><a className="card" href="/gioi-thieu"><h2>Giới thiệu</h2><p>Về mục tiêu và cách giữ nguồn có trách nhiệm.</p></a><a className="card" href="/tu-lieu"><h2>Thư viện tư liệu</h2><p>Nguồn, ảnh và tài liệu theo quyền truy cập.</p></a><a className="card" href="/quan-tri"><h2>Quản trị</h2><p>Chỉ dành cho tài khoản có capability phù hợp.</p></a></div></main><nav className="bottom-nav" aria-label="Điều hướng trên điện thoại"><a href="/"><span>⌂</span>Trang chủ</a><a href="/gia-pha"><span>⌘</span>Gia phả</a><a href="/tu-lieu"><span>▤</span>Tư liệu</a><a href="/lich-ho"><span>♧</span>Lịch họ</a><a href="/them" aria-current="page"><span>⋯</span>Thêm</a></nav></div>; }
+import Link from "next/link";
+import { SiteShell } from "../_components/site-chrome";
+
+const menuItems = [
+  { href: "/gioi-thieu", title: "Giới thiệu", description: "Về mục tiêu và cách giữ nguồn có trách nhiệm." },
+  { href: "/tu-lieu", title: "Thư viện tư liệu", description: "Nguồn, ảnh và tài liệu theo quyền truy cập." },
+  { href: "/quan-tri", title: "Quản trị", description: "Chỉ dành cho tài khoản có capability phù hợp." },
+  { href: "/dang-nhap", title: "Tài khoản", description: "Đăng nhập theo lời mời, phục hồi và bảo vệ phiên." }
+] as const;
+
+export default function MorePage() {
+  return (
+    <SiteShell active="more">
+      <main id="main-content" className="container page">
+        <p className="eyebrow">Mục lục</p>
+        <h1>Thêm</h1>
+        <div className="cards">{menuItems.map((item) => <Link className="card" href={item.href} key={item.href}><h2>{item.title}</h2><p>{item.description}</p></Link>)}</div>
+      </main>
+    </SiteShell>
+  );
+}

@@ -1,1 +1,23 @@
-export default function SearchPage() { return <div className="site-shell"><main className="container page"><a href="/" className="muted">← Trang chủ</a><p className="eyebrow">Tra cứu</p><h1>Tìm người trong gia phả</h1><div className="search-panel" style={{ margin: 0 }}><label htmlFor="search">Tên, tên gọi khác hoặc mã hồ sơ</label><div className="search-row"><input id="search" type="search" placeholder="Ví dụ: Nguyễn Văn…" /><button className="button-primary" type="button">Tìm kiếm</button></div></div><div className="card" style={{ marginTop: "1rem" }}><h2>Chưa tìm thấy kết quả</h2><p>Hãy đăng nhập để tìm trong phạm vi thành viên được phép xem. Kết quả trùng tên sẽ hiển thị thêm chi và mốc năm khi được phép.</p></div></main><nav className="bottom-nav" aria-label="Điều hướng trên điện thoại"><a href="/"><span>⌂</span>Trang chủ</a><a href="/gia-pha"><span>⌘</span>Gia phả</a><a href="/tra-cuu" aria-current="page"><span>⌕</span>Tra cứu</a><a href="/lich-ho"><span>♧</span>Lịch họ</a><a href="/them"><span>⋯</span>Thêm</a></nav></div>; }
+import { DemoNotice, SiteShell } from "../_components/site-chrome";
+import { SearchBox } from "../_components/search-box";
+import { SearchResults } from "../_components/search-results";
+import { demoBranches, demoPeople } from "../../lib/demo-data";
+
+type SearchPageProps = { searchParams: Promise<{ q?: string }> };
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const params = await searchParams;
+  const initialQuery = params.q ?? "";
+  return (
+    <SiteShell active="search">
+      <main id="main-content" className="container page">
+        <p className="eyebrow">Tra cứu · Trong phạm vi được phép xem</p>
+        <h1>Tìm người trong gia phả</h1>
+        <p className="page-lede">Tên trùng sẽ luôn đi cùng mã hồ sơ, chi và mốc năm trong kết quả demo.</p>
+        <SearchBox initialValue={initialQuery} compact />
+        <DemoNotice />
+        <SearchResults people={demoPeople} branches={demoBranches} initialQuery={initialQuery} />
+      </main>
+    </SiteShell>
+  );
+}
