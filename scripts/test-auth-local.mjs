@@ -129,6 +129,9 @@ try {
   const relationshipReviewKey = randomUUID();
   const cycleSubmitKey = randomUUID();
   const cycleReviewKey = randomUUID();
+  const claimSubmitKey = randomUUID();
+  const claimSelfReviewKey = randomUUID();
+  const claimReviewKey = randomUUID();
 
   const missingKey = await jsonRequest(webUrl + "/api/v1/proposals", {
     method: "POST",
@@ -295,12 +298,49 @@ try {
     })
   });
   assert(cycleReviewed.response.status === 409, "ancestry cycle was accepted through BFF");
-  console.log("PASS local authenticated CORE-02: BFF login, proposal submit, self-review denial, independent review, relationship approval and persistence");
+
+  const claimPayload = {
+    treeId,
+    personId: childPersonId,
+    reason: "Synthetic account claim"
+  };
+  const claimSubmitted = await jsonRequest(webUrl + "/api/v1/claims", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": claimSubmitKey, Cookie: cookieA },
+    body: JSON.stringify(claimPayload)
+  });
+  assert(claimSubmitted.response.status === 201 && claimSubmitted.body?.data?.status === "pending", "claim submit through BFF failed");
+  const claimId = claimSubmitted.body.data.id;
+  const claimSelfReview = await jsonRequest(webUrl + "/api/v1/claims/" + claimId + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": claimSelfReviewKey, Cookie: cookieA },
+    body: JSON.stringify({
+      decision: "approve",
+      reason: "Synthetic claim self-review must be denied",
+      baseVersion: claimSubmitted.body.data.version
+    })
+  });
+  assert(claimSelfReview.response.status === 403, "claim requester was allowed to self-review through BFF");
+  const claimReviewed = await jsonRequest(webUrl + "/api/v1/claims/" + claimId + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": claimReviewKey, Cookie: cookieB },
+    body: JSON.stringify({
+      decision: "approve",
+      reason: "Synthetic independent claim approval",
+      baseVersion: claimSubmitted.body.data.version
+    })
+  });
+  assert(claimReviewed.response.status === 200 && claimReviewed.body?.data?.status === "approved", "independent claim review failed");
+  const claimVerified = runPsql("select count(*) from private.memberships where id = " + sqlString(membershipA) + " and person_id = " + sqlString(childPersonId) + " and status = 'active';");
+  assert(claimVerified.status === 0 && /\b1\b/.test(claimVerified.stdout), "approved claim did not link membership");
+  console.log("PASS local authenticated CORE-02/M03-04: BFF login, proposal/relationship review, claim approval and persistence");
 } finally {
   const cleanup = [
     "begin;",
     "delete from private.outbox where tree_id = " + sqlString(treeId) + ";",
     "delete from private.audit_events where tree_id = " + sqlString(treeId) + ";",
+    "delete from private.idempotency_records where tree_id = " + sqlString(treeId) + ";",
+    "delete from private.person_claims where tree_id = " + sqlString(treeId) + ";",
     "delete from private.review_decisions where tree_id = " + sqlString(treeId) + ";",
     "delete from private.proposal_items where tree_id = " + sqlString(treeId) + ";",
     "delete from private.proposals where tree_id = " + sqlString(treeId) + ";",

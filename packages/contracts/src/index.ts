@@ -155,6 +155,26 @@ export const proposalMutationResultSchema = z.object({
   version: z.number().int().positive()
 });
 
+export const claimSubmitInputSchema = z.object({
+  treeId: z.string().uuid(),
+  personId: z.string().uuid(),
+  reason: z.string().trim().min(1).max(4000)
+});
+
+export const claimReviewInputSchema = z.object({
+  claimId: z.string().uuid(),
+  decision: z.enum(["approve", "reject"]),
+  reason: z.string().trim().min(1).max(4000),
+  baseVersion: z.number().int().positive()
+});
+
+export const claimMutationResultSchema = z.object({
+  id: z.string().uuid(),
+  treeId: z.string().uuid(),
+  status: z.enum(["pending", "approved", "rejected"]),
+  version: z.number().int().positive()
+});
+
 export const loginInputSchema = z.object({
   email: z.string().trim().email().max(320),
   password: z.string().min(8).max(128)

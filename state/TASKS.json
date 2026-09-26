@@ -595,9 +595,14 @@
       "testIds": [
         "TC-M03-04"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0012_m03_person_claims.sql: person_claims workflow, reviewer-different-from-requester check, membership link only on approval, audit/outbox and idempotent submit/review; no auth user or capability creation.",
+        "apps/web/src/app/api/v1/claims/route.ts and claims/[id]/review/route.ts: authenticated BFF with UUID Idempotency-Key, request hash and runtime schema validation.",
+        "supabase/tests/m03_claims.sql + pnpm test:m03:claims: PASS no-login person fixture, submit/replay, self-review denial, independent approval, membership link, audit/outbox and unchanged capability count.",
+        "scripts/test-auth-local.mjs + pnpm test:auth: PASS BFF claim submit/self-review denial/independent approval/persistence; contract tests 5/5, typecheck and build PASS. UI link is restricted to login; full mobile visual/a11y remains NOT_RUN."
+      ]
     },
     {
       "id": "M03-05",

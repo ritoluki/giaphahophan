@@ -65,6 +65,11 @@ function OverviewPanel({ person }: { person: DemoPersonRecord }) {
         <h2>Tiểu sử</h2>
         <p>{person.biography || "Chưa có nội dung tiểu sử được duyệt."}</p>
       </section>
+      <div className="restricted-card profile-span">
+        <strong>Muốn liên kết tài khoản với hồ sơ này?</strong>
+        <p>Đăng nhập để gửi đề nghị. Việc liên kết chỉ có hiệu lực sau khi người khác duyệt.</p>
+        <Link className="button-secondary" href="/dang-nhap">Đăng nhập để đề nghị</Link>
+      </div>
     </div>
   );
 }

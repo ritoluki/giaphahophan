@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema } from "./index";
+import { claimReviewInputSchema, claimSubmitInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
   it("accepts the allowlisted person projection shape", () => {
@@ -101,5 +101,19 @@ describe("CORE-01 contracts", () => {
     });
 
     expect(parsed.success).toBe(true);
+  });
+
+  it("requires typed claim review input without granting authority in the payload", () => {
+    expect(claimSubmitInputSchema.parse({
+      treeId: "10000000-0000-4000-8000-000000000001",
+      personId: "30000000-0000-4000-8000-000000000001",
+      reason: "Synthetic account claim"
+    }).personId).toBe("30000000-0000-4000-8000-000000000001");
+    expect(claimReviewInputSchema.parse({
+      claimId: "80000000-0000-4000-8000-000000000001",
+      decision: "approve",
+      reason: "Synthetic independent review",
+      baseVersion: 1
+    }).decision).toBe("approve");
   });
 });

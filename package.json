@@ -18,6 +18,7 @@
     "test:jobs": "node scripts/test-jobs-local.mjs",
     "test:m03": "node scripts/test-m03-local.mjs",
     "test:m03:dates": "node scripts/test-m03-dates-local.mjs",
+    "test:m03:claims": "node scripts/test-m03-claims-local.mjs",
     "test:concurrency": "node scripts/test-concurrency-local.mjs",
     "test:auth": "node scripts/test-auth-local.mjs",
     "test:integration": "node scripts/status-not-run.mjs test:integration",

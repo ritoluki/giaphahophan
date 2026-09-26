@@ -1,5 +1,7 @@
 # Blockers
 
+| M03-04 | Full mobile visual/a11y and real-device claim CTA evidence chưa chạy | M03-04 final UI acceptance | DB/RPC/BFF claim security and idempotency PASS local; claim CTA is login-gated and approval does not auto-grant; tiếp tục M03 version/delete work không cần owner action |
+
 | M03-03 | DB/API aggregate profile projection, axe/manual audit và real-device evidence chưa chạy | M03-03 final acceptance | Demo profile layers and E2E 21/21 PASS on desktop/Pixel5/320; tiếp tục API projection/media permission work không cần owner action |
 
 | M03-02 | Full mobile visual/a11y and real-device evidence chưa chạy | M03-02 final UI acceptance | Date precision, originalText persistence, unknown/living redaction and member access PASS local; tiếp tục M03 profile work không cần owner action |
