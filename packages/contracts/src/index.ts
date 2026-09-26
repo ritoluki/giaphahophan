@@ -36,6 +36,53 @@ export const personSummarySchema = z.object({
   isDemo: z.boolean()
 });
 
+export const personProjectionSchema = z.object({
+  id: z.string().uuid(),
+  treeId: z.string().uuid(),
+  code: z.string().min(1),
+  displayName: z.string().min(1),
+  recordedSex: z.enum(["M", "F", "X", "U"]).nullable(),
+  lifeStatus: z.enum(["living", "deceased", "unknown"]),
+  visibility: z.enum(["public", "members", "restricted"]),
+  protectedMinor: z.boolean(),
+  primaryBranchId: z.string().uuid().nullable(),
+  confidence: z.enum(["unverified", "supported", "verified", "disputed"])
+});
+
+export const proposalKindSchema = z.enum(["correction", "addition", "relationship", "merge", "publication"]);
+export const proposalItemSchema = z.object({
+  targetKind: z.enum(["person", "fact", "parent_link", "union", "branch", "merge", "publication"]),
+  targetId: z.string().uuid().nullable().optional(),
+  baseVersion: z.number().int().positive().nullable().optional(),
+  operation: z.enum(["create", "update", "delete", "merge", "publish"]),
+  fieldChanges: z.record(z.string(), z.unknown()),
+  sourceIds: z.array(z.string().uuid()).max(50).default([])
+});
+
+export const proposalSubmitInputSchema = z.object({
+  treeId: z.string().uuid(),
+  kind: proposalKindSchema,
+  reason: z.string().trim().min(1).max(4000),
+  branchId: z.string().uuid().nullable().optional(),
+  baseSnapshot: z.record(z.string(), z.unknown()).nullable().optional(),
+  items: z.array(proposalItemSchema).min(1).max(100)
+});
+
+export const proposalReviewInputSchema = z.object({
+  proposalId: z.string().uuid(),
+  decision: z.enum(["approve", "reject", "needs_info"]),
+  reason: z.string().trim().min(1).max(4000),
+  baseVersion: z.number().int().positive(),
+  reviewedSnapshotHash: z.string().trim().min(1).max(256)
+});
+
+export const proposalMutationResultSchema = z.object({
+  id: z.string().uuid(),
+  treeId: z.string().uuid(),
+  status: z.enum(["submitted", "needs_info", "approved", "rejected"]),
+  version: z.number().int().positive()
+});
+
 export const apiMetaSchema = z.object({ requestId: z.string().min(1), version: z.number().int().positive().optional() });
 export const errorResponseSchema = z.object({ error: z.object({ code: z.string(), message: z.string(), fieldErrors: z.record(z.string(), z.array(z.string())).optional(), requestId: z.string(), retryable: z.boolean() }) });
 

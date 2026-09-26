@@ -12,6 +12,7 @@
 | ENV-01 | Local Node `22.13.0`, trong khi manifest/CI yêu cầu Node 24 | Node 24-specific verification và release baseline | Typecheck/test/build/E2E và Supabase CLI local đã chạy trên Node 22; không thay thế gate Node 24 |
 | ENV-02 | RESOLVED — Docker Desktop daemon đã chạy và Supabase local stack healthy | — | DB/RLS local integration có thể tiếp tục; giữ bằng chứng container/endpoint trong state |
 | P1-01 | H1 visual approval và full accessibility review chưa có; WebKit/real-device chưa chạy | UI-01/UI-02 completion và final visual gate | Chromium responsive/a11y smoke 18/18, 18 screenshots, fixture-driven routes, typecheck/lint/build |
+| CORE-01 | API server wiring, cross-tree/concurrency matrix và full RLS negative coverage chưa hoàn tất | CORE-02 DB vertical slice và broader role acceptance | Allowlisted local RPC/projection/grants; synthetic DB test PASS; không cần dữ liệu thật |
 
 Git push P0: CLEAR — commit `eab975447bd4b5f73daf4685590fac633e4166da` đã đồng bộ trên `origin/main`; không phát sinh blocker quyền truy cập remote.
 

@@ -14,7 +14,7 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "test": "pnpm -r --if-present test",
     "test:unit": "pnpm --filter @phan/domain test",
-    "test:db": "node scripts/status-not-run.mjs test:db",
+    "test:db": "node scripts/test-db-local.mjs",
     "test:integration": "node scripts/status-not-run.mjs test:integration",
     "test:e2e": "pnpm build && pnpm exec playwright test",
     "test:a11y": "node scripts/status-not-run.mjs test:a11y",
