@@ -132,6 +132,7 @@ try {
   const claimSubmitKey = randomUUID();
   const claimSelfReviewKey = randomUUID();
   const claimReviewKey = randomUUID();
+  const correctionKey = randomUUID();
 
   const missingKey = await jsonRequest(webUrl + "/api/v1/proposals", {
     method: "POST",
@@ -333,7 +334,19 @@ try {
   assert(claimReviewed.response.status === 200 && claimReviewed.body?.data?.status === "approved", "independent claim review failed");
   const claimVerified = runPsql("select count(*) from private.memberships where id = " + sqlString(membershipA) + " and person_id = " + sqlString(childPersonId) + " and status = 'active';");
   assert(claimVerified.status === 0 && /\b1\b/.test(claimVerified.stdout), "approved claim did not link membership");
-  console.log("PASS local authenticated CORE-02/M03-04: BFF login, proposal/relationship review, claim approval and persistence");
+  const missingIfMatch = await jsonRequest(webUrl + "/api/v1/people/" + childPersonId, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieA },
+    body: JSON.stringify({ treeId, reason: "Synthetic missing If-Match", fieldChanges: { biography: "Denied" }, sourceIds: [sourceId] })
+  });
+  assert(missingIfMatch.response.status === 428, "person correction without If-Match was accepted");
+  const correction = await jsonRequest(webUrl + "/api/v1/people/" + childPersonId, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": correctionKey, "If-Match": "\"1\"", Cookie: cookieA },
+    body: JSON.stringify({ treeId, reason: "Synthetic versioned correction", fieldChanges: { biography: "Synthetic proposed correction" }, sourceIds: [sourceId] })
+  });
+  assert(correction.response.status === 202 && correction.body?.data?.status === "submitted", "versioned person correction did not create a proposal");
+  console.log("PASS local authenticated CORE-02/M03-04/M03-05: BFF login, proposal/relationship review, claim approval, If-Match correction and persistence");
 } finally {
   const cleanup = [
     "begin;",

@@ -627,9 +627,13 @@
       "testIds": [
         "TC-M03-05"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0013_m03_person_version_projection.sql: versioned authorized person projection and API GET version.",
+        "apps/web/src/app/api/v1/people/[id]/route.ts: PATCH requires If-Match and UUID Idempotency-Key, then submits a correction proposal with baseVersion; no direct approval path.",
+        "pnpm test:m03, pnpm test:db, pnpm test:concurrency, pnpm test:auth, pnpm test, pnpm typecheck, pnpm build and pnpm test:e2e PASS on local synthetic data; conflict response field diff and full mobile/a11y/real-device evidence remain NOT_RUN."
+      ]
     },
     {
       "id": "M03-06",

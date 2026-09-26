@@ -39,6 +39,7 @@ export const personSummarySchema = z.object({
 export const personProjectionSchema = z.object({
   id: z.string().uuid(),
   treeId: z.string().uuid(),
+  version: z.number().int().positive(),
   code: z.string().min(1),
   displayName: z.string().min(1),
   recordedSex: z.enum(["M", "F", "X", "U"]).nullable(),
@@ -82,7 +83,7 @@ export const legacyProposalItemSchema = z.object({
   sourceIds: z.array(z.string().uuid()).max(50).default([])
 });
 
-const personProposalFieldChangesSchema = z.object({
+export const personProposalFieldChangesSchema = z.object({
   display_name: z.string().min(1).max(500).optional(),
   recorded_sex: z.enum(['M', 'F', 'X', 'U']).nullable().optional(),
   life_status: z.enum(['living', 'deceased', 'unknown']).optional(),
@@ -92,6 +93,13 @@ const personProposalFieldChangesSchema = z.object({
   biography: z.string().max(20000).nullable().optional(),
   confidence: z.enum(['unverified', 'supported', 'verified', 'disputed']).optional()
 }).strict().refine((value) => Object.keys(value).length > 0, 'At least one person field is required');
+
+export const personCorrectionInputSchema = z.object({
+  treeId: z.string().uuid(),
+  reason: z.string().trim().min(1).max(4000),
+  fieldChanges: personProposalFieldChangesSchema,
+  sourceIds: z.array(z.string().uuid()).max(50).default([])
+});
 
 const parentLinkCreateFieldChangesSchema = z.object({
   parent_id: z.string().uuid(),

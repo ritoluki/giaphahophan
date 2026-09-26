@@ -83,6 +83,11 @@ from api.person_get('33000000-0000-4000-8000-000000000001');
 \gset m03_public_person_
 select case when :'m03_public_person_public_person_count'::integer = 1 then 1 else 1 / 0 end;
 
+select version as person_version
+from api.person_get('33000000-0000-4000-8000-000000000001');
+\gset m03_person_version_
+select case when :'m03_person_version_person_version'::integer = 1 then 1 else 1 / 0 end;
+
 select count(*) as public_name_count
 from api.person_names_get('33000000-0000-4000-8000-000000000001');
 \gset m03_public_name_

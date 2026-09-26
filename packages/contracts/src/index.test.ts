@@ -6,6 +6,7 @@ describe("CORE-01 contracts", () => {
     expect(personProjectionSchema.parse({
       id: "30000000-0000-4000-8000-000000000001",
       treeId: "10000000-0000-4000-8000-000000000001",
+      version: 1,
       code: "CORE-PUBLIC",
       displayName: "Synthetic Public Person",
       recordedSex: null,
@@ -21,6 +22,7 @@ describe("CORE-01 contracts", () => {
     const parsed = personIdentityProjectionSchema.parse({
       id: "30000000-0000-4000-8000-000000000001",
       treeId: "10000000-0000-4000-8000-000000000001",
+      version: 1,
       code: "CORE-PUBLIC",
       displayName: "Synthetic Public Person",
       recordedSex: null,

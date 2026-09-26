@@ -1,5 +1,7 @@
 # Blockers
 
+| M03-05 | Concurrent edit response does not yet include a field-level diff; full mobile visual/a11y and real-device API evidence are NOT_RUN | M03-05 final acceptance | Versioned GET, If-Match PATCH proposal boundary, idempotency and stale conflict mechanics PASS locally; continue M03-06 without owner action |
+
 | M03-04 | Full mobile visual/a11y and real-device claim CTA evidence chưa chạy | M03-04 final UI acceptance | DB/RPC/BFF claim security and idempotency PASS local; claim CTA is login-gated and approval does not auto-grant; tiếp tục M03 version/delete work không cần owner action |
 
 | M03-03 | DB/API aggregate profile projection, axe/manual audit và real-device evidence chưa chạy | M03-03 final acceptance | Demo profile layers and E2E 21/21 PASS on desktop/Pixel5/320; tiếp tục API projection/media permission work không cần owner action |
