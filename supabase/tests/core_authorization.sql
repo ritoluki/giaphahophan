@@ -11,7 +11,9 @@ insert into auth.users (
   ('00000000-0000-0000-0000-000000000000', '20000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated', 'core-b@example.test', '', clock_timestamp(), clock_timestamp(), clock_timestamp(), '{}', '{}');
 
 insert into private.trees (id, created_by, slug, name, data_mode)
-values ('10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'core-authorization-test', 'Synthetic Core Authorization Test', 'demo');
+values
+  ('10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'core-authorization-test', 'Synthetic Core Authorization Test', 'demo'),
+  ('10000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', 'core-authorization-other-tree', 'Synthetic Other Tree', 'demo');
 
 insert into private.branches (id, tree_id, created_by, code, name)
 values ('50000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'CORE', 'Synthetic Core Branch');
@@ -19,7 +21,8 @@ values ('50000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-0000000
 insert into private.persons (id, tree_id, created_by, code, display_name, name_search, visibility, protected_minor)
 values
   ('30000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'CORE-PUBLIC', 'Synthetic Public Person', 'synthetic public person', 'public', false),
-  ('30000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'CORE-PROTECTED', 'Synthetic Protected Person', 'synthetic protected person', 'public', true);
+  ('30000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'CORE-PROTECTED', 'Synthetic Protected Person', 'synthetic protected person', 'public', true),
+  ('30000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000001', 'OTHER-RESTRICTED', 'Synthetic Other Tree Person', 'synthetic other tree person', 'restricted', false);
 
 insert into private.sources (id, tree_id, created_by, title, kind, provenance)
 values ('40000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'Synthetic source', 'oral', 'Synthetic test fixture only');
@@ -50,6 +53,26 @@ $$;
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
+
+do $$
+declare
+  v_count integer;
+begin
+  select count(*) into v_count from api.person_get('30000000-0000-4000-8000-000000000003');
+  if v_count <> 0 then raise exception 'cross-tree restricted projection leaked % rows', v_count; end if;
+  begin
+    perform api.proposal_submit(
+      '10000000-0000-4000-8000-000000000002', 'correction', 'Cross-tree proposal must fail', null,
+      '{"graphRevision":1}'::jsonb,
+      '[{"target_kind":"person","target_id":"30000000-0000-4000-8000-000000000003","operation":"update","field_changes":{"display_name":"Leak"},"source_ids":[]}]'::jsonb
+    );
+    raise exception 'cross-tree proposal was allowed';
+  exception when insufficient_privilege then
+    null;
+  end;
+end;
+$$;
+
 select id, version
 from api.proposal_submit(
   '10000000-0000-4000-8000-000000000001',
