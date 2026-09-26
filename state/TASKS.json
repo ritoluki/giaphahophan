@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-09-27T00:02:55+07:00",
+  "updatedAt": "2026-09-27T00:20:45+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -148,7 +148,7 @@
       "evidence": [
         "apps/web/src/app/_components/site-chrome.tsx, search-box.tsx, search-results.tsx, family-focus.tsx: shared mobile-first navigation, search, family focus and state components.",
         "apps/web/src/app/globals.css: approved tokens/assets direction, responsive layout, reduced motion and touch target baseline.",
-        "Playwright desktop/mobile Chromium E2E and screenshot evidence PASS 8/8; full component stories/a11y harness remains NOT_RUN."
+        "Playwright responsive/a11y smoke PASS 18/18 across 1440px desktop, Pixel 5 and 320px; full component stories/axe/manual audit remains NOT_RUN."
       ]
     },
     {
@@ -172,7 +172,7 @@
       "evidence": [
         "Implemented demo vertical slice routes: /, /tra-cuu, /gia-pha, /nguoi/[id], /lich-ho, /tu-lieu.",
         "Standalone HTTP smoke: all six product routes returned 200; /api/v1/health/live returned 200.",
-        "12 screenshots generated for home/person/family-focus/calendar/sources/admin at desktop and Pixel 5 mobile; H1 visual approval remains PENDING."
+        "18 screenshots generated for home/person/family-focus/calendar/sources/admin at desktop 1440px, Pixel 5 and 320px; H1 visual approval remains PENDING."
       ]
     },
     {

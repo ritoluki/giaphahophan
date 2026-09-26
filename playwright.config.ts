@@ -23,7 +23,8 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI
   },
   projects: [
-    { name: "desktop-chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "mobile-chromium", use: { ...devices["Pixel 5"] } }
+    { name: "desktop-chromium", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 1000 } } },
+    { name: "mobile-chromium", use: { ...devices["Pixel 5"] } },
+    { name: "mobile-320", use: { ...devices["Pixel 5"], viewport: { width: 320, height: 844 } } }
   ]
 });

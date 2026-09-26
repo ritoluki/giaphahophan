@@ -57,3 +57,29 @@ test("admin preview keeps restricted state explicit", async ({ page }, testInfo)
   await expect(page.getByRole("link", { name: "Đăng nhập theo lời mời" })).toBeVisible();
   await capture(page, "admin", testInfo.project.name);
 });
+
+test("keyboard and basic accessibility contracts remain available", async ({ page }) => {
+  await page.goto("/");
+  await page.keyboard.press("Tab");
+  await expect(page.locator(".skip-link")).toBeFocused();
+  await expect(page.locator(".skip-link")).toBeVisible();
+  await expect(page.getByRole("main")).toHaveAttribute("id", "main-content");
+
+  const imageAltComplete = await page.locator("img").evaluateAll((images) => images.every((image) => image.getAttribute("alt") !== null));
+  expect(imageAltComplete).toBe(true);
+
+  const primaryTargets = await page.locator("button, .button-primary, .button-secondary").evaluateAll((elements) => elements.every((element) => {
+    if (getComputedStyle(element).display === "none") return true;
+    const rect = element.getBoundingClientRect();
+    return rect.width >= 44 && rect.height >= 44;
+  }));
+  expect(primaryTargets).toBe(true);
+
+  const bottomNavTargets = await page.locator(".bottom-nav a").evaluateAll((elements) => elements.every((element) => {
+    const navigation = element.closest(".bottom-nav");
+    if (!navigation || getComputedStyle(navigation).display === "none") return true;
+    const rect = element.getBoundingClientRect();
+    return rect.width >= 44 && rect.height >= 44;
+  }));
+  expect(bottomNavTargets).toBe(true);
+});

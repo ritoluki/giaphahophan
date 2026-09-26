@@ -13,11 +13,11 @@ Application status: FOUNDATION_AND_P1_DEMO_EXECUTED; product acceptance remains 
 | API contract/integration | NOT_RUN | — |
 | E2E local/staging | PASS (local demo only) | `pnpm test:e2e`, production build + standalone server, 10/10 tests PASS across desktop Chromium and Pixel 5 mobile; admin preview included |
 | Lunar golden + roundtrip | NOT_RUN | — |
-| Accessibility/real mobile | NOT_RUN | Semantic locator smoke included in E2E; full axe/manual/real-device audit not run |
+| Accessibility/real mobile | PARTIAL | Semantic smoke PASS 18/18: skip-link focus, main landmark, image alt presence and visible touch-target checks; full axe/manual/real-device audit not run |
 | Performance/load | NOT_RUN | — |
 | Security review | NOT_RUN | — |
 | DB + object restore drill | NOT_RUN | — |
-| Visual screenshot evidence | PASS (local demo only) | `reports/design-review/`: 12 screenshots for home/person/family-focus/calendar/sources/admin on desktop Chromium and Pixel 5 mobile; H1 reviewer approval PENDING |
+| Visual screenshot evidence | PASS (local demo only) | `reports/design-review/`: 18 screenshots for home/person/family-focus/calendar/sources/admin at desktop 1440px, Pixel 5 and 320px; H1 reviewer approval PENDING |
 | Production smoke/rollback | NOT_RUN | No production endpoint/approval; deploy intentionally not attempted |
 
 ## Test command records
