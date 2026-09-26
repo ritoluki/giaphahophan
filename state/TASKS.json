@@ -148,7 +148,7 @@
       "evidence": [
         "apps/web/src/app/_components/site-chrome.tsx, search-box.tsx, search-results.tsx, family-focus.tsx: shared mobile-first navigation, search, family focus and state components.",
         "apps/web/src/app/globals.css: approved tokens/assets direction, responsive layout, reduced motion and touch target baseline.",
-        "Playwright component/story evidence NOT_RUN; lint/typecheck/build executed locally."
+        "Playwright desktop/mobile Chromium E2E and screenshot evidence PASS 8/8; full component stories/a11y harness remains NOT_RUN."
       ]
     },
     {
@@ -172,7 +172,7 @@
       "evidence": [
         "Implemented demo vertical slice routes: /, /tra-cuu, /gia-pha, /nguoi/[id], /lich-ho, /tu-lieu.",
         "Standalone HTTP smoke: all six product routes returned 200; /api/v1/health/live returned 200.",
-        "H1 visual approval and 390x844/1440x1000 screenshot evidence remain PENDING/NOT_RUN."
+        "10 screenshots generated for home/person/family-focus/calendar/sources at desktop and Pixel 5 mobile; H1 visual approval remains PENDING."
       ]
     },
     {

@@ -11,12 +11,13 @@ Application status: FOUNDATION_AND_P1_DEMO_EXECUTED; product acceptance remains 
 | Local HTTP smoke | PASS (P1 demo only) | Standalone artifact `apps/web/.next/standalone/apps/web/server.js`; `/`, `/tra-cuu?q=Phan`, `/gia-pha`, `/nguoi/0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c`, `/lich-ho`, `/tu-lieu`, `/api/v1/health/live` đều 200; `/api/v1/health/ready` vẫn 503 degraded khi DB chưa cấu hình |
 | DB/RLS/authorization/concurrency | NOT_RUN | — |
 | API contract/integration | NOT_RUN | — |
-| E2E local/staging | NOT_RUN | — |
+| E2E local/staging | PASS (local demo only) | `pnpm test:e2e`, production build + standalone server, 8/8 tests PASS across desktop Chromium and Pixel 5 mobile; commit pending for this QA phase |
 | Lunar golden + roundtrip | NOT_RUN | — |
-| Accessibility/real mobile | NOT_RUN | — |
+| Accessibility/real mobile | NOT_RUN | Semantic locator smoke included in E2E; full axe/manual/real-device audit not run |
 | Performance/load | NOT_RUN | — |
 | Security review | NOT_RUN | — |
 | DB + object restore drill | NOT_RUN | — |
+| Visual screenshot evidence | PASS (local demo only) | `reports/design-review/`: 10 screenshots for home/person/family-focus/calendar/sources on desktop Chromium and Pixel 5 mobile; H1 reviewer approval PENDING |
 | Production smoke/rollback | NOT_RUN | No production endpoint/approval; deploy intentionally not attempted |
 
 ## Test command records
