@@ -1,12 +1,12 @@
 # Môi trường cần agent xác minh
 
-Trạng thái: PARTIALLY_VERIFIED trên workspace ngày 27/09/2026 00:48 Asia/Saigon.
+Trạng thái: VERIFIED_WITH_BROWSER_PARTIAL trên workspace ngày 27/09/2026 01:38 Asia/Saigon.
 
 | Hạng mục | Giá trị dự kiến | Kết quả thực tế |
 |---|---|---|
 | Workspace | `C:\Phan_Gia_Pha_End_to_End_Agent_Kit_v1\phan-gia-pha-agent-kit` | PASS — đúng workspace hiện tại; Git repository đã liên kết remote owner |
 | OS | Windows; ghi build thực tế | PASS — `Microsoft Windows NT 10.0.26200.0` |
-| Node | 24 LTS, exact patch chốt ở P0 | LOCAL-ACCEPTED — local `v22.13.0` chạy được lint/typecheck/test/build/E2E; package/CI vẫn yêu cầu Node 24 cho release baseline |
+| Node | 24 LTS, exact patch chốt ở P0 | PASS — local `v24.21.0`; package/CI baseline được đáp ứng |
 | pnpm | Bản tương thích exact | PASS — `12.6.0`, `pnpm-lock.yaml` tạo được |
 | Docker client | docker version | PASS — Docker `29.8.0`, build `88096ef` |
 | Docker daemon | docker info / Server section | PASS — Docker `29.8.0` server trên context `desktop-linux` |
@@ -16,11 +16,11 @@ Trạng thái: PARTIALLY_VERIFIED trên workspace ngày 27/09/2026 00:48 Asia/Sa
 
 ## Bằng chứng lệnh
 
-- `node --version` → `v22.13.0`; `npm.cmd --version` → `10.9.2`; `pnpm.cmd --version` → `12.6.0`.
-- `pnpm run doctor` → exit `2`: chỉ Node 24 baseline BLOCKED; Docker daemon, file nền/lockfile/asset PASS.
+- `node --version` → `v24.21.0`; `pnpm.cmd --version` → `12.6.0`.
+- `pnpm run doctor` → exit `0`: Node 24 baseline, Docker daemon, file nền/lockfile/asset PASS.
 - `docker.exe version` → client/server PASS; Server `29.8.0`, context `desktop-linux`.
 - `pnpm exec supabase --version` → `2.118.0`; `pnpm exec supabase start --network-id phan-local` → exit `0`, migration foundation applied.
 - `docker.exe ps` → 10 Supabase containers healthy/running; REST/Studio/Mailpit localhost trả HTTP `200`.
 - CLI tạo `supabase/.branches/` và `supabase/.temp/`; cả hai là metadata local đã được gitignore.
-- `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm build`, `pnpm verify`, `pnpm test:e2e` đã chạy thật trong workspace.
+- `pnpm install --frozen-lockfile`, `pnpm typecheck`, `pnpm test`, `pnpm test:db`, `pnpm lint`, `pnpm build` đã chạy thật dưới Node 24; lint còn 1 warning PostCSS không error.
 - Không ghi giá trị `.env`, secret, cookie, database URL hoặc dữ liệu gia phả thật.

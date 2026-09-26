@@ -4,7 +4,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 
 | ID | Chặng | Công việc | Phụ thuộc | Duyệt |
 |---|---|---|---|---|
-| P0-01 | P0 | Kiểm tra môi trường và workspace |  | BLOCKED — Node 24 release baseline; Docker PASS |
+| P0-01 | P0 | Kiểm tra môi trường và workspace |  | DONE — Node 24.21.0/pnpm 12.6.0/Docker PASS; browser remains partial |
 | P0-02 | P0 | Chốt phiên bản và license | P0-01 | DONE — lockfile + audit sạch |
 | P0-03 | P0 | Scaffold workspace và scripts | P0-02 | DONE — typecheck/test/lint/build; commit/push `eab9754` |
 | P0-04 | P0 | Contract và DB migrations nền | P0-03 | IN_PROGRESS — foundation migration applied local; RLS/integration tests NOT_RUN |

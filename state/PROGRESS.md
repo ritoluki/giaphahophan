@@ -5,7 +5,7 @@ Ngày khởi tạo bộ hồ sơ: 26/09/2026.
 ## Hiện trạng
 P0 đang triển khai song song với P1. Đã tạo pnpm workspace, Next.js App Router scaffold, worker skeleton, packages config/contracts/domain/ui/lunar, approved assets, foundation migration fail-closed, CI template và scripts kiểm tra. P1 đã có vertical slice demo mobile-first cho home/search/tree/person/calendar/sources; chưa tuyên bố hoàn thành M01–M18, chưa có auth/DB runtime, chưa có dữ liệu thật và chưa deploy.
 
-P0-02/P0-03: DONE theo evidence local. P0-01: BLOCKED chỉ bởi Node 24 release baseline; Docker daemon đã PASS. P0-04/P0-05: IN_PROGRESS; foundation migration đã chạy trên Supabase local, còn RLS/integration/CI remote chưa đóng.
+P0-01/P0-02/P0-03: DONE theo evidence local dưới Node 24. P0-04/P0-05: IN_PROGRESS; foundation migration đã chạy trên Supabase local, còn RLS/integration/CI remote chưa đóng.
 
 ## Execution plan đã chốt
 
@@ -27,5 +27,6 @@ Hoàn thiện P0-04/P0-05 bằng RLS/DB tests trên Supabase local; chuyển san
 2026-09-27 — CORE-01 authorization foundation: added migrations `0002_core_authorization.sql` through `0004_fix_review_rpc.sql` for auth.uid-based membership/capability helpers, allowlisted person projection, proposal submit/review, optimistic version, audit/outbox and least-privilege grants. Added Zod contracts/tests and `pnpm test:db` runner. `pnpm test:db` PASS synthetic local DB; anonymous public/protected redaction, member read, capability gate, cross-tree restricted read/proposal denial, author-review denial, independent review, audit/outbox and raw-table denial all exercised. Typecheck/unit/lint/build PASS; lint retains 1 PostCSS warning. CORE-01 remains IN_PROGRESS until authenticated API/session, concurrency and broader RLS matrix are added.
 2026-09-27 — CORE-01 server boundary: added `GET /api/v1/people/[id]`, using publishable-key Supabase client only, API RPC `person_get`, Zod output validation, redacted error messages and `Cache-Control: no-store`. Standalone HTTP smoke with local-configured build returned 400 for invalid UUID and 404 PERSON_NOT_FOUND for valid synthetic UUID; typecheck/lint/build PASS. Authenticated session and cross-tree matrix remain NOT_RUN.
 2026-09-27 — CORE-02 API boundary: added `POST /api/v1/proposals` and `POST /api/v1/proposals/[id]/review` using Supabase SSR cookie sessions, Zod request/output schemas and allowlisted RPCs with redacted status mapping. Standalone smoke PASS: invalid submit/review payloads returned 400 with request IDs. Authenticated session, projection apply and concurrency remain NOT_RUN.
+2026-09-27 — Environment gate: switched to Node `v24.21.0`, restored global `pnpm@12.6.0`, `pnpm install --frozen-lockfile` PASS. `pnpm run doctor` PASS; typecheck, unit/contract, test:db, lint and build PASS under Node 24. ENV-01 resolved.
 
 Agent bổ sung theo mẫu: ngày, task, commit, thay đổi, command thực chạy, kết quả, evidence path, việc tiếp theo. Không ghi token/password hoặc dữ liệu thật.

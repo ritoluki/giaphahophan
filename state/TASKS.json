@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-09-27T01:52:00+07:00",
+  "updatedAt": "2026-09-27T01:40:00+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -17,10 +17,10 @@
         "Không thay hệ thống/kill tiến trình khác; ghi Docker client và daemon."
       ],
       "testIds": [],
-      "status": "BLOCKED",
+      "status": "DONE",
       "approvalRequired": [],
       "evidence": [
-        "pnpm run doctor: Node 22.13.0 found; Node 24 release baseline BLOCKED; Docker 29.8.0 client/server PASS.",
+        "pnpm run doctor: Node 24.21.0 found; Node 24 baseline, Docker 29.8.0 client/server and workspace asset checks PASS.",
         "pnpm exec supabase --version: 2.118.0; local stack started on network phan-local; REST/Studio/Mailpit endpoint smoke 200.",
         "state/ENVIRONMENT.md"
       ]
