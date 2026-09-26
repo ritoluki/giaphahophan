@@ -247,9 +247,14 @@
         "Job role least privilege, migration trước runtime, idempotency và retry."
       ],
       "testIds": [],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0009_jobs_outbox_dispatch.sql: transactional outbox status/lease/claim/mark-published/mark-failed functions with service_role-only grants; migration applied to local Supabase before worker code.",
+        "supabase/tests/jobs.sql + scripts/test-jobs-local.mjs + pnpm test:jobs: PASS synthetic least-privilege claim, retry attempt increment and idempotent publish.",
+        "apps/worker/src/outbox.ts + outbox.test.ts: typed dispatcher with handler allowlist, bounded exponential retry and typed failure codes; worker unit tests 5/5 and typecheck PASS.",
+        "Remote CI and a credentialed runtime DB adapter remain NOT_RUN; no service-role secret is committed."
+      ]
     },
     {
       "id": "M01-01",

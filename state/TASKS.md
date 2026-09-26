@@ -13,7 +13,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | UI-02 | P1 | Năm màn hình duyệt phong cách | UI-01 | IN_PROGRESS — admin preview included; 18 screenshots at 1440/Pixel 5/320; H1 approval PENDING |
 | CORE-01 | P2 | Auth/RPC/permission foundation | P0-04 | IN_PROGRESS — RPC/projection/grants + true concurrency PASS; full RLS matrix và remote CI còn lại |
 | CORE-02 | P2 | Vertical slice có DB và review | CORE-01, P0-05 | IN_PROGRESS — person + parent-link proposal/review/projection/idempotency + true concurrency PASS local; remaining target kinds và remote CI còn lại |
-| JOBS-01 | P2 | Outbox/worker nền | P0-04 |  |
+| JOBS-01 | P2 | Outbox/worker nền | P0-04 | IN_PROGRESS — migration 0009, service_role-only claim/lease/retry tests PASS local; typed dispatcher tests 5/5 PASS; remote CI/runtime credential adapter NOT_RUN |
 | M01-01 | P1 | Public projection | UI-02, CORE-02 |  |
 | M01-02 | P1 | Tra cứu nổi bật | M01-01 |  |
 | M01-03 | P1 | Nội dung có thứ bậc | M01-02 |  |
