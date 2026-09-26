@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { personProjectionSchema, proposalSubmitInputSchema } from "./index";
+import { personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
   it("accepts the allowlisted person projection shape", () => {
@@ -15,6 +15,50 @@ describe("CORE-01 contracts", () => {
       primaryBranchId: null,
       confidence: "unverified"
     }).code).toBe("CORE-PUBLIC");
+  });
+
+  it("keeps aliases as display data while UUID/code remain identity", () => {
+    const parsed = personIdentityProjectionSchema.parse({
+      id: "30000000-0000-4000-8000-000000000001",
+      treeId: "10000000-0000-4000-8000-000000000001",
+      code: "CORE-PUBLIC",
+      displayName: "Synthetic Public Person",
+      recordedSex: null,
+      lifeStatus: "unknown",
+      visibility: "public",
+      protectedMinor: false,
+      primaryBranchId: null,
+      confidence: "unverified",
+      names: [
+        {
+          id: "50000000-0000-4000-8000-000000000001",
+          personId: "30000000-0000-4000-8000-000000000001",
+          name: "Synthetic Public Person",
+          nameSearch: "synthetic public person",
+          kind: "preferred",
+          isPreferred: true
+        },
+        {
+          id: "50000000-0000-4000-8000-000000000002",
+          personId: "30000000-0000-4000-8000-000000000001",
+          name: "Nguyen Trung Lap",
+          nameSearch: "nguyen trung lap",
+          kind: "alias",
+          isPreferred: false
+        },
+        {
+          id: "50000000-0000-4000-8000-000000000003",
+          personId: "30000000-0000-4000-8000-000000000001",
+          name: "Nguyen Trung Lap",
+          nameSearch: "nguyen trung lap",
+          kind: "alias",
+          isPreferred: false
+        }
+      ]
+    });
+
+    expect(parsed.names).toHaveLength(3);
+    expect(parsed.id).toBe("30000000-0000-4000-8000-000000000001");
   });
 
   it("does not accept client-supplied actor identity in proposal input", () => {

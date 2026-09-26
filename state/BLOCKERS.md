@@ -1,5 +1,7 @@
 # Blockers
 
+| M03-01 | Full mobile visual/a11y and real-device evidence chưa chạy | M03-01 final UI acceptance | Canonical identity contract, DB authorization, restricted projection and local build/test đã PASS; tiếp tục các M03 date/profile tasks không cần owner action |
+
 | JOBS-01 | Remote CI và credentialed worker runtime adapter chưa chạy | Worker release acceptance and production readiness | Local migration/least-privilege/retry/idempotent publish and typed dispatcher unit tests PASS; continue synthetic side-effect handlers without service-role secret |
 
 Đã kiểm tra local ngày 26/09/2026. Các blocker thực tế được tách khỏi approval gate; phần không phụ thuộc blocker vẫn tiếp tục.

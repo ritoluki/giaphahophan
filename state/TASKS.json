@@ -497,9 +497,15 @@
       "testIds": [
         "TC-M03-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0010_m03_canonical_identity.sql: tree-scoped stable UUID/code constraints, non-unique alias indexes, and authorized person_names projection; no name/email identity constraint.",
+        "packages/contracts/src/index.ts + index.test.ts: validated person identity projection with repeated alias values; 4/4 contract tests PASS.",
+        "packages/domain/src/index.ts + m03.test.ts: canonical identity validation and UUID-only comparison; 8/8 domain tests PASS.",
+        "supabase/tests/m03_identity.sql + scripts/test-m03-local.mjs + pnpm test:m03: PASS public duplicate names, repeated aliases, restricted redaction and private raw-table denial.",
+        "apps/web/src/app/api/v1/people/[id]/route.ts: authorized names projection with runtime schema validation; pnpm test:db, test:auth, typecheck and build PASS local. Full mobile visual/a11y evidence remains NOT_RUN."
+      ]
     },
     {
       "id": "M03-02",

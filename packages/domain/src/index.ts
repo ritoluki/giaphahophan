@@ -1,5 +1,25 @@
 import type { ParentLinkInput, GenealogyDate, JournalLine } from "@phan/contracts";
 
+export type CanonicalIdentityInput = {
+  readonly id: string;
+  readonly code: string;
+  readonly displayName: string;
+  readonly names: ReadonlyArray<{ readonly name: string; readonly kind: "birth" | "preferred" | "alias" | "religious" | "other" }>;
+};
+
+export function validateCanonicalIdentity(input: CanonicalIdentityInput): string[] {
+  const errors: string[] = [];
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(input.id)) errors.push("id_must_be_uuid");
+  if (input.code.trim().length === 0) errors.push("code_required");
+  if (input.displayName.trim().length === 0) errors.push("display_name_required");
+  if (input.names.some((name) => name.name.trim().length === 0)) errors.push("name_required");
+  return errors;
+}
+
+export function isSameCanonicalPerson(leftId: string, rightId: string): boolean {
+  return leftId === rightId;
+}
+
 export function normalizeNameSearch(value: string): string {
   return value
     .normalize("NFD")

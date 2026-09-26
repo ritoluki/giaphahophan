@@ -49,6 +49,19 @@ export const personProjectionSchema = z.object({
   confidence: z.enum(["unverified", "supported", "verified", "disputed"])
 });
 
+export const personNameSchema = z.object({
+  id: z.string().uuid(),
+  personId: z.string().uuid(),
+  name: z.string().min(1),
+  nameSearch: z.string().min(1),
+  kind: z.enum(["birth", "preferred", "alias", "religious", "other"]),
+  isPreferred: z.boolean()
+});
+
+export const personIdentityProjectionSchema = personProjectionSchema.extend({
+  names: z.array(personNameSchema)
+});
+
 export const proposalKindSchema = z.enum(["correction", "addition", "relationship", "merge", "publication"]);
 export const legacyProposalItemSchema = z.object({
   targetKind: z.enum(["person", "fact", "parent_link", "union", "branch", "merge", "publication"]),
