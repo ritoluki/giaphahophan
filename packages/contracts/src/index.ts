@@ -50,7 +50,7 @@ export const personProjectionSchema = z.object({
 });
 
 export const proposalKindSchema = z.enum(["correction", "addition", "relationship", "merge", "publication"]);
-export const proposalItemSchema = z.object({
+export const legacyProposalItemSchema = z.object({
   targetKind: z.enum(["person", "fact", "parent_link", "union", "branch", "merge", "publication"]),
   targetId: z.string().uuid().nullable().optional(),
   baseVersion: z.number().int().positive().nullable().optional(),
@@ -58,6 +58,55 @@ export const proposalItemSchema = z.object({
   fieldChanges: z.record(z.string(), z.unknown()),
   sourceIds: z.array(z.string().uuid()).max(50).default([])
 });
+
+const personProposalFieldChangesSchema = z.object({
+  display_name: z.string().min(1).max(500).optional(),
+  recorded_sex: z.enum(['M', 'F', 'X', 'U']).nullable().optional(),
+  life_status: z.enum(['living', 'deceased', 'unknown']).optional(),
+  visibility: z.enum(['public', 'members', 'restricted']).optional(),
+  protected_minor: z.boolean().optional(),
+  primary_branch_id: z.string().uuid().nullable().optional(),
+  biography: z.string().max(20000).nullable().optional(),
+  confidence: z.enum(['unverified', 'supported', 'verified', 'disputed']).optional()
+}).strict().refine((value) => Object.keys(value).length > 0, 'At least one person field is required');
+
+const parentLinkCreateFieldChangesSchema = z.object({
+  parent_id: z.string().uuid(),
+  child_id: z.string().uuid(),
+  kind: z.enum(['biological', 'adoptive', 'guardian', 'step']),
+  status: z.enum(['confirmed', 'disputed']),
+  ordinal: z.number().int().positive().nullable().optional(),
+  source_id: z.string().uuid()
+}).strict();
+
+const parentLinkDeleteFieldChangesSchema = z.object({}).strict();
+
+export const proposalItemSchema = z.union([
+  z.object({
+    targetKind: z.literal('person'),
+    targetId: z.string().uuid(),
+    baseVersion: z.number().int().positive(),
+    operation: z.literal('update'),
+    fieldChanges: personProposalFieldChangesSchema,
+    sourceIds: z.array(z.string().uuid()).max(50).default([])
+  }).strict(),
+  z.object({
+    targetKind: z.literal('parent_link'),
+    targetId: z.null().optional(),
+    baseVersion: z.null().optional(),
+    operation: z.literal('create'),
+    fieldChanges: parentLinkCreateFieldChangesSchema,
+    sourceIds: z.array(z.string().uuid()).min(1).max(50)
+  }).strict(),
+  z.object({
+    targetKind: z.literal('parent_link'),
+    targetId: z.string().uuid(),
+    baseVersion: z.number().int().positive(),
+    operation: z.literal('delete'),
+    fieldChanges: parentLinkDeleteFieldChangesSchema,
+    sourceIds: z.array(z.string().uuid()).min(1).max(50)
+  }).strict()
+]);
 
 export const proposalSubmitInputSchema = z.object({
   treeId: z.string().uuid(),

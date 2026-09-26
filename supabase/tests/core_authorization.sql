@@ -223,6 +223,73 @@ begin
 end;
 $$;
 
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
+
+select id, version
+from api.proposal_submit_idempotent(
+  '10000000-0000-4000-8000-000000000001',
+  'relationship',
+  'Synthetic parent link relationship',
+  '50000000-0000-4000-8000-000000000001',
+  '{"graphRevision":1}'::jsonb,
+  '[{"target_kind":"parent_link","operation":"create","field_changes":{"parent_id":"30000000-0000-4000-8000-000000000001","child_id":"30000000-0000-4000-8000-000000000002","kind":"biological","status":"confirmed","source_id":"40000000-0000-4000-8000-000000000001"},"source_ids":["40000000-0000-4000-8000-000000000001"]}]'::jsonb,
+  '80000000-0000-4000-8000-000000000002',
+  'synthetic-relationship-submit-hash'
+)
+\gset relationship_
+
+select set_config('test.relationship_id', :'relationship_id', true);
+select set_config('test.relationship_version', :'relationship_version', true);
+
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000002', true);
+
+select id, status, version
+from api.proposal_review(
+  :'relationship_id'::uuid,
+  'approve',
+  'Synthetic relationship review',
+  :'relationship_version'::bigint,
+  'synthetic-relationship-hash'
+)
+\gset relationship_reviewed_
+
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
+
+select id, version
+from api.proposal_submit_idempotent(
+  '10000000-0000-4000-8000-000000000001',
+  'relationship',
+  'Synthetic cycle relationship',
+  '50000000-0000-4000-8000-000000000001',
+  '{"graphRevision":1}'::jsonb,
+  '[{"target_kind":"parent_link","operation":"create","field_changes":{"parent_id":"30000000-0000-4000-8000-000000000002","child_id":"30000000-0000-4000-8000-000000000001","kind":"biological","status":"confirmed","source_id":"40000000-0000-4000-8000-000000000001"},"source_ids":["40000000-0000-4000-8000-000000000001"]}]'::jsonb,
+  '80000000-0000-4000-8000-000000000003',
+  'synthetic-cycle-submit-hash'
+)
+\gset cycle_
+
+select set_config('test.cycle_id', :'cycle_id', true);
+select set_config('test.cycle_version', :'cycle_version', true);
+
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000002', true);
+
+do $$
+begin
+  begin
+    perform api.proposal_review(
+      current_setting('test.cycle_id')::uuid,
+      'approve',
+      'Synthetic cycle review must fail',
+      current_setting('test.cycle_version')::bigint,
+      'synthetic-cycle-hash'
+    );
+    raise exception 'ancestry cycle was allowed';
+  exception when check_violation then
+    null;
+  end;
+end;
+$$;
+
 set local role postgres;
 
 do $$
@@ -245,6 +312,30 @@ begin
     and display_name = 'Synthetic Updated Person'
     and version = 2;
   if v_count <> 1 then raise exception 'approved person projection was not applied'; end if;
+  select count(*) into v_count
+  from private.parent_links
+  where tree_id = '10000000-0000-4000-8000-000000000001'
+    and parent_id = '30000000-0000-4000-8000-000000000001'
+    and child_id = '30000000-0000-4000-8000-000000000002'
+    and deleted_at is null;
+  if v_count <> 1 then raise exception 'approved parent link was not applied'; end if;
+  select count(*) into v_count
+  from private.parent_links
+  where tree_id = '10000000-0000-4000-8000-000000000001'
+    and parent_id = '30000000-0000-4000-8000-000000000002'
+    and child_id = '30000000-0000-4000-8000-000000000001'
+    and deleted_at is null;
+  if v_count <> 0 then raise exception 'ancestry cycle parent link was persisted'; end if;
+  select count(*) into v_count
+  from private.proposals
+  where id = current_setting('test.cycle_id')::uuid
+    and status = 'submitted';
+  if v_count <> 1 then raise exception 'cycle proposal did not remain submitted after rejected approval'; end if;
+  select count(*) into v_count
+  from private.outbox
+  where tree_id = '10000000-0000-4000-8000-000000000001'
+    and event_type = 'parent_link.created';
+  if v_count <> 1 then raise exception 'expected one parent-link outbox row, got %', v_count; end if;
 end;
 $$;
 

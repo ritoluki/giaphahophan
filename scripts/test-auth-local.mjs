@@ -90,6 +90,7 @@ const env = localEnv();
 const treeId = randomUUID();
 const branchId = randomUUID();
 const personId = randomUUID();
+const childPersonId = randomUUID();
 const sourceId = randomUUID();
 const membershipA = randomUUID();
 const membershipB = randomUUID();
@@ -110,7 +111,7 @@ try {
     "begin;",
     "insert into private.trees (id, created_by, slug, name, data_mode) values (" + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString("auth-" + treeId) + ", 'Synthetic Auth Integration Tree', 'demo');",
     "insert into private.branches (id, tree_id, created_by, code, name) values (" + sqlString(branchId) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", 'AUTH', 'Synthetic Auth Branch');",
-    "insert into private.persons (id, tree_id, created_by, code, display_name, name_search, visibility, protected_minor) values (" + sqlString(personId) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", 'AUTH-PERSON', 'Synthetic Auth Person', 'synthetic auth person', 'public', false);",
+    "insert into private.persons (id, tree_id, created_by, code, display_name, name_search, visibility, protected_minor) values (" + sqlString(personId) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", 'AUTH-PERSON', 'Synthetic Auth Person', 'synthetic auth person', 'public', false), (" + sqlString(childPersonId) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", 'AUTH-CHILD', 'Synthetic Auth Child', 'synthetic auth child', 'public', false);",
     "insert into private.sources (id, tree_id, created_by, title, kind, provenance) values (" + sqlString(sourceId) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", 'Synthetic Auth Source', 'oral', 'Synthetic local test only');",
     "insert into private.memberships (id, tree_id, created_by, auth_user_id, role, status) values (" + sqlString(membershipA) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(userA) + ", 'editor', 'active'), (" + sqlString(membershipB) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(userB) + ", 'reviewer', 'active');",
     "insert into private.capability_grants (id, tree_id, created_by, membership_id, capability) values (" + sqlString(grantA) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(membershipA) + ", 'proposal.submit'), (" + sqlString(grantB) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(membershipB) + ", 'proposal.review');",
@@ -124,6 +125,10 @@ try {
   const submitKey = randomUUID();
   const selfReviewKey = randomUUID();
   const reviewKey = randomUUID();
+  const relationshipSubmitKey = randomUUID();
+  const relationshipReviewKey = randomUUID();
+  const cycleSubmitKey = randomUUID();
+  const cycleReviewKey = randomUUID();
 
   const missingKey = await jsonRequest(webUrl + "/api/v1/proposals", {
     method: "POST",
@@ -220,7 +225,77 @@ try {
 
   const verified = runPsql("select p.status, p.version, person.display_name, person.version, (select count(*) from private.audit_events where resource_id = p.id) as audit_count, (select count(*) from private.outbox where resource_id = p.id) as proposal_outbox_count, (select count(*) from private.outbox where resource_id = person.id and event_type = 'person.updated') as person_outbox_count from private.proposals p join private.persons person on person.id = " + sqlString(personId) + " and person.tree_id = p.tree_id where p.id = " + sqlString(proposalId) + ";");
   assert(verified.status === 0 && /approved\s+\|\s+2\s+\|\s+Synthetic Auth Person Updated\s+\|\s+2\s+\|\s+2\s+\|\s+2\s+\|\s+1/.test(verified.stdout), "proposal projection/audit/outbox verification failed");
-  console.log("PASS local authenticated CORE-02: BFF login, proposal submit, self-review denial, independent review and persistence");
+  const relationshipPayload = {
+    treeId,
+    kind: "relationship",
+    reason: "Synthetic authenticated parent link",
+    branchId,
+    baseSnapshot: { graphRevision: 1 },
+    items: [{
+      targetKind: "parent_link",
+      operation: "create",
+      fieldChanges: {
+        parent_id: personId,
+        child_id: childPersonId,
+        kind: "biological",
+        status: "confirmed",
+        source_id: sourceId
+      },
+      sourceIds: [sourceId]
+    }]
+  };
+  const relationshipSubmitted = await jsonRequest(webUrl + "/api/v1/proposals", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": relationshipSubmitKey, Cookie: cookieA },
+    body: JSON.stringify(relationshipPayload)
+  });
+  assert(relationshipSubmitted.response.status === 201 && relationshipSubmitted.body?.data?.status === "submitted", "relationship proposal submit failed");
+  const relationshipId = relationshipSubmitted.body.data.id;
+  const relationshipVersion = relationshipSubmitted.body.data.version;
+  const relationshipReviewed = await jsonRequest(webUrl + "/api/v1/proposals/" + relationshipId + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": relationshipReviewKey, Cookie: cookieB },
+    body: JSON.stringify({
+      decision: "approve",
+      reason: "Synthetic relationship approval",
+      baseVersion: relationshipVersion,
+      reviewedSnapshotHash: "synthetic-relationship-hash"
+    })
+  });
+  assert(relationshipReviewed.response.status === 200 && relationshipReviewed.body?.data?.status === "approved", "relationship proposal did not approve");
+  const relationshipVerified = runPsql("select count(*) from private.parent_links where tree_id = " + sqlString(treeId) + " and parent_id = " + sqlString(personId) + " and child_id = " + sqlString(childPersonId) + " and deleted_at is null;");
+  assert(relationshipVerified.status === 0 && /\b1\b/.test(relationshipVerified.stdout), "approved relationship was not persisted");
+
+  const cyclePayload = {
+    ...relationshipPayload,
+    reason: "Synthetic ancestry cycle",
+    items: [{
+      ...relationshipPayload.items[0],
+      fieldChanges: {
+        ...relationshipPayload.items[0].fieldChanges,
+        parent_id: childPersonId,
+        child_id: personId
+      }
+    }]
+  };
+  const cycleSubmitted = await jsonRequest(webUrl + "/api/v1/proposals", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": cycleSubmitKey, Cookie: cookieA },
+    body: JSON.stringify(cyclePayload)
+  });
+  assert(cycleSubmitted.response.status === 201 && cycleSubmitted.body?.data?.status === "submitted", "cycle proposal submit failed");
+  const cycleReviewed = await jsonRequest(webUrl + "/api/v1/proposals/" + cycleSubmitted.body.data.id + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": cycleReviewKey, Cookie: cookieB },
+    body: JSON.stringify({
+      decision: "approve",
+      reason: "Synthetic cycle must be rejected",
+      baseVersion: cycleSubmitted.body.data.version,
+      reviewedSnapshotHash: "synthetic-cycle-hash"
+    })
+  });
+  assert(cycleReviewed.response.status === 409, "ancestry cycle was accepted through BFF");
+  console.log("PASS local authenticated CORE-02: BFF login, proposal submit, self-review denial, independent review, relationship approval and persistence");
 } finally {
   const cleanup = [
     "begin;",

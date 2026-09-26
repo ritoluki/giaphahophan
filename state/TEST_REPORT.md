@@ -40,5 +40,6 @@ Application status: FOUNDATION_P1_P2_LOCAL_EXECUTED; product acceptance remains 
 2026-09-27 Idempotency evidence: migration 0007 and API Idempotency-Key boundary applied/tested on local; pnpm test:db and pnpm test:auth exit 0. Missing key returns 428, same key/body replays, same key/different body returns 409, review replay returns stored result without reapplying projection. True concurrent race, broader proposal item kinds and remote CI remain NOT_RUN.
 
 2026-09-27 Final CORE-02 verification: pnpm test, pnpm typecheck, pnpm lint and pnpm build exit 0; lint retains one existing PostCSS warning. Build generated the expected App Router routes and standalone artifact. No cloud/production deployment or real data used.
+2026-09-27 Relationship evidence: migration 0008 applied to Supabase local; typed contract test 3/3, pnpm test:db and local authenticated pnpm test:auth exit 0. Parent-link approval persisted canonical relationship with audit/outbox; reverse confirmed biological edge returned HTTP 409 and did not persist. Remaining target kinds, true concurrent race and remote CI remain NOT_RUN.
 
 Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitCode, actualResult, status, log/screenshot path, reviewer. Log không chứa PII/secret. Static preview QA là nhóm riêng trong PACKAGE_VALIDATION.

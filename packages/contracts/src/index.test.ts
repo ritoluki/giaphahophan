@@ -25,7 +25,9 @@ describe("CORE-01 contracts", () => {
       items: [{
         targetKind: "person",
         operation: "update",
-        fieldChanges: { displayName: "Synthetic Updated Person" },
+        targetId: "30000000-0000-4000-8000-000000000001",
+        baseVersion: 1,
+        fieldChanges: { display_name: "Synthetic Updated Person" },
         sourceIds: []
       }],
       actorId: "20000000-0000-4000-8000-000000000001"
@@ -33,5 +35,27 @@ describe("CORE-01 contracts", () => {
 
     expect(parsed.success).toBe(true);
     if (parsed.success) expect(parsed.data).not.toHaveProperty("actorId");
+  });
+
+  it("accepts a typed parent-link relationship proposal", () => {
+    const parsed = proposalSubmitInputSchema.safeParse({
+      treeId: "10000000-0000-4000-8000-000000000001",
+      kind: "relationship",
+      reason: "Synthetic relationship",
+      items: [{
+        targetKind: "parent_link",
+        operation: "create",
+        fieldChanges: {
+          parent_id: "30000000-0000-4000-8000-000000000001",
+          child_id: "30000000-0000-4000-8000-000000000002",
+          kind: "biological",
+          status: "confirmed",
+          source_id: "40000000-0000-4000-8000-000000000001"
+        },
+        sourceIds: ["40000000-0000-4000-8000-000000000001"]
+      }]
+    });
+
+    expect(parsed.success).toBe(true);
   });
 });
