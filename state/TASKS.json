@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-09-27T01:40:00+07:00",
+  "updatedAt": "2026-09-27T02:00:00+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -199,7 +199,9 @@
         "supabase/migrations/0002_core_authorization.sql, 0003_core_authorization_grants.sql and 0004_fix_review_rpc.sql: auth.uid-based helpers, allowlisted projections, proposal submit/review, audit/outbox and least-privilege grants.",
         "supabase/tests/core_authorization.sql + scripts/test-db-local.mjs: local synthetic DB/RPC test PASS; cross-tree restricted read/proposal denial and raw private table access denial verified for authenticated role.",
         "packages/contracts/src/index.ts + index.test.ts: person projection and proposal mutation schemas/tests.",
-        "apps/web/src/app/api/v1/people/[id]/route.ts: server-side RPC boundary with public-key client, Zod mapping, no-store response and invalid UUID HTTP smoke 400."
+        "apps/web/src/app/api/v1/people/[id]/route.ts: server-side RPC boundary with public-key client, Zod mapping, no-store response and invalid UUID HTTP smoke 400.",
+        "apps/web/src/proxy.ts + apps/web/src/lib/server/supabase-api.ts: Next 16 session refresh via getClaims and verified-user lookup via getUser; mutation routes reject missing sessions with HTTP 401.",
+        "Concurrency/full RLS matrix and CI remote run remain NOT_RUN; task stays IN_PROGRESS."
       ]
     },
     {
@@ -224,7 +226,8 @@
       "evidence": [
         "apps/web/src/app/api/v1/proposals/route.ts and proposals/[id]/review/route.ts: schema-validated server mutation boundaries using Supabase SSR cookies and allowlisted RPCs; actor/role never accepted from payload.",
         "Standalone HTTP smoke: invalid submit/review payloads return HTTP 400 with redacted error envelopes and request IDs.",
-        "Authenticated session, persistent projection apply and review concurrency remain NOT_RUN."
+        "apps/web/src/app/api/v1/auth/login/route.ts, apps/web/src/app/xac-thuc/route.ts and apps/web/src/app/dang-nhap/login-form.tsx: email/password BFF login, safe PKCE callback and mobile-first form with redacted errors.",
+        "scripts/test-auth-local.mjs + pnpm test:auth: local synthetic Auth session submits proposal, denies self-review, approves by independent reviewer and verifies approved/version 2 plus audit/outbox persistence. Projection apply policy, concurrency and remote CI remain NOT_RUN."
       ]
     },
     {

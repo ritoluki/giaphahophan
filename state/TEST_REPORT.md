@@ -1,6 +1,6 @@
 # Báo cáo kiểm thử ứng dụng
 
-Application status: FOUNDATION_AND_P1_DEMO_EXECUTED; product acceptance remains NOT_RUN. Không dùng PACKAGE_VALIDATION.json để đổi trạng thái ứng dụng.
+Application status: FOUNDATION_P1_P2_LOCAL_EXECUTED; product acceptance remains NOT_RUN. Không dùng PACKAGE_VALIDATION.json để đổi trạng thái ứng dụng.
 
 | Nhóm | Trạng thái | Evidence |
 |---|---|---|
@@ -9,8 +9,8 @@ Application status: FOUNDATION_AND_P1_DEMO_EXECUTED; product acceptance remains 
 | Build foundation + P1 demo | PASS | `pnpm build`, Next 16.3.3, Node 24.21.0, exit 0; 15 app routes + health/API routes trong log |
 | Unit/domain/property | PASS (foundation + contracts) | `pnpm test`, Vitest 4.1.11; 7 tests pass across domain/contracts; empty suites explicitly passWithNoTests |
 | Local HTTP smoke | PASS (P1 demo only) | Standalone artifact `apps/web/.next/standalone/apps/web/server.js`; `/`, `/tra-cuu?q=Phan`, `/gia-pha`, `/nguoi/0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c`, `/lich-ho`, `/tu-lieu`, `/api/v1/health/live` đều 200; `/api/v1/health/ready` vẫn 503 degraded khi DB chưa cấu hình |
-| DB/RLS/authorization/concurrency | PARTIAL | Supabase local stack healthy; migrations `0001`–`0004` applied. `pnpm test:db` PASS synthetic projection/capability/proposal/review/audit/outbox, cross-tree restricted read/proposal denial and raw-table denial; concurrency/full RLS matrix remain NOT_RUN. |
-| API contract/integration | PARTIAL | People API local smoke returned HTTP 400/404; proposal submit/review API invalid-payload smoke returned HTTP 400 with request IDs. Authenticated session, RPC persistence/projection and cross-tree API matrix remain NOT_RUN. |
+| DB/RLS/authorization/concurrency | PARTIAL | Supabase local stack healthy; migrations 0001–0004 applied. pnpm test:db PASS synthetic projection/capability/proposal/review/audit/outbox, cross-tree restricted read/proposal denial and raw-table denial; authenticated proposal/review persistence PASS; concurrency/full RLS matrix remain NOT_RUN. |
+| API contract/integration | PARTIAL | People API local smoke returned HTTP 400/404; proposal/review invalid-payload smoke returned HTTP 400; pnpm test:auth PASS BFF login, authenticated submit, self-review 403, independent review and persistence. Projection apply policy, concurrency and cross-tree API matrix remain NOT_RUN. |
 | E2E local/staging | PASS (local demo only) | `pnpm test:e2e`, production build + standalone server, 10/10 tests PASS across desktop Chromium and Pixel 5 mobile; admin preview included |
 | Lunar golden + roundtrip | NOT_RUN | — |
 | Accessibility/real mobile | PARTIAL | Semantic smoke PASS 18/18: skip-link focus, main landmark, image alt presence and visible touch-target checks; full axe/manual/real-device audit not run |
@@ -32,5 +32,7 @@ Application status: FOUNDATION_AND_P1_DEMO_EXECUTED; product acceptance remains 
 - `pnpm audit --audit-level moderate` → exit 0, “No known vulnerabilities found”.
 - `pnpm verify` → exit 0, foundation-files PASS.
 - `pnpm release:check` → exit 2, expected `BLOCKED` because H1–H5 are PENDING; productionDeploy `NOT_RUN`.
+
+2026-09-27 Auth/session evidence: pnpm test:auth exit 0 on local synthetic Supabase; BFF login, proposal submit, author self-review denial, independent approval, persistence/version/audit/outbox verified; temporary users/tree cleaned up. Final pnpm doctor, pnpm test:db, pnpm test, pnpm typecheck, pnpm lint and pnpm verify all exit 0; lint retains one existing PostCSS warning.
 
 Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitCode, actualResult, status, log/screenshot path, reviewer. Log không chứa PII/secret. Static preview QA là nhóm riêng trong PACKAGE_VALIDATION.

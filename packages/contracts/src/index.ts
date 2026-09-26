@@ -83,6 +83,11 @@ export const proposalMutationResultSchema = z.object({
   version: z.number().int().positive()
 });
 
+export const loginInputSchema = z.object({
+  email: z.string().trim().email().max(320),
+  password: z.string().min(8).max(128)
+});
+
 export const apiMetaSchema = z.object({ requestId: z.string().min(1), version: z.number().int().positive().optional() });
 export const errorResponseSchema = z.object({ error: z.object({ code: z.string(), message: z.string(), fieldErrors: z.record(z.string(), z.array(z.string())).optional(), requestId: z.string(), retryable: z.boolean() }) });
 

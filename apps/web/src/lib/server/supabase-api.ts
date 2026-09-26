@@ -29,6 +29,14 @@ export async function createRequestSupabaseClient() {
   });
 }
 
+export async function getVerifiedUser(
+  client: Awaited<ReturnType<typeof createRequestSupabaseClient>>
+) {
+  const { data, error } = await client.auth.getUser();
+  if (error || !data.user) return null;
+  return data.user;
+}
+
 export function rpcErrorStatus(code: string | undefined) {
   if (code === "28000") return 401;
   if (code === "42501") return 403;

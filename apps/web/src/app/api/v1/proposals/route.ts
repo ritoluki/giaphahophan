@@ -1,5 +1,5 @@
 import { proposalMutationResultSchema, proposalSubmitInputSchema } from "@phan/contracts";
-import { apiJson, createRequestSupabaseClient, rpcErrorStatus } from "@/lib/server/supabase-api";
+import { apiJson, createRequestSupabaseClient, getVerifiedUser, rpcErrorStatus } from "@/lib/server/supabase-api";
 
 export async function POST(request: Request) {
   let input: ReturnType<typeof proposalSubmitInputSchema.parse>;
@@ -10,6 +10,9 @@ export async function POST(request: Request) {
   }
 
   const client = await createRequestSupabaseClient();
+  if (!(await getVerifiedUser(client))) {
+    return apiJson({ code: "AUTH_REQUIRED", message: "A verified session is required" }, 401);
+  }
   const { data, error } = await client.schema("api").rpc("proposal_submit", {
     p_tree_id: input.treeId,
     p_kind: input.kind,

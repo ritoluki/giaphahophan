@@ -1,3 +1,14 @@
 import { FoundationPage } from "../_components/foundation-page";
+import { LoginForm } from "./login-form";
 
-export default function LoginPage() { return <FoundationPage kicker="Tài khoản · Lời mời" title="Đăng nhập thành viên" description="Luồng Supabase Auth, lời mời một lần, phục hồi và MFA đặc quyền sẽ được nối với server/DB ở P2. Chưa có tài khoản demo cố định." />; }
+export default function LoginPage() {
+  return (
+    <FoundationPage
+      kicker="Tài khoản · Lời mời"
+      title="Đăng nhập thành viên"
+      description="Đăng nhập để tiếp tục những thao tác cần quyền trong gia phả. Quyền truy cập vẫn được kiểm tra ở server và DB."
+    >
+      <LoginForm />
+    </FoundationPage>
+  );
+}

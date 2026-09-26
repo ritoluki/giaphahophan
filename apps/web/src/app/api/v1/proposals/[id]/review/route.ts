@@ -1,5 +1,5 @@
 import { proposalReviewInputSchema, proposalMutationResultSchema } from "@phan/contracts";
-import { apiJson, createRequestSupabaseClient, rpcErrorStatus } from "@/lib/server/supabase-api";
+import { apiJson, createRequestSupabaseClient, getVerifiedUser, rpcErrorStatus } from "@/lib/server/supabase-api";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -13,6 +13,9 @@ export async function POST(request: Request, context: RouteContext) {
   }
 
   const client = await createRequestSupabaseClient();
+  if (!(await getVerifiedUser(client))) {
+    return apiJson({ code: "AUTH_REQUIRED", message: "A verified session is required" }, 401);
+  }
   const { data, error } = await client.schema("api").rpc("proposal_review", {
     p_proposal_id: input.proposalId,
     p_decision: input.decision,
