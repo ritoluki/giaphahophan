@@ -12,7 +12,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | UI-01 | P1 | Design tokens và component stories | P0-03 | IN_PROGRESS — shared components/tokens + responsive/a11y smoke 18/18; full stories/axe/manual audit NOT_RUN |
 | UI-02 | P1 | Năm màn hình duyệt phong cách | UI-01 | IN_PROGRESS — admin preview included; 18 screenshots at 1440/Pixel 5/320; H1 approval PENDING |
 | CORE-01 | P2 | Auth/RPC/permission foundation | P0-04 | IN_PROGRESS — RPC/projection/grants + DB test + people API invalid-input smoke PASS; cross-tree/concurrency/full RLS matrix còn lại |
-| CORE-02 | P2 | Vertical slice có DB và review | CORE-01, P0-05 | TODO — chờ CORE-01 API wiring và review projection |
+| CORE-02 | P2 | Vertical slice có DB và review | CORE-01, P0-05 | IN_PROGRESS — proposal/review API validation boundary PASS; session/persistence/projection còn lại |
 | JOBS-01 | P2 | Outbox/worker nền | P0-04 |  |
 | M01-01 | P1 | Public projection | UI-02, CORE-02 |  |
 | M01-02 | P1 | Tra cứu nổi bật | M01-01 |  |

@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-09-27T01:28:00+07:00",
+  "updatedAt": "2026-09-27T01:52:00+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -219,9 +219,13 @@
         "Đăng nhập → đọc người → proposal → người khác duyệt → audit/persistence."
       ],
       "testIds": [],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "apps/web/src/app/api/v1/proposals/route.ts and proposals/[id]/review/route.ts: schema-validated server mutation boundaries using Supabase SSR cookies and allowlisted RPCs; actor/role never accepted from payload.",
+        "Standalone HTTP smoke: invalid submit/review payloads return HTTP 400 with redacted error envelopes and request IDs.",
+        "Authenticated session, persistent projection apply and review concurrency remain NOT_RUN."
+      ]
     },
     {
       "id": "JOBS-01",
