@@ -35,4 +35,6 @@ Application status: FOUNDATION_P1_P2_LOCAL_EXECUTED; product acceptance remains 
 
 2026-09-27 Auth/session evidence: pnpm test:auth exit 0 on local synthetic Supabase; BFF login, proposal submit, author self-review denial, independent approval, persistence/version/audit/outbox verified; temporary users/tree cleaned up. Final pnpm doctor, pnpm test:db, pnpm test, pnpm typecheck, pnpm lint and pnpm verify all exit 0; lint retains one existing PostCSS warning.
 
+2026-09-27 Integrity/projection evidence: migrations 0005-0006 applied to Supabase local; pnpm test:db exit 0 with full private raw-table denial list, reviewer/pending-membership denial, tree-scoped target rejection, stale serialization conflict, canonical person update/version 2 and proposal/person audit-outbox checks. pnpm test:auth exit 0 with the same projection verified through the BFF. True concurrent race, idempotency, broader proposal item kinds and remote CI remain NOT_RUN.
+
 Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitCode, actualResult, status, log/screenshot path, reviewer. Log không chứa PII/secret. Static preview QA là nhóm riêng trong PACKAGE_VALIDATION.

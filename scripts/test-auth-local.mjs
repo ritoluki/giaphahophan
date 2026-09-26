@@ -170,8 +170,8 @@ try {
   });
   assert(reviewed.response.status === 200 && reviewed.body && reviewed.body.data && reviewed.body.data.status === "approved", "independent review did not approve");
 
-  const verified = runPsql("select p.status, p.version, (select count(*) from private.audit_events where resource_id = p.id) as audit_count, (select count(*) from private.outbox where resource_id = p.id) as outbox_count from private.proposals p where p.id = " + sqlString(proposalId) + ";");
-  assert(verified.status === 0 && /approved\s+\|\s+2\s+\|\s+2\s+\|\s+2/.test(verified.stdout), "proposal persistence/audit/outbox verification failed");
+  const verified = runPsql("select p.status, p.version, person.display_name, person.version, (select count(*) from private.audit_events where resource_id = p.id) as audit_count, (select count(*) from private.outbox where resource_id = p.id) as proposal_outbox_count, (select count(*) from private.outbox where resource_id = person.id and event_type = 'person.updated') as person_outbox_count from private.proposals p join private.persons person on person.id = " + sqlString(personId) + " and person.tree_id = p.tree_id where p.id = " + sqlString(proposalId) + ";");
+  assert(verified.status === 0 && /approved\s+\|\s+2\s+\|\s+Synthetic Auth Person Updated\s+\|\s+2\s+\|\s+2\s+\|\s+2\s+\|\s+1/.test(verified.stdout), "proposal projection/audit/outbox verification failed");
   console.log("PASS local authenticated CORE-02: BFF login, proposal submit, self-review denial, independent review and persistence");
 } finally {
   const cleanup = [

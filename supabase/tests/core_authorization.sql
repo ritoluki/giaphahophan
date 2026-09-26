@@ -8,7 +8,8 @@ insert into auth.users (
   email_confirmed_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data
 ) values
   ('00000000-0000-0000-0000-000000000000', '20000000-0000-4000-8000-000000000001', 'authenticated', 'authenticated', 'core-a@example.test', '', clock_timestamp(), clock_timestamp(), clock_timestamp(), '{}', '{}'),
-  ('00000000-0000-0000-0000-000000000000', '20000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated', 'core-b@example.test', '', clock_timestamp(), clock_timestamp(), clock_timestamp(), '{}', '{}');
+  ('00000000-0000-0000-0000-000000000000', '20000000-0000-4000-8000-000000000002', 'authenticated', 'authenticated', 'core-b@example.test', '', clock_timestamp(), clock_timestamp(), clock_timestamp(), '{}', '{}'),
+  ('00000000-0000-0000-0000-000000000000', '20000000-0000-4000-8000-000000000003', 'authenticated', 'authenticated', 'core-c@example.test', '', clock_timestamp(), clock_timestamp(), clock_timestamp(), '{}', '{}');
 
 insert into private.trees (id, created_by, slug, name, data_mode)
 values
@@ -30,12 +31,14 @@ values ('40000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-0000000
 insert into private.memberships (id, tree_id, created_by, auth_user_id, role, status)
 values
   ('60000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'editor', 'active'),
-  ('60000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000002', 'reviewer', 'active');
+  ('60000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000002', 'reviewer', 'active'),
+  ('60000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000003', 'editor', 'pending');
 
 insert into private.capability_grants (id, tree_id, created_by, membership_id, capability)
 values
   ('70000000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '60000000-0000-4000-8000-000000000001', 'proposal.submit'),
-  ('70000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '60000000-0000-4000-8000-000000000002', 'proposal.review');
+  ('70000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '60000000-0000-4000-8000-000000000002', 'proposal.review'),
+  ('70000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', '60000000-0000-4000-8000-000000000003', 'proposal.submit');
 
 set local role anon;
 select set_config('request.jwt.claim.sub', '', true);
@@ -56,6 +59,21 @@ select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001
 
 do $$
 declare
+  table_name text;
+begin
+  foreach table_name in array array['trees','branches','persons','person_names','sources','parent_links','memberships','capability_grants','proposals','proposal_items','review_decisions','audit_events','idempotency_records','outbox'] loop
+    begin
+      execute format('select count(*) from private.%I', table_name);
+      raise exception 'authenticated raw table access was allowed for %', table_name;
+    exception when insufficient_privilege then
+      null;
+    end;
+  end loop;
+end;
+$$;
+
+do $$
+declare
   v_count integer;
 begin
   select count(*) into v_count from api.person_get('30000000-0000-4000-8000-000000000003');
@@ -68,6 +86,57 @@ begin
     );
     raise exception 'cross-tree proposal was allowed';
   exception when insufficient_privilege then
+    null;
+  end;
+end;
+$$;
+
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000002', true);
+
+do $$
+begin
+  begin
+    perform api.proposal_submit(
+      '10000000-0000-4000-8000-000000000001', 'correction', 'Reviewer submit must fail', null,
+      '{"graphRevision":1}'::jsonb,
+      '[{"target_kind":"person","target_id":"30000000-0000-4000-8000-000000000001","operation":"update","field_changes":{"display_name":"Denied"},"source_ids":[]}]'::jsonb
+    );
+    raise exception 'reviewer without submit capability was allowed';
+  exception when insufficient_privilege then
+    null;
+  end;
+end;
+$$;
+
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000003', true);
+
+do $$
+begin
+  begin
+    perform api.proposal_submit(
+      '10000000-0000-4000-8000-000000000001', 'correction', 'Pending member submit must fail', null,
+      '{"graphRevision":1}'::jsonb,
+      '[{"target_kind":"person","target_id":"30000000-0000-4000-8000-000000000001","operation":"update","field_changes":{"display_name":"Denied"},"source_ids":[]}]'::jsonb
+    );
+    raise exception 'pending membership was allowed';
+  exception when insufficient_privilege then
+    null;
+  end;
+end;
+$$;
+
+select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);
+
+do $$
+begin
+  begin
+    perform api.proposal_submit(
+      '10000000-0000-4000-8000-000000000001', 'correction', 'Cross-tree target must fail', null,
+      '{"graphRevision":1}'::jsonb,
+      '[{"target_kind":"person","target_id":"30000000-0000-4000-8000-000000000003","operation":"update","field_changes":{"display_name":"Leak"},"source_ids":[]}]'::jsonb
+    );
+    raise exception 'cross-tree person target was allowed';
+  exception when foreign_key_violation then
     null;
   end;
 end;
@@ -110,6 +179,23 @@ from api.proposal_review(
 )
 \gset reviewed_
 
+do $$
+begin
+  begin
+    perform api.proposal_review(
+      current_setting('test.submitted_id')::uuid,
+      'approve',
+      'Synthetic stale review',
+      current_setting('test.submitted_version')::bigint,
+      'synthetic-stale-hash'
+    );
+    raise exception 'stale review was allowed';
+  exception when serialization_failure then
+    null;
+  end;
+end;
+$$;
+
 set local role postgres;
 
 do $$
@@ -121,6 +207,17 @@ begin
   if v_count <> 2 then raise exception 'expected submit+review audit rows, got %', v_count; end if;
   select count(*) into v_count from private.outbox where resource_id = v_proposal_id;
   if v_count <> 2 then raise exception 'expected submit+review outbox rows, got %', v_count; end if;
+  select count(*) into v_count
+  from private.outbox
+  where resource_id = '30000000-0000-4000-8000-000000000001'
+    and event_type = 'person.updated';
+  if v_count <> 1 then raise exception 'expected person projection outbox row, got %', v_count; end if;
+  select count(*) into v_count
+  from private.persons
+  where id = '30000000-0000-4000-8000-000000000001'
+    and display_name = 'Synthetic Updated Person'
+    and version = 2;
+  if v_count <> 1 then raise exception 'approved person projection was not applied'; end if;
 end;
 $$;
 
