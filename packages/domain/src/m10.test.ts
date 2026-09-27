@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { vnLunarAdapter } from "@phan/lunar";
 import type { EventRule } from "@phan/contracts";
 import {
+  applyOccurrenceOverride,
+  dedupeOccurrencesByLogicalKey,
   occurrencesBetween,
   planAnnualLunarRecurrence,
   type LunarRecurrenceInput,
@@ -360,5 +362,70 @@ describe("M10-03 occurrencesBetween", () => {
       occurrences: [],
       blockedReasons: ["invalid_query_range"],
     }));
+  });
+});
+describe("M10-04 occurrence override/version", () => {
+  it("keeps logical key and audit reason when a reviewer overrides the solar date", () => {
+    const occurrence = occurrencesBetween(
+      eventRule(),
+      "2023-01-01",
+      "2023-12-31",
+      "policy-v1",
+    ).occurrences[0]!;
+    const overridden = applyOccurrenceOverride(occurrence, {
+      logicalKey: occurrence.logicalKey,
+      occursOn: "2023-01-25",
+      reason: "Gia đình đã xác nhận ngày tổ chức",
+      approvedBy: "reviewer-demo",
+      version: 1,
+    });
+
+    expect(overridden.id).toBe(occurrence.id);
+    expect(overridden.logicalKey).toBe(occurrence.logicalKey);
+    expect(overridden.occursOn).toBe("2023-01-25");
+    expect(overridden.overrideReason).toBe("Gia đình đã xác nhận ngày tổ chức");
+    expect(overridden.overrideVersion).toBe(1);
+  });
+
+  it("rejects mismatched keys, invalid dates and non-monotonic override versions", () => {
+    const occurrence = occurrencesBetween(
+      eventRule(),
+      "2023-01-01",
+      "2023-12-31",
+      "policy-v1",
+    ).occurrences[0]!;
+    const valid = {
+      logicalKey: occurrence.logicalKey,
+      occursOn: "2023-01-25",
+      reason: "Đã được người phụ trách xác nhận",
+      approvedBy: "reviewer-demo",
+      version: 1,
+    };
+    expect(() => applyOccurrenceOverride(occurrence, { ...valid, logicalKey: "wrong" })).toThrow();
+    expect(() => applyOccurrenceOverride(occurrence, { ...valid, occursOn: "2023-02-30" })).toThrow();
+    const overridden = applyOccurrenceOverride(occurrence, valid);
+    expect(() => applyOccurrenceOverride(overridden, valid)).toThrow();
+  });
+
+  it("deduplicates rule updates by logical key and keeps the newest rule version", () => {
+    const occurrence = occurrencesBetween(
+      eventRule({ version: 1 }),
+      "2023-01-01",
+      "2023-12-31",
+      "policy-v1",
+    ).occurrences[0]!;
+    const newer = {
+      ...occurrence,
+      ruleVersion: 2,
+      occursOn: "2023-01-25",
+      solarLabel: "2023-01-25",
+      policyVersion: "policy-v2",
+    };
+    const deduped = dedupeOccurrencesByLogicalKey([occurrence, newer]);
+
+    expect(deduped).toHaveLength(1);
+    expect(deduped[0]?.ruleVersion).toBe(2);
+    expect(deduped[0]?.occursOn).toBe("2023-01-25");
+    expect(deduped[0]?.logicalKey).toBe(occurrence.logicalKey);
   });
 });

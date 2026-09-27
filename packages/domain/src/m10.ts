@@ -248,12 +248,17 @@ export function planAnnualLunarRecurrence(
   }
 }
 
+export type PlannedOccurrence = Occurrence & {
+  logicalKey: string;
+  canAutoNotify: boolean;
+  policyVersion: string;
+  ruleVersion: number;
+  overrideReason: string | null;
+  overrideVersion: number;
+};
+
 export type OccurrenceQueryResult = {
-  occurrences: ReadonlyArray<Occurrence & {
-    logicalKey: string;
-    canAutoNotify: boolean;
-    policyVersion: string;
-  }>;
+  occurrences: ReadonlyArray<PlannedOccurrence>;
   blockedReasons: ReadonlyArray<RecurrencePlanBlockReason | "invalid_query_range">;
   algorithmVersion: string;
   policyVersion: string;
@@ -299,11 +304,7 @@ function createLunarOccurrence(
   rule: EventRule,
   candidate: RecurrenceCandidate,
   policyVersion: string,
-): Occurrence & {
-  logicalKey: string;
-  canAutoNotify: boolean;
-  policyVersion: string;
-} {
+): PlannedOccurrence {
   const occursOn = solarDateToString(candidate.solarDate);
   return {
     id: `event:${rule.id}:${candidate.logicalKey}`,
@@ -320,6 +321,9 @@ function createLunarOccurrence(
     logicalKey: candidate.logicalKey,
     canAutoNotify: candidate.canAutoNotify,
     policyVersion,
+    ruleVersion: rule.version,
+    overrideReason: null,
+    overrideVersion: 0,
   };
 }
 
@@ -327,11 +331,7 @@ function createSolarOccurrence(
   rule: EventRule,
   solarDate: SolarDate,
   policyVersion: string,
-): Occurrence & {
-  logicalKey: string;
-  canAutoNotify: boolean;
-  policyVersion: string;
-} {
+): PlannedOccurrence {
   const occursOn = solarDateToString(solarDate);
   const logicalKey = `solar:${occursOn}`;
   return {
@@ -349,6 +349,9 @@ function createSolarOccurrence(
     logicalKey,
     canAutoNotify: rule.reviewStatus === "approved",
     policyVersion,
+    ruleVersion: rule.version,
+    overrideReason: null,
+    overrideVersion: 0,
   };
 }
 
@@ -368,12 +371,12 @@ function buildAnnualSolarOccurrences(
   end: SolarDate,
   policyVersion: string,
 ): {
-  occurrences: Array<Occurrence & { logicalKey: string; canAutoNotify: boolean; policyVersion: string }>;
+  occurrences: Array<PlannedOccurrence>;
   blockedReasons: Array<RecurrencePlanBlockReason>;
 } {
   const parts = sourceDateParts(rule, "gregorian");
   if (!parts) return { occurrences: [], blockedReasons: ["source_date_not_lunar"] };
-  const occurrences: Array<Occurrence & { logicalKey: string; canAutoNotify: boolean; policyVersion: string }> = [];
+  const occurrences: Array<PlannedOccurrence> = [];
   const blockedReasons: Array<RecurrencePlanBlockReason> = [];
   for (let year = start.year; year <= end.year; year += 1) {
     let day = parts.day;
@@ -451,11 +454,7 @@ export function occurrencesBetween(
   }
 
   const blockedReasons: Array<RecurrencePlanBlockReason> = [];
-  const occurrences = new Map<string, Occurrence & {
-    logicalKey: string;
-    canAutoNotify: boolean;
-    policyVersion: string;
-  }>();
+  const occurrences = new Map<string, PlannedOccurrence>();
   const firstLunarYear = Math.max(1900, start.year - 1);
   const lastLunarYear = Math.min(2099, end.year + 1);
   for (let lunarYear = firstLunarYear; lunarYear <= lastLunarYear; lunarYear += 1) {
@@ -488,4 +487,72 @@ export function occurrencesBetween(
     algorithmVersion: vnLunarAdapter.algorithmVersion,
     policyVersion,
   };
+}
+export type OccurrenceOverrideInput = {
+  logicalKey: string;
+  occursOn: string;
+  reason: string;
+  approvedBy: string;
+  version: number;
+};
+
+export function applyOccurrenceOverride(
+  occurrence: PlannedOccurrence,
+  override: OccurrenceOverrideInput,
+): PlannedOccurrence {
+  const solarDate = parseCivilDate(override.occursOn);
+  if (!solarDate) throw new RangeError("override occursOn must be a supported ISO civil date");
+  if (override.logicalKey !== occurrence.logicalKey) {
+    throw new RangeError("override logicalKey must match the existing occurrence");
+  }
+  if (override.reason.trim().length < 5) {
+    throw new RangeError("override reason is required");
+  }
+  if (override.approvedBy.trim().length < 1) {
+    throw new RangeError("override approver is required");
+  }
+  if (!Number.isInteger(override.version) || override.version <= occurrence.overrideVersion) {
+    throw new RangeError("override version must increase monotonically");
+  }
+  return {
+    ...occurrence,
+    occursOn: solarDateToString(solarDate),
+    solarLabel: solarDateToString(solarDate),
+    overrideReason: override.reason.trim(),
+    overrideVersion: override.version,
+  };
+}
+
+export function dedupeOccurrencesByLogicalKey(
+  occurrences: ReadonlyArray<PlannedOccurrence>,
+): ReadonlyArray<PlannedOccurrence> {
+  const byKey = new Map<string, PlannedOccurrence>();
+  for (const occurrence of occurrences) {
+    const current = byKey.get(occurrence.logicalKey);
+    if (
+      !current ||
+      occurrence.ruleVersion > current.ruleVersion ||
+      (occurrence.ruleVersion === current.ruleVersion &&
+        occurrence.overrideVersion > current.overrideVersion)
+    ) {
+      byKey.set(occurrence.logicalKey, occurrence);
+    }
+  }
+  return [...byKey.values()].sort(
+    (left, right) =>
+      left.occursOn.localeCompare(right.occursOn) ||
+      left.logicalKey.localeCompare(right.logicalKey),
+  );
+}
+
+export function applyOccurrenceOverrides(
+  occurrences: ReadonlyArray<PlannedOccurrence>,
+  overrides: ReadonlyArray<OccurrenceOverrideInput>,
+): ReadonlyArray<PlannedOccurrence> {
+  const byKey = new Map(overrides.map((override) => [override.logicalKey, override]));
+  const updated = occurrences.map((occurrence) => {
+    const override = byKey.get(occurrence.logicalKey);
+    return override ? applyOccurrenceOverride(occurrence, override) : occurrence;
+  });
+  return dedupeOccurrencesByLogicalKey(updated);
 }

@@ -138,3 +138,8 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - packages/domain/src/m10.test.ts PASS: 12/12 M10 tests total, including 6 M10-03 tests for lunar/solar boundary, source identity, dedupe, review gate, once/annual-solar and invalid range.
 - pnpm test PASS: contracts 20/20, domain 36/36, worker 5/5, lunar 4/4, web 3/3. pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS on Node 24.21.0. Lint retains 2 existing warnings.
 - No UI/DB/API change in this domain-only slice; no real data, cloud or production deployment. Staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
+
+## M10-04 evidence (2026-09-28)
+- packages/domain/src/m10.test.ts PASS: 15/15 M10 tests total, including 3 M10-04 tests for reviewer override, logical key/id stability, reason/version validation and rule-update dedupe.
+- pnpm test PASS: contracts 20/20, domain 39/39, worker 5/5, lunar 4/4, web 3/3. pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS on Node 24.21.0. Lint retains 2 existing warnings.
+- No UI/DB/API change in this domain-only slice; no real data, cloud or production deployment. Staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.

@@ -910,8 +910,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Override giữ logical key và lý do; rule update không nhân đôi occurrence.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": ["packages/domain/src/m10.ts + m10.test.ts: reviewer override keeps occurrence logical key/id, stores reason/version, validates inputs and dedupes rule updates; 3/3 M10-04 tests PASS.","pnpm test PASS across contracts 20/20, domain 39/39, worker 5/5, lunar 4/4 and web 3/3; typecheck/lint/build/verify PASS on Node 24.21.0. No real data/cloud/production."]
     },
     {
       "id": "TC-M10-05",
