@@ -1924,9 +1924,9 @@
       "testIds": [
         "TC-M12-04"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["apps/web/src/modules/m12/demo-content.ts + news-reader.tsx: ordered editorial list and article reader use typed SafeRichText AST, approved section-background asset, clear demo-only labels, Vietnamese typography, long-text/heading/list/image layout and explicit empty/loading/error/restricted states; no real family data.","apps/web/src/app/tin-ho/page.tsx + tin-ho/[slug]/page.tsx: mobile-first list/article routes, SSG demo article, unknown slug no-content/no-index boundary and stable back navigation; direct localhost:3100 smoke checks: /tin-ho 200 reader+noindex, demo article 200 reader+noindex, unknown article generic noindex, robots/sitemap 200.","Full pnpm test PASS: contracts 39/39, domain 62/62, worker 18/18, lunar 4/4, web 3/3; pnpm typecheck, lint, build, verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. Axe/manual, zoom 200%, real-device, DB/API live content integration, staging/remote CI and production approval remain NOT_RUN."]
     },
     {
       "id": "M13-01",

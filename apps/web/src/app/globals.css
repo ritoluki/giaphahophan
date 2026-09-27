@@ -417,3 +417,30 @@ button, a, input, select { min-height: 44px; }
 @media (max-width: 767px) {
   .safe-rich-text { font-size: 1.0625rem; }
 }
+
+
+.news-reader-page { padding-bottom: 5.5rem; }
+.news-reader-page > .page-lede { max-width: 52rem; }
+.news-card-list { display: grid; gap: 1rem; margin-top: 1.25rem; }
+.news-card { display: grid; gap: .65rem; min-width: 0; padding: 1.15rem; border: 1px solid var(--border); border-radius: 14px; background: #FFFCF8; color: var(--ink); text-decoration: none; transition: border-color .18s ease, transform .18s ease; }
+.news-card:hover, .news-card:focus-visible { border-color: var(--accent); transform: translateY(-1px); }
+.news-card h2 { margin: 0; color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: clamp(1.25rem, 5vw, 1.65rem); line-height: 1.3; overflow-wrap: anywhere; }
+.news-card p { margin: 0; color: var(--ink-muted); line-height: 1.65; }
+.news-card-meta, .news-article-meta { display: flex; flex-wrap: wrap; gap: .5rem 1rem; color: var(--accent); font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+.news-card-link { color: var(--brand); font-weight: 800; }
+.news-reader-state { display: grid; gap: .35rem; margin-top: 1.25rem; padding: 1rem 1.1rem; border: 1px dashed var(--border); border-radius: 12px; background: var(--muted); color: var(--ink-muted); }
+.news-reader-state strong { color: var(--brand); }
+.news-back-link { display: inline-flex; margin-bottom: 1rem; color: var(--brand); font-weight: 800; text-decoration: none; }
+.news-article { display: grid; gap: 1.35rem; max-width: 72ch; }
+.news-article-heading { display: grid; gap: .75rem; }
+.news-article-heading h1 { margin: 0; color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: clamp(2rem, 8vw, 3.5rem); line-height: 1.15; overflow-wrap: anywhere; }
+.news-article-summary { margin: 0; color: var(--ink-muted); font-size: clamp(1.05rem, 3vw, 1.25rem); line-height: 1.65; }
+.news-article-footer { display: grid; gap: .35rem; margin-top: 1rem; padding: 1rem; border-left: 3px solid var(--accent); background: #FBF1DE; color: var(--ink-muted); line-height: 1.55; }
+.news-article-footer strong { color: var(--brand); }
+@media (min-width: 768px) {
+  .news-card-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .news-card { padding: 1.35rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .news-card { transition: none; }
+}

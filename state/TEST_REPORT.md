@@ -195,3 +195,8 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - packages/domain/src/m12-seo.test.ts PASS: 4/4 tests cho fail-closed projection, OG metadata không private, sitemap public-only và no-index preview/restricted metadata.
 - apps/web build PASS: robots.txt, sitemap.xml và tin-ho/[slug] no-index boundary được route hóa; demo/non-real mode không index và không sinh sitemap entries.
 - Full pnpm test PASS: contracts 39/39, domain 62/62, worker 18/18, lunar 4/4, web 3/3; pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS trên Node 24.21.0. Lint còn 2 cảnh báo cũ. DB/API public content integration, M12-04 reader/a11y, staging/remote CI, axe/manual, real-device và production approval vẫn NOT_RUN.
+
+## M12-04 evidence (2026-09-28)
+- apps/web reader implementation PASS: ordered list/article, typed SafeRichText rendering, Vietnamese text/heading/list/image layout, demo-only approved asset and explicit state component.
+- Direct localhost smoke PASS: /tin-ho 200 with reader/noindex, /tin-ho/giu-gin-nguon-coi 200 with reader/noindex, unknown article generic noindex/no content, robots.txt and sitemap.xml 200.
+- Full pnpm test PASS: contracts 39/39, domain 62/62, worker 18/18, lunar 4/4, web 3/3; pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS trên Node 24.21.0. Lint còn 2 cảnh báo cũ. Axe/manual, zoom 200%, real-device, live DB/API content, staging/remote CI và production approval vẫn NOT_RUN.

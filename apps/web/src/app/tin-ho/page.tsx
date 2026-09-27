@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { FoundationPage } from "../_components/foundation-page";
+import { NewsIndex } from "../../modules/m12/news-reader";
+import { getDemoNewsPosts } from "../../modules/m12/demo-content";
 
 const indexable = process.env.APP_ENV === "production" && process.env.DATA_MODE === "real";
 
@@ -16,5 +17,5 @@ export const metadata: Metadata = {
 };
 
 export default function NewsPage() {
-  return <FoundationPage kicker="Tin họ · Nội dung đã duyệt" title="Tin tức và câu chuyện" description="Bản demo không bịa lịch sử hoặc tên địa phương. Nội dung xuất bản sẽ có nguồn, revision và người chịu trách nhiệm." />;
+  return <NewsIndex posts={getDemoNewsPosts()} />;
 }
