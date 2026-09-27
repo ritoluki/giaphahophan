@@ -16,6 +16,8 @@ describe("CORE-01 contracts", () => {
     });
     expect(result.displayName).toBe("Phan Đức An");
     expect(result.matchedNames[0]?.name).toBe("Phan Đỗ");
+    expect(() => personSearchResultSchema.parse({ ...result, sourceTitle: "Hidden source" })).toThrow();
+    expect(() => personSearchResultSchema.parse({ ...result, matchedNames: [{ name: "Phan Đỗ", kind: "alias", sourceId: "hidden" }] })).toThrow();
   });
   it("accepts the allowlisted person projection shape", () => {
     expect(personProjectionSchema.parse({

@@ -1056,9 +1056,13 @@
       "testIds": [
         "TC-M06-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/tests/m06_search.sql + pnpm test:m06:search PASS: empty and targeted anonymous search returns only two visible synthetic rows; restricted canonical/alias metadata is excluded.",
+        "scripts/test-m06-search-http-local.mjs + pnpm test:m06:http PASS: BFF result keys are allowlisted, total/count/snippet are absent, hidden names do not appear, and invalid query/cursor errors do not echo input.",
+        "personSearchMatchSchema/personSearchResultSchema are strict; full pnpm test 13/13 contracts, 24/24 domain, 5/5 worker, typecheck, build and lint PASS. Axe/manual/real-device/remote CI NOT_RUN; no real data/cloud/production."
+      ]
     },
     {
       "id": "M06-04",

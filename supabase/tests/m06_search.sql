@@ -53,6 +53,9 @@ begin
   select id into v_cursor from api.persons_search(p_query => 'phan', p_sort => 'name', p_limit => 1);
   select count(*) into v_count from api.persons_search(p_query => 'phan', p_sort => 'name', p_cursor_person_id => v_cursor, p_limit => 20);
   if v_count <> 1 then raise exception 'keyset cursor expected one next result, got %', v_count; end if;
+
+  select count(*) into v_count from api.persons_search(p_query => '', p_limit => 101);
+  if v_count <> 2 then raise exception 'empty search expected only two visible rows, got %', v_count; end if;
 end;
 $$;
 

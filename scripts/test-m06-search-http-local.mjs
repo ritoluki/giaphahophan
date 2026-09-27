@@ -5,8 +5,10 @@ const container = "supabase_db_phan-gia-pha-local";
 const treeId = "26000000-0000-4000-8000-000000000001";
 const personId = "46000000-0000-4000-8000-000000000001";
 const secondPersonId = "46000000-0000-4000-8000-000000000002";
+const hiddenPersonId = "46000000-0000-4000-8000-000000000003";
 const nameId = "66000000-0000-4000-8000-000000000001";
 const secondNameId = "66000000-0000-4000-8000-000000000002";
+const hiddenNameId = "66000000-0000-4000-8000-000000000003";
 const branchId = "86000000-0000-4000-8000-000000000001";
 const firstFactId = "76000000-0000-4000-8000-000000000001";
 const secondFactId = "76000000-0000-4000-8000-000000000002";
@@ -26,10 +28,12 @@ insert into private.trees (id, slug, name, data_mode) values (${sqlString(treeId
 insert into private.branches (id, tree_id, code, name) values (${sqlString(branchId)}, ${sqlString(treeId)}, 'M06', 'Synthetic M06 branch');
 insert into private.persons (id, tree_id, code, display_name, name_search, life_status, visibility, protected_minor, primary_branch_id) values
   (${sqlString(personId)}, ${sqlString(treeId)}, 'M06-HTTP-001', 'Phan Đức An', 'phan duc an', 'deceased', 'public', false, ${sqlString(branchId)}),
-  (${sqlString(secondPersonId)}, ${sqlString(treeId)}, 'M06-HTTP-002', 'Phan Đức Bình', 'phan duc binh', 'deceased', 'public', false, null);
+  (${sqlString(secondPersonId)}, ${sqlString(treeId)}, 'M06-HTTP-002', 'Phan Đức Bình', 'phan duc binh', 'deceased', 'public', false, null),
+  (${sqlString(hiddenPersonId)}, ${sqlString(treeId)}, 'M06-HTTP-003', 'Hidden Restricted Person', 'hidden restricted person', 'unknown', 'restricted', false, null);
 insert into private.person_names (id, tree_id, person_id, name, name_search, kind, is_preferred) values
   (${sqlString(nameId)}, ${sqlString(treeId)}, ${sqlString(personId)}, 'Phan Đỗ', 'phan do', 'alias', false),
-  (${sqlString(secondNameId)}, ${sqlString(treeId)}, ${sqlString(secondPersonId)}, 'Phan Đức Bình', 'phan duc binh', 'preferred', true);
+  (${sqlString(secondNameId)}, ${sqlString(treeId)}, ${sqlString(secondPersonId)}, 'Phan Đức Bình', 'phan duc binh', 'preferred', true),
+  (${sqlString(hiddenNameId)}, ${sqlString(treeId)}, ${sqlString(hiddenPersonId)}, 'Hidden Source Alias', 'hidden source alias', 'alias', false);
 insert into private.person_facts (id, tree_id, person_id, kind, value_date, visibility) values
   (${sqlString(firstFactId)}, ${sqlString(treeId)}, ${sqlString(personId)}, 'birth', '{"year": 1900, "precision": "year"}'::jsonb, 'public'),
   (${sqlString(secondFactId)}, ${sqlString(treeId)}, ${sqlString(secondPersonId)}, 'birth', '{"year": 1901, "precision": "year"}'::jsonb, 'public');
@@ -42,6 +46,24 @@ try {
   assert(aliasBody.data?.length === 1, "alias search did not return one authorized fixture");
   assert(aliasBody.data[0].displayName === "Phan Đức An", "search BFF changed canonical display");
   assert(aliasBody.data[0].matchedNames?.[0]?.name === "Phan Đỗ", "search BFF omitted alias display");
+  const allowlistedKeys = new Set(["id", "version", "code", "displayName", "lifeStatus", "primaryBranchId", "yearLabel", "portraitAssetId", "isDemo", "matchedNames"]);
+  assert(Object.keys(aliasBody.data[0]).every((key) => allowlistedKeys.has(key)), "search BFF exposed a non-allowlisted field");
+  assert(!("total" in aliasBody) && !("count" in aliasBody) && !("snippet" in aliasBody), "search BFF exposed aggregate/snippet metadata");
+
+  const hiddenResponse = await fetch(webUrl + "/api/v1/persons?q=hidden%20source%20alias");
+  const hiddenBody = await hiddenResponse.json();
+  assert(hiddenResponse.status === 200 && hiddenBody.data?.length === 0, "hidden alias was exposed to anonymous search");
+  assert(!JSON.stringify(hiddenBody).includes("Hidden Restricted Person"), "hidden canonical name leaked in search response");
+
+  const invalidQueryResponse = await fetch(webUrl + "/api/v1/persons?q=x");
+  const invalidQueryBody = await invalidQueryResponse.json();
+  assert(invalidQueryResponse.status === 400, "short query was not rejected");
+  assert(!JSON.stringify(invalidQueryBody).includes("q=x"), "invalid-query error echoed request metadata");
+
+  const invalidCursorResponse = await fetch(webUrl + "/api/v1/persons?q=phan&cursor=hidden-secret-cursor");
+  const invalidCursorBody = await invalidCursorResponse.json();
+  assert(invalidCursorResponse.status === 400, "invalid cursor was not rejected");
+  assert(!JSON.stringify(invalidCursorBody).includes("hidden-secret-cursor"), "cursor error echoed opaque token");
 
   const firstPageResponse = await fetch(webUrl + "/api/v1/persons?q=phan&limit=1");
   const firstPage = await firstPageResponse.json();
@@ -57,12 +79,12 @@ try {
   const filterBody = await filterResponse.json();
   assert(filterResponse.status === 200 && filterBody.data?.length === 1, "filter BFF did not narrow to one authorized result");
   assert(filterBody.data[0].id === personId, "filter BFF returned the wrong canonical person");
-  console.log("PASS local M06-01/M06-02 HTTP: canonical alias, filters and stable opaque cursor");
+  console.log("PASS local M06-01/M06-03 HTTP: canonical alias, filters, stable cursor and metadata redaction");
 } finally {
   const cleanup = runPsql(`
 delete from private.person_facts where id in (${sqlString(firstFactId)}, ${sqlString(secondFactId)});
-delete from private.person_names where id in (${sqlString(nameId)}, ${sqlString(secondNameId)});
-delete from private.persons where id in (${sqlString(personId)}, ${sqlString(secondPersonId)});
+delete from private.person_names where id in (${sqlString(nameId)}, ${sqlString(secondNameId)}, ${sqlString(hiddenNameId)});
+delete from private.persons where id in (${sqlString(personId)}, ${sqlString(secondPersonId)}, ${sqlString(hiddenPersonId)});
 delete from private.branches where id = ${sqlString(branchId)};
 delete from private.trees where id = ${sqlString(treeId)};
 `);

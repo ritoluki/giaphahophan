@@ -502,8 +502,12 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Counts/autocomplete/snippets/error messages không lộ người hoặc source bị ẩn.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "pnpm test:m06:search PASS: local Supabase excludes restricted person/alias from empty and targeted search while returning only authorized visible rows.",
+        "pnpm test:m06:http PASS: standalone BFF exposes only allowlisted person summary keys, no total/count/snippet, hides restricted names, and keeps invalid-query/cursor errors generic.",
+        "Search match/result schemas are strict against source metadata; pnpm test (contracts 13/13, domain 24/24, worker 5/5), typecheck, build and lint PASS. Axe/manual/real-device/remote CI NOT_RUN; no real data/cloud/production."
+      ]
     },
     {
       "id": "TC-M06-04",

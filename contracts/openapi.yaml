@@ -699,7 +699,7 @@ paths:
       tags:
       - Genealogy
       summary: /persons
-      description: Permission-aware canonical-name, alias and filter search; cursor is opaque and scoped by the authorized projection.
+      description: Permission-aware canonical-name, alias and filter search; response is an allowlisted projection without total/count/snippet/source metadata, and cursor is opaque and scoped by the authorized projection.
       security:
       - sessionCookie: []
       responses:

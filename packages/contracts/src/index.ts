@@ -39,11 +39,11 @@ export const personSummarySchema = z.object({
 export const personSearchMatchSchema = z.object({
   name: z.string().min(1),
   kind: z.enum(["birth", "preferred", "alias", "religious", "other"])
-});
+}).strict();
 
 export const personSearchResultSchema = personSummarySchema.extend({
   matchedNames: z.array(personSearchMatchSchema).max(10)
-});
+}).strict();
 
 export const personSearchQuerySchema = z.object({
   q: z.string().trim().max(200).optional().default("").refine((value) => value.length === 0 || value.length >= 2, "Search requires at least two characters"),
