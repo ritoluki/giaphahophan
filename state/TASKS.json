@@ -1627,7 +1627,7 @@
       ],
       "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["packages/domain/src/m10.ts: occurrencesBetween expands lunar target years from solar range Y-1 through Y+1, filters converted solar dates, preserves EventRule ruleId/title, stable logical keys and policy/algorithm versions; no source-date mutation or Date-based timezone arithmetic.","packages/domain/src/m10.test.ts: 6 M10-03 tests cover lunar year crossing (source year ignored as target), range filtering, dedupe/logical keys, unreviewed leap blocking, once/annual-solar preservation and invalid query range; PASS.","pnpm test PASS: contracts 20/20, domain 36/36, worker 5/5, lunar 4/4, web 3/3; pnpm typecheck, lint, build and verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. No UI/DB/API surface changed, so loading/empty/error/restricted/mobile UI and DB/API checks are not applicable to this domain-only slice; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "M10-04",

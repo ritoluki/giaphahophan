@@ -893,7 +893,7 @@
       ],
       "expected": "EventRule không bị thay bởi solar occurrences; query xét năm âm qua ranh năm dương.",
       "status": "PASS",
-      "evidence": []
+      "evidence": ["packages/domain/src/m10.ts + m10.test.ts: occurrencesBetween preserves EventRule source identity, checks lunar years around the solar range and handles date filtering/dedupe; 6/6 M10-03 tests PASS.","pnpm test PASS across contracts 20/20, domain 36/36, worker 5/5, lunar 4/4 and web 3/3; typecheck/lint/build/verify PASS on Node 24.21.0. No real data/cloud/production."]
     },
     {
       "id": "TC-M10-04",

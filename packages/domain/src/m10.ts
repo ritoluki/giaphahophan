@@ -1,4 +1,4 @@
-import type { EventRule, GenealogyDate } from "@phan/contracts";
+import type { EventRule, GenealogyDate, Occurrence } from "@phan/contracts";
 import {
   LunarCalendarError,
   vnLunarAdapter,
@@ -246,4 +246,246 @@ export function planAnnualLunarRecurrence(
     }
     throw error;
   }
+}
+
+export type OccurrenceQueryResult = {
+  occurrences: ReadonlyArray<Occurrence & {
+    logicalKey: string;
+    canAutoNotify: boolean;
+    policyVersion: string;
+  }>;
+  blockedReasons: ReadonlyArray<RecurrencePlanBlockReason | "invalid_query_range">;
+  algorithmVersion: string;
+  policyVersion: string;
+};
+
+function parseCivilDate(value: string): SolarDate | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (year < 1900 || year > 2099 || month < 1 || month > 12) return null;
+  if (day < 1 || day > daysInGregorianMonth(year, month)) return null;
+  return { year, month, day };
+}
+
+function compareSolarDate(left: SolarDate, right: SolarDate): number {
+  return (
+    left.year - right.year ||
+    left.month - right.month ||
+    left.day - right.day
+  );
+}
+
+function solarDateToString(value: SolarDate): string {
+  return [
+    String(value.year).padStart(4, "0"),
+    String(value.month).padStart(2, "0"),
+    String(value.day).padStart(2, "0"),
+  ].join("-");
+}
+
+function lunarLabel(value: LunarDate): string {
+  return [
+    String(value.day).padStart(2, "0"),
+    String(value.month).padStart(2, "0"),
+    value.isLeapMonth ? "nhuận" : "thường",
+    String(value.year),
+  ].join("/");
+}
+
+function createLunarOccurrence(
+  rule: EventRule,
+  candidate: RecurrenceCandidate,
+  policyVersion: string,
+): Occurrence & {
+  logicalKey: string;
+  canAutoNotify: boolean;
+  policyVersion: string;
+} {
+  const occursOn = solarDateToString(candidate.solarDate);
+  return {
+    id: `event:${rule.id}:${candidate.logicalKey}`,
+    ruleId: rule.id,
+    title: rule.title,
+    occursOn,
+    startsAt: null,
+    endsAt: null,
+    solarLabel: occursOn,
+    lunarLabel: lunarLabel(candidate.resolvedLunarDate),
+    status: "scheduled",
+    algorithmVersion: candidate.algorithmVersion,
+    isDemo: false,
+    logicalKey: candidate.logicalKey,
+    canAutoNotify: candidate.canAutoNotify,
+    policyVersion,
+  };
+}
+
+function createSolarOccurrence(
+  rule: EventRule,
+  solarDate: SolarDate,
+  policyVersion: string,
+): Occurrence & {
+  logicalKey: string;
+  canAutoNotify: boolean;
+  policyVersion: string;
+} {
+  const occursOn = solarDateToString(solarDate);
+  const logicalKey = `solar:${occursOn}`;
+  return {
+    id: `event:${rule.id}:${logicalKey}`,
+    ruleId: rule.id,
+    title: rule.title,
+    occursOn,
+    startsAt: null,
+    endsAt: null,
+    solarLabel: occursOn,
+    lunarLabel: "",
+    status: "scheduled",
+    algorithmVersion: vnLunarAdapter.algorithmVersion,
+    isDemo: false,
+    logicalKey,
+    canAutoNotify: rule.reviewStatus === "approved",
+    policyVersion,
+  };
+}
+
+function sourceDateParts(
+  rule: EventRule,
+  calendar: "gregorian" | "vietnamese_lunar",
+): { month: number; day: number; year?: number } | null {
+  if (rule.sourceDate.calendar !== calendar) return null;
+  const { month, day, year } = rule.sourceDate;
+  if (month === undefined || day === undefined) return null;
+  return { month, day, ...(year === undefined ? {} : { year }) };
+}
+
+function buildAnnualSolarOccurrences(
+  rule: EventRule,
+  start: SolarDate,
+  end: SolarDate,
+  policyVersion: string,
+): {
+  occurrences: Array<Occurrence & { logicalKey: string; canAutoNotify: boolean; policyVersion: string }>;
+  blockedReasons: Array<RecurrencePlanBlockReason>;
+} {
+  const parts = sourceDateParts(rule, "gregorian");
+  if (!parts) return { occurrences: [], blockedReasons: ["source_date_not_lunar"] };
+  const occurrences: Array<Occurrence & { logicalKey: string; canAutoNotify: boolean; policyVersion: string }> = [];
+  const blockedReasons: Array<RecurrencePlanBlockReason> = [];
+  for (let year = start.year; year <= end.year; year += 1) {
+    let day = parts.day;
+    let month = parts.month;
+    const monthLength = daysInGregorianMonth(year, month);
+    if (day > monthLength) {
+      const policy = rule.shortMonthPolicy ?? "last_day";
+      if (policy === "skip") continue;
+      if (policy === "manual_override") {
+        blockedReasons.push("manual_override_required");
+        continue;
+      }
+      if (policy === "last_day") day = monthLength;
+      if (policy === "next_month_first") {
+        const first = { year, month, day: 1 };
+        const next = addSolarDays(first, monthLength);
+        month = next.month;
+        day = next.day;
+      }
+    }
+    const candidate = { year, month, day };
+    if (compareSolarDate(candidate, start) < 0 || compareSolarDate(candidate, end) > 0) continue;
+    occurrences.push(createSolarOccurrence(rule, candidate, policyVersion));
+  }
+  return { occurrences, blockedReasons };
+}
+
+export function occurrencesBetween(
+  rule: EventRule,
+  startDate: string,
+  endDate: string,
+  policyVersion: string,
+): OccurrenceQueryResult {
+  const start = parseCivilDate(startDate);
+  const end = parseCivilDate(endDate);
+  if (!start || !end || compareSolarDate(start, end) > 0) {
+    return {
+      occurrences: [],
+      blockedReasons: ["invalid_query_range"],
+      algorithmVersion: vnLunarAdapter.algorithmVersion,
+      policyVersion,
+    };
+  }
+
+  if (rule.recurrence === "annual_solar") {
+    const solar = buildAnnualSolarOccurrences(rule, start, end, policyVersion);
+    return {
+      occurrences: solar.occurrences,
+      blockedReasons: solar.blockedReasons,
+      algorithmVersion: vnLunarAdapter.algorithmVersion,
+      policyVersion,
+    };
+  }
+
+  if (rule.recurrence === "once") {
+    const parts = sourceDateParts(rule, "gregorian");
+    if (!parts || parts.year === undefined) {
+      return {
+        occurrences: [],
+        blockedReasons: ["source_date_incomplete"],
+        algorithmVersion: vnLunarAdapter.algorithmVersion,
+        policyVersion,
+      };
+    }
+    const candidate = { year: parts.year, month: parts.month, day: parts.day };
+    return {
+      occurrences:
+        compareSolarDate(candidate, start) >= 0 && compareSolarDate(candidate, end) <= 0
+          ? [createSolarOccurrence(rule, candidate, policyVersion)]
+          : [],
+      blockedReasons: [],
+      algorithmVersion: vnLunarAdapter.algorithmVersion,
+      policyVersion,
+    };
+  }
+
+  const blockedReasons: Array<RecurrencePlanBlockReason> = [];
+  const occurrences = new Map<string, Occurrence & {
+    logicalKey: string;
+    canAutoNotify: boolean;
+    policyVersion: string;
+  }>();
+  const firstLunarYear = Math.max(1900, start.year - 1);
+  const lastLunarYear = Math.min(2099, end.year + 1);
+  for (let lunarYear = firstLunarYear; lunarYear <= lastLunarYear; lunarYear += 1) {
+    const recurrenceInput: LunarRecurrenceInput = {
+      sourceDate: rule.sourceDate,
+      recurrence: "annual_lunar",
+      reviewStatus: rule.reviewStatus,
+      targetLunarYear: lunarYear,
+      ...(rule.leapPolicy ? { leapPolicy: rule.leapPolicy } : {}),
+      ...(rule.shortMonthPolicy ? { shortMonthPolicy: rule.shortMonthPolicy } : {}),
+    };
+    const plan = planAnnualLunarRecurrence(recurrenceInput);
+    if (plan.status === "blocked") {
+      if (!blockedReasons.includes(plan.reason)) blockedReasons.push(plan.reason);
+      continue;
+    }
+    for (const candidate of plan.candidates) {
+      if (candidate.solarDate.year < start.year || candidate.solarDate.year > end.year) continue;
+      if (compareSolarDate(candidate.solarDate, start) < 0 || compareSolarDate(candidate.solarDate, end) > 0) continue;
+      const occurrence = createLunarOccurrence(rule, candidate, policyVersion);
+      occurrences.set(occurrence.logicalKey, occurrence);
+    }
+  }
+
+  return {
+    occurrences: [...occurrences.values()].sort(
+      (left, right) => left.occursOn.localeCompare(right.occursOn) || left.logicalKey.localeCompare(right.logicalKey),
+    ),
+    blockedReasons,
+    algorithmVersion: vnLunarAdapter.algorithmVersion,
+    policyVersion,
+  };
 }
