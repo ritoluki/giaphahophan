@@ -159,7 +159,16 @@ export function buildGraphProjection(input: GraphInput, mode: GraphMode, depth: 
     depth: work.depth
   }));
   const expandablePersonIds = unique(drafts.filter(({ work }) => work.depth < depth).map(({ person }) => person.id));
-  const reason = truncated ? "node_limit" : drafts.some(({ work }) => work.depth === depth) ? "depth_limit" : null;
+  const nodeLimited = truncated;
+  const depthLimited = drafts.some(({ work }) => work.depth === depth);
+  truncated = nodeLimited || depthLimited;
+  const reason = nodeLimited ? "node_limit" : depthLimited ? "depth_limit" : null;
+  const nextExpansion = truncated ? {
+    direction: mode,
+    depth: Math.min(depth + 1, 6),
+    maxNodes: Math.min(maxNodes * 2, 300),
+    anchorOccurrenceId: null
+  } : null;
 
   return {
     nodes,
@@ -168,6 +177,7 @@ export function buildGraphProjection(input: GraphInput, mode: GraphMode, depth: 
     graphRevision: input.graphRevision ?? 1,
     truncated,
     reason,
+    nextExpansion,
     expandablePersonIds
   };
 }

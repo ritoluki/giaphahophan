@@ -234,6 +234,12 @@ const graphEdgeSchema = z.object({
   kind: z.enum(["biological", "adoptive", "guardian", "step", "union"]),
   status: z.enum(["confirmed", "disputed"]).optional()
 });
+const graphExpansionSchema = z.object({
+  direction: graphDirectionSchema,
+  depth: z.number().int().min(1).max(6),
+  maxNodes: z.number().int().min(1).max(300),
+  anchorOccurrenceId: z.string().min(1).nullable()
+});
 export const graphProjectionSchema = z.object({
   nodes: z.array(z.object({
     occurrenceId: z.string().min(1),
@@ -245,5 +251,6 @@ export const graphProjectionSchema = z.object({
   graphRevision: z.number().int().positive(),
   truncated: z.boolean(),
   reason: z.enum(["node_limit", "depth_limit", "time_budget"]).nullable(),
+  nextExpansion: graphExpansionSchema.nullable().default(null),
   expandablePersonIds: z.array(z.string().uuid())
 });

@@ -20,10 +20,14 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
   const [maxNodes, setMaxNodes] = useState(120);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showOccurrences, setShowOccurrences] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 768px)");
-    const updateCap = () => setMaxNodes(media.matches ? 300 : 120);
+    const updateCap = () => {
+      setIsDesktop(media.matches);
+      setMaxNodes(media.matches ? 300 : 120);
+    };
     updateCap();
     media.addEventListener("change", updateCap);
     return () => media.removeEventListener("change", updateCap);
@@ -48,6 +52,13 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
   }, [graph, occurrenceGroups, showOccurrences]);
   const currentNode = graph?.nodes.find((node) => node.person.id === rootId && node.depth === 0);
   const modeLabel = modes.find((item) => item.value === mode)?.label ?? "Cây gia phả";
+  const canExpand = Boolean(graph?.nextExpansion && (graph.nextExpansion.depth > depth || (isDesktop && graph.nextExpansion.maxNodes > maxNodes)));
+  const expandProjection = () => {
+    const expansion = graph?.nextExpansion;
+    if (!expansion || !canExpand) return;
+    setDepth(expansion.depth);
+    setMaxNodes(isDesktop ? expansion.maxNodes : 120);
+  };
 
   return (
     <section className={"tree-explorer" + (isFullscreen ? " tree-explorer-fullscreen" : "")} aria-labelledby="tree-explorer-title">
@@ -90,7 +101,7 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
           Giới hạn
           <select value={maxNodes} onChange={(event) => setMaxNodes(Number(event.target.value))}>
             <option value={120}>120 người ở mobile</option>
-            <option value={300}>300 người ở desktop</option>
+            {isDesktop ? <option value={300}>300 người ở desktop</option> : null}
           </select>
         </label>
       </div>
@@ -127,7 +138,12 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
               ))}
             </div>
           </div>
-          {graph.truncated ? <div className="tree-truncation" role="status"><strong>Cây đang được giới hạn ở {maxNodes} occurrence.</strong> Giảm độ sâu hoặc mở rộng từ một hồ sơ để xem tiếp; hệ thống không tải toàn bộ graph xuống trình duyệt.</div> : null}
+          {graph.truncated ? (
+            <div className="tree-truncation" role="status">
+              <strong>Cây đang được giới hạn ở {maxNodes} occurrence.</strong> Giảm độ sâu hoặc mở rộng từ một hồ sơ để xem tiếp; hệ thống không tải toàn bộ graph xuống trình duyệt.
+              {graph.nextExpansion ? <button className="button-secondary tree-expand-toggle" type="button" onClick={expandProjection} disabled={!canExpand}>Mở rộng projection</button> : null}
+            </div>
+          ) : null}
           <div className="tree-legend" aria-label="Chú giải quan hệ">
             <span><i className="tree-legend-line" /> Quan hệ đã ghi nhận</span>
             <span><i className="tree-legend-line tree-legend-adoptive" /> Con nuôi / giám hộ</span>

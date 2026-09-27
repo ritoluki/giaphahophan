@@ -752,9 +752,13 @@
       "testIds": [
         "TC-M04-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "packages/contracts/src/index.ts and m04.test.ts: bounded nextExpansion contract for direction/depth/maxNodes/anchor, with contract tests PASS (8 tests).",
+        "packages/domain/src/m04.ts and m04.test.ts: truncated projections return bounded nextExpansion; mobile/desktop UI cap logic and expand action keep request limits explicit.",
+        "supabase/migrations/0015_m04_graph_projection.sql and supabase/tests/m04_graph.sql: DB RPC returns nextExpansion for node/depth truncation; pnpm test:m04:graph, full test, typecheck, build and Playwright 24/24 desktop/mobile/320 PASS. Axe/manual/real-device/remote CI remain NOT_RUN."
+      ]
     },
     {
       "id": "M04-04",

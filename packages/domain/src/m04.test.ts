@@ -28,6 +28,11 @@ describe("M04 graph projection", () => {
   it("honors node caps and keeps disconnected roots separate", () => {
     const limited = buildGraphProjection({ ...input, rootPersonId: people[0]!.id }, "descendants", 3, 1);
     expect(limited.truncated).toBe(true);
+    expect(limited.nextExpansion).toEqual({ direction: "descendants", depth: 4, maxNodes: 2, anchorOccurrenceId: null });
+    const depthLimited = buildGraphProjection({ ...input, rootPersonId: people[0]!.id }, "descendants", 1, 120);
+    expect(depthLimited.truncated).toBe(true);
+    expect(depthLimited.reason).toBe("depth_limit");
+    expect(depthLimited.nextExpansion?.depth).toBe(2);
     const roots = buildGraphProjection(input, "roots", 3, 120);
     expect(roots.nodes.map((node) => node.person.code)).toEqual(["ROOT", "ADOPT", "PARTNER"]);
   });

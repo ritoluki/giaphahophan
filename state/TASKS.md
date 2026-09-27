@@ -30,7 +30,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M03-06 | P3 | Xóa có tác động | M03-05 | IN_PROGRESS - impact preview and DELETE If-Match proposal; atomic person/edge soft-delete keeps facts/sources for separate erasure; local DB/BFF/UI tests PASS; axe/manual/real-device NOT_RUN |
 | M04-01 | P4 | Các chế độ cây | M03-06, M06-04 | IN_PROGRESS - ancestor/descendant/family/roots modes, union/adoption/disputed labels, bounded projection and mobile/fullscreen UI implemented; local DB/domain/contract/build/E2E PASS; axe/manual/real-device/remote CI NOT_RUN |
 | M04-02 | P4 | Pedigree collapse | M04-01 | IN_PROGRESS - canonical person grouping preserves distinct occurrence IDs, default collapsed UI and explicit expand-to-occurrences control; domain/build/E2E PASS; axe/manual/real-device/remote CI NOT_RUN |
-| M04-03 | P4 | Giới hạn và expand | M04-02 |  |
+| M04-03 | P4 | Giới hạn và expand | M04-02 | IN_PROGRESS - mobile cap 120 and desktop cap 300 enforced per request; truncated graph carries bounded nextExpansion and UI action; local DB/contract/domain/build/E2E PASS; axe/manual/real-device/remote CI NOT_RUN |
 | M04-04 | P4 | Mobile/keyboard | M04-03 |  |
 | M04-05 | P4 | Cycle concurrency | M04-04 |  |
 | M04-06 | P4 | Đời tương đối | M04-05 |  |

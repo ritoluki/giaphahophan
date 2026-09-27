@@ -263,10 +263,25 @@ begin
       where n.depth = 0
     ), '[]'::jsonb),
     'graphRevision', v_graph_revision,
-    'truncated', (select count(*) > p_max_nodes from walk),
+    'truncated', ((select count(*) > p_max_nodes from walk) or exists (select 1 from walk where depth = p_depth)),
     'reason', case
       when (select count(*) > p_max_nodes from walk) then 'node_limit'
       when exists (select 1 from walk where depth = p_depth) then 'depth_limit'
+      else null
+    end,
+    'nextExpansion', case
+      when (select count(*) > p_max_nodes from walk) then jsonb_build_object(
+        'direction', p_direction,
+        'depth', least(p_depth + 1, 6),
+        'maxNodes', least(p_max_nodes * 2, 300),
+        'anchorOccurrenceId', null
+      )
+      when exists (select 1 from walk where depth = p_depth) then jsonb_build_object(
+        'direction', p_direction,
+        'depth', least(p_depth + 1, 6),
+        'maxNodes', p_max_nodes,
+        'anchorOccurrenceId', null
+      )
       else null
     end,
     'expandablePersonIds',

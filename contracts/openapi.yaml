@@ -11177,6 +11177,36 @@ components:
             - depth_limit
             - time_budget
           - type: 'null'
+        nextExpansion:
+          anyOf:
+          - type: object
+            additionalProperties: false
+            properties:
+              direction:
+                type: string
+                enum:
+                - ancestors
+                - descendants
+                - family
+                - roots
+              depth:
+                type: integer
+                minimum: 1
+                maximum: 6
+              maxNodes:
+                type: integer
+                minimum: 1
+                maximum: 300
+              anchorOccurrenceId:
+                anyOf:
+                - *id002
+                - type: 'null'
+            required:
+            - direction
+            - depth
+            - maxNodes
+            - anchorOccurrenceId
+          - type: 'null'
         expandablePersonIds:
           type: array
           items: *id001
@@ -11187,6 +11217,7 @@ components:
       - roots
       - truncated
       - reason
+      - nextExpansion
       - expandablePersonIds
     Kinship:
       type: object

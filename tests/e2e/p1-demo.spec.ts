@@ -84,6 +84,13 @@ test("tree explorer exposes bounded graph modes and fullscreen focus", async ({ 
   await expect(tabs.nth(2)).toHaveAttribute("aria-selected", "true");
   await tabs.nth(3).click();
   await expect(tabs.nth(3)).toHaveAttribute("aria-selected", "true");
+  const capSelect = page.locator(".tree-toolbar select").nth(1);
+  if ((page.viewportSize()?.width ?? 0) >= 768) {
+    await expect(capSelect).toHaveValue("300");
+  } else {
+    await expect(capSelect).toHaveValue("120");
+    await expect(capSelect.locator('option[value="300"]')).toHaveCount(0);
+  }
   const collapseToggle = page.locator(".tree-collapse-toggle");
   await expect(collapseToggle).toHaveAttribute("aria-pressed", "false");
   await collapseToggle.click();

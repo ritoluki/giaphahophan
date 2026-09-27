@@ -51,9 +51,12 @@ begin
   if jsonb_array_length(v_graph -> 'nodes') <> 3 then raise exception 'ancestor graph expected root, child and adoptive parent'; end if;
   if not jsonb_path_exists(v_graph, '$.edges[*] ? (@.kind == "adoptive" && @.status == "disputed")') then raise exception 'disputed adoptive edge was not preserved'; end if;
   v_graph := api.person_graph('31000000-0000-4000-8000-000000000002', 'family', 2, 120);
-  if not jsonb_path_exists(v_graph, '$.edges[*] ? (@.kind == "union")') then raise exception 'family graph did not include union edge'; end if;
+  if not jsonb_path_exists(v_graph, '$.edges[*] ? (@.kind == "union")') then raise exception 'family graph did not include union edge'; end if;  v_graph := api.person_graph('31000000-0000-4000-8000-000000000001', 'descendants', 1, 120);
+  if (v_graph ->> 'truncated')::boolean is not true or v_graph ->> 'reason' <> 'depth_limit' then raise exception 'depth limit did not mark graph truncated'; end if;
+
   v_graph := api.person_graph('31000000-0000-4000-8000-000000000001', 'descendants', 1, 1);
   if (v_graph ->> 'truncated')::boolean is not true then raise exception 'node cap did not mark graph truncated'; end if;
+  if v_graph -> 'nextExpansion' ->> 'depth' <> '2' or v_graph -> 'nextExpansion' ->> 'maxNodes' <> '2' then raise exception 'node cap did not provide bounded next expansion'; end if;
   v_graph := api.person_graph('31000000-0000-4000-8000-000000000001', 'roots', 3, 120);
   if not jsonb_path_exists(v_graph, '$.nodes[*].person.code ? (@ == "M04-DISCONNECTED")') then raise exception 'disconnected root was not returned'; end if;
 end;
