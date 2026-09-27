@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import sharp from "../apps/web/node_modules/sharp/dist/index.mjs";
 
 const container = "supabase_db_phan-gia-pha-local";
 const webUrl = process.env.TEST_WEB_URL || "http://127.0.0.1:3123";
@@ -44,7 +45,14 @@ async function login(email, password) {
   return result.response.headers.getSetCookie().map((value) => value.split(";", 1)[0]).join("; ");
 }
 function sha256(bytes) { return createHash("sha256").update(bytes).digest("hex"); }
-function pngBytes(extra) { return Buffer.concat([Buffer.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]), Buffer.from(extra)]); }
+const VALID_PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64");
+function pngBytes(extra = "") { return Buffer.concat([VALID_PNG, Buffer.from(extra)]); }
+async function jpegWithGpsExif() {
+  return sharp({ create: { width: 8, height: 4, channels: 3, background: { r: 120, g: 80, b: 40 } } })
+    .withExif({ IFD0: { Make: "Synthetic" }, IFD3: { GPSLatitudeRef: "N", GPSLatitude: "10/1 20/1 30/1", GPSLongitudeRef: "E", GPSLongitude: "106/1 40/1 0/1" } })
+    .jpeg()
+    .toBuffer();
+}
 
 const env = localEnv();
 const treeId = randomUUID();
@@ -67,8 +75,10 @@ try {
   assert(runPsql(seed).status === 0, "M09 fixture seed failed");
   const cookie = await login(email, password);
 
-  const bytes = pngBytes("synthetic-safe");
-  const payload = { treeId, filename: "synthetic-safe.png", mimeType: "image/png", sizeBytes: bytes.length, sha256: sha256(bytes), purpose: "album", visibility: "restricted" };
+  const bytes = await jpegWithGpsExif();
+  const sourceMetadata = await sharp(bytes).metadata();
+  assert(Boolean(sourceMetadata.exif), "GPS EXIF fixture was not created");
+  const payload = { treeId, filename: "synthetic-safe.jpg", mimeType: "image/jpeg", sizeBytes: bytes.length, sha256: sha256(bytes), purpose: "album", visibility: "restricted" };
   const intentKey = randomUUID();
   const intent = await jsonRequest(webUrl + "/api/v1/media/uploads", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": intentKey, Cookie: cookie }, body: JSON.stringify(payload) });
   assert(intent.response.status === 201 && intent.body?.data?.assetId && !intent.body.data.objectPath, "media upload intent did not return a redacted server URL");
@@ -76,7 +86,7 @@ try {
   assetIds.push(assetId);
   const replay = await jsonRequest(webUrl + "/api/v1/media/uploads", { method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": intentKey, Cookie: cookie }, body: JSON.stringify(payload) });
   assert(replay.response.status === 201 && replay.body?.data?.assetId === assetId, "media intent idempotency replay failed");
-  const uploaded = await fetch(intent.body.data.uploadUrl, { method: "PUT", headers: { "Content-Type": "image/png", "Content-Length": String(bytes.length), Cookie: cookie }, body: bytes });
+  const uploaded = await fetch(intent.body.data.uploadUrl, { method: "PUT", headers: { "Content-Type": "image/jpeg", "Content-Length": String(bytes.length), Cookie: cookie }, body: bytes });
   assert(uploaded.status === 200, "media binary upload failed (" + uploaded.status + ")");
   const finalizeKey = randomUUID();
   const finalized = await jsonRequest(webUrl + "/api/v1/media/" + assetId + "/finalize", { method: "POST", headers: { "Idempotency-Key": finalizeKey, Cookie: cookie }, body: "{}" });
@@ -85,6 +95,15 @@ try {
   assert(finalizedReplay.response.status === 202 && finalizedReplay.body?.data?.state === "ready", "media finalize idempotency replay failed");
   const visible = await jsonRequest(webUrl + "/api/v1/media/" + assetId, { headers: { Cookie: cookie } });
   assert(visible.response.status === 200 && visible.body?.data?.state === "ready", "ready media projection failed");
+  const access = await jsonRequest(webUrl + "/api/v1/media/" + assetId + "/access?variant=320", { method: "POST", headers: { Cookie: cookie } });
+  assert(access.response.status === 200 && access.body?.data?.mode === "signed", "private derivative access did not return a signed URL");
+  assert(!access.body.data.objectPath && Date.parse(access.body.data.expiresAt) > Date.now(), "signed media URL was not redacted or expired");
+  const derivativeResponse = await fetch(access.body.data.url);
+  assert(derivativeResponse.ok, "private derivative signed URL could not be downloaded");
+  const derivativeMetadata = await sharp(Buffer.from(await derivativeResponse.arrayBuffer())).metadata();
+  assert(!derivativeMetadata.exif, "derivative still contains EXIF metadata");
+  const immutableAttempt = runPsql("update private.media_assets set actual_sha256 = repeat('0', 64) where id = " + sqlString(assetId) + ";");
+  assert(immutableAttempt.status !== 0, "original checksum mutation was not rejected");
 
   const infected = pngBytes("EICAR-STANDARD-ANTIVIRUS-TEST-FILE");
   const infectedPayload = { treeId, filename: "synthetic-scan.png", mimeType: "image/png", sizeBytes: infected.length, sha256: sha256(infected), purpose: "album", visibility: "restricted" };
@@ -96,10 +115,12 @@ try {
   assert(infectedUpload.status === 200, "scan-failure upload should remain pending for finalize");
   const infectedFinal = await jsonRequest(webUrl + "/api/v1/media/" + infectedId + "/finalize", { method: "POST", headers: { "Idempotency-Key": randomUUID(), Cookie: cookie }, body: "{}" });
   assert(infectedFinal.response.status === 202 && infectedFinal.body?.data?.state === "quarantined", "failed scan incorrectly became ready");
-  console.log("PASS local M09-01: private bucket intent, actor/tree capability, size/magic/checksum, intent/finalize idempotency, ready projection and failed scan quarantine");
+  console.log("PASS local M09-01/M09-02: private bucket intent, immutable original checksum, EXIF-free derivative, expiring signed URL, idempotency and failed scan quarantine");
 } finally {
   for (const assetId of assetIds) {
-    await fetch(env.API_URL + "/storage/v1/object/family-assets/" + userId + "/" + assetId + "/original", { method: "DELETE", headers: { apikey: env.SERVICE_ROLE_KEY, Authorization: "Bearer " + env.SERVICE_ROLE_KEY } });
+    for (const path of ["original", "derivatives/320.webp", "derivatives/640.webp", "derivatives/1280.webp", "derivatives/1920.webp"]) {
+      await fetch(env.API_URL + "/storage/v1/object/family-assets/" + userId + "/" + assetId + "/" + path, { method: "DELETE", headers: { apikey: env.SERVICE_ROLE_KEY, Authorization: "Bearer " + env.SERVICE_ROLE_KEY } });
+    }
   }
   runPsql([
     "begin;",

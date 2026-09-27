@@ -98,3 +98,11 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - pnpm lint — PASS với 2 warning có sẵn ở postcss config và MFA QR image.
 - pnpm build — PASS trước khi chạy standalone local integration; route list có media intent/upload/finalize/get.
 - Scope còn mở: staging/remote CI, axe/manual, real-device, production approval — NOT_RUN.
+
+## M09-02 — Original và derivative
+
+- `pnpm run test:m09:media` — PASS trên standalone local-configured Node 24.21.0/Supabase local: original checksum mutation bị DB trigger từ chối; JPEG synthetic có GPS EXIF; derivative signed URL tải được và metadata EXIF đã bị loại; signed URL có expiry; retry finalize/upsert idempotent; scan lỗi vào quarantine.
+- `pnpm typecheck` — PASS.
+- `pnpm build` — PASS; route `/api/v1/media/[id]/access` có trong production route manifest.
+- `pnpm lint` — PASS với 2 warning tồn tại trước đó (postcss config, MFA QR image).
+- Không dùng dữ liệu thật, không deploy production. Staging/remote CI, axe/manual và real-device vẫn NOT_RUN.

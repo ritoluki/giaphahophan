@@ -284,6 +284,11 @@ export const mediaUploadIntentSchema = z.object({
   expiresAt: z.string().datetime({ offset: true }),
   requiredHeaders: z.record(z.string(), z.string())
 }).strict();
+export const mediaDownloadSchema = z.object({
+  url: z.string().url(),
+  expiresAt: z.string().datetime({ offset: true }),
+  mode: z.literal("signed")
+}).strict();
 
 export const proposalDetailItemSchema = z.object({
   id: z.string().uuid(),

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authRecoveryInputSchema, authRecoveryResultSchema, claimReviewInputSchema, claimSubmitInputSchema, commandResultSchema, grantInputSchema, memberInputSchema, membershipGrantSchema, membershipSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, mediaAssetSchema, mediaUploadInputSchema, mediaUploadIntentSchema, passwordUpdateInputSchema, passwordUpdateResultSchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
+import { authRecoveryInputSchema, authRecoveryResultSchema, claimReviewInputSchema, claimSubmitInputSchema, commandResultSchema, grantInputSchema, memberInputSchema, membershipGrantSchema, membershipSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, mediaAssetSchema, mediaUploadInputSchema, mediaUploadIntentSchema, mediaDownloadSchema, passwordUpdateInputSchema, passwordUpdateResultSchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
   it("keeps media upload intents typed, bounded and free of storage paths", () => {
@@ -28,6 +28,7 @@ describe("CORE-01 contracts", () => {
       expiresAt: "2026-09-27T12:00:00.000Z",
       requiredHeaders: { "Content-Type": "image/png" }
     })).not.toHaveProperty("objectPath");
+    expect(mediaDownloadSchema.parse({ url: "https://signed.example.test/path", expiresAt: "2026-09-27T12:00:00.000Z", mode: "signed" }).mode).toBe("signed");
     expect(() => mediaUploadInputSchema.parse({ ...input, sha256: "not-a-hash" })).toThrow();
   });
 

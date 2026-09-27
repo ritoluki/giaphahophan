@@ -1462,9 +1462,9 @@
       "testIds": [
         "TC-M09-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["supabase/migrations/0030_m09_original_derivatives.sql: derivatives persistence, original identity immutability trigger, private derivative storage policies and server-owned processing/commit RPCs.","apps/web/src/lib/server/media-derivatives.ts + apps/web/src/app/api/v1/media/[id]/finalize/route.ts: Sharp auto-orient, WebP derivatives 320/640/1280/1920 and metadata-free output.","apps/web/src/app/api/v1/media/[id]/access/route.ts: owner-authorized signed URL endpoint with 5-minute expiry and redacted Download contract.","pnpm run test:m09:media PASS on Node 24.21.0 + Supabase local: immutable checksum rejection, GPS EXIF fixture removed from derivative, private signed download, idempotent retry and quarantine; no real data."]
     },
     {
       "id": "M09-03",

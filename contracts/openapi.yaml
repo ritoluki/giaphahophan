@@ -3481,8 +3481,7 @@ paths:
       tags:
       - Media
       summary: /media/{id}/access
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Owner-authorized BFF endpoint returns a short-lived signed URL for a private original or derivative; internal object paths are never returned.
       security:
       - sessionCookie: []
       responses:
