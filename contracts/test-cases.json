@@ -1108,8 +1108,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Nhà thờ/mộ/khu vực có source và locator, không đồng nhất với địa chỉ nhà người sống.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": ["pnpm test:m13:place PASS: synthetic persistence, source/locator, invalid coordinates, cross-tree FK and raw private-table denial.","pnpm test PASS: contracts 43/43, domain 66/66, worker 18/18, lunar 4/4, web 3/3; typecheck/build/verify PASS; localhost:3100 place routes 200."]
     },
     {
       "id": "TC-M13-02",

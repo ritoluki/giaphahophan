@@ -444,3 +444,27 @@ button, a, input, select { min-height: 44px; }
 @media (prefers-reduced-motion: reduce) {
   .news-card { transition: none; }
 }
+
+.place-card-list { display: grid; gap: 1rem; }
+.place-card, .place-detail-card { display: block; background: rgba(255,255,255,.88); border: 1px solid var(--border); border-radius: 16px; padding: 1.15rem; box-shadow: 0 8px 22px rgba(41,37,32,.05); }
+.place-card { transition: border-color .2s ease, transform .2s ease; }
+.place-card:hover, .place-card:focus-visible { border-color: var(--accent); transform: translateY(-2px); }
+.place-card-kind { display: inline-flex; width: fit-content; border-radius: 999px; padding: .22rem .62rem; background: var(--muted); color: var(--brand); font-size: .76rem; font-weight: 800; }
+.place-card h2, .place-detail-card h1 { margin: .55rem 0 .35rem; color: var(--brand); font-family: "Noto Serif", Georgia, serif; line-height: 1.2; }
+.place-card h2 { font-size: 1.35rem; }
+.place-card p { margin: 0; color: var(--ink-muted); overflow-wrap: anywhere; }
+.place-card-link { display: inline-block; margin-top: .8rem; color: var(--brand); font-size: .9rem; font-weight: 800; }
+.place-state-card { display: grid; gap: .25rem; padding: 1rem; border: 1px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,.65); }
+.place-state-card strong { color: var(--brand); }
+.place-state-card span { color: var(--ink-muted); }
+.place-privacy-note { display: grid; gap: .2rem; margin-top: 1rem; padding: .8rem 1rem; border-left: 3px solid var(--accent); background: #FBF1DE; color: var(--ink-muted); font-size: .88rem; }
+.place-privacy-note strong { color: var(--brand); }
+.place-detail-card { margin-top: 1rem; }
+.place-detail-list { margin-top: 1.25rem; }
+.place-detail-list div { padding-block: .7rem; border-top: 1px solid var(--border); }
+.place-detail-list dt { color: var(--ink-muted); font-size: .84rem; font-weight: 800; }
+.place-detail-list dd { margin: .2rem 0 0; overflow-wrap: anywhere; }
+@media (min-width: 700px) {
+  .place-card-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .place-card, .place-detail-card { padding: 1.4rem; }
+}

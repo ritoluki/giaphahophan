@@ -349,6 +349,51 @@ export const citationSchema = citationInputSchema.safeExtend({
   id: z.string().uuid(),
   version: z.number().int().positive()
 }).strict();
+export const placeKindSchema = z.enum(["temple", "cemetery", "grave", "hometown", "other"]);
+export const placeVisibilitySchema = z.enum(["public", "members", "restricted"]);
+
+const placeCoordinatesSchema = z.object({
+  latitude: z.number().min(-90).max(90).nullable().optional(),
+  longitude: z.number().min(-180).max(180).nullable().optional(),
+}).strict();
+
+export const placeInputSchema = z.object({
+  name: z.string().trim().min(1).max(500),
+  kind: placeKindSchema,
+  addressText: z.string().trim().max(1_000).nullable().optional(),
+  latitude: placeCoordinatesSchema.shape.latitude,
+  longitude: placeCoordinatesSchema.shape.longitude,
+  visibility: placeVisibilitySchema,
+  coordinateVisibility: placeVisibilitySchema,
+}).strict().superRefine((value, context) => {
+  const hasLatitude = typeof value.latitude === "number";
+  const hasLongitude = typeof value.longitude === "number";
+  if (hasLatitude !== hasLongitude) {
+    context.addIssue({ code: "custom", path: ["latitude"], message: "latitude and longitude must be provided together" });
+  }
+});
+export const placeSchema = placeInputSchema.safeExtend({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+}).strict();
+
+export const burialInputSchema = z.object({
+  personId: z.string().uuid(),
+  placeId: z.string().uuid(),
+  locator: z.string().trim().max(500).nullable().optional(),
+  sourceId: z.string().uuid().nullable().optional(),
+  visibility: placeVisibilitySchema,
+}).strict();
+
+export const burialRecordSchema = burialInputSchema.safeExtend({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+}).strict();
+
+export type PlaceInput = z.infer<typeof placeInputSchema>;
+export type PlaceRecord = z.infer<typeof placeSchema>;
+export type BurialInput = z.infer<typeof burialInputSchema>;
+export type BurialRecord = z.infer<typeof burialRecordSchema>;
 
 export const proposalDetailItemSchema = z.object({
   id: z.string().uuid(),

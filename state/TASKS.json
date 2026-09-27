@@ -1951,9 +1951,9 @@
       "testIds": [
         "TC-M13-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["packages/contracts/src/index.ts + m13.test.ts: place/burial runtime schemas, paired-coordinate validation, nullable locator/source contract tests PASS 43/43.","packages/domain/src/m13.ts + m13.test.ts: fail-closed place/burial projection, independent coordinate visibility, evidence boundary tests included in domain 66/66 PASS.","supabase/migrations/0036_m13_place_burial.sql + supabase/tests/m13_place_burial.sql: private tree-scoped places/burial_records, FK/check/RLS/grants boundary; pnpm test:m13:place PASS on synthetic local Supabase.","apps/web/src/modules/m13/place-reader.tsx + apps/web/src/app/dia-diem: mobile-first list/detail demo-only UI with loading/empty/error/restricted copy, no real data; localhost:3100 /dia-diem and detail returned 200.","Final local regression on Node 24.21.0: pnpm test (contracts 43/43, domain 66/66, worker 18/18, lunar 4/4, web 3/3), pnpm typecheck, pnpm build, pnpm lint (2 existing warnings), pnpm verify PASS."]
     },
     {
       "id": "M13-02",

@@ -12822,15 +12822,22 @@ components:
           - grave
           - hometown
           - other
-        addressText: *id002
+        addressText:
+          anyOf:
+          - *id002
+          - type: 'null'
         latitude: &id046
-          type: number
-          minimum: -90
-          maximum: 90
+          anyOf:
+          - type: number
+            minimum: -90
+            maximum: 90
+          - type: 'null'
         longitude: &id047
-          type: number
-          minimum: -180
-          maximum: 180
+          anyOf:
+          - type: number
+            minimum: -180
+            maximum: 180
+          - type: 'null'
         visibility: &id048
           type: string
           enum:
@@ -12856,7 +12863,10 @@ components:
         version: *id008
         name: *id002
         kind: *id045
-        addressText: *id002
+        addressText:
+          anyOf:
+          - *id002
+          - type: 'null'
         latitude: *id046
         longitude: *id047
         visibility: *id048
@@ -13782,8 +13792,14 @@ components:
       properties:
         personId: *id001
         placeId: *id001
-        locator: *id002
-        sourceId: *id001
+        locator:
+          anyOf:
+          - *id002
+          - type: 'null'
+        sourceId:
+          anyOf:
+          - *id001
+          - type: 'null'
         visibility:
           type: string
           enum:
@@ -13793,8 +13809,6 @@ components:
       required:
       - personId
       - placeId
-      - locator
-      - sourceId
       - visibility
     OccurrenceOverride:
       type: object
