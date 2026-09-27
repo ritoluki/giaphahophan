@@ -68,7 +68,7 @@ export function ScholarshipReader({ program = demoScholarshipProgram, applicatio
             <div><dt>Nguồn quỹ</dt><dd>Quỹ khuyến học dòng họ</dd></div>
             <div><dt>Trạng thái</dt><dd>{program.status === "open" ? "Đang nhận đề cử" : program.status}</dd></div>
           </dl>
-          <button className="button-primary" type="button">Xem tiêu chí & đề cử</button>
+          <a className="button-primary" href="#scholarship-privacy">Xem tiêu chí & quy trình đề cử</a>
         </section>
 
         <SectionHeading title="Theo dõi hồ sơ của tôi" />
@@ -88,7 +88,7 @@ export function ScholarshipReader({ program = demoScholarshipProgram, applicatio
           <span className="scholarship-story-link">Đọc câu chuyện đã được duyệt →</span>
         </section>
 
-        <div className="scholarship-privacy-note"><strong>Thu thập tối thiểu</strong><span>Phiên bản đầu chỉ yêu cầu người được đề cử, lời giới thiệu và một minh chứng riêng tư. Thông tin học tập chi tiết hoặc dữ liệu trẻ em sẽ không tự động công khai.</span></div>
+        <div id="scholarship-privacy" className="scholarship-privacy-note"><strong>Thu thập tối thiểu & bảo vệ trẻ em</strong><span>Phiên bản đầu chỉ yêu cầu người được đề cử, lời giới thiệu và một minh chứng riêng tư. Thông tin học tập chi tiết hoặc dữ liệu trẻ em sẽ không tự động công khai. Story thành tích là một yêu cầu xuất bản riêng, cần nguồn riêng và reviewer phê duyệt; hồ sơ trẻ em cần guardian status đã xác minh.</span></div>
       </main>
     </SiteShell>
   );

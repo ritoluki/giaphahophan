@@ -126,3 +126,8 @@ Agent bổ sung theo mẫu: ngày, task, commit, thay đổi, command thực ch�
 - `pnpm test:m15:program` PASS on local Supabase Docker with synthetic-only users/tree: program scope/status/deadline/fund, private scholarship evidence, application submit and replay, applicant status tracking, reviewer MFA decisions, optimistic version workflow, review replay after version advance, and authenticated raw-table denial.
 - Full `pnpm test` PASS: contracts 56/56, domain 82/82, worker 18/18, lunar 4/4, web 5/5. `pnpm typecheck`, `pnpm build`, `pnpm verify`, and OpenAPI parse PASS. `pnpm lint` PASS with 2 pre-existing warnings (PostCSS anonymous default export and MFA QR `<img>`).
 - M15-01 adds migrations 0044/0045, allowlisted BFF routes for programs/applications/review and mobile-first `/khuyen-hoc` demo UI with loading/empty/error/restricted states. No real data, cloud integration or production deployment.
+
+## M15-02 evidence (2026-09-28)
+- `pnpm test:m15:minor` PASS on local Supabase Docker with synthetic-only users/tree: unknown/minor publication is fail-closed, guardian verification requires MFA/restricted proof, story submission requires approved application + source evidence, publication review is independent, version/idempotency replay works, and approved story output omits candidate/source identifiers.
+- Full `pnpm test` PASS: contracts 57/57, domain 84/84, worker 18/18, lunar 4/4, web 5/5. `pnpm typecheck`, `pnpm build`, `pnpm lint`, `pnpm verify`, and OpenAPI parse PASS; lint retains 2 pre-existing warnings.
+- M15-02 adds migrations 0046-0048, safeguard/story/review BFF routes and explicit UI copy for restricted evidence, guardian verification and separate publication approval. No real data, cloud integration or production deployment.

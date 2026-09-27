@@ -231,3 +231,7 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 ## M15-01 evidence (2026-09-28)
 - PASS `pnpm test:m15:program`; PASS full `pnpm test` (contracts 56/56, domain 82/82, worker 18/18, lunar 4/4, web 5/5), `pnpm typecheck`, `pnpm build`, `pnpm verify`, and OpenAPI parse.
 - PASS `pnpm lint` with 2 pre-existing warnings only. M15-01 remains IN_PROGRESS because staging/remote CI, axe/manual, real-device, cloud wiring and production approval are NOT_RUN.
+
+## M15-02 evidence (2026-09-28)
+- PASS `pnpm test:m15:minor`; PASS full `pnpm test` (contracts 57/57, domain 84/84, worker 18/18, lunar 4/4, web 5/5), `pnpm typecheck`, `pnpm build`, `pnpm lint`, `pnpm verify`, and OpenAPI parse.
+- M15-02 remains IN_PROGRESS because staging/remote CI, axe/manual, real-device, cloud wiring and production approval are NOT_RUN. No real minor, guardian, source or scholarship data was used.

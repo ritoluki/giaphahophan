@@ -6917,6 +6917,144 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReviewInput'
+  /api/v1/scholarship-applications/{id}/safeguard:
+    post:
+      operationId: post_scholarship_applications_id_safeguard
+      tags:
+      - Scholarships
+      summary: /scholarship-applications/{id}/safeguard
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/CSRF'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScholarshipSafeguardInput'
+      responses:
+        '200':
+          description: Safeguard projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScholarshipSafeguardResponse'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: Không có capability hoặc MFA
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: Xung đột version/idempotency
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+  /api/v1/scholarship-applications/{id}/story:
+    get:
+      operationId: get_scholarship_applications_id_story
+      tags:
+      - Scholarships
+      summary: /scholarship-applications/{id}/story
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Private publication requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScholarshipPublicationListResponse'
+    post:
+      operationId: post_scholarship_applications_id_story
+      tags:
+      - Scholarships
+      summary: /scholarship-applications/{id}/story
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/CSRF'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScholarshipPublicationInput'
+      responses:
+        '201':
+          description: Story publication request submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScholarshipPublicationResponse'
+  /api/v1/scholarship-publications/{id}/review:
+    post:
+      operationId: post_scholarship_publications_id_review
+      tags:
+      - Scholarships
+      summary: /scholarship-publications/{id}/review
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/CSRF'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewInput'
+      responses:
+        '200':
+          description: Publication review projection
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScholarshipPublicationResponse'
+  /api/v1/scholarship-programs/{id}/stories:
+    get:
+      operationId: get_scholarship_programs_id_stories
+      tags:
+      - Scholarships
+      summary: /scholarship-programs/{id}/stories
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Approved story projections without candidate/source identifiers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScholarshipStoryListResponse'
   /api/v1/scholarship-awards:
     post:
       operationId: post_scholarship_awards
@@ -13124,6 +13262,113 @@ components:
       - personId
       - statement
       - evidenceAssetId
+    ScholarshipSafeguardInput:
+      type: object
+      additionalProperties: false
+      properties:
+        minorStatus:
+          type: string
+          enum: [unknown, adult, minor]
+        guardianStatus:
+          type: string
+          enum: [not_required, pending, verified, withdrawn]
+        guardianProofAssetId:
+          anyOf:
+          - *id001
+          - type: 'null'
+        reason: *id002
+        baseVersion: *id008
+      required: [minorStatus, guardianStatus, guardianProofAssetId, reason, baseVersion]
+    ScholarshipSafeguard:
+      type: object
+      additionalProperties: false
+      properties:
+        applicationId: *id001
+        version: *id008
+        minorStatus:
+          type: string
+          enum: [unknown, adult, minor]
+        guardianStatus:
+          type: string
+          enum: [not_required, pending, verified, withdrawn]
+        guardianProofAssetId:
+          anyOf:
+          - *id001
+          - type: 'null'
+        verifiedAt:
+          anyOf:
+          - *id006
+          - type: 'null'
+      required: [applicationId, version, minorStatus, guardianStatus, guardianProofAssetId, verifiedAt]
+    ScholarshipPublicationInput:
+      type: object
+      additionalProperties: false
+      properties:
+        applicationId: *id001
+        title: *id002
+        story: *id012
+        sourceAssetId: *id001
+      required: [applicationId, title, story, sourceAssetId]
+    ScholarshipPublication:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id001
+        version: *id008
+        applicationId: *id001
+        title: *id002
+        story: *id012
+        sourceAssetId: *id001
+        status:
+          type: string
+          enum: [draft, submitted, needs_info, approved, rejected, withdrawn]
+        publishedAt:
+          anyOf:
+          - *id006
+          - type: 'null'
+      required: [id, version, applicationId, title, story, sourceAssetId, status, publishedAt]
+    ScholarshipStory:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id001
+        version: *id008
+        title: *id002
+        story: *id012
+        publishedAt: *id006
+      required: [id, version, title, story, publishedAt]
+    ScholarshipSafeguardResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data: { $ref: '#/components/schemas/ScholarshipSafeguard' }
+        meta: { $ref: '#/components/schemas/Meta' }
+      required: [data, meta]
+    ScholarshipPublicationResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data: { $ref: '#/components/schemas/ScholarshipPublication' }
+        meta: { $ref: '#/components/schemas/Meta' }
+      required: [data, meta]
+    ScholarshipPublicationListResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ScholarshipPublication' }
+        meta: { $ref: '#/components/schemas/Meta' }
+      required: [data, meta]
+    ScholarshipStoryListResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items: { $ref: '#/components/schemas/ScholarshipStory' }
+        meta: { $ref: '#/components/schemas/Meta' }
+      required: [data, meta]
     AwardInput:
       type: object
       additionalProperties: false

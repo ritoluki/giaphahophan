@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canTransitionScholarshipApplication, parseScholarshipApplicationInput, parseScholarshipProgramInput } from "./m15";
+import { canTransitionScholarshipApplication, canTransitionScholarshipPublication, parseScholarshipApplicationInput, parseScholarshipProgramInput, parseScholarshipPublicationInput, parseScholarshipSafeguardInput } from "./m15";
 
 const program = {
   fundId: "a5100000-0000-4000-8000-000000000001",
@@ -17,13 +17,20 @@ describe("M15 scholarship domain", () => {
   });
 
   it("parses an application with a private evidence reference", () => {
-    const application = {
-      personId: "a5100000-0000-4000-8000-000000000002",
-      statement: "Em xin ứng tuyển học bổng.",
-      evidenceAssetId: "a5100000-0000-4000-8000-000000000003",
-    };
+    const application = { personId: "a5100000-0000-4000-8000-000000000002", statement: "Em xin ứng tuyển học bổng.", evidenceAssetId: "a5100000-0000-4000-8000-000000000003" };
     expect(parseScholarshipApplicationInput(application)).toEqual(application);
     expect(parseScholarshipApplicationInput({ ...application, evidenceAssetId: "not-a-uuid" })).toBeNull();
+  });
+
+  it("fails closed when a minor has no verified guardian evidence", () => {
+    expect(parseScholarshipSafeguardInput({ minorStatus: "minor", guardianStatus: "pending", guardianProofAssetId: null, reason: "Chưa đủ hồ sơ.", baseVersion: 1 })).toBeNull();
+    expect(parseScholarshipSafeguardInput({ minorStatus: "adult", guardianStatus: "not_required", guardianProofAssetId: null, reason: "Đã kiểm tra.", baseVersion: 1 })).not.toBeNull();
+    expect(parseScholarshipPublicationInput({ applicationId: "a5100000-0000-4000-8000-000000000001", title: "Câu chuyện", story: "Nội dung", sourceAssetId: "a5100000-0000-4000-8000-000000000003" })).not.toBeNull();
+  });
+
+  it("keeps publication approval independent from application approval", () => {
+    expect(canTransitionScholarshipPublication("submitted", "approved")).toBe(true);
+    expect(canTransitionScholarshipPublication("approved", "withdrawn")).toBe(false);
   });
 
   it("allows only explicit application workflow transitions", () => {

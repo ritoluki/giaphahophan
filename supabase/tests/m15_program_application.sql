@@ -79,6 +79,31 @@ select * from api.scholarship_application_review(:'application_id'::uuid, 'needs
 select case when :'needs_info_replay_status' = 'needs_info' and :'needs_info_replay_version' = '2' then 1 else 1 / 0 end;
 select * from api.scholarship_application_review(:'application_id'::uuid, 'approve', 'Đủ điều kiện minh họa.', 2, 'snapshot-v2', 'b9800000-0000-4000-8000-000000000003', 'm15-review-v2') \gset approved_
 select case when :'approved_status' = 'approved' and :'approved_version' = '3' then 1 else 1 / 0 end;
+select set_config('m15.application_id', :'application_id', true);
+do $$
+begin
+  begin
+    perform * from api.scholarship_publication_create(current_setting('m15.application_id')::uuid, 'Câu chuyện chưa đủ điều kiện', 'Nội dung chưa được guardian xác nhận.', 'b9600000-0000-4000-8000-000000000001', 'b9900000-0000-4000-8000-000000000001', 'm15-publication-guard');
+    raise exception 'minor publication without guardian safeguard was accepted';
+  exception when insufficient_privilege or raise_exception then
+    if sqlerrm = 'minor publication without guardian safeguard was accepted' then raise; end if;
+  end;
+end $$;
+select * from api.scholarship_application_safeguard_set(:'application_id'::uuid, 'minor', 'verified', 'b9600000-0000-4000-8000-000000000001', 'Đã kiểm tra quy trình người đại diện trong fixture.', 3, 'b9900000-0000-4000-8000-000000000002', 'm15-safeguard-v1') \gset safeguard_
+select case when :'safeguard_minor_status' = 'minor' and :'safeguard_guardian_status' = 'verified' and :'safeguard_version' = '4' then 1 else 1 / 0 end;
+select set_config('request.jwt.claim.sub', 'b9000000-0000-4000-8000-000000000002', true);
+select set_config('request.jwt.claims', '{"sub":"b9000000-0000-4000-8000-000000000002","aal":"aal1"}', true);
+select * from api.scholarship_publication_create(:'application_id'::uuid, 'Câu chuyện học tập minh họa', 'Nội dung được đề cử để reviewer kiểm tra riêng.', 'b9600000-0000-4000-8000-000000000001', 'b9900000-0000-4000-8000-000000000003', 'm15-publication-v1') \gset publication_
+select * from api.scholarship_publication_create(:'application_id'::uuid, 'Câu chuyện học tập minh họa', 'Nội dung được đề cử để reviewer kiểm tra riêng.', 'b9600000-0000-4000-8000-000000000001', 'b9900000-0000-4000-8000-000000000003', 'm15-publication-v1') \gset publication_replay_
+select case when :'publication_status' = 'submitted' and :'publication_id' = :'publication_replay_id' then 1 else 1 / 0 end;
+select set_config('request.jwt.claim.sub', 'b9000000-0000-4000-8000-000000000003', true);
+select set_config('request.jwt.claims', '{"sub":"b9000000-0000-4000-8000-000000000003","aal":"aal2"}', true);
+select * from api.scholarship_publication_review(:'publication_id'::uuid, 'approve', 'Đã duyệt story độc lập với award.', 1, 'publication-snapshot-v1', 'b9900000-0000-4000-8000-000000000004', 'm15-publication-review-v1') \gset publication_review_
+select case when :'publication_review_status' = 'approved' and :'publication_review_version' = '2' then 1 else 1 / 0 end;
+select * from api.scholarship_stories('b9100000-0000-4000-8000-000000000001') \gset story_
+select case when :'story_id' = :'publication_id' and :'story_published_at' is not null then 1 else 1 / 0 end;
+select to_jsonb(row('story'::text, :'story_title'::text, :'story_story'::text)) \gset story_json_
+select case when :'story_json_to_jsonb' not like '%person_id%' and :'story_json_to_jsonb' not like '%source_asset_id%' then 1 else 1 / 0 end;
 
 set local role authenticated;
 do $$

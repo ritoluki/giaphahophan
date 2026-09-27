@@ -2266,9 +2266,13 @@
       "testIds": [
         "TC-M15-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "pnpm test:m15:minor PASS: minor/guardian state rejects unverified publication, restricted proof is required, independent story approval/MFA/version/idempotency and redacted story projection are covered",
+        "pnpm test PASS: contracts 57/57, domain 84/84, worker 18/18, lunar 4/4, web 5/5; pnpm typecheck/build/lint/verify PASS; lint has 2 pre-existing warnings",
+        "OpenAPI parse PASS; migrations 0046-0048 and M15-02 BFF routes are in the production build"
+      ]
     },
     {
       "id": "M15-03",

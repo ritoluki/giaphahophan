@@ -497,7 +497,43 @@ export const scholarshipApplicationSchema = scholarshipApplicationInputSchema.ex
   programId: z.string().uuid(),
   status: scholarshipApplicationStatusSchema,
 }).strict();
-export const journalSchema = z.object({
+export const scholarshipMinorStatusSchema = z.enum(["unknown", "adult", "minor"]);
+export const scholarshipGuardianStatusSchema = z.enum(["not_required", "pending", "verified", "withdrawn"]);
+export const scholarshipPublicationStatusSchema = z.enum(["draft", "submitted", "needs_info", "approved", "rejected", "withdrawn"]);
+export const scholarshipSafeguardInputSchema = z.object({
+  minorStatus: scholarshipMinorStatusSchema,
+  guardianStatus: scholarshipGuardianStatusSchema,
+  guardianProofAssetId: z.string().uuid().nullable(),
+  reason: z.string().trim().min(1).max(4000),
+  baseVersion: z.number().int().positive(),
+}).strict();
+export const scholarshipSafeguardSchema = z.object({
+  applicationId: z.string().uuid(),
+  version: z.number().int().positive(),
+  minorStatus: scholarshipMinorStatusSchema,
+  guardianStatus: scholarshipGuardianStatusSchema,
+  guardianProofAssetId: z.string().uuid().nullable(),
+  verifiedAt: z.string().datetime({ offset: true }).nullable(),
+}).strict();
+export const scholarshipPublicationInputSchema = z.object({
+  applicationId: z.string().uuid(),
+  title: z.string().trim().min(1).max(500),
+  story: z.string().trim().min(1).max(20_000),
+  sourceAssetId: z.string().uuid(),
+}).strict();
+export const scholarshipPublicationSchema = scholarshipPublicationInputSchema.extend({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  status: scholarshipPublicationStatusSchema,
+  publishedAt: z.string().datetime({ offset: true }).nullable(),
+}).strict();
+export const scholarshipStorySchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  title: z.string().min(1),
+  story: z.string().min(1),
+  publishedAt: z.string().datetime({ offset: true }),
+}).strict();export const journalSchema = z.object({
   id: z.string().uuid(),
   version: z.number().int().positive(),
   code: z.string().min(1),
@@ -520,6 +556,11 @@ export type ReconciliationRecord = z.infer<typeof reconciliationSchema>;
 export type ScholarshipProgramInput = z.infer<typeof scholarshipProgramInputSchema>;
 export type ScholarshipProgramRecord = z.infer<typeof scholarshipProgramSchema>;
 export type ScholarshipApplicationInput = z.infer<typeof scholarshipApplicationInputSchema>;
+export type ScholarshipSafeguardInput = z.infer<typeof scholarshipSafeguardInputSchema>;
+export type ScholarshipSafeguardRecord = z.infer<typeof scholarshipSafeguardSchema>;
+export type ScholarshipPublicationInput = z.infer<typeof scholarshipPublicationInputSchema>;
+export type ScholarshipPublicationRecord = z.infer<typeof scholarshipPublicationSchema>;
+export type ScholarshipStoryRecord = z.infer<typeof scholarshipStorySchema>;
 export type ScholarshipApplicationRecord = z.infer<typeof scholarshipApplicationSchema>;
 
 const placeCoordinatesSchema = z.object({
