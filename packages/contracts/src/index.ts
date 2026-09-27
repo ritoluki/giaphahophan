@@ -418,6 +418,43 @@ export const explicitExternalMapLinkRequestSchema = z.object({
 }).strict();
 export type ExternalMapProvider = z.infer<typeof externalMapProviderSchema>;
 export type ExplicitExternalMapLinkRequest = z.infer<typeof explicitExternalMapLinkRequestSchema>;
+export const mapAdapterProviderSchema = externalMapProviderSchema;
+export const mapAdapterConfigSchema = z.object({
+  enabled: z.boolean(),
+  h2Approved: z.boolean(),
+  provider: mapAdapterProviderSchema.nullable(),
+  requestsPerMinute: z.number().int().positive().max(10_000),
+  requestsPerDay: z.number().int().positive().max(1_000_000),
+}).strict().superRefine((value, context) => {
+  if (value.requestsPerDay < value.requestsPerMinute) {
+    context.addIssue({ code: "custom", path: ["requestsPerDay"], message: "daily quota must be at least the minute quota" });
+  }
+});
+export const mapAdapterQuotaSchema = z.object({
+  minuteUsed: z.number().int().nonnegative(),
+  dayUsed: z.number().int().nonnegative(),
+}).strict();
+export const mapAdapterDecisionCodeSchema = z.enum([
+  "allowed",
+  "disabled",
+  "approval_required",
+  "provider_unconfigured",
+  "provider_mismatch",
+  "coordinate_denied",
+  "confirmation_required",
+  "quota_exceeded",
+]);
+export const mapAdapterDecisionSchema = z.object({
+  allowed: z.boolean(),
+  code: mapAdapterDecisionCodeSchema,
+  provider: mapAdapterProviderSchema.nullable(),
+  url: z.string().url().nullable(),
+  retryAfterSeconds: z.number().int().positive().nullable(),
+}).strict();
+export type MapAdapterProvider = z.infer<typeof mapAdapterProviderSchema>;
+export type MapAdapterConfig = z.infer<typeof mapAdapterConfigSchema>;
+export type MapAdapterQuota = z.infer<typeof mapAdapterQuotaSchema>;
+export type MapAdapterDecision = z.infer<typeof mapAdapterDecisionSchema>;
 export const proposalDetailItemSchema = z.object({
   id: z.string().uuid(),
   targetKind: z.enum(["person", "fact", "parent_link", "union", "branch", "merge", "publication"]),

@@ -1167,8 +1167,13 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Provider adapter/flag có quota và H2; flag client không thay authorization server.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": [
+        "pnpm test:m13:map-adapter PASS: service_role-only provider quota consume, atomic minute/day counters and quota denial; no external provider was called.",
+        "Contract 48/48, domain 73/73 and web 5/5 PASS; domain authorization-first gate rejects restricted coordinates even when config is enabled.",
+        "Server config defaults disabled, requires explicit provider/H2 flags and bounded quotas; full pnpm test, typecheck, build, lint and verify PASS; 2 pre-existing lint warnings.",
+        "H2 provider account/region/budget approval, staging, remote CI, axe/manual, real-device and production approval remain NOT_RUN."
+      ]
     },
     {
       "id": "TC-M14-01",

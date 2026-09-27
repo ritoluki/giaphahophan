@@ -1,11 +1,15 @@
 import {
   explicitExternalMapLinkRequestSchema,
+  mapAdapterConfigSchema,
   placeDirectionsInputSchema,
   placeInputSchema,
   type BurialRecord,
   type Place,
   type PlaceInput,
   type ExternalMapProvider,
+  type MapAdapterConfig,
+  type MapAdapterDecision,
+  type MapAdapterQuota,
   type PlaceDirections,
   type PlaceRecord,
 } from "@phan/contracts";
@@ -127,4 +131,40 @@ export function projectPlaceDirections(
     sourceId: directions.sourceId,
     visibility: directions.visibility,
   };
+}
+export type M13MapAdapterRequest = {
+  readonly place: PlaceRecord;
+  readonly viewer: M13ViewerScope;
+  readonly provider: ExternalMapProvider;
+  readonly confirmed: boolean;
+  readonly config: MapAdapterConfig;
+  readonly quota: MapAdapterQuota;
+};
+
+function mapAdapterDenied(
+  code: MapAdapterDecision["code"],
+  provider: ExternalMapProvider | null = null,
+  retryAfterSeconds: number | null = null,
+): MapAdapterDecision {
+  return { allowed: false, code, provider, url: null, retryAfterSeconds };
+}
+
+export function evaluateMapAdapterRequest(input: M13MapAdapterRequest): MapAdapterDecision {
+  const config = mapAdapterConfigSchema.safeParse(input.config);
+  if (!config.success || !config.data.enabled) return mapAdapterDenied("disabled");
+
+  const projection = projectPlace(input.place, input.viewer);
+  if (!projection?.coordinates) return mapAdapterDenied("coordinate_denied");
+  if (!input.confirmed) return mapAdapterDenied("confirmation_required");
+  if (!config.data.h2Approved) return mapAdapterDenied("approval_required");
+  if (config.data.provider === null) return mapAdapterDenied("provider_unconfigured");
+  if (config.data.provider !== input.provider) return mapAdapterDenied("provider_mismatch", config.data.provider);
+  if (input.quota.minuteUsed >= config.data.requestsPerMinute || input.quota.dayUsed >= config.data.requestsPerDay) {
+    return mapAdapterDenied("quota_exceeded", config.data.provider, 60);
+  }
+
+  const url = buildExplicitExternalMapLink(input.place, input.viewer, config.data.provider, true);
+  return url === null
+    ? mapAdapterDenied("coordinate_denied")
+    : { allowed: true, code: "allowed", provider: config.data.provider, url, retryAfterSeconds: null };
 }

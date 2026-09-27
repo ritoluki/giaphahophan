@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { burialInputSchema, explicitExternalMapLinkRequestSchema, mediaLinkInputSchema, placeDirectionsInputSchema, placeInputSchema, placeSchema } from "./index";
+import { burialInputSchema, explicitExternalMapLinkRequestSchema, mapAdapterConfigSchema, mapAdapterDecisionSchema, mediaLinkInputSchema, placeDirectionsInputSchema, placeInputSchema, placeSchema } from "./index";
 
 const ids = {
   id: "a3700000-0000-4000-8000-000000000001",
@@ -62,5 +62,16 @@ describe("M13 place media target", () => {
 
   it("validates directions independently from provider links", () => {
     expect(placeDirectionsInputSchema.safeParse({ placeId: ids.placeId, instructionText: "Lối vào minh họa", visibility: "members" }).success).toBe(true);
+  });
+});
+describe("M13 map adapter gate contracts", () => {
+  it("requires an explicit H2-approved server config and bounded quotas", () => {
+    expect(mapAdapterConfigSchema.safeParse({ enabled: false, h2Approved: false, provider: null, requestsPerMinute: 30, requestsPerDay: 1000 }).success).toBe(true);
+    expect(mapAdapterConfigSchema.safeParse({ enabled: true, h2Approved: true, provider: "google_maps", requestsPerMinute: 30, requestsPerDay: 29 }).success).toBe(false);
+  });
+
+  it("validates a redacted decision DTO", () => {
+    expect(mapAdapterDecisionSchema.safeParse({ allowed: false, code: "approval_required", provider: null, url: null, retryAfterSeconds: null }).success).toBe(true);
+    expect(mapAdapterDecisionSchema.safeParse({ allowed: true, code: "allowed", provider: "google_maps", url: "https://www.google.com/maps/", retryAfterSeconds: null }).success).toBe(true);
   });
 });

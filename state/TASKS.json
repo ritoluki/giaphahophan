@@ -2038,9 +2038,15 @@
       "testIds": [
         "TC-M13-04"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0038_m13_map_adapter_quota.sql + supabase/tests/m13_map_adapter.sql: private provider quota windows, atomic minute/day consume under advisory lock, service_role-only execution and authenticated denial.",
+        "packages/contracts/src/index.ts + packages/contracts/src/m13.test.ts: server map config/quota/decision schemas; contract suite 48/48 PASS.",
+        "packages/domain/src/m13.ts + packages/domain/src/m13.test.ts: authorization-first provider gate, H2 approval, provider match, explicit confirmation and quota snapshot; domain suite 73/73 PASS.",
+        "apps/web/src/lib/server/map-adapter.ts + map-adapter.test.ts: server-only config defaults disabled and rejects invalid provider/quota; web suite 5/5 PASS.",
+        "pnpm test:m13:map-adapter, pnpm test, pnpm typecheck, pnpm build, pnpm lint and pnpm verify PASS on Node 24.21.0/Supabase local; lint retains 2 existing warnings; no provider call, real coordinates, real data or production used."
+      ]
     },
     {
       "id": "M14-01",

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildExplicitExternalMapLink,
+  evaluateMapAdapterRequest,
   canReadM13Visibility,
   hasBurialEvidence,
   hasCompletePlaceCoordinates,
@@ -90,5 +91,26 @@ describe("M13 place media and directions boundary", () => {
     const directions = { id: "a3000000-0000-4000-8000-000000000005", version: 1, placeId: place.id, instructionText: "Lối vào minh họa", sourceId: null, visibility: "members" as const };
     expect(projectPlaceDirections(directions, "public")).toBeNull();
     expect(projectPlaceDirections(directions, "members")?.instructionText).toBe("Lối vào minh họa");
+  });
+});
+describe("M13 map adapter gate", () => {
+  const config = { enabled: true, h2Approved: true, provider: "google_maps" as const, requestsPerMinute: 2, requestsPerDay: 10 };
+  const quota = { minuteUsed: 0, dayUsed: 0 };
+  const authorizedPlace = { ...place, coordinateVisibility: "public" as const };
+
+  it("keeps the provider disabled until H2 is approved", () => {
+    expect(evaluateMapAdapterRequest({ place: authorizedPlace, viewer: "public", provider: "google_maps", confirmed: true, config: { ...config, h2Approved: false }, quota }).code).toBe("approval_required");
+    expect(evaluateMapAdapterRequest({ place: authorizedPlace, viewer: "public", provider: "google_maps", confirmed: true, config: { ...config, enabled: false }, quota }).code).toBe("disabled");
+  });
+
+  it("never lets a client-side flag bypass coordinate authorization", () => {
+    const result = evaluateMapAdapterRequest({ place, viewer: "public", provider: "google_maps", confirmed: true, config, quota });
+    expect(result).toMatchObject({ allowed: false, code: "coordinate_denied", url: null });
+  });
+
+  it("enforces provider selection and DB quota snapshot before URL creation", () => {
+    expect(evaluateMapAdapterRequest({ place: authorizedPlace, viewer: "public", provider: "openstreetmap", confirmed: true, config, quota }).code).toBe("provider_mismatch");
+    expect(evaluateMapAdapterRequest({ place: authorizedPlace, viewer: "public", provider: "google_maps", confirmed: true, config, quota: { minuteUsed: 2, dayUsed: 2 } }).code).toBe("quota_exceeded");
+    expect(evaluateMapAdapterRequest({ place: authorizedPlace, viewer: "public", provider: "google_maps", confirmed: true, config, quota }).url).toContain("google.com/maps");
   });
 });
