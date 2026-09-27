@@ -149,3 +149,9 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - packages/domain/src/m10-rsvp.test.ts PASS: 6/6 tests for create/update optimistic version, idempotent replay/reuse conflict, stale write conflict, validation boundaries and privacy projection.
 - pnpm test PASS: contracts 24/24, domain 45/45, worker 5/5, lunar 4/4, web 3/3. pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS on Node 24.21.0. Lint retains 2 existing warnings.
 - No UI/DB/API change in this contracts/domain-only slice; staging DB persistence, UI/mobile/a11y, remote CI, real-device and production approval remain NOT_RUN.
+
+## M10-06 evidence (2026-09-28)
+- packages/contracts/src/m10-ics.test.ts PASS: 3/3 tests for scoped occurrence IDs, deterministic timestamp and public-feed rejection.
+- packages/domain/src/m10-ics.test.ts PASS: 5/5 tests for exclusive all-day DTEND, stable UID, version sequence, cancellation/escaping, privacy denial and invalid input.
+- pnpm test PASS: contracts 27/27, domain 50/50, worker 5/5, lunar 4/4, web 3/3. pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS on Node 24.21.0. Lint retains 2 existing warnings.
+- No UI/DB/API change in this contracts/domain-only slice; staging persistence, UI/mobile/a11y, remote CI, real-device and production approval remain NOT_RUN.

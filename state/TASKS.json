@@ -1706,9 +1706,9 @@
       "testIds": [
         "TC-M10-06"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["packages/contracts/src/m10-ics.test.ts: scoped export schema allows self/members only, requires occurrence IDs and deterministic generatedAt; rejects public_feed and invalid timestamp; 3/3 PASS.","packages/domain/src/m10-ics.ts + packages/domain/src/m10-ics.test.ts: solar all-day DTSTART, exclusive next-day DTEND, stable UID from rule/logical key, version-derived SEQUENCE, cancellation/text escaping and private scope denial; 5/5 PASS.","pnpm test PASS: contracts 27/27, domain 50/50, worker 5/5, lunar 4/4, web 3/3; pnpm typecheck, lint, build and verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. No UI/DB/API surface changed in this domain/contracts-only slice; staging persistence, UI/mobile/a11y, remote CI, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "M11-01",

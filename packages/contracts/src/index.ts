@@ -611,3 +611,8 @@ export const rsvpRecordSchema = z.object({
   note: z.string().max(2000),
   idempotencyKey: z.string().min(1)
 }).strict();
+export const icsExportInputSchema = z.object({
+  occurrenceIds: z.array(z.string().min(1)).min(1).max(500),
+  scope: z.enum(["self", "members"]),
+  generatedAt: z.string().regex(/^\d{8}T\d{6}Z$/)
+}).strict();
