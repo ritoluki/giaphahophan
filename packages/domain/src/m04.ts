@@ -37,6 +37,35 @@ function occurrenceId(mode: GraphMode, path: ReadonlyArray<string>): string {
   return `occurrence:${mode}:${path.join("/")}`;
 }
 
+export type GraphOccurrenceGroup = {
+  canonicalPersonId: string;
+  person: PersonSummary;
+  occurrenceIds: ReadonlyArray<string>;
+  depths: ReadonlyArray<number>;
+};
+
+export function collapseGraphOccurrences(graph: Graph): Array<GraphOccurrenceGroup> {
+  const groups = new Map<string, { person: PersonSummary; occurrenceIds: string[]; depths: number[] }>();
+  for (const node of graph.nodes) {
+    const existing = groups.get(node.person.id);
+    if (existing) {
+      existing.occurrenceIds.push(node.occurrenceId);
+      existing.depths.push(node.depth);
+      continue;
+    }
+    groups.set(node.person.id, {
+      person: node.person,
+      occurrenceIds: [node.occurrenceId],
+      depths: [node.depth]
+    });
+  }
+  return [...groups.entries()].map(([canonicalPersonId, group]) => ({
+    canonicalPersonId,
+    person: group.person,
+    occurrenceIds: group.occurrenceIds,
+    depths: group.depths
+  }));
+}
 function unique(values: ReadonlyArray<string>): string[] {
   return [...new Set(values)];
 }

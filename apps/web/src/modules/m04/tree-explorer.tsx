@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getDemoGraph } from "../../lib/demo-data";
-import type { GraphMode } from "@phan/domain";
+import { collapseGraphOccurrences, type GraphMode } from "@phan/domain";
 
 type TreeExplorerProps = { rootId: string };
 
@@ -19,6 +19,7 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
   const [depth, setDepth] = useState(3);
   const [maxNodes, setMaxNodes] = useState(120);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showOccurrences, setShowOccurrences] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 768px)");
@@ -36,6 +37,15 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
     }
   }, [rootId, mode, depth, maxNodes]);
 
+  const occurrenceGroups = useMemo(() => graph ? collapseGraphOccurrences(graph) : [], [graph]);
+  const visibleNodes = useMemo(() => {
+    if (!graph) return [];
+    if (showOccurrences) return graph.nodes.map((node) => ({ ...node, occurrenceCount: 1 }));
+    return occurrenceGroups.flatMap((group) => {
+      const representative = graph.nodes.find((node) => node.occurrenceId === group.occurrenceIds[0]);
+      return representative ? [{ ...representative, occurrenceCount: group.occurrenceIds.length }] : [];
+    });
+  }, [graph, occurrenceGroups, showOccurrences]);
   const currentNode = graph?.nodes.find((node) => node.person.id === rootId && node.depth === 0);
   const modeLabel = modes.find((item) => item.value === mode)?.label ?? "Cây gia phả";
 
@@ -67,6 +77,9 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
             </button>
           ))}
         </div>
+        <button className="button-secondary tree-collapse-toggle" type="button" onClick={() => setShowOccurrences((open) => !open)} aria-pressed={showOccurrences}>
+          {showOccurrences ? "Gộp hồ sơ trùng" : "Hiện từng occurrence"}
+        </button>
         <label>
           Độ sâu
           <select value={depth} onChange={(event) => setDepth(Number(event.target.value))}>
@@ -85,7 +98,7 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
       <div className="tree-mode-note" aria-live="polite">
         <strong>{modeLabel}</strong>
         <span>{modes.find((item) => item.value === mode)?.hint}</span>
-        <span>{graph ? `${graph.nodes.length} occurrence · revision ${graph.graphRevision}` : "Không thể dựng projection"}</span>
+        <span>{graph ? `${visibleNodes.length} hồ sơ · ${graph.nodes.length} occurrence · revision ${graph.graphRevision}` : "Không thể dựng projection"}</span>
       </div>
 
       {!graph ? (
@@ -102,13 +115,13 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
         <>
           <div className="tree-viewport" tabIndex={0} aria-label="Vùng cuộn sơ đồ cây gia phả">
             <div className="tree-node-grid" role="list">
-              {graph.nodes.map((node) => (
+              {visibleNodes.map((node) => (
                 <Link className={"tree-person-card" + (node.person.id === rootId ? " tree-person-card-current" : "")} href={"/nguoi/" + node.person.id} key={node.occurrenceId} role="listitem">
                   <span className="monogram" aria-hidden="true">{node.person.displayName.slice(0, 1)}</span>
                   <span className="tree-person-copy">
                     <strong>{node.person.displayName}</strong>
                     <small>{node.person.yearLabel ?? "Chưa rõ"} · {node.depth === 0 ? "Điểm bắt đầu" : `Độ sâu ${node.depth}`}</small>
-                    <small>Hồ sơ canonical · occurrence riêng</small>
+                    <small>{node.occurrenceCount > 1 ? `${node.occurrenceCount} occurrence · cùng hồ sơ canonical` : "Hồ sơ canonical · occurrence riêng"}</small>
                   </span>
                 </Link>
               ))}

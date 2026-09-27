@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildGraphProjection, type GraphInput } from "./m04";
+import { buildGraphProjection, collapseGraphOccurrences, type GraphInput } from "./m04";
 
 const people = [
   { id: "00000000-0000-4000-8000-000000000001", version: 1, code: "ROOT", displayName: "Root", lifeStatus: "deceased" as const, primaryBranchId: null, isDemo: true },
@@ -30,5 +30,25 @@ describe("M04 graph projection", () => {
     expect(limited.truncated).toBe(true);
     const roots = buildGraphProjection(input, "roots", 3, 120);
     expect(roots.nodes.map((node) => node.person.code)).toEqual(["ROOT", "ADOPT", "PARTNER"]);
+  });
+  it("collapses repeated canonical people without losing occurrence identity", () => {
+    const collapsePeople = [
+      ...people,
+      { id: "00000000-0000-4000-8000-000000000005", version: 1, code: "SHARED", displayName: "Shared Person", lifeStatus: "deceased" as const, primaryBranchId: null, isDemo: true }
+    ];
+    const collapsedGraph = buildGraphProjection({
+      rootPersonId: people[0]!.id,
+      people: collapsePeople,
+      parentLinks: [
+        { id: "root-left", parentId: people[0]!.id, childId: people[1]!.id, kind: "biological", status: "confirmed" },
+        { id: "root-right", parentId: people[0]!.id, childId: people[2]!.id, kind: "biological", status: "confirmed" },
+        { id: "shared-left", parentId: people[1]!.id, childId: collapsePeople[4]!.id, kind: "biological", status: "confirmed" },
+        { id: "shared-right", parentId: people[2]!.id, childId: collapsePeople[4]!.id, kind: "biological", status: "confirmed" }
+      ]
+    }, "descendants", 3, 120);
+    const sharedOccurrences = collapsedGraph.nodes.filter((node) => node.person.id === collapsePeople[4]!.id);
+    expect(sharedOccurrences).toHaveLength(2);
+    expect(new Set(sharedOccurrences.map((node) => node.occurrenceId)).size).toBe(2);
+    expect(collapseGraphOccurrences(collapsedGraph).find((group) => group.canonicalPersonId === collapsePeople[4]!.id)?.occurrenceIds).toHaveLength(2);
   });
 });

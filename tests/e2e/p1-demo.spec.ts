@@ -84,6 +84,12 @@ test("tree explorer exposes bounded graph modes and fullscreen focus", async ({ 
   await expect(tabs.nth(2)).toHaveAttribute("aria-selected", "true");
   await tabs.nth(3).click();
   await expect(tabs.nth(3)).toHaveAttribute("aria-selected", "true");
+  const collapseToggle = page.locator(".tree-collapse-toggle");
+  await expect(collapseToggle).toHaveAttribute("aria-pressed", "false");
+  await collapseToggle.click();
+  await expect(collapseToggle).toHaveAttribute("aria-pressed", "true");
+  await collapseToggle.click();
+  await expect(collapseToggle).toHaveAttribute("aria-pressed", "false");
   await page.locator(".tree-explorer-header button").click();
   await expect(page.locator(".tree-explorer-fullscreen")).toBeVisible();
 });

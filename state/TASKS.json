@@ -721,9 +721,13 @@
       "testIds": [
         "TC-M04-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "packages/domain/src/m04.ts and m04.test.ts: collapseGraphOccurrences groups repeated canonical person IDs while preserving distinct occurrence IDs; deterministic pedigree-collapse test PASS (13 domain tests).",
+        "apps/web/src/modules/m04/tree-explorer.tsx: default canonical grouping, explicit show-each-occurrence toggle, common profile links and occurrence count labels; loading/empty/error/restricted/truncated states retained.",
+        "pnpm typecheck, pnpm build and pnpm exec playwright test PASS; 24/24 desktop Chromium, mobile Chromium and mobile 320 tests including collapse toggle. Axe/manual/real-device/remote CI remain NOT_RUN."
+      ]
     },
     {
       "id": "M04-03",
