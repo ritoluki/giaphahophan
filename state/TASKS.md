@@ -44,7 +44,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M06-04 | P3 | Tải lớn | M06-03 | IN_PROGRESS — 10k synthetic benchmark p95 75.19ms; BFF page cap/index and client debounce+AbortController+sequence guard implemented; full tests/build/lint and Playwright 33/33 PASS; axe/manual/real-device/remote CI NOT_RUN |
 | M07-01 | P2 | Invitation | CORE-01 | IN_PROGRESS — migrations 0021-0022, idempotent create/accept BFF, redacted mobile UI and synthetic local core acceptance PASS; email provider/H2, staging, remote CI and full accessibility/real-device gates remain NOT_RUN |
 | M07-02 | P2 | Session và logout | M07-01 | IN_PROGRESS — refresh/SSR cookie, global revoke, sensitive action denial and idempotent empty state PASS local; remote/a11y/real-device NOT_RUN |
-| M07-03 | P2 | MFA đặc quyền | M07-02 |  |
+| M07-03 | P2 | MFA đặc quyền | M07-02 | IN_PROGRESS — migration 0023 direct DB MFA guard, BFF MFA lifecycle, restricted mobile setup and synthetic aal2 acceptance PASS; staging/remote CI/axe/manual/real-device NOT_RUN |
 | M07-04 | P2 | Membership và owner | M07-03 |  |
 | M07-05 | P2 | Recovery và claim | M07-04 |  |
 | M08-01 | P3 | Đề nghị có nguồn | M03-06, M07-05 |  |

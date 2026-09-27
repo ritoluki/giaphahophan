@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { claimReviewInputSchema, claimSubmitInputSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
+import { claimReviewInputSchema, claimSubmitInputSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
   it("preserves canonical display and aliases in person search results", () => {
@@ -173,7 +173,20 @@ describe("CORE-01 contracts", () => {
       role: input.role,
       token: "raw-secret"
     })).toThrow();
-  });  it("keeps graph modes bounded and preserves disputed relationship labels", () => {
+  });
+  it("keeps MFA input strict and response secrets scoped to explicit enrollment", () => {
+    expect(mfaInputSchema.parse({
+      factorId: "80000000-0000-4000-8000-000000000001",
+      challengeId: "80000000-0000-4000-8000-000000000002",
+      code: "123456"
+    }).code).toBe("123456");
+    expect(mfaFactorInputSchema.parse({ factorId: "80000000-0000-4000-8000-000000000001" }).factorId).toBeTruthy();
+    expect(mfaChallengeResultSchema.parse({ challengeId: "80000000-0000-4000-8000-000000000002", expiresAt: 2_000_000_000 }).expiresAt).toBe(2_000_000_000);
+    expect(mfaEnrollResultSchema.parse({ factorId: "80000000-0000-4000-8000-000000000001", qrCode: "svg", secret: "secret", uri: "otpauth://totp/demo" }).secret).toBe("secret");
+    expect(mfaStatusSchema.parse({ authenticated: true, aal: "aal2", mfaEnrolled: true, factorId: "80000000-0000-4000-8000-000000000001" }).aal).toBe("aal2");
+    expect(() => mfaInputSchema.parse({ factorId: "80000000-0000-4000-8000-000000000001", challengeId: "80000000-0000-4000-8000-000000000002", code: "123456", secret: "leak" })).toThrow();
+  });
+  it("keeps graph modes bounded and preserves disputed relationship labels", () => {
     expect(graphQuerySchema.parse({ direction: "roots", depth: "2", maxNodes: "120" })).toEqual({ direction: "roots", depth: 2, maxNodes: 120 });
     const parsed = graphProjectionSchema.parse({
       nodes: [{ occurrenceId: "root/demo", depth: 0, generation: 0, person: {

@@ -234,6 +234,35 @@ export const loginInputSchema = z.object({
 
 export const idempotencyKeySchema = z.string().uuid();
 
+export const mfaInputSchema = z.object({
+  factorId: z.string().uuid(),
+  challengeId: z.string().uuid(),
+  code: z.string().regex(/^[0-9]{6}$/)
+}).strict();
+
+export const mfaFactorInputSchema = z.object({
+  factorId: z.string().uuid()
+}).strict();
+
+export const mfaChallengeResultSchema = z.object({
+  challengeId: z.string().uuid(),
+  expiresAt: z.number().int().positive()
+}).strict();
+
+export const mfaEnrollResultSchema = z.object({
+  factorId: z.string().uuid(),
+  qrCode: z.string().min(1).max(1000000),
+  secret: z.string().min(1).max(512),
+  uri: z.string().min(1).max(1000000)
+}).strict();
+
+export const mfaStatusSchema = z.object({
+  authenticated: z.boolean(),
+  aal: z.enum(["aal1", "aal2"]).nullable(),
+  mfaEnrolled: z.boolean(),
+  factorId: z.string().uuid().nullable()
+}).strict();
+
 export const invitationInputSchema = z.object({
   treeId: z.string().uuid(),
   email: z.string().trim().email().max(320),

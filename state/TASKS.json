@@ -1182,9 +1182,11 @@
       "testIds": [
         "TC-M07-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "Local migration 0023 and direct capability guard require aal2 for proposal.review; BFF MFA status/enroll/challenge/verify/unenroll and mobile setup UI implemented."
+      ]
     },
     {
       "id": "M07-04",

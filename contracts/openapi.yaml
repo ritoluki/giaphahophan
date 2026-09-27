@@ -10197,14 +10197,177 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AuthRecoveryInput'
+  /api/v1/auth/mfa/status:
+    get:
+      operationId: get_auth_mfa_status
+      tags:
+      - Auth
+      summary: /auth/mfa/status
+      description: Trả trạng thái MFA đã redacted của session hiện tại; không trả QR hoặc secret.
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Trạng thái MFA
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MfaStatus'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required: [data, meta]
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency lỗi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/auth/mfa/enroll:
+    post:
+      operationId: post_auth_mfa_enroll
+      tags:
+      - Auth
+      summary: /auth/mfa/enroll
+      description: Tạo TOTP factor chưa xác nhận; QR và secret chỉ trả cho session hiện tại, không ghi log.
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: TOTP enrollment payload
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MfaEnrollResult'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required: [data, meta]
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Factor conflict hoặc policy limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency lỗi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/auth/mfa/challenge:
+    post:
+      operationId: post_auth_mfa_challenge
+      tags:
+      - Auth
+      summary: /auth/mfa/challenge
+      description: Tạo thử thách cho TOTP factor; không trả secret.
+      security:
+      - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaFactorInput'
+      responses:
+        '200':
+          description: MFA challenge
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MfaChallengeResult'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required: [data, meta]
+        '400':
+          description: Request sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Factor/challenge không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/auth/mfa/unenroll:
+    post:
+      operationId: post_auth_mfa_unenroll
+      tags:
+      - Auth
+      summary: /auth/mfa/unenroll
+      description: Gỡ factor theo policy của provider; factor đã xác nhận cần session aal2.
+      security:
+      - sessionCookie: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MfaFactorInput'
+      responses:
+        '200':
+          description: Trạng thái MFA sau khi gỡ factor
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MfaStatus'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required: [data, meta]
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Session chưa đạt aal2 hoặc policy từ chối
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/v1/auth/mfa/verify:
     post:
       operationId: post_auth_mfa_verify
       tags:
       - Auth
       summary: /auth/mfa/verify
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Nhận factor/challenge/code từ session và trả trạng thái MFA sau khi provider xác nhận.
       security:
       - sessionCookie: []
       responses:
@@ -10217,7 +10380,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/Session'
+                    $ref: '#/components/schemas/MfaStatus'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -10277,9 +10440,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      parameters:
-      - $ref: '#/components/parameters/IdempotencyKey'
-      - $ref: '#/components/parameters/CSRF'
       requestBody:
         required: true
         content:
@@ -12948,6 +13108,64 @@ components:
       - factorId
       - challengeId
       - code
+    MfaFactorInput:
+      type: object
+      additionalProperties: false
+      properties:
+        factorId: *id001
+      required:
+      - factorId
+    MfaChallengeResult:
+      type: object
+      additionalProperties: false
+      properties:
+        challengeId: *id001
+        expiresAt:
+          type: integer
+          format: int64
+      required:
+      - challengeId
+      - expiresAt
+    MfaEnrollResult:
+      type: object
+      additionalProperties: false
+      properties:
+        factorId: *id001
+        qrCode:
+          type: string
+          maxLength: 1000000
+        secret:
+          type: string
+          maxLength: 512
+        uri:
+          type: string
+          maxLength: 1000000
+      required:
+      - factorId
+      - qrCode
+      - secret
+      - uri
+    MfaStatus:
+      type: object
+      additionalProperties: false
+      properties:
+        authenticated:
+          type: boolean
+        aal:
+          type: string
+          nullable: true
+          enum: [aal1, aal2]
+        mfaEnrolled:
+          type: boolean
+        factorId:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - authenticated
+      - aal
+      - mfaEnrolled
+      - factorId
     OwnerTransferInput:
       type: object
       additionalProperties: false

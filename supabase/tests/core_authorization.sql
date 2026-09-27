@@ -200,6 +200,7 @@ end;
 $$;
 
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000002', true);
+select set_config('request.jwt.claims', '{"sub":"20000000-0000-4000-8000-000000000002","aal":"aal2"}', true);
 select id, status, version
 from api.proposal_review(
   :'submitted_id'::uuid, 'approve', 'Synthetic independent review', :'submitted_version'::bigint, 'synthetic-hash'
@@ -242,6 +243,7 @@ select set_config('test.relationship_id', :'relationship_id', true);
 select set_config('test.relationship_version', :'relationship_version', true);
 
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000002', true);
+select set_config('request.jwt.claims', '{"sub":"20000000-0000-4000-8000-000000000002","aal":"aal2"}', true);
 
 select id, status, version
 from api.proposal_review(
@@ -272,6 +274,7 @@ select set_config('test.cycle_id', :'cycle_id', true);
 select set_config('test.cycle_version', :'cycle_version', true);
 
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000002', true);
+select set_config('request.jwt.claims', '{"sub":"20000000-0000-4000-8000-000000000002","aal":"aal2"}', true);
 
 do $$
 begin

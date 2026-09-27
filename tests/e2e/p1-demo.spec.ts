@@ -171,6 +171,11 @@ test("invitation page keeps token and private tree details out of visible copy",
   await expect(page.locator("button[type=submit]")).toBeDisabled();
   expect(await page.locator("main").innerText()).not.toContain(token);
 });
+test("MFA setup stays restricted until a member session is present", async ({ page }) => {
+  await page.goto("/thiet-lap-mfa");
+  await expect(page.getByRole("heading", { name: "Thiết lập xác thực bổ sung" })).toBeVisible();
+  await expect(page.getByText("Cần đăng nhập", { exact: true })).toBeVisible();
+});
 test("account page exposes a clear mobile logout action", async ({ page }) => {
   await page.goto("/them");
   await expect(page.getByRole("heading", { name: "Phiên hiện tại" })).toBeVisible();

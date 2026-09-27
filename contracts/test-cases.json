@@ -590,8 +590,10 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Owner/reviewer/finance thao tác nhạy cảm cần MFA; không bỏ qua ở API trực tiếp.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "pnpm test:m07:mfa PASS on standalone local-configured Node 24/Supabase: pre-MFA proposal review denied at direct DB/RPC path; RFC6238 TOTP enrollment, challenge, verify and aal2 promotion; status and unenroll verified."
+      ]
     },
     {
       "id": "TC-M07-04",

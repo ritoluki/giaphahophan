@@ -278,3 +278,16 @@ button, a, input, select { min-height: 44px; }
 .account-session-card h2 { margin-bottom: 0; }
 .account-action { display: grid; gap: .35rem; justify-items: start; margin-top: .25rem; }
 .account-action .button-secondary:disabled { opacity: .55; cursor: not-allowed; }
+.mfa-panel { display: grid; gap: 1rem; }
+.mfa-status, .mfa-notice { display: grid; gap: .2rem; padding: .9rem 1rem; border-left: 3px solid var(--accent); background: #FBF1DE; color: var(--ink-muted); }
+.mfa-status strong, .mfa-notice strong { color: var(--brand); }
+.mfa-enrollment { display: grid; gap: .8rem; justify-items: start; }
+.mfa-qr-frame { display: grid; place-items: center; width: min(100%, 260px); min-height: 260px; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; background: #fff; }
+.mfa-qr-frame img { width: 100%; height: auto; image-rendering: pixelated; }
+.mfa-secret, .mfa-code-form { display: grid; gap: .35rem; color: var(--ink-muted); font-size: .9rem; font-weight: 700; }
+.mfa-secret input, .mfa-code-form input { width: 100%; min-height: 46px; border: 1px solid var(--border); border-radius: 8px; padding: .7rem .8rem; background: var(--surface); color: var(--ink); font: inherit; letter-spacing: .08em; }
+.mfa-code-form { width: 100%; }
+.mfa-code-form input { max-width: 18rem; font-size: 1.25rem; }
+.mfa-state { display: grid; gap: .65rem; padding: 1rem; border: 1px dashed var(--border); border-radius: 12px; color: var(--ink-muted); }
+.mfa-state p { margin: 0; }
+.mfa-state strong { color: var(--brand); }

@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHmac, randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
 
 const container = "supabase_db_phan-gia-pha-local";
@@ -86,6 +86,70 @@ async function loginThroughBff(email, password) {
   return cookieHeader;
 }
 
+function mergeCookieHeader(current, response) {
+  const values = new Map();
+  for (const part of current.split(";")) {
+    const separator = part.indexOf("=");
+    if (separator > 0) values.set(part.slice(0, separator).trim(), part.slice(separator + 1).trim());
+  }
+  const setCookies = response.headers.getSetCookie ? response.headers.getSetCookie() : [];
+  for (const value of setCookies) {
+    const pair = value.split(";", 1)[0];
+    const separator = pair.indexOf("=");
+    if (separator > 0) values.set(pair.slice(0, separator).trim(), pair.slice(separator + 1).trim());
+  }
+  return [...values].map(([name, value]) => name + "=" + value).join("; ");
+}
+
+function base32Decode(value) {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = 0;
+  let buffer = 0;
+  const bytes = [];
+  for (const character of value.toUpperCase().replaceAll("=", "")) {
+    const index = alphabet.indexOf(character);
+    if (index < 0) throw new Error("Synthetic TOTP secret was invalid");
+    buffer = (buffer << 5) | index;
+    bits += 5;
+    if (bits >= 8) {
+      bits -= 8;
+      bytes.push((buffer >> bits) & 0xff);
+    }
+  }
+  return Buffer.from(bytes);
+}
+
+function totpCode(secret, timestamp = Math.floor(Date.now() / 30000)) {
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(timestamp));
+  const digest = createHmac("sha1", base32Decode(secret)).update(counter).digest();
+  const offset = digest[digest.length - 1] & 0x0f;
+  const value = (digest.readUInt32BE(offset) & 0x7fffffff) % 1_000_000;
+  return String(value).padStart(6, "0");
+}
+
+async function setupSyntheticMfa(cookieHeader) {
+  let currentCookies = cookieHeader;
+  const enrollment = await jsonRequest(webUrl + "/api/v1/auth/mfa/enroll", { method: "POST", headers: { Cookie: currentCookies } });
+  currentCookies = mergeCookieHeader(currentCookies, enrollment.response);
+  assert(enrollment.response.status === 200 && enrollment.body?.data?.factorId && enrollment.body?.data?.secret, "MFA enrollment failed");
+  const factorId = enrollment.body.data.factorId;
+  const challenge = await jsonRequest(webUrl + "/api/v1/auth/mfa/challenge", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: currentCookies },
+    body: JSON.stringify({ factorId })
+  });
+  currentCookies = mergeCookieHeader(currentCookies, challenge.response);
+  assert(challenge.response.status === 200 && challenge.body?.data?.challengeId, "MFA challenge failed");
+  const verification = await jsonRequest(webUrl + "/api/v1/auth/mfa/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: currentCookies },
+    body: JSON.stringify({ factorId, challengeId: challenge.body.data.challengeId, code: totpCode(enrollment.body.data.secret) })
+  });
+  currentCookies = mergeCookieHeader(currentCookies, verification.response);
+  assert(verification.response.status === 200 && verification.body?.data?.aal === "aal2", "MFA verification did not promote the session to aal2");
+  return currentCookies;
+}
 const env = localEnv();
 const treeId = randomUUID();
 const branchId = randomUUID();
@@ -121,7 +185,7 @@ try {
   assert(seeded.status === 0, "synthetic auth fixture seed failed");
 
   const cookieA = await loginThroughBff(emailA, passwordA);
-  const cookieB = await loginThroughBff(emailB, passwordB);
+  let cookieB = await loginThroughBff(emailB, passwordB);
   const submitKey = randomUUID();
   const selfReviewKey = randomUUID();
   const reviewKey = randomUUID();
@@ -193,6 +257,13 @@ try {
   });
   assert(conflictingSubmit.response.status === 409, "same submit idempotency key with a different body was accepted");
 
+  const preMfaReview = await jsonRequest(webUrl + "/api/v1/proposals/" + proposalId + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieB },
+    body: JSON.stringify({ decision: "approve", reason: "Synthetic review must require MFA", baseVersion: proposalVersion, reviewedSnapshotHash: "synthetic-pre-mfa-hash" })
+  });
+  assert(preMfaReview.response.status === 403, "reviewer action bypassed the database MFA guard");
+  cookieB = await setupSyntheticMfa(cookieB);
   const selfReview = await jsonRequest(webUrl + "/api/v1/proposals/" + proposalId + "/review", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Idempotency-Key": selfReviewKey, Cookie: cookieA },
@@ -380,7 +451,15 @@ try {
   assert(deletionReviewed.response.status === 200 && deletionReviewed.body?.data?.status === "approved", "soft-delete proposal was not approved");
   const deletionVerified = runPsql("select (select count(*) from private.persons where id = " + sqlString(childPersonId) + " and deleted_at is not null) || '|' || (select count(*) from private.parent_links where tree_id = " + sqlString(treeId) + " and child_id = " + sqlString(childPersonId) + " and deleted_at is null) || '|' || (select count(*) from private.sources where id = " + sqlString(sourceId) + ");");
   assert(deletionVerified.status === 0 && /1\|0\|1/.test(deletionVerified.stdout), "soft-delete did not hide person/edge while retaining source");
-  console.log("PASS local authenticated CORE-02/M03-04/M03-05/M03-06: BFF login, proposal/relationship review, claim approval, If-Match correction, impact preview, soft-delete approval and persistence");
+  const mfaStatus = await jsonRequest(webUrl + "/api/v1/auth/mfa/status", { headers: { Cookie: cookieB } });
+  assert(mfaStatus.response.status === 200 && mfaStatus.body?.data?.aal === "aal2" && mfaStatus.body?.data?.mfaEnrolled === true && mfaStatus.body?.data?.factorId, "MFA status did not expose the verified aal2 factor");
+  const unenrolled = await jsonRequest(webUrl + "/api/v1/auth/mfa/unenroll", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Cookie: cookieB },
+    body: JSON.stringify({ factorId: mfaStatus.body.data.factorId })
+  });
+  assert(unenrolled.response.status === 200 && unenrolled.body?.data?.mfaEnrolled === false, "MFA unenroll policy did not remove the verified factor");
+  console.log("PASS local authenticated CORE-02/M03-04/M03-05/M03-06/M07-03: BFF login, pre-MFA review denial, TOTP enroll/challenge/verify aal2, proposal review, factor status/unenroll, claims, corrections, impact preview and soft-delete persistence");
 } finally {
   const cleanup = [
     "begin;",
