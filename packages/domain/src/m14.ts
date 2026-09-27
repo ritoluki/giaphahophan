@@ -1,8 +1,12 @@
 import {
   balancedJournalInputSchema,
   journalInputSchema,
+  journalStatusSchema,
+  reportRangeSchema,
+  reportSchema,
   type JournalInput,
   type JournalLineInput,
+  type ReportRecord,
 } from "@phan/contracts";
 
 export type JournalBalance = {
@@ -36,4 +40,59 @@ export function parseJournalInput(input: unknown): JournalInput | null {
 export function validateJournalForPosting(input: unknown): JournalInput | null {
   const result = balancedJournalInputSchema.safeParse(input);
   return result.success ? result.data : null;
+}
+export type FundReportLine = {
+  entryDate: string;
+  status: "draft" | "submitted" | "posted" | "rejected";
+  accountKind: "asset" | "income" | "expense" | "equity";
+  signedAmountVnd: string;
+};
+
+export function buildFundReport(input: {
+  fundId: string;
+  from: string;
+  to: string;
+  lines: readonly FundReportLine[];
+}): ReportRecord | null {
+  const range = reportRangeSchema.safeParse({ from: input.from, to: input.to });
+  if (!range.success) return null;
+
+  let opening = 0n;
+  let income = 0n;
+  let expense = 0n;
+  let closing = 0n;
+
+  for (const line of input.lines) {
+    if (!journalStatusSchema.safeParse(line.status).success || line.status !== "posted" || line.accountKind !== "asset") continue;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(line.entryDate)) return null;
+    let amount: bigint;
+    try {
+      amount = BigInt(line.signedAmountVnd);
+    } catch {
+      return null;
+    }
+
+    if (line.entryDate < range.data.from) opening += amount;
+    if (line.entryDate <= range.data.to) {
+      closing += amount;
+      if (line.entryDate >= range.data.from) {
+        if (amount >= 0n) income += amount;
+        else expense -= amount;
+      }
+    }
+  }
+
+  try {
+    return reportSchema.parse({
+      fundId: input.fundId,
+      from: range.data.from,
+      to: range.data.to,
+      openingVnd: opening.toString(),
+      incomeVnd: income.toString(),
+      expenseVnd: expense.toString(),
+      closingVnd: closing.toString(),
+    });
+  } catch {
+    return null;
+  }
 }

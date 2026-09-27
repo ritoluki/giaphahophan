@@ -215,3 +215,9 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - pnpm test:m14:ledger and pnpm test:m14:two-person PASS after the new immutable triggers; the M14-01 fixture now follows draft -> lines -> posted ordering.
 - Full pnpm test PASS: contracts 52/52, domain 76/76, worker 18/18, lunar 4/4, web 5/5. pnpm typecheck, pnpm build, pnpm verify PASS. pnpm lint PASS with the same 2 pre-existing warnings in PostCSS default export and MFA QR img.
 - One unrelated M05 timing flake appeared under the first full run; targeted reproduction passed, and the test now injects a deterministic clock. A clean full run passed. Status remains IN_PROGRESS: staging/remote CI, axe/manual, real-device, reports/privacy, period-close and production approval remain NOT_RUN.
+## M14-04 evidence (2026-09-28)
+- pnpm test:m14:report PASS on local Supabase Docker: posted asset-line period projection returns opening 1000, income 500, expense 200 and closing 1300; future/draft/non-asset lines are excluded; members/restricted authorization and invalid range denial are covered.
+- Donor/proof privacy PASS: the SQL/API response is an explicit whitelist with no donor_person_id or proof_asset_id; authenticated raw private journal read remains denied.
+- Report contract/domain tests and /api/v1/funds/{id}/report BFF route are included in the production build. /quy-ho now shows period report cards using demo-only data and preserves mobile empty/error/restricted states.
+- Full pnpm test PASS: contracts 53/53, domain 78/78, worker 18/18, lunar 4/4, web 5/5. pnpm typecheck, pnpm build, pnpm verify PASS. pnpm lint PASS with 2 pre-existing warnings in PostCSS default export and MFA QR img.
+- Status remains IN_PROGRESS: staging/remote CI, axe/manual accessibility, real-device validation, authenticated cloud wiring, real money/data and production approval remain NOT_RUN.

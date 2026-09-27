@@ -5,6 +5,8 @@ import {
   journalInputSchema,
   journalLineInputSchema,
   reasonCommandSchema,
+  reportRangeSchema,
+  reportSchema,
   reviewInputSchema,
   vndIntegerStringSchema,
 } from "./index";
@@ -54,6 +56,23 @@ describe("M14 VND and balanced ledger contracts", () => {
       baseVersion: 2,
       reviewedSnapshotHash: ""
     }).success).toBe(false);
+  });
+
+  it("keeps report dates ordered and report money private/precise", () => {
+    const report = {
+      fundId,
+      from: "2026-09-01",
+      to: "2026-09-30",
+      openingVnd: "1000",
+      incomeVnd: "500",
+      expenseVnd: "200",
+      closingVnd: "1300",
+    };
+    expect(reportRangeSchema.safeParse({ from: report.from, to: report.to }).success).toBe(true);
+    expect(reportRangeSchema.safeParse({ from: report.to, to: report.from }).success).toBe(false);
+    expect(reportSchema.safeParse(report).success).toBe(true);
+    expect(reportSchema.safeParse({ ...report, incomeVnd: "-1" }).success).toBe(false);
+    expect(reportSchema.safeParse({ ...report, donorPersonId: debitAccountId }).success).toBe(false);
   });
   it("keeps fund balance as a VND string", () => {
     expect(fundSchema.safeParse({ id: fundId, version: 1, name: "Quỹ minh họa", currency: "VND", balanceVnd: "150000", closedThrough: null }).success).toBe(true);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { inspectJournalBalance, parseJournalInput, sumJournalVnd, validateJournalForPosting } from "./m14";
+import { buildFundReport, inspectJournalBalance, parseJournalInput, sumJournalVnd, validateJournalForPosting } from "./m14";
 
 const journal = {
   fundId: "a5100000-0000-4000-8000-000000000001",
@@ -24,6 +24,44 @@ describe("M14 balanced ledger domain", () => {
     expect(validateJournalForPosting(journal)).not.toBeNull();
   });
 
+
+  it("builds opening, receipt, payment and closing balances from posted asset lines", () => {
+    const report = buildFundReport({
+      fundId: "a5100000-0000-4000-8000-000000000001",
+      from: "2026-09-01",
+      to: "2026-09-30",
+      lines: [
+        { entryDate: "2026-08-31", status: "posted", accountKind: "asset", signedAmountVnd: "1000" },
+        { entryDate: "2026-09-10", status: "posted", accountKind: "asset", signedAmountVnd: "500" },
+        { entryDate: "2026-09-10", status: "posted", accountKind: "income", signedAmountVnd: "-500" },
+        { entryDate: "2026-09-15", status: "posted", accountKind: "asset", signedAmountVnd: "-200" },
+        { entryDate: "2026-09-15", status: "posted", accountKind: "expense", signedAmountVnd: "200" },
+        { entryDate: "2026-10-01", status: "posted", accountKind: "asset", signedAmountVnd: "700" },
+        { entryDate: "2026-09-20", status: "draft", accountKind: "asset", signedAmountVnd: "999" },
+      ],
+    });
+    expect(report).toMatchObject({
+      openingVnd: "1000",
+      incomeVnd: "500",
+      expenseVnd: "200",
+      closingVnd: "1300",
+    });
+  });
+
+  it("fails closed on reversed ranges and malformed report money", () => {
+    expect(buildFundReport({
+      fundId: "a5100000-0000-4000-8000-000000000001",
+      from: "2026-10-01",
+      to: "2026-09-01",
+      lines: [],
+    })).toBeNull();
+    expect(buildFundReport({
+      fundId: "a5100000-0000-4000-8000-000000000001",
+      from: "2026-09-01",
+      to: "2026-09-30",
+      lines: [{ entryDate: "2026-09-01", status: "posted", accountKind: "asset", signedAmountVnd: "not-money" }],
+    })).toBeNull();
+  });
   it("fails closed on malformed money values", () => {
     expect(sumJournalVnd([{ signedAmountVnd: "not-money" }])).toBeNull();
     expect(inspectJournalBalance([{ signedAmountVnd: "not-money" }]).balanced).toBe(false);

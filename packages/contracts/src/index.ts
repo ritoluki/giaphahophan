@@ -388,6 +388,7 @@ export const vndIntegerStringSchema = z.string().regex(signedVndPattern, "VND mu
   }
 }, "VND is outside bigint range");
 export const nonZeroVndIntegerStringSchema = vndIntegerStringSchema.refine((value) => value !== "0", "VND line cannot be zero");
+export const nonNegativeVndIntegerStringSchema = vndIntegerStringSchema.refine((value) => BigInt(value) >= 0n, "VND report amount cannot be negative");
 export const fundVisibilitySchema = z.enum(["restricted", "members"]);
 export const fundAccountKindSchema = z.enum(["asset", "income", "expense", "equity"]);
 export const fundInputSchema = z.object({
@@ -427,6 +428,23 @@ export const fundSchema = z.object({
   balanceVnd: vndIntegerStringSchema,
   closedThrough: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
 }).strict();
+const isoDateStringSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD");
+export const reportRangeSchema = z.object({
+  from: isoDateStringSchema,
+  to: isoDateStringSchema,
+}).strict().refine((value) => value.from <= value.to, {
+  path: ["to"],
+  message: "Report range must be ordered",
+});
+export const reportSchema = z.object({
+  fundId: z.string().uuid(),
+  from: isoDateStringSchema,
+  to: isoDateStringSchema,
+  openingVnd: vndIntegerStringSchema,
+  incomeVnd: nonNegativeVndIntegerStringSchema,
+  expenseVnd: nonNegativeVndIntegerStringSchema,
+  closingVnd: vndIntegerStringSchema,
+}).strict();
 export const journalSchema = z.object({
   id: z.string().uuid(),
   version: z.number().int().positive(),
@@ -444,6 +462,7 @@ export type FundAccount = z.infer<typeof fundAccountSchema>;
 export type JournalLineInput = z.infer<typeof journalLineInputSchema>;
 export type JournalInput = z.infer<typeof journalInputSchema>;
 export type FundRecord = z.infer<typeof fundSchema>;
+export type ReportRecord = z.infer<typeof reportSchema>;
 export type JournalRecord = z.infer<typeof journalSchema>;
 
 const placeCoordinatesSchema = z.object({

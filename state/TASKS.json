@@ -2169,9 +2169,15 @@
       "testIds": [
         "TC-M14-04"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+  "pnpm test:m14:report PASS on local Supabase Docker with synthetic users/tree: opening 1000, period receipts 500, payments 200, closing 1300; future/draft/non-asset lines excluded; members/restricted authorization and invalid date range are covered.",
+  "Fund report SQL/API projection returns only fund_id, date range and VND totals; donor_person_id and proof_asset_id are absent, and raw private journal access remains denied.",
+  "Report contract/domain tests cover ordered ISO dates, non-negative receipt/payment totals, malformed money and private-field rejection; /api/v1/funds/{id}/report is included in the production build.",
+  "Full pnpm test PASS: contracts 53/53, domain 78/78, worker 18/18, lunar 4/4, web 5/5. pnpm typecheck, pnpm build, pnpm verify PASS; pnpm lint PASS with 2 pre-existing warnings.",
+  "No real money/data/cloud/production used. Status remains IN_PROGRESS: staging/remote CI, axe/manual accessibility, real-device validation, authenticated cloud wiring and production approval remain NOT_RUN."
+]
     },
     {
       "id": "M14-05",

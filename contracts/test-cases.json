@@ -1257,8 +1257,12 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Opening/receipt/payment/closing balance đúng; donor/proof private không lộ qua export.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": [
+  "Local Supabase PASS: report computes opening/receipts/payments/closing from posted asset lines only, excludes future/draft/non-asset lines, enforces members/restricted authorization and rejects invalid date ranges.",
+  "Private projection PASS: response whitelist contains no donor_person_id or proof_asset_id; authenticated raw private journal read remains denied.",
+  "Full tests/typecheck/build/verify PASS on Node 24.21.0; lint PASS with 2 pre-existing warnings. Staging, remote CI, axe/manual, real-device and production approval remain NOT_RUN."
+]
     },
     {
       "id": "TC-M14-05",

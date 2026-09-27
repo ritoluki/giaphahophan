@@ -78,7 +78,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M14-01 | P7 | Balanced ledger | M07-05, M09-05 | IN_PROGRESS - local ledger/API foundation and /quy-ho demo PASS; M14-02 submit/approve routes now implemented; M14-03..05, staging/remote, accessibility/device and production gates remain NOT_RUN |
 | M14-02 | P7 | 2-person post | M14-01 | IN_PROGRESS - DB RPC and BFF submit/approve implemented; grant + MFA + author separation + version + idempotency tested locally; staging/remote, accessibility/device and production gates remain NOT_RUN |
 | M14-03 | P7 | Immutable/reversal | M14-02 | IN_PROGRESS - posted entry/lines immutable triggers, linked inverse-line reversal RPC, unique duplicate guard and reverse BFF route implemented; local M14-01..03 tests and full regression PASS; staging/remote, accessibility/device and production gates remain NOT_RUN |
-| M14-04 | P7 | Reports và privacy | M14-03 |  |
+| M14-04 | P7 | Reports và privacy | M14-03 | IN_PROGRESS - local report RPC/BFF projection, opening/receipt/payment/closing totals, restricted authorization and donor/proof omission PASS; full regression/build/typecheck/verify PASS; staging/remote, accessibility/device and production gates remain NOT_RUN |
 | M14-05 | P7 | Đối chiếu kỳ | M14-04 |  |
 | M15-01 | P7 | Chương trình/đề cử | M14-05 |  |
 | M15-02 | P7 | Minors và nguồn | M15-01 |  |

@@ -1,4 +1,4 @@
-import type { Fund, Journal } from "@phan/contracts";
+import type { Fund, Journal, Report } from "@phan/contracts";
 import { DemoNotice, SectionHeading, SiteShell } from "../../app/_components/site-chrome";
 
 export type FundState = "loading" | "empty" | "error" | "restricted";
@@ -12,6 +12,15 @@ export const demoFund: Fund = {
   closedThrough: null,
 };
 
+export const demoReport: Report = {
+  fundId: demoFund.id,
+  from: "2026-09-01",
+  to: "2026-09-30",
+  openingVnd: "1100000",
+  incomeVnd: "250000",
+  expenseVnd: "100000",
+  closingVnd: "1250000",
+};
 export const demoJournals: readonly Journal[] = [
   {
     id: "a5600000-0000-4000-0000-000000000002",
@@ -48,14 +57,9 @@ export function FundStateCard({ status }: { status: FundState }) {
   return <div className="fund-state-card" role={status === "error" ? "alert" : "status"}><strong>{copy[0]}</strong><span>{copy[1]}</span></div>;
 }
 
-function amountFromJournal(journal: Journal): string {
-  return journal.lines.find((line) => line.signedAmountVnd.startsWith("-"))?.signedAmountVnd.slice(1) ?? "0";
-}
-
-export function FundReader({ fund, journals }: { fund: Fund; journals: readonly Journal[] }) {
-  const firstJournal = journals[0];
-  const incomeVnd = firstJournal?.lines.find((line) => !line.signedAmountVnd.startsWith("-"))?.signedAmountVnd ?? "0";
-  const expenseVnd = firstJournal ? amountFromJournal(firstJournal) : "0";
+export function FundReader({ fund, journals, report = demoReport }: { fund: Fund; journals: readonly Journal[]; report?: Report }) {
+  const incomeVnd = report.incomeVnd;
+  const expenseVnd = report.expenseVnd;
   return (
     <SiteShell active="more">
       <main id="main-content" className="container page fund-page">
@@ -67,6 +71,13 @@ export function FundReader({ fund, journals }: { fund: Fund; journals: readonly 
           <div className="fund-balance-card"><span>Số dư hiện tại</span><strong>{formatVnd(fund.balanceVnd)}</strong><small>{fund.closedThrough ? `Đã khóa đến ${fund.closedThrough}` : "Kỳ hiện tại đang mở"}</small></div>
           <div className="fund-summary-card"><span>Thu trong fixture</span><strong>{formatVnd(incomeVnd)}</strong></div>
           <div className="fund-summary-card"><span>Chi trong fixture</span><strong>{formatVnd(expenseVnd)}</strong></div>
+        </section>
+        <SectionHeading title="Báo cáo kỳ" />
+        <section className="fund-report-grid" aria-label="Báo cáo kỳ">
+          <div className="fund-summary-card"><span>Số dư đầu kỳ</span><strong>{formatVnd(report.openingVnd)}</strong></div>
+          <div className="fund-summary-card"><span>Tổng thu</span><strong>{formatVnd(report.incomeVnd)}</strong></div>
+          <div className="fund-summary-card"><span>Tổng chi</span><strong>{formatVnd(report.expenseVnd)}</strong></div>
+          <div className="fund-summary-card"><span>Số dư cuối kỳ</span><strong>{formatVnd(report.closingVnd)}</strong><small>{report.from} → {report.to}</small></div>
         </section>
         <SectionHeading title="Phiếu đã ghi sổ" />
         {journals.length === 0 ? <FundStateCard status="empty" /> : <div className="fund-entry-list">{journals.map((journal) => <article className="fund-entry-card" key={journal.id}><div className="fund-entry-head"><span>{journal.entryDate}</span><span className="fund-status">{journal.status === "posted" ? "Đã ghi sổ" : journal.status}</span></div><h2>{journal.description}</h2><dl className="detail-list"><div><dt>Mã phiếu</dt><dd>{journal.code}</dd></div><div><dt>Tổng dòng</dt><dd>{journal.lines.length} dòng · cân bằng 0 ₫</dd></div></dl></article>)}</div>}
