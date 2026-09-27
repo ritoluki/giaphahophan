@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-09-27T20:42:00+07:00",
+  "updatedAt": "2026-09-27T21:10:00+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -1334,9 +1334,13 @@
       "testIds": [
         "TC-M08-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0027_m08_atomic_person_create.sql: atomic person/create projection plus compatible person update/delete and parent-link apply helpers; proposal target, status, review decision, audit and outbox remain one transaction.",
+        "scripts/test-auth-local.mjs: PASS on standalone local-configured Node 24/Supabase synthetic MFA reviewer; person addition approval persisted target_id and exactly one person.created audit/outbox, while idempotent replay returned approved without duplication.",
+        "pnpm test:db, pnpm test:auth, pnpm test, pnpm typecheck, pnpm lint and pnpm build PASS; two pre-existing lint warnings remain."
+      ]
     },
     {
       "id": "M08-04",

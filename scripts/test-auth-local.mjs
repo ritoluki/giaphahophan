@@ -347,6 +347,53 @@ try {
   assert(staleReview.response.status === 409, "stale review did not return 409");
   const staleCanonical = runPsql("select person.version, person.display_name, p.status from private.persons person join private.proposals p on p.id = " + sqlString(staleProposalId) + " where person.id = " + sqlString(personId) + ";");
   assert(staleCanonical.status === 0 && /3\s+\|\s+Synthetic External Update\s+\|\s+submitted/.test(staleCanonical.stdout), "stale review changed canonical data or proposal status");
+  const additionPayload = {
+    treeId,
+    kind: "addition",
+    reason: "Synthetic atomic person addition",
+    branchId,
+    items: [{
+      targetKind: "person",
+      targetId: null,
+      baseVersion: null,
+      operation: "create",
+      fieldChanges: { display_name: "Synthetic Atomic Added Person", life_status: "unknown", visibility: "restricted", protected_minor: false, confidence: "unverified" },
+      sourceIds: [sourceId]
+    }]
+  };
+  const additionSubmitted = await jsonRequest(webUrl + "/api/v1/proposals", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieA },
+    body: JSON.stringify(additionPayload)
+  });
+  assert(additionSubmitted.response.status === 201 && additionSubmitted.body?.data?.status === "submitted", "atomic person addition proposal was not submitted");
+  const additionProposalId = additionSubmitted.body.data.id;
+  const additionProposalVersion = additionSubmitted.body.data.version;
+  const additionReviewKey = randomUUID();
+  const additionReviewed = await jsonRequest(webUrl + "/api/v1/proposals/" + additionProposalId + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": additionReviewKey, Cookie: cookieB },
+    body: JSON.stringify({
+      decision: "approve",
+      reason: "Synthetic atomic person addition approved",
+      baseVersion: additionProposalVersion,
+      reviewedSnapshotHash: "synthetic-addition-hash"
+    })
+  });
+  assert(additionReviewed.response.status === 200 && additionReviewed.body?.data?.status === "approved", "atomic person addition review did not approve");
+  const additionReplay = await jsonRequest(webUrl + "/api/v1/proposals/" + additionProposalId + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": additionReviewKey, Cookie: cookieB },
+    body: JSON.stringify({
+      decision: "approve",
+      reason: "Synthetic atomic person addition approved",
+      baseVersion: additionProposalVersion,
+      reviewedSnapshotHash: "synthetic-addition-hash"
+    })
+  });
+  assert(additionReplay.response.status === 200 && additionReplay.body?.data?.status === "approved", "atomic person addition review replay did not return the original result");
+  const additionCanonical = runPsql("select p.status, pi.target_id, person.display_name, person.version, (select count(*) from private.audit_events where resource_id = pi.target_id and action = 'person.created') as created_audits, (select count(*) from private.outbox where resource_id = pi.target_id and event_type = 'person.created') as created_outbox from private.proposals p join private.proposal_items pi on pi.proposal_id = p.id and pi.tree_id = p.tree_id left join private.persons person on person.id = pi.target_id and person.tree_id = p.tree_id where p.id = " + sqlString(additionProposalId) + ";");
+  assert(additionCanonical.status === 0 && /approved\s+\|\s+[0-9a-f-]{36}\s+\|\s+Synthetic Atomic Added Person\s+\|\s+1\s+\|\s+1\s+\|\s+1/.test(additionCanonical.stdout), "atomic person addition did not persist exactly one canonical/audit/outbox projection");
   const relationshipPayload = {
     treeId,
     kind: "relationship",
@@ -504,7 +551,7 @@ try {
     body: JSON.stringify({ factorId: mfaStatus.body.data.factorId })
   });
   assert(unenrolled.response.status === 200 && unenrolled.body?.data?.mfaEnrolled === false, "MFA unenroll policy did not remove the verified factor");
-  console.log("PASS local authenticated CORE-02/M03-04/M03-05/M03-06/M07-03/M08-02: BFF login, pre-MFA review denial, TOTP enroll/challenge/verify aal2, proposal review, stale diff projection, stale review 409 without overwrite, factor status/unenroll, claims, corrections, impact preview and soft-delete persistence");
+  console.log("PASS local authenticated CORE-02/M03-04/M03-05/M03-06/M07-03/M08-02/M08-03: BFF login, pre-MFA review denial, TOTP enroll/challenge/verify aal2, proposal review, atomic person addition with idempotent replay, stale diff projection, stale review 409 without overwrite, factor status/unenroll, claims, corrections, impact preview and soft-delete persistence");
 } finally {
   const cleanup = [
     "begin;",

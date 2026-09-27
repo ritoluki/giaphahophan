@@ -695,8 +695,13 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Ghi target/proposal/audit/outbox cùng transaction; retry không duyệt hai lần.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "supabase/migrations/0027_m08_atomic_person_create.sql: person/create approval, person update/delete compatibility and proposal status/review/audit/outbox execute in one transaction; created target_id is attached to the proposal item.",
+        "scripts/test-auth-local.mjs: PASS with synthetic MFA reviewer for atomic person addition, canonical/audit/outbox exactly once, and same review Idempotency-Key replay returning the original approved result.",
+        "pnpm test:db and full pnpm test PASS; existing correction, parent-link, stale conflict and soft-delete transactions remain covered.",
+        "pnpm typecheck, pnpm lint (two pre-existing warnings), pnpm build and final standalone authenticated test on Node 24/Supabase local PASS; no real data/cloud/production used."
+      ]
     },
     {
       "id": "TC-M08-04",
