@@ -44,6 +44,8 @@ begin
   v_result := api.person_kinship('32000000-0000-4000-8000-000000000001', '32000000-0000-4000-8000-000000000003', true);
   if v_result ->> 'status' <> 'found' then raise exception 'visible kinship path was not found: %', v_result; end if;
   if not jsonb_path_exists(v_result, '$.paths[0][*] ? (@.via == "adoptive_child")') then raise exception 'adoptive relation direction was not preserved'; end if;
+  v_result := api.person_kinship('32000000-0000-4000-8000-000000000001', '32000000-0000-4000-8000-000000000002', true);
+  if v_result ->> 'label' <> 'con' or v_result ->> 'labelConfidence' <> 'reviewed_rule' then raise exception 'direct proven label was not returned: %', v_result; end if;
   v_result := api.person_kinship('32000000-0000-4000-8000-000000000001', '32000000-0000-4000-8000-000000000003', false);
   if v_result ->> 'status' <> 'not_found_within_visible_graph' then raise exception 'adoptive exclusion did not deny path'; end if;
   v_result := api.person_kinship('32000000-0000-4000-8000-000000000001', '32000000-0000-4000-8000-000000000006', true);

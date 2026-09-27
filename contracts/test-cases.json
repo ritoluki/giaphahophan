@@ -437,8 +437,11 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Chỉ gợi ý cho rule đủ dữ kiện; mơ hồ trả mô tả đường nối, không đoán giới tính/vùng.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "pnpm test:m05:kinship: local DB/RPC returns direct proven con label with reviewed_rule and neutral relation semantics for ambiguous paths.",
+        "Domain 23/23, authenticated test:auth, typecheck/lint/build and Playwright 27/27 desktop/Pixel5/320 PASS; no gender/region/order inference and no real data/cloud/production."
+      ]
     },
     {
       "id": "TC-M06-01",

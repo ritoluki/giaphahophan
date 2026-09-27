@@ -963,9 +963,13 @@
       "testIds": [
         "TC-M05-04"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "packages/domain/src/m05.ts rule engine returns reviewed_rule only for direct biological/adoptive roles; guardian/step/partner and multi-edge paths use descriptive_only neutral labels without gender/region/order inference; domain 23/23 PASS.",
+        "supabase/migrations/0018_m05_relationship_semantics.sql mirrors labels/labelConfidence in API RPC; DB test verifies direct con label and authenticated BFF regression PASS.",
+        "UI /quan-he shows neutral description and explicit confidence disclaimer; full typecheck/lint/build and Playwright 27/27 desktop/Pixel5/320 PASS; axe/manual/real-device/remote CI NOT_RUN; không dùng dữ liệu thật/cloud/production."
+      ]
     },
     {
       "id": "M06-01",

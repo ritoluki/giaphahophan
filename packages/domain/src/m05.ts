@@ -22,6 +22,21 @@ export type KinshipInput = {
 type Neighbor = { personId: string; via: NonNullable<Kinship["paths"][number][number]>["via"] };
 type QueueItem = { personId: string; pathIds: ReadonlyArray<string>; path: Kinship["paths"][number] };
 
+function inferKinshipLabel(path: Kinship["paths"][number]): Pick<Kinship, "label" | "labelConfidence"> {
+  const via = path[1]?.via;
+  if (path.length === 1) return { label: "Cùng một hồ sơ", labelConfidence: "reviewed_rule" };
+  if (path.length === 2 && via === "child") return { label: "con", labelConfidence: "reviewed_rule" };
+  if (path.length === 2 && via === "parent") return { label: "cha/mẹ", labelConfidence: "reviewed_rule" };
+  if (path.length === 2 && via === "adoptive_child") return { label: "con nuôi", labelConfidence: "reviewed_rule" };
+  if (path.length === 2 && via === "adoptive_parent") return { label: "cha/mẹ nuôi", labelConfidence: "reviewed_rule" };
+  if (path.length === 2 && via === "guardian_child") return { label: "người được giám hộ", labelConfidence: "descriptive_only" };
+  if (path.length === 2 && via === "guardian_parent") return { label: "người giám hộ", labelConfidence: "descriptive_only" };
+  if (path.length === 2 && via === "step_child") return { label: "con riêng", labelConfidence: "descriptive_only" };
+  if (path.length === 2 && via === "step_parent") return { label: "cha/mẹ kế", labelConfidence: "descriptive_only" };
+  if (path.length === 2 && via === "partner") return { label: "bạn đời", labelConfidence: "descriptive_only" };
+  if (path.length === 3 && path[1]?.via === "parent" && path[2]?.via === "child") return { label: "anh/chị/em (chưa xác định thứ tự)", labelConfidence: "descriptive_only" };
+  return { label: `Đường nối theo dữ liệu: ${path.slice(1).map((step) => step.via).join(" → ")}`, labelConfidence: "descriptive_only" };
+}
 function notFound(visitedCount = 0): Kinship {
   return {
     status: "not_found_within_visible_graph",
@@ -126,7 +141,8 @@ export function findKinshipPaths(input: KinshipInput): Kinship {
   }
 
   if (resultPaths.length > 0) {
-    return { status: "found", paths: resultPaths, label: null, labelConfidence: "unknown", visitedCount: visited.size, truncated };
+    const relationship = inferKinshipLabel(resultPaths[0]!);
+    return { status: "found", paths: resultPaths, ...relationship, visitedCount: visited.size, truncated };
   }
   return {
     status: truncated ? "limit_reached" : "not_found_within_visible_graph",

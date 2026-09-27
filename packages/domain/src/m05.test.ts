@@ -49,6 +49,21 @@ describe("M05 authorized kinship path", () => {
     expect(disputedResult.status).toBe("not_found_within_visible_graph");
   });
 
+  it("suggests only a directly proven biological label", () => {
+    const result = findKinshipPaths({ ...base, toPersonId: people[1]!.id });
+    expect(result.label).toBe("con");
+    expect(result.labelConfidence).toBe("reviewed_rule");
+  });
+
+  it("uses a neutral description for ambiguous multi-edge paths", () => {
+    const result = findKinshipPaths({ ...base, edges: [
+      { sourcePersonId: people[0]!.id, targetPersonId: people[1]!.id, kind: "guardian", status: "confirmed" },
+      { sourcePersonId: people[1]!.id, targetPersonId: people[2]!.id, kind: "step", status: "confirmed" }
+    ] });
+    expect(result.label).toContain("guardian_child → step_child");
+    expect(result.labelConfidence).toBe("descriptive_only");
+  });
+
   it("reports a visited budget instead of claiming no relationship", () => {
     const result = findKinshipPaths({ ...base, maxVisited: 1 });
     expect(result.status).toBe("limit_reached");

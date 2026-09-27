@@ -117,6 +117,9 @@ begin
     where w.person_id = p_to_person_id
     order by w.depth, w.path
     limit 3
+  ),
+  first_path as (
+    select path_json from path_rows order by depth limit 1
   )
   select jsonb_build_object(
     'status', case
@@ -130,8 +133,26 @@ begin
       else 'not_found_within_visible_graph'
     end,
     'paths', coalesce((select jsonb_agg(path_json order by depth) from path_rows), '[]'::jsonb),
-    'label', null,
-    'labelConfidence', 'unknown',
+    'label', case
+      when not exists (select 1 from first_path) then null
+      when jsonb_array_length((select path_json from first_path)) = 1 then 'Cùng một hồ sơ'
+      when (select path_json -> 1 ->> 'via' from first_path) = 'child' then 'con'
+      when (select path_json -> 1 ->> 'via' from first_path) = 'parent' then 'cha/mẹ'
+      when (select path_json -> 1 ->> 'via' from first_path) = 'adoptive_child' then 'con nuôi'
+      when (select path_json -> 1 ->> 'via' from first_path) = 'adoptive_parent' then 'cha/mẹ nuôi'
+      when (select path_json -> 1 ->> 'via' from first_path) = 'guardian_child' then 'người được giám hộ'
+      when (select path_json -> 1 ->> 'via' from first_path) = 'guardian_parent' then 'người giám hộ'
+      when (select path_json -> 1 ->> 'via' from first_path) = 'step_child' then 'con riêng'
+      when (select path_json -> 1 ->> 'via' from first_path) = 'step_parent' then 'cha/mẹ kế'
+      when (select path_json -> 1 ->> 'via' from first_path) = 'partner' then 'bạn đời'
+      else 'Đường nối theo dữ liệu'
+    end,
+    'labelConfidence', case
+      when not exists (select 1 from first_path) then 'unknown'
+      when jsonb_array_length((select path_json from first_path)) = 1 then 'reviewed_rule'
+      when (select path_json -> 1 ->> 'via' from first_path) in ('child', 'parent', 'adoptive_child', 'adoptive_parent') and jsonb_array_length((select path_json from first_path)) = 2 then 'reviewed_rule'
+      else 'descriptive_only'
+    end,
     'visitedCount', (select count(distinct person_id) from walk_bounded),
     'truncated', (select count(*) > 10000 from walk_bounded) or exists (
       select 1 from walk_bounded as w

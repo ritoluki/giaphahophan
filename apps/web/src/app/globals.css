@@ -255,7 +255,7 @@ button, a, input, select { min-height: 44px; }
 .kinship-path li::before { grid-row: span 2; content: counter(kinship-step); display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border-radius: 50%; color: var(--surface); background: var(--brand); font-weight: 800; }
 .kinship-path li strong, .kinship-path li small { grid-column: 2; overflow-wrap: anywhere; }
 .kinship-step-via { grid-column: 2; color: var(--accent); font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
-.kinship-disclaimer { margin: 0; }
+.kinship-label, .kinship-disclaimer { margin: 0; }
 @media (min-width: 768px) {
   .kinship-form { grid-template-columns: 1fr 1fr; align-items: end; }
   .kinship-form .kinship-check, .kinship-form .button-primary { grid-column: span 2; }
