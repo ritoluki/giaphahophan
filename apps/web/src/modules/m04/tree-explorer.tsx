@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getDemoGraph } from "../../lib/demo-data";
 import { collapseGraphOccurrences, type GraphMode } from "@phan/domain";
 
@@ -21,6 +21,8 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showOccurrences, setShowOccurrences] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [zoom, setZoom] = useState(1);
+  const fullscreenButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 768px)");
@@ -32,6 +34,21 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
     media.addEventListener("change", updateCap);
     return () => media.removeEventListener("change", updateCap);
   }, []);
+
+  useEffect(() => {
+    if (!isFullscreen) return;
+    const previousOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsFullscreen(false);
+    };
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+    fullscreenButtonRef.current?.focus();
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isFullscreen]);
 
   const graph = useMemo(() => {
     try {
@@ -52,6 +69,7 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
   }, [graph, occurrenceGroups, showOccurrences]);
   const currentNode = graph?.nodes.find((node) => node.person.id === rootId && node.depth === 0);
   const modeLabel = modes.find((item) => item.value === mode)?.label ?? "Cây gia phả";
+  const adjustZoom = (delta: number) => setZoom((value) => Math.min(1.4, Math.max(0.8, Number((value + delta).toFixed(1)))));
   const canExpand = Boolean(graph?.nextExpansion && (graph.nextExpansion.depth > depth || (isDesktop && graph.nextExpansion.maxNodes > maxNodes)));
   const expandProjection = () => {
     const expansion = graph?.nextExpansion;
@@ -68,7 +86,7 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
           <h2 id="tree-explorer-title">Cây gia phả</h2>
           <p className="muted">Mỗi occurrence giữ đường đi riêng; bấm tên luôn về một hồ sơ canonical.</p>
         </div>
-        <button className="button-secondary" type="button" onClick={() => setIsFullscreen((open) => !open)} aria-pressed={isFullscreen}>
+        <button ref={fullscreenButtonRef} className="button-secondary" type="button" onClick={() => setIsFullscreen((open) => !open)} aria-pressed={isFullscreen} aria-label={isFullscreen ? "Thoát toàn màn hình" : "Mở toàn màn hình"}>
           {isFullscreen ? "Thoát toàn màn hình" : "Mở toàn màn hình"}
         </button>
       </div>
@@ -106,6 +124,12 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
         </label>
       </div>
 
+      <div className="tree-view-controls" aria-label="Điều khiển sơ đồ cây">
+        <button className="button-secondary" type="button" onClick={() => adjustZoom(0.1)} disabled={zoom >= 1.4} aria-label="Phóng to cây">+</button>
+        <button className="button-secondary" type="button" onClick={() => setZoom(1)} disabled={zoom === 1} aria-label="Đặt lại kích thước cây">{Math.round(zoom * 100)}%</button>
+        <button className="button-secondary" type="button" onClick={() => adjustZoom(-0.1)} disabled={zoom <= 0.8} aria-label="Thu nhỏ cây">−</button>
+      </div>
+
       <div className="tree-mode-note" aria-live="polite">
         <strong>{modeLabel}</strong>
         <span>{modes.find((item) => item.value === mode)?.hint}</span>
@@ -125,7 +149,8 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
       ) : (
         <>
           <div className="tree-viewport" tabIndex={0} aria-label="Vùng cuộn sơ đồ cây gia phả">
-            <div className="tree-node-grid" role="list">
+            <div className="tree-viewport-content" style={{ transform: `scale(${zoom})`, width: `${100 / zoom}%` }}>
+              <div className="tree-node-grid tree-family-list" role="list" aria-label="Danh sách hồ sơ trong cây gia phả">
               {visibleNodes.map((node) => (
                 <Link className={"tree-person-card" + (node.person.id === rootId ? " tree-person-card-current" : "")} href={"/nguoi/" + node.person.id} key={node.occurrenceId} role="listitem">
                   <span className="monogram" aria-hidden="true">{node.person.displayName.slice(0, 1)}</span>
@@ -136,6 +161,7 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
                   </span>
                 </Link>
               ))}
+              </div>
             </div>
           </div>
           {graph.truncated ? (

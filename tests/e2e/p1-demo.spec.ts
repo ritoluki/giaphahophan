@@ -76,6 +76,13 @@ test("tree explorer exposes bounded graph modes and fullscreen focus", async ({ 
   await page.goto("/gia-pha");
   await expect(page.locator("#tree-explorer-title")).toBeVisible();
   await expect(page.locator(".tree-viewport")).toBeVisible();
+  await expect(page.locator(".tree-family-list")).toBeVisible();
+  const zoomIn = page.locator(".tree-view-controls button").first();
+  const zoomReset = page.locator(".tree-view-controls button").nth(1);
+  await zoomIn.click();
+  await expect(zoomReset).toBeEnabled();
+  await zoomReset.click();
+  await expect(zoomReset).toBeDisabled();
   const tabs = page.getByRole("tab");
   await expect(tabs).toHaveCount(4);
   await tabs.nth(1).click();
@@ -97,8 +104,11 @@ test("tree explorer exposes bounded graph modes and fullscreen focus", async ({ 
   await expect(collapseToggle).toHaveAttribute("aria-pressed", "true");
   await collapseToggle.click();
   await expect(collapseToggle).toHaveAttribute("aria-pressed", "false");
-  await page.locator(".tree-explorer-header button").click();
+  const fullscreenToggle = page.locator(".tree-explorer-header button");
+  await fullscreenToggle.click();
   await expect(page.locator(".tree-explorer-fullscreen")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".tree-explorer-fullscreen")).toHaveCount(0);
 });
 test("keyboard and basic accessibility contracts remain available", async ({ page }) => {
   await page.goto("/");

@@ -783,9 +783,13 @@
       "testIds": [
         "TC-M04-04"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "apps/web/src/modules/m04/tree-explorer.tsx and globals.css: explicit family-list accessible region, mobile-safe zoom controls with 44px targets, fullscreen Escape exit, focus return and body scroll lock.",
+        "tests/e2e/p1-demo.spec.ts: desktop 8/8 plus mobile Chromium and mobile 320 16/16 project runs cover family-list, zoom reset, cap controls, collapse, fullscreen and Escape keyboard behavior.",
+        "pnpm test, web typecheck, pnpm build and lint exit 0; contracts 8/8, domain 13/13, worker 5/5; one existing PostCSS lint warning. Axe/manual/real-device/remote CI remain NOT_RUN."
+      ]
     },
     {
       "id": "M04-05",

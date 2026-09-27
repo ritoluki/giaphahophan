@@ -209,6 +209,10 @@ button, a, input, select { min-height: 44px; }
 .tree-mode-tab-active { border-color: var(--brand); background: #FBF1DE; color: var(--brand); }
 .tree-toolbar label { display: grid; gap: .3rem; color: var(--ink-muted); font-size: .82rem; font-weight: 700; }
 .tree-toolbar select { min-height: 44px; border: 1px solid var(--border); border-radius: 8px; padding: .5rem .65rem; background: var(--surface); color: var(--ink); }
+.tree-view-controls { display: flex; justify-content: flex-end; gap: .5rem; margin-top: .75rem; }
+.tree-view-controls .button-secondary { min-width: 44px; min-height: 44px; padding-inline: .7rem; }
+.tree-viewport-content { min-width: 18rem; transform-origin: top left; transition: transform .18s ease; }
+.tree-family-list { list-style: none; margin: 0; padding: 0; }
 .tree-mode-note { display: flex; flex-wrap: wrap; gap: .4rem .9rem; margin-top: 1rem; padding: .75rem 1rem; border-left: 3px solid var(--accent); background: #FBF1DE; color: var(--ink-muted); font-size: .88rem; }
 .tree-mode-note strong { color: var(--brand); }
 .tree-viewport { overflow: auto; max-height: 62vh; margin-top: 1rem; padding: .75rem; border: 1px solid var(--border); border-radius: 14px; background: #FFFCF8; }
