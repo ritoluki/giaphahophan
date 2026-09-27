@@ -743,3 +743,36 @@ export const contentRevisionInputSchema = z.object({
 export type RichTextDocument = z.infer<typeof richTextDocumentSchema>;
 export type RichTextBlock = z.infer<typeof richTextBlockSchema>;
 export type RichTextInline = z.infer<typeof richTextInlineSchema>;
+
+
+export const contentRevisionStatusSchema = z.enum(["draft", "submitted", "approved", "published", "archived"]);
+export const contentLifecycleStatusSchema = z.enum(["draft", "submitted", "approved", "scheduled", "published", "archived"]);
+
+export const contentRevisionTransitionSchema = z.object({
+  action: z.enum(["submit", "approve", "publish", "archive"]),
+  revisionId: z.string().uuid(),
+  actorId: z.string().uuid(),
+  expectedRevisionVersion: z.number().int().positive(),
+  expectedPageVersion: z.number().int().positive().nullable().default(null),
+  publishAt: z.string().datetime({ offset: true }).nullable().default(null),
+}).strict();
+
+export const previewGrantSchema = z.object({
+  token: z.string().min(32).max(256),
+  pageId: z.string().uuid(),
+  revisionId: z.string().uuid(),
+  issuedAt: z.string().datetime({ offset: true }),
+  expiresAt: z.string().datetime({ offset: true }),
+  noIndex: z.literal(true),
+}).strict();
+
+export const previewAccessSchema = z.object({
+  token: z.string().min(32).max(256),
+  pageId: z.string().uuid(),
+  revisionId: z.string().uuid(),
+}).strict();
+
+export type ContentRevisionStatus = z.infer<typeof contentRevisionStatusSchema>;
+export type ContentLifecycleStatus = z.infer<typeof contentLifecycleStatusSchema>;
+export type ContentRevisionTransition = z.infer<typeof contentRevisionTransitionSchema>;
+export type PreviewGrant = z.infer<typeof previewGrantSchema>;

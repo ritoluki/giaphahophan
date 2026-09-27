@@ -183,3 +183,9 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - packages/domain/src/m12.test.ts PASS: 4/4 tests cho server sanitizer, stored-XSS payload removal, unsafe-link text fallback, malformed root và bounded text/media.
 - pnpm test:m12:rich-text PASS trên local Supabase: migration 0034 check constraint chặn javascript link và unknown block, body hợp lệ được chấp nhận.
 - Full pnpm test PASS: contracts 35/35, domain 54/54, worker 18/18, lunar 4/4, web 3/3; pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS trên Node 24.21.0. Lint còn 2 cảnh báo cũ. Revision/publish/API UI, staging/remote CI, axe/manual, real-device và production approval vẫn NOT_RUN.
+
+## M12-02 evidence (2026-09-28)
+- packages/contracts/src/m12-publish.test.ts PASS: 2/2 tests cho version transition input, scheduled fields và preview grant/access no-index/expiry contract.
+- packages/domain/src/m12-publish.test.ts PASS: 4/4 tests cho reviewer độc lập, public pointer, scheduled snapshot, stale/self transition rejection và deterministic preview expiry.
+- pnpm test:m12:publish PASS trên local Supabase: published pointer chỉ trỏ revision published, published snapshot immutable, draft không thể thành public, preview token table lưu private.
+- Full pnpm test PASS: contracts 37/37, domain 58/58, worker 18/18, lunar 4/4, web 3/3; pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS trên Node 24.21.0. Lint còn 2 cảnh báo cũ. API/editor UI, scheduler/worker integration, public SEO, staging/remote CI, axe/manual, real-device và production approval vẫn NOT_RUN.

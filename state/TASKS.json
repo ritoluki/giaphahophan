@@ -1870,9 +1870,9 @@
       "testIds": [
         "TC-M12-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["packages/contracts/src/index.ts + m12-publish.test.ts: bounded draft/submitted/approved/published/archived transition input, explicit scheduled lifecycle and expiring no-index preview grant/access schemas; contract tests 2/2 PASS.","packages/domain/src/m12-publish.ts + m12-publish.test.ts: optimistic-lock transition workflow requires independent reviewer, keeps future publish scheduled without moving public pointer, publishes immutable snapshot pointer and rejects stale/self/invalid transitions; preview grant expiry is deterministic; domain tests 4/4 PASS.","supabase/migrations/0035_m12_revision_publish.sql + supabase/tests/m12_revision_publish.sql: private preview token table, immutable published revision trigger and published-pointer guard; pnpm test:m12:publish PASS on local Supabase. Full pnpm test PASS: contracts 37/37, domain 58/58, worker 18/18, lunar 4/4, web 3/3; typecheck/lint/build/verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. API/editor UI, scheduler/worker integration, public SEO, staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "M12-03",

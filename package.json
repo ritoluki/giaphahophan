@@ -18,6 +18,7 @@
     "test:jobs": "node scripts/test-jobs-local.mjs",
     "test:m11:delivery": "node scripts/test-m11-delivery-local.mjs",
     "test:m12:rich-text": "node scripts/test-m12-rich-text-local.mjs",
+    "test:m12:publish": "node scripts/test-m12-publish-local.mjs",
     "test:m03": "node scripts/test-m03-local.mjs",
     "test:m03:dates": "node scripts/test-m03-dates-local.mjs",
     "test:m03:claims": "node scripts/test-m03-claims-local.mjs",

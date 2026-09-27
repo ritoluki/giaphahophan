@@ -95,3 +95,5 @@ export * from "./m10-rsvp";
 export * from "./m10-ics";
 
 export * from "./m12";
+
+export * from "./m12-publish";
