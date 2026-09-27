@@ -182,3 +182,10 @@ test("account page exposes a clear mobile logout action", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Đăng xuất" })).toBeVisible();
   await expect(page.getByText("Đăng xuất sẽ kết thúc phiên", { exact: false })).toBeVisible();
 });
+
+
+test("membership administration exposes restricted state without a session", async ({ page }) => {
+  await page.goto("/quan-tri/thanh-vien");
+  await expect(page.locator("main > h1")).toBeVisible();
+  await expect(page.locator(".admin-restricted")).toBeVisible();
+});

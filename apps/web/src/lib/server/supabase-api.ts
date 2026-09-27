@@ -63,9 +63,9 @@ export function rpcErrorStatus(code: string | undefined) {
   return 502;
 }
 
-export function apiJson(data: unknown, status = 200) {
+export function apiJson(data: unknown, status = 200, extra: Record<string, unknown> = {}) {
   return Response.json(
-    { data, meta: { requestId: crypto.randomUUID() } },
+    { data, meta: { requestId: crypto.randomUUID() }, ...extra },
     { status, headers: { "Cache-Control": "no-store" } }
   );
 }

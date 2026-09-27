@@ -8064,8 +8064,7 @@ paths:
       tags:
       - Administration
       summary: /members
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Server implementation enforces verified session, owner/admin scope, MFA for mutations, optimistic versioning, idempotency, audit and filtered projections.
       security:
       - sessionCookie: []
       responses:
@@ -8397,8 +8396,7 @@ paths:
       tags:
       - Administration
       summary: /members/{id}
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Server implementation enforces verified session, owner/admin scope, MFA for mutations, optimistic versioning, idempotency, audit and filtered projections.
       security:
       - sessionCookie: []
       responses:
@@ -8491,8 +8489,7 @@ paths:
       tags:
       - Administration
       summary: /members/{id}/grants
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Server implementation enforces verified session, owner/admin scope, MFA for mutations, optimistic versioning, idempotency, audit and filtered projections.
       security:
       - sessionCookie: []
       responses:
@@ -12582,6 +12579,41 @@ components:
       - conflicts
       - affectedCounts
       - canSubmit
+    MembershipGrant:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id001
+        version: *id008
+        capability:
+          type: string
+          enum:
+          - treasury.write
+          - treasury.approve
+          - scholarship.review
+          - privacy.manage
+          - exports.bulk
+          - publication.manage
+          - operations.read
+        branchId:
+          anyOf:
+          - *id001
+          - type: 'null'
+        expiresAt:
+          anyOf:
+          - *id006
+          - type: 'null'
+        revokedAt:
+          anyOf:
+          - *id006
+          - type: 'null'
+      required:
+      - id
+      - version
+      - capability
+      - branchId
+      - expiresAt
+      - revokedAt
     Membership:
       type: object
       additionalProperties: false
@@ -12609,6 +12641,11 @@ components:
           - *id001
           - type: 'null'
         mfaEnrolled: *id007
+        grants:
+          type: array
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/MembershipGrant'
       required:
       - id
       - version
@@ -12617,6 +12654,7 @@ components:
       - status
       - personId
       - mfaEnrolled
+      - grants
     InvitationInput:
       type: object
       additionalProperties: false
@@ -12978,6 +13016,7 @@ components:
           enum:
           - active
           - suspended
+          - revoked
         reason: *id002
       required:
       - role

@@ -43,7 +43,8 @@
     "test:m06:load": "node scripts/test-m06-search-load-local.mjs",
     "test:m07:invitations": "node scripts/test-m07-invitations-local.mjs",
     "test:m07:session": "node scripts/test-m07-session-local.mjs",
-    "test:m07:mfa": "node scripts/test-auth-local.mjs"
+    "test:m07:mfa": "node scripts/test-auth-local.mjs",
+    "test:m07:membership": "node scripts/test-m07-membership-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

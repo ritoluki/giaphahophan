@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { claimReviewInputSchema, claimSubmitInputSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
+import { claimReviewInputSchema, claimSubmitInputSchema, commandResultSchema, grantInputSchema, memberInputSchema, membershipGrantSchema, membershipSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
   it("preserves canonical display and aliases in person search results", () => {
@@ -185,6 +185,35 @@ describe("CORE-01 contracts", () => {
     expect(mfaEnrollResultSchema.parse({ factorId: "80000000-0000-4000-8000-000000000001", qrCode: "svg", secret: "secret", uri: "otpauth://totp/demo" }).secret).toBe("secret");
     expect(mfaStatusSchema.parse({ authenticated: true, aal: "aal2", mfaEnrolled: true, factorId: "80000000-0000-4000-8000-000000000001" }).aal).toBe("aal2");
     expect(() => mfaInputSchema.parse({ factorId: "80000000-0000-4000-8000-000000000001", challengeId: "80000000-0000-4000-8000-000000000002", code: "123456", secret: "leak" })).toThrow();
+  });
+  it("keeps membership mutations strict and prevents owner self-promotion inputs", () => {
+    expect(memberInputSchema.parse({ role: "reviewer", status: "suspended", reason: "Synthetic suspension" }).status).toBe("suspended");
+    expect(grantInputSchema.parse({ capability: "operations.read", branchId: null, expiresAt: null }).capability).toBe("operations.read");
+    expect(membershipGrantSchema.parse({
+      id: "80000000-0000-4000-8000-000000000001",
+      version: 1,
+      capability: "operations.read",
+      branchId: null,
+      expiresAt: null,
+      revokedAt: null
+    }).version).toBe(1);
+    expect(membershipSchema.parse({
+      id: "80000000-0000-4000-8000-000000000001",
+      version: 1,
+      displayName: "Synthetic member",
+      role: "owner",
+      status: "active",
+      personId: null,
+      mfaEnrolled: true,
+      grants: []
+    }).role).toBe("owner");
+    expect(commandResultSchema.parse({
+      id: "80000000-0000-4000-8000-000000000001",
+      version: 1,
+      status: "active"
+    }).status).toBe("active");
+    expect(() => memberInputSchema.parse({ role: "owner", status: "active", reason: "Self promote" })).toThrow();
+    expect(() => grantInputSchema.parse({ capability: "operations.read", branchId: null, expiresAt: null, secret: "nope" })).toThrow();
   });
   it("keeps graph modes bounded and preserves disputed relationship labels", () => {
     expect(graphQuerySchema.parse({ direction: "roots", depth: "2", maxNodes: "120" })).toEqual({ direction: "roots", depth: 2, maxNodes: 120 });

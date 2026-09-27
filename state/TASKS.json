@@ -1211,9 +1211,12 @@
       "testIds": [
         "TC-M07-04"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "Migration 0024 + BFF /api/v1/members, PATCH membership and POST grants; owner/admin + MFA, version/idempotency, audit/outbox and restricted projection implemented.",
+        "pnpm test:m07:membership, pnpm test:db, pnpm test, typecheck, lint, build and Playwright 45/45 PASS on Node 24/Supabase local synthetic data."
+      ]
     },
     {
       "id": "M07-05",

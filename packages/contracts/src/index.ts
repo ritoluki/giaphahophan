@@ -263,6 +263,44 @@ export const mfaStatusSchema = z.object({
   factorId: z.string().uuid().nullable()
 }).strict();
 
+export const membershipGrantSchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  capability: z.enum(["treasury.write", "treasury.approve", "scholarship.review", "privacy.manage", "exports.bulk", "publication.manage", "operations.read"]),
+  branchId: z.string().uuid().nullable(),
+  expiresAt: z.string().min(1).max(64).nullable(),
+  revokedAt: z.string().min(1).max(64).nullable()
+}).strict();
+
+export const membershipSchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  displayName: z.string().min(1).max(500),
+  role: z.enum(["owner", "admin", "reviewer", "editor", "member"]),
+  status: z.enum(["pending", "active", "suspended", "revoked"]),
+  personId: z.string().uuid().nullable(),
+  mfaEnrolled: z.boolean(),
+  grants: z.array(membershipGrantSchema).max(100)
+}).strict();
+
+export const memberInputSchema = z.object({
+  role: z.enum(["admin", "reviewer", "editor", "member"]),
+  status: z.enum(["active", "suspended", "revoked"]),
+  reason: z.string().trim().min(5).max(2000)
+}).strict();
+
+export const grantInputSchema = z.object({
+  capability: z.enum(["treasury.write", "treasury.approve", "scholarship.review", "privacy.manage", "exports.bulk", "publication.manage", "operations.read"]),
+  branchId: z.string().uuid().nullable(),
+  expiresAt: z.string().min(1).max(64).nullable()
+}).strict();
+
+export const commandResultSchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  status: z.string().min(1).max(64)
+}).strict();
+
 export const invitationInputSchema = z.object({
   treeId: z.string().uuid(),
   email: z.string().trim().email().max(320),

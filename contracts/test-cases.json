@@ -610,8 +610,11 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Suspend/revoke hiệu lực server; không self-promote, không xóa owner cuối.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "pnpm test:m07:membership PASS on standalone Node 24/Supabase local with synthetic owner/admin/member: restricted 403, MFA-gated mutations, suspend, owner/self-role guards, idempotent replay/conflict, grant projection, audit and outbox persistence.",
+        "pnpm test:db PASS; full pnpm test PASS (contracts 16/16, domain 24/24, worker 5/5, web 2/2); typecheck/lint/build PASS; Playwright 45/45 PASS across desktop Chromium, Pixel 5 and 320px."
+      ]
     },
     {
       "id": "TC-M07-05",

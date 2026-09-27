@@ -16,6 +16,7 @@ export default function AdminPage() {
         <h1>Tổng quan quản trị</h1>
         <p className="page-lede">Không có thao tác thay đổi dữ liệu trong bản preview. Mọi quyền thật sẽ được kiểm tra ở server/DB.</p>
         <div className="restricted-card admin-restricted"><strong>Truy cập bị giới hạn</strong><p>Phiên hiện tại chưa đăng nhập. Không hiển thị số liệu, tên người hoặc hàng chờ riêng tư.</p><Link className="button-primary" href="/dang-nhap">Đăng nhập theo lời mời</Link></div>
+        <Link className="card admin-members-link" href="/quan-tri/thanh-vien"><h2>Thành viên và quyền</h2><p>Quản lý membership, trạng thái, role và grant theo chi với kiểm tra MFA ở server/DB.</p><span className="button-secondary">Mở khu vực thành viên</span></Link>
         <section className="admin-grid" aria-label="Các khu vực quản trị preview">
           {previewCards.map((card) => <article className="card admin-card" key={card.title}><span className="status-label">Preview</span><h2>{card.title}</h2><strong>{card.value}</strong><p>{card.detail}</p></article>)}
         </section>
