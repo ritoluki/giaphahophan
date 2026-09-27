@@ -3066,8 +3066,7 @@ paths:
       tags:
       - Media
       summary: /media/uploads
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Tạo upload intent server-generated; object path nội bộ không được trả về client.
       security:
       - sessionCookie: []
       responses:
@@ -3149,6 +3148,68 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UploadInput'
+  /api/v1/media/{id}/upload:
+    put:
+      operationId: put_media_id_upload
+      tags:
+      - Media
+      summary: /media/{id}/upload
+      description: BFF nhận binary sau khi intent đã được cấp; kiểm tra kích thước, magic bytes và checksum trước khi ghi bucket private.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Binary đã được lưu ở trạng thái uploaded.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Asset'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required:
+                - data
+                - meta
+        '400':
+          description: Kích thước không khớp intent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Magic bytes/checksum không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Storage lỗi
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /api/v1/media/{id}/finalize:
     post:
       operationId: post_media_id_finalize
@@ -12158,6 +12219,7 @@ components:
       type: object
       additionalProperties: false
       properties:
+        treeId: *id001
         filename:
           type: string
           maxLength: 255
@@ -12185,6 +12247,7 @@ components:
           - members
           - public
       required:
+      - treeId
       - filename
       - mimeType
       - sizeBytes

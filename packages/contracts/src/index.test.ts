@@ -1,7 +1,36 @@
 import { describe, expect, it } from "vitest";
-import { authRecoveryInputSchema, authRecoveryResultSchema, claimReviewInputSchema, claimSubmitInputSchema, commandResultSchema, grantInputSchema, memberInputSchema, membershipGrantSchema, membershipSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, passwordUpdateInputSchema, passwordUpdateResultSchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
+import { authRecoveryInputSchema, authRecoveryResultSchema, claimReviewInputSchema, claimSubmitInputSchema, commandResultSchema, grantInputSchema, memberInputSchema, membershipGrantSchema, membershipSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, mediaAssetSchema, mediaUploadInputSchema, mediaUploadIntentSchema, passwordUpdateInputSchema, passwordUpdateResultSchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
+  it("keeps media upload intents typed, bounded and free of storage paths", () => {
+    const input = mediaUploadInputSchema.parse({
+      treeId: "10000000-0000-4000-8000-000000000001",
+      filename: "synthetic.png",
+      mimeType: "image/png",
+      sizeBytes: 8,
+      sha256: "a".repeat(64),
+      purpose: "album",
+      visibility: "restricted"
+    });
+    expect(input.treeId).toBe("10000000-0000-4000-8000-000000000001");
+    expect(mediaAssetSchema.parse({
+      id: "80000000-0000-4000-8000-000000000001",
+      version: 1,
+      state: "ready",
+      mimeType: "image/png",
+      sizeBytes: 8,
+      visibility: "restricted",
+      altText: null
+    }).state).toBe("ready");
+    expect(mediaUploadIntentSchema.parse({
+      assetId: "80000000-0000-4000-8000-000000000001",
+      uploadUrl: "https://app.example.test/api/v1/media/80000000-0000-4000-8000-000000000001/upload",
+      expiresAt: "2026-09-27T12:00:00.000Z",
+      requiredHeaders: { "Content-Type": "image/png" }
+    })).not.toHaveProperty("objectPath");
+    expect(() => mediaUploadInputSchema.parse({ ...input, sha256: "not-a-hash" })).toThrow();
+  });
+
   it("keeps recovery and password update payloads bounded and secret-free", () => {
     expect(authRecoveryInputSchema.parse({ email: "demo@example.test" })).toEqual({ email: "demo@example.test" });
     expect(authRecoveryResultSchema.parse({ accepted: true })).toEqual({ accepted: true });

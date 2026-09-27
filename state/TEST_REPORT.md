@@ -91,3 +91,10 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 2026-09-27 M08-04 evidence: branch-scope and two-person review policy verified on standalone local-configured Node 24/Supabase synthetic users. A reviewer membership with proposal.review grant limited to another branch received HTTP 403 for a proposal in the requested branch; correct-scope review remained MFA-gated and the proposal author remained denied from self-review. pnpm test:auth, pnpm test:db, full pnpm test (contracts 17/17, domain 24/24, worker 5/5, web 3/3), pnpm typecheck, pnpm lint (two pre-existing warnings) and pnpm build PASS. No real data/cloud/production used; staging, remote CI, axe/manual and real-device evidence remain NOT_RUN.
 
 2026-09-27 M08-05 evidence: migration 0028_m08_proposal_lifecycle.sql and BFF/UI lifecycle/history routes passed local acceptance. pnpm run test:m08:proposal PASS on standalone local-configured Node 24/Supabase for draft creation, submit idempotency replay, withdraw, terminal rejection, history and canonical unchanged before approval. pnpm test:auth PASS for needs_info -> resubmit -> rejected and history plus existing MFA, branch-scope, stale conflict, atomic addition, claims/correction/delete regressions. pnpm test:db, full pnpm test (contracts 17/17, domain 24/24, worker 5/5, web 3/3), pnpm typecheck, pnpm lint (two pre-existing warnings), pnpm build, pnpm verify, OpenAPI parse and Playwright 51/51 desktop Chromium/Pixel 5/320 PASS. No real data/cloud/production used; staging, remote CI, axe/manual, real-device and production approval remain NOT_RUN.
+## M09-01 — Upload an toàn
+
+- pnpm run test:m09:media — PASS: intent server-generated, private storage upload, size/magic/checksum, idempotency, ready projection và failed scan quarantine trên synthetic local Supabase.
+- pnpm typecheck — PASS.
+- pnpm lint — PASS với 2 warning có sẵn ở postcss config và MFA QR image.
+- pnpm build — PASS trước khi chạy standalone local integration; route list có media intent/upload/finalize/get.
+- Scope còn mở: staging/remote CI, axe/manual, real-device, production approval — NOT_RUN.

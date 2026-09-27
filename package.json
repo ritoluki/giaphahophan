@@ -46,7 +46,8 @@
     "test:m07:mfa": "node scripts/test-auth-local.mjs",
     "test:m07:membership": "node scripts/test-m07-membership-local.mjs",
     "test:m07:recovery": "node scripts/test-m07-recovery-local.mjs",
-    "test:m08:proposal": "node scripts/test-m08-proposal-local.mjs"
+    "test:m08:proposal": "node scripts/test-m08-proposal-local.mjs",
+    "test:m09:media": "node scripts/test-m09-media-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

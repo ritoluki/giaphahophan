@@ -763,8 +763,11 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Intent path server-generated; size/magic/quota/scan; pending không thành ready khi scan lỗi.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "pnpm run test:m09:media PASS on standalone local Node 24/Supabase with synthetic user, tree, media.upload/media.read grants and cleanup.",
+        "The test covers server-generated intent without objectPath, size/magic/checksum validation, private storage persistence, intent/finalize idempotency, ready GET projection and EICAR-like scan failure -> quarantined; no real data."
+      ]
     },
     {
       "id": "TC-M09-02",

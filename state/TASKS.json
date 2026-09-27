@@ -1430,9 +1430,14 @@
       "testIds": [
         "TC-M09-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0029_m09_secure_media_upload.sql: private media_assets, private family-assets bucket, actor/tree capability, hourly/daily quota, RLS/storage policies, idempotent intent/finalize and redacted asset projection.",
+        "apps/web/src/app/api/v1/media/uploads, [id]/upload, [id]/finalize and [id]/route.ts: authenticated BFF intent, binary upload, size/magic/SHA-256 checks, private storage re-read and quarantine-on-scan-failure.",
+        "apps/web/src/app/tu-lieu/media-upload-panel.tsx: mobile-first loading/uploading/finalizing/success/error/restricted states; default demo page does not enable real upload.",
+        "pnpm run test:m09:media PASS on Node 24.21.0 + Supabase local: private bucket intent, redacted object path, intent/finalize idempotency, ready projection and failed scan quarantine."
+      ]
     },
     {
       "id": "M09-02",

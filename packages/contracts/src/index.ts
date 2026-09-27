@@ -243,6 +243,48 @@ export const proposalHistorySchema = z.object({
   proposalId: z.string().uuid(),
   entries: z.array(proposalHistoryEntrySchema).max(200)
 }).strict();
+
+
+export const mediaStateSchema = z.enum([
+  "requested", "uploading", "uploaded", "scanning", "processing",
+  "ready", "rejected", "failed", "quarantined"
+]);
+
+export const mediaMimeTypeSchema = z.enum([
+  "image/jpeg", "image/png", "image/webp", "application/pdf",
+  "audio/mpeg", "audio/mp4", "video/mp4"
+]);
+
+export const mediaPurposeSchema = z.enum(["portrait", "source", "album", "import", "receipt", "scholarship"]);
+export const mediaVisibilitySchema = z.enum(["restricted", "members", "public"]);
+
+export const mediaAssetSchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  state: mediaStateSchema,
+  mimeType: mediaMimeTypeSchema,
+  sizeBytes: z.number().int().positive().max(104857600),
+  visibility: mediaVisibilitySchema,
+  altText: z.string().max(1000).nullable().optional()
+}).strict();
+
+export const mediaUploadInputSchema = z.object({
+  treeId: z.string().uuid(),
+  filename: z.string().trim().min(1).max(255),
+  mimeType: mediaMimeTypeSchema,
+  sizeBytes: z.number().int().positive().max(104857600),
+  sha256: z.string().regex(/^[a-f0-9]{64}$/),
+  purpose: mediaPurposeSchema,
+  visibility: mediaVisibilitySchema
+}).strict();
+
+export const mediaUploadIntentSchema = z.object({
+  assetId: z.string().uuid(),
+  uploadUrl: z.string().url(),
+  expiresAt: z.string().datetime({ offset: true }),
+  requiredHeaders: z.record(z.string(), z.string())
+}).strict();
+
 export const proposalDetailItemSchema = z.object({
   id: z.string().uuid(),
   targetKind: z.enum(["person", "fact", "parent_link", "union", "branch", "merge", "publication"]),
