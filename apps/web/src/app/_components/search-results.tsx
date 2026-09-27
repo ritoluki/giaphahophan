@@ -2,17 +2,24 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { PersonSearchResult } from "@phan/contracts";
 import { searchPeople } from "@phan/domain";
+import { fetchPersonSearch, createLatestSearchRequestCoordinator } from "../../lib/search-request";
 import type { DemoPersonSummary } from "../../lib/demo-data";
 import { branchName } from "../../lib/demo-data";
 
-export function SearchResults({ people, branches, initialQuery = "", initialBranchId = "", initialLifeStatus = "", initialBirthYear = "" }: { people: DemoPersonSummary[]; branches: Array<{ id: string; name: string }>; initialQuery?: string; initialBranchId?: string; initialLifeStatus?: string; initialBirthYear?: string }) {
+export function SearchResults({ people, branches, initialQuery = "", initialBranchId = "", initialLifeStatus = "", initialBirthYear = "", remoteSearch = false }: { people: DemoPersonSummary[]; branches: Array<{ id: string; name: string }>; initialQuery?: string; initialBranchId?: string; initialLifeStatus?: string; initialBirthYear?: string; remoteSearch?: boolean }) {
   const router = useRouter();
   const [query, setQuery] = useState(initialQuery);
   const [branchId, setBranchId] = useState(initialBranchId);
   const [lifeStatus, setLifeStatus] = useState(initialLifeStatus);
   const [birthYear, setBirthYear] = useState(initialBirthYear);
+  const [remoteResults, setRemoteResults] = useState<PersonSearchResult[]>([]);
+  const [remoteLoading, setRemoteLoading] = useState(false);
+  const [remoteError, setRemoteError] = useState(false);
+  const [retryNonce, setRetryNonce] = useState(0);
+  const requestCoordinator = useRef(createLatestSearchRequestCoordinator());
 
   function replaceFilters(next: { branchId?: string; lifeStatus?: string; birthYear?: string }) {
     const params = new URLSearchParams();
@@ -26,12 +33,51 @@ export function SearchResults({ people, branches, initialQuery = "", initialBran
     router.replace(`/tra-cuu${params.toString() ? `?${params.toString()}` : ""}`, { scroll: false });
   }
 
-  const results = useMemo(() => searchPeople(people, query).filter((person) => {
+  useEffect(() => {
+    if (!remoteSearch) return;
+    const normalizedQuery = query.trim();
+    const coordinator = requestCoordinator.current;
+    if (normalizedQuery.length > 0 && normalizedQuery.length < 2) {
+      coordinator.cancel();
+      const clearTimer = window.setTimeout(() => {
+        setRemoteResults([]);
+        setRemoteLoading(false);
+        setRemoteError(false);
+      }, 0);
+      return () => window.clearTimeout(clearTimer);
+    }
+
+    const request = coordinator.begin();
+    const timer = window.setTimeout(() => {
+      if (!request.isCurrent()) return;
+      setRemoteLoading(true);
+      setRemoteError(false);
+      void fetchPersonSearch({ query: normalizedQuery, branchId, lifeStatus, birthYear }, request.signal)
+        .then((nextResults) => {
+          if (!request.isCurrent()) return;
+          setRemoteResults(nextResults);
+          setRemoteLoading(false);
+        })
+        .catch((error: unknown) => {
+          if (error instanceof Error && error.name === "AbortError") return;
+          if (!request.isCurrent()) return;
+          setRemoteLoading(false);
+          setRemoteError(true);
+        });
+    }, 180);
+    return () => {
+      window.clearTimeout(timer);
+      coordinator.cancel();
+    };
+  }, [birthYear, branchId, lifeStatus, query, remoteSearch, retryNonce]);
+
+  const localResults = useMemo(() => searchPeople(people, query).filter((person) => {
     const matchesBranch = !branchId || person.primaryBranchId === branchId;
     const matchesLifeStatus = !lifeStatus || person.lifeStatus === lifeStatus;
     const matchesBirthYear = !birthYear || person.yearLabel === birthYear;
     return matchesBranch && matchesLifeStatus && matchesBirthYear;
   }), [birthYear, branchId, lifeStatus, people, query]);
+  const results = remoteSearch ? remoteResults : localResults;
 
   return (
     <section className="search-results" aria-labelledby="result-title">
@@ -57,7 +103,11 @@ export function SearchResults({ people, branches, initialQuery = "", initialBran
         <h2 id="result-title">Kết quả tra cứu</h2>
         <span className="muted" aria-live="polite">{results.length} kết quả</span>
       </div>
-      {query.trim().length < 2 ? (
+      {remoteSearch && remoteLoading ? (
+        <div className="card empty-state" role="status"><h3>Đang tìm kiếm…</h3><p>Đang kiểm tra phạm vi được phép xem.</p></div>
+      ) : remoteSearch && remoteError ? (
+        <div className="card empty-state" role="alert"><h3>Không thể tải kết quả lúc này</h3><p>Thử lại sau giây lát; thông tin ngoài phạm vi không được hiển thị.</p><button className="button-secondary" type="button" onClick={() => setRetryNonce((value) => value + 1)}>Thử lại</button></div>
+      ) : query.trim().length < 2 ? (
         <div className="card empty-state"><h3>Bắt đầu bằng một tên hoặc mã hồ sơ</h3><p>Chỉ hiển thị người trong dữ liệu minh họa và phạm vi được phép xem.</p></div>
       ) : results.length === 0 ? (
         <div className="card empty-state"><h3>Chưa tìm thấy trong phạm vi bạn được xem</h3><p>Thử tên gọi khác hoặc điều chỉnh bộ lọc.</p></div>

@@ -524,8 +524,12 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "10k dataset, p95 theo budget; kiểm tra index/N+1 và abort request cũ.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "pnpm test:m06:load PASS: local Docker Supabase benchmarked 10,000 synthetic public persons; p95=75.19ms, bounded page 100 and canonical search index present under the 500ms local budget.",
+        "apps/web/src/lib/search-request.test.ts: 2/2 PASS; coordinator aborts the previous request and rejects stale results. Playwright 33/33 desktop/Pixel5/320 PASS with demo-mode regression.",
+        "pnpm test (contracts 13/13, domain 24/24, worker 5/5), typecheck, build and lint PASS. Axe/manual/real-device/remote CI NOT_RUN; no real data/cloud/production."
+      ]
     },
     {
       "id": "TC-M07-01",

@@ -1087,9 +1087,13 @@
       "testIds": [
         "TC-M06-04"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/tests/m06_search_load.sql + pnpm test:m06:load PASS: 10,000 synthetic persons in one rollback transaction; local p95=75.19ms, limit=100 and persons_tree_name_search_id_idx verified.",
+        "apps/web/src/lib/search-request.ts and SearchResults real-mode path use 180ms debounce, AbortController and sequence guard; apps/web/src/lib/search-request.test.ts 2/2 PASS, stale responses cannot overwrite newer query state.",
+        "pnpm test 13/13 contracts, 24/24 domain, 5/5 worker; typecheck, build, lint and Playwright 33/33 desktop/Pixel5/320 PASS. Axe/manual/real-device/remote CI NOT_RUN; no real data/cloud/production."
+      ]
     },
     {
       "id": "M07-01",

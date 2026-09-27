@@ -41,7 +41,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M06-01 | P3 | Tên có và không dấu | M03-06 | IN_PROGRESS — canonical/alias search domain + indexed authorized RPC + BFF/UI implemented; DB/API/domain/contract/typecheck/build/lint and responsive E2E 30/30 PASS; axe/manual/real-device/remote CI NOT_RUN |
 | M06-02 | P3 | Filter và cursor | M06-01 | IN_PROGRESS — branch/status/birth-year filters and opaque keyset cursor implemented in authorized RPC/BFF/UI; DB/API/domain/contract/typecheck/build/lint and responsive E2E 33/33 PASS; axe/manual/real-device/remote CI NOT_RUN |
 | M06-03 | P3 | Không lộ metadata | M06-02 | IN_PROGRESS — strict allowlisted search projection and hidden-metadata regression PASS; DB/API/full unit/typecheck/build/lint PASS; axe/manual/real-device/remote CI NOT_RUN |
-| M06-04 | P3 | Tải lớn | M06-03 |  |
+| M06-04 | P3 | Tải lớn | M06-03 | IN_PROGRESS — 10k synthetic benchmark p95 75.19ms; BFF page cap/index and client debounce+AbortController+sequence guard implemented; full tests/build/lint and Playwright 33/33 PASS; axe/manual/real-device/remote CI NOT_RUN |
 | M07-01 | P2 | Invitation | CORE-01 |  |
 | M07-02 | P2 | Session và logout | M07-01 |  |
 | M07-03 | P2 | MFA đặc quyền | M07-02 |  |

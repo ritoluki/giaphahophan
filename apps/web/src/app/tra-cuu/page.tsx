@@ -18,7 +18,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <SearchBox initialValue={initialQuery} compact />
         <DemoNotice />
         <p><Link className="button-secondary" href="/quan-he">Tra quan hệ giữa hai người →</Link></p>
-        <SearchResults people={demoPeople} branches={demoBranches} initialQuery={initialQuery} initialBranchId={params.branchId ?? ""} initialLifeStatus={params.lifeStatus ?? ""} initialBirthYear={params.birthYear ?? ""} />
+        <SearchResults people={demoPeople} branches={demoBranches} initialQuery={initialQuery} initialBranchId={params.branchId ?? ""} initialLifeStatus={params.lifeStatus ?? ""} initialBirthYear={params.birthYear ?? ""} remoteSearch={process.env.DATA_MODE === "real"} />
       </main>
     </SiteShell>
   );

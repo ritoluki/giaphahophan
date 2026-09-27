@@ -44,3 +44,5 @@ Agent ghi blocker thực theo mẫu: bằng chứng, nguyên nhân giả thuyế
 | M06-02 | Axe/manual audit, real-device validation and remote CI remain NOT_RUN | M06-02 final UI/accessibility and remote acceptance | Permission-aware filters, keyset cursor, DB/domain/contract/build and responsive E2E 33/33 PASS locally; continue M06-03 without owner action |
 
 | M06-03 | Axe/manual audit, real-device validation and remote CI remain NOT_RUN | M06-03 final privacy/accessibility and remote acceptance | Strict allowlist plus local DB/BFF metadata-redaction regression PASS; continue M06-04 without owner action |
+
+| M06-04 | Axe/manual audit, real-device validation, remote CI and production hardware p95 remain NOT_RUN | M06-04 final performance/accessibility and remote acceptance | Local 10k benchmark p95 75.19ms, bounded BFF, index check and stale-request abort regression PASS; continue M07-01 without owner action |
