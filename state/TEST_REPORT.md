@@ -117,3 +117,9 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - `pnpm run test:m09:links` PASS on standalone local-configured Node 24.21.0 + Supabase local: private asset to public published revision link, visibility isolation, idempotent replay, exact-one validation, real FK orphan denial, owner/capability enforcement and restricted actor denial.
 - `pnpm test` PASS: contracts 20/20, domain 24/24, worker 5/5, web 3/3; `pnpm typecheck`, `pnpm lint`, `pnpm build`, OpenAPI parse PASS. Lint has the 2 existing warnings.
 - No real data, cloud, production deployment or owner approval used; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
+
+## M09-05 evidence (2026-09-28)
+- `pnpm exec playwright test tests/e2e/p1-demo.spec.ts --workers=1` PASS: 54/54 desktop Chromium, Pixel 5 and 320px; viewer test proves four cards, user-initiated image access and no horizontal overflow at 320px.
+- `pnpm typecheck`, `pnpm build`, and `pnpm lint` PASS; lint retains only existing PostCSS and MFA QR image warnings.
+- Viewer implementation renders image, safe PDF fallback, audio/video native controls with `preload` and no `autoplay`; real private-media access remains covered by M09-02/M09-04 local BFF tests.
+- No real data, cloud, production deployment or owner approval used; staging/remote CI, axe/manual accessibility and real-device remain NOT_RUN.

@@ -54,9 +54,9 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M08-05 | P3 | Lifecycle rõ | M08-04 |  |
 | M09-01 | P5 | Upload an toàn | CORE-02, JOBS-01 |  |
 | M09-02 | P5 | Original và derivative | M09-01 |  |
-| M09-03 | P5 | Citation thật | M09-02 |  |
-| M09-04 | P5 | Quyền liên kết | M09-03 |  |
-| M09-05 | P5 | Viewer mobile | M09-04 |  |
+| M09-03 | P5 | Citation thật | M09-02 | IN_PROGRESS - local source/citation API, exact-one target, idempotency and real FK PASS; staging/remote/accessibility gates NOT_RUN |
+| M09-04 | P5 | Quyền liên kết | M09-03 | IN_PROGRESS - private asset to public revision link cannot escalate visibility; local DB/API/BFF PASS; staging/remote/accessibility gates NOT_RUN |
+| M09-05 | P5 | Viewer mobile | M09-04 | IN_PROGRESS - image/PDF/audio/video viewer, safe fallback/no autoplay, responsive Playwright 54/54 PASS; staging/remote/axe/real-device NOT_RUN |
 | M10-01 | P6 | Adapter Việt Nam | M03-06, M09-05 |  |
 | M10-02 | P6 | Recurrence policy | M10-01 |  |
 | M10-03 | P6 | Ngày gốc và lần tới | M10-02 |  |

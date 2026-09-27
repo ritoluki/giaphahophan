@@ -208,3 +208,13 @@ test("proposal contribution stays restricted without a member session", async ({
   await expect(page.locator(".proposal-state")).toBeVisible();
   await expect(page.getByRole("link", { name: "Đăng nhập" })).toBeVisible();
 });
+
+test("media viewer is mobile-safe and user-initiated", async ({ page }) => {
+  await page.goto("/tu-lieu");
+  await expect(page.locator(".media-viewer-card")).toHaveCount(4);
+  await expect(page.locator(".media-viewer-card button")).toHaveCount(4);
+  await page.locator(".media-viewer-card").first().getByRole("button").click();
+  await expect(page.locator(".media-viewer-image")).toBeVisible();
+  const fitsViewport = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
+  expect(fitsViewport).toBe(true);
+});

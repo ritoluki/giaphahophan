@@ -838,8 +838,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Ảnh/PDF/audio/video có controls và fallback; không autoplay/active content; mobile không tràn.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": ["apps/web/src/modules/m09/media-viewer.tsx: shared viewer supports image/PDF/audio/video; image uses authorized URL, PDF has safe download fallback, audio/video use controls with preload only and no autoplay/active HTML.","apps/web/src/app/tu-lieu/page.tsx + apps/web/src/app/globals.css: approved hero asset used only as synthetic demo thumbnail; mobile-first 1-column gallery, responsive 2-column desktop layout, no-overflow containment and explicit loading/empty/error/restricted states.","tests/e2e/p1-demo.spec.ts: viewer smoke verifies four media cards, user-initiated image load and document scrollWidth <= viewport at 320px; full responsive suite 54/54 PASS across desktop Chromium, Pixel 5 and 320px.","pnpm typecheck, pnpm lint, pnpm build PASS; lint retains only 2 existing warnings. No real data/cloud/production; staging/remote CI, axe/manual and real-device remain NOT_RUN."]
     },
     {
       "id": "TC-M10-01",
