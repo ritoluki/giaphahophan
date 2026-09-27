@@ -32,7 +32,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M04-02 | P4 | Pedigree collapse | M04-01 | IN_PROGRESS - canonical person grouping preserves distinct occurrence IDs, default collapsed UI and explicit expand-to-occurrences control; domain/build/E2E PASS; axe/manual/real-device/remote CI NOT_RUN |
 | M04-03 | P4 | Giới hạn và expand | M04-02 | IN_PROGRESS - mobile cap 120 and desktop cap 300 enforced per request; truncated graph carries bounded nextExpansion and UI action; local DB/contract/domain/build/E2E PASS; axe/manual/real-device/remote CI NOT_RUN |
 | M04-04 | P4 | Mobile/keyboard | M04-03 | IN_PROGRESS - family-list mobile equivalent, zoom in/out/reset, Escape exit, focus return and fullscreen body-scroll lock implemented; full tests/build/lint and responsive E2E PASS; axe/manual/real-device/remote CI NOT_RUN |
-| M04-05 | P4 | Cycle concurrency | M04-04 |  |
+| M04-05 | P4 | Cycle concurrency | M04-04 | IN_PROGRESS - concurrent inverse parent mutations are serialized by transaction advisory lock; one winner and one ANCESTRY_CYCLE rejection persist exactly one edge; local DB/API regression PASS; no new UI mutation surface, existing M04 states retained; axe/manual/real-device/remote CI NOT_RUN |
 | M04-06 | P4 | Đời tương đối | M04-05 |  |
 | M05-01 | P4 | Path có quyền | M04-06 |  |
 | M05-02 | P4 | Semantics quan hệ | M05-01 |  |

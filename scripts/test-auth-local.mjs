@@ -312,7 +312,7 @@ try {
     headers: { "Content-Type": "application/json", "Idempotency-Key": claimSubmitKey, Cookie: cookieA },
     body: JSON.stringify(claimPayload)
   });
-  assert(claimSubmitted.response.status === 201 && claimSubmitted.body?.data?.status === "pending", "claim submit through BFF failed");
+  assert(claimSubmitted.response.status === 201 && claimSubmitted.body?.data?.status === "pending", "claim submit through BFF failed (" + claimSubmitted.response.status + "): " + JSON.stringify(claimSubmitted.body));
   const claimId = claimSubmitted.body.data.id;
   const claimSelfReview = await jsonRequest(webUrl + "/api/v1/claims/" + claimId + "/review", {
     method: "POST",

@@ -814,9 +814,9 @@
       "testIds": [
         "TC-M04-05"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["scripts/test-m04-cycle-concurrency-local.mjs and package.json test:m04:cycle: two concurrent inverse parent-link proposals run through local Supabase API review; exactly one winner and one ANCESTRY_CYCLE rejection, with one approved edge, one approved proposal and one submitted proposal persisted; cleanup verified by two consecutive runs.","Existing 0008_core_relationship_projection_apply.sql transaction advisory lock and recursive ancestry check provide the production mutation guard; no new UI mutation surface was added, so M04-04 Tree Explorer loading/empty/error/restricted/mobile coverage remains applicable.","pnpm test:m04:cycle, test:concurrency, test:db, test:auth, test, typecheck, lint and build exit 0 on local synthetic Supabase/Node 24; lint retains one existing PostCSS warning. Axe/manual/real-device/remote CI remain NOT_RUN; no real data/cloud/production used."]
     },
     {
       "id": "M04-06",
