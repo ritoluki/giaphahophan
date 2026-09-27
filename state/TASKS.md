@@ -106,3 +106,5 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | RELEASE-01 | P10 | Phát hành production theo mode đã duyệt | STAGE-01 | H4 |
 | REAL-01 | P11 | Intake và cutover dữ liệu thật | RELEASE-01, M16-06 | H5 |
 | HANDOVER-01 | P11 | Bàn giao và đào tạo người phụ trách | RELEASE-01 | H4 |
+
+M08-01 evidence (2026-09-27): PASS locally on synthetic Supabase. Proposal submit context and detail projection are authorization-gated; form supports sourced addition, correction and parent-link relationship proposals; tracking code is persisted; canonical person/relationship counts remain unchanged before approval. `pnpm run test:m08:proposal`, `pnpm test:auth`, `pnpm test:db`, full tests, typecheck, build, verify and Playwright 51/51 pass. M08-02 Diff/conflict, M08-03 atomic approve, M08-04 scope/two-person and M08-05 lifecycle remain TODO.

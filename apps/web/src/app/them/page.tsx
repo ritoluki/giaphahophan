@@ -5,6 +5,7 @@ import { SiteShell } from "../_components/site-chrome";
 const menuItems = [
   { href: "/gioi-thieu", title: "Giới thiệu", description: "Về mục tiêu và cách giữ nguồn có trách nhiệm." },
   { href: "/tu-lieu", title: "Thư viện tư liệu", description: "Nguồn, ảnh và tài liệu theo quyền truy cập." },
+  { href: "/dong-gop/moi", title: "Đóng góp cho gia phả", description: "Gửi đề nghị sửa, bổ sung người hoặc quan hệ kèm nguồn tham chiếu." },
   { href: "/quan-tri", title: "Quản trị", description: "Chỉ dành cho tài khoản có capability phù hợp." },
   { href: "/thiet-lap-mfa", title: "Bảo mật tài khoản", description: "Thiết lập MFA cho các thao tác đặc quyền và bảo vệ phiên." }
 ] as const;

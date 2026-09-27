@@ -1274,9 +1274,9 @@
       "testIds": [
         "TC-M08-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["apps/web/src/app/dong-gop/moi and apps/web/src/app/dong-gop/[id]: mobile-first sourced proposal form and tracking detail with loading, restricted, error and success states.","supabase/migrations/0025_m08_proposal_tracking.sql: tracking_code plus authorized proposal/context RPC projections; raw private tables remain unexposed.","scripts/test-m08-proposal-local.mjs and pnpm run test:m08:proposal: PASS on standalone local-configured Node 24/Supabase synthetic data for authorized context, addition/correction/relationship submit with sources, tracking detail and canonical unchanged before approval.","pnpm test:db, pnpm test:auth, pnpm test, pnpm typecheck, pnpm lint, pnpm build, pnpm verify and OpenAPI parse PASS; lint has two pre-existing warnings.","Playwright p1-demo.spec.ts: 51/51 PASS across desktop Chromium, Pixel 5 and 320px including restricted proposal entry; no real data/cloud/production used."]
     },
     {
       "id": "M08-02",

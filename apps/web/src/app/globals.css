@@ -329,3 +329,33 @@ button, a, input, select { min-height: 44px; }
 .recovery-link { margin: 0; }
 .recovery-link a { color: var(--brand); font-weight: 700; }
 .form-notice { margin: 0; padding: .75rem 1rem; border-left: 3px solid var(--success); background: #E4F0E7; color: var(--ink-muted); }
+.proposal-page { padding-bottom: 3rem; }
+.proposal-form { display: grid; gap: 1rem; margin-top: 1.5rem; }
+.proposal-form label { display: grid; gap: .35rem; color: var(--ink-muted); font-size: .9rem; font-weight: 700; }
+.proposal-form input, .proposal-form select, .proposal-form textarea { min-width: 0; width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: .7rem .8rem; background: var(--surface); color: var(--ink); font: inherit; }
+.proposal-form textarea { resize: vertical; }
+.proposal-notice { display: grid; gap: .15rem; padding: .85rem 1rem; border-left: 3px solid var(--accent); background: #FBF1DE; color: var(--ink-muted); }
+.proposal-notice strong { color: var(--brand); }
+.proposal-actions { display: flex; flex-wrap: wrap; gap: .65rem; align-items: center; }
+.proposal-actions .button-primary, .proposal-actions .button-secondary { width: fit-content; }
+.proposal-state { display: grid; gap: .6rem; margin-top: 1.5rem; padding: 1.25rem; border: 1px dashed var(--border); border-radius: 12px; color: var(--ink-muted); }
+.proposal-state strong { color: var(--brand); }
+.proposal-state .button-secondary { width: fit-content; }
+.proposal-detail { display: grid; gap: 1rem; margin-top: 1.5rem; }
+.proposal-tracking-card { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: .75rem 1rem; }
+.proposal-tracking-card > div { display: grid; gap: .15rem; }
+.proposal-tracking-code { color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: clamp(1.6rem, 7vw, 2.25rem); letter-spacing: .06em; }
+.proposal-status-submitted { background: #FBF1DE; }
+.proposal-status-approved { background: #E4F0E7; color: var(--success); }
+.proposal-status-rejected { background: #FBE6E8; color: var(--danger); }
+.proposal-status-needs_info { background: #FBF1DE; color: var(--accent); }
+.proposal-summary h2, .proposal-items h2 { margin: 0 0 .65rem; color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: 1.35rem; }
+.proposal-summary p { margin: 0 0 .65rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.proposal-summary p:last-child { margin-bottom: 0; }
+.proposal-items { display: grid; gap: 1rem; }
+.proposal-item { display: grid; gap: .65rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.proposal-item:first-of-type { padding-top: 0; border-top: 0; }
+.proposal-item-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; color: var(--brand); }
+.proposal-item .detail-list { margin: 0; }
+.proposal-source-note { margin: 0; color: var(--ink-muted); font-size: .9rem; }
+.proposal-source-note strong { color: var(--brand); }

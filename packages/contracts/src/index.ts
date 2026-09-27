@@ -148,7 +148,26 @@ const parentLinkCreateFieldChangesSchema = z.object({
 
 const parentLinkDeleteFieldChangesSchema = z.object({}).strict();
 
+const personCreateFieldChangesSchema = z.object({
+  display_name: z.string().min(1).max(500),
+  recorded_sex: z.enum(['M', 'F', 'X', 'U']).optional(),
+  life_status: z.enum(['living', 'deceased', 'unknown']).default('unknown'),
+  visibility: z.enum(['public', 'members', 'restricted']).default('restricted'),
+  protected_minor: z.boolean().default(false),
+  primary_branch_id: z.string().uuid().nullable().optional(),
+  biography: z.string().max(20000).nullable().optional(),
+  confidence: z.enum(['unverified', 'supported', 'verified', 'disputed']).default('unverified')
+}).strict();
+
 export const proposalItemSchema = z.union([
+  z.object({
+    targetKind: z.literal('person'),
+    targetId: z.null(),
+    baseVersion: z.null(),
+    operation: z.literal('create'),
+    fieldChanges: personCreateFieldChangesSchema,
+    sourceIds: z.array(z.string().uuid()).min(1).max(50)
+  }).strict(),
   z.object({
     targetKind: z.literal('person'),
     targetId: z.string().uuid(),
@@ -206,6 +225,38 @@ export const proposalMutationResultSchema = z.object({
   status: z.enum(["submitted", "needs_info", "approved", "rejected"]),
   version: z.number().int().positive()
 });
+
+export const proposalDetailItemSchema = z.object({
+  id: z.string().uuid(),
+  targetKind: z.enum(["person", "fact", "parent_link", "union", "branch", "merge", "publication"]),
+  targetId: z.string().uuid().nullable(),
+  baseVersion: z.number().int().positive().nullable(),
+  operation: z.enum(["create", "update", "delete", "merge", "publish"]),
+  fieldChanges: z.record(z.string(), z.unknown()),
+  sourceIds: z.array(z.string().uuid())
+}).strict();
+
+export const proposalDetailSchema = z.object({
+  id: z.string().uuid(),
+  trackingCode: z.string().regex(/^PGP-[A-Z0-9]{10}$/),
+  treeId: z.string().uuid(),
+  version: z.number().int().positive(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+  status: z.enum(["draft", "submitted", "needs_info", "approved", "rejected", "withdrawn"]),
+  kind: proposalKindSchema,
+  reason: z.string().min(1),
+  branchId: z.string().uuid().nullable(),
+  submittedBy: z.string().uuid().nullable(),
+  items: z.array(proposalDetailItemSchema).max(100)
+}).strict();
+
+export const proposalContextSchema = z.object({
+  treeId: z.string().uuid(),
+  treeName: z.string().min(1),
+  branchId: z.string().uuid().nullable(),
+  branchName: z.string().min(1).nullable()
+}).strict();
 
 export const claimSubmitInputSchema = z.object({
   treeId: z.string().uuid(),

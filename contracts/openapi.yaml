@@ -11649,6 +11649,7 @@ components:
       type: object
       additionalProperties: false
       properties:
+        treeId: *id001
         kind: &id029
           type: string
           enum:
@@ -11672,6 +11673,7 @@ components:
           items:
             $ref: '#/components/schemas/ProposalItem'
       required:
+      - treeId
       - kind
       - reason
       - items
@@ -11680,16 +11682,29 @@ components:
       additionalProperties: false
       properties:
         id: *id001
+        trackingCode:
+          type: string
+          pattern: ^PGP-[A-Z0-9]{10}$
+        treeId: *id001
         version: *id008
+        createdAt: *id006
+        updatedAt: *id006
         status: *id028
-        submittedBy: *id001
+        submittedBy:
+          anyOf:
+          - *id001
+          - type: 'null'
         kind: *id029
         reason: *id030
         branchId: *id031
         items: *id032
       required:
       - id
+      - trackingCode
+      - treeId
       - version
+      - createdAt
+      - updatedAt
       - status
       - kind
       - reason

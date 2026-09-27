@@ -202,3 +202,9 @@ test("password recovery keeps enumeration-safe and reset states usable on mobile
   await page.locator(".recovery-form button[type=submit]").click();
   await expect(page.locator(".field-error")).toBeVisible();
 });
+test("proposal contribution stays restricted without a member session", async ({ page }) => {
+  await page.goto("/dong-gop/moi");
+  await expect(page.getByRole("heading", { name: "Gửi đề nghị bổ sung" })).toBeVisible();
+  await expect(page.locator(".proposal-state")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Đăng nhập" })).toBeVisible();
+});
