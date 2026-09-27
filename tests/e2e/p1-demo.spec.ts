@@ -77,6 +77,7 @@ test("tree explorer exposes bounded graph modes and fullscreen focus", async ({ 
   await expect(page.locator("#tree-explorer-title")).toBeVisible();
   await expect(page.locator(".tree-viewport")).toBeVisible();
   await expect(page.locator(".tree-family-list")).toBeVisible();
+  await expect(page.getByText(/Đời tương đối:/).first()).toBeVisible();
   const zoomIn = page.locator(".tree-view-controls button").first();
   const zoomReset = page.locator(".tree-view-controls button").nth(1);
   await zoomIn.click();

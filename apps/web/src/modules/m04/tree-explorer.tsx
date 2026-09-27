@@ -1,11 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import type { Graph } from "@phan/contracts";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getDemoGraph } from "../../lib/demo-data";
 import { collapseGraphOccurrences, type GraphMode } from "@phan/domain";
 
 type TreeExplorerProps = { rootId: string };
+type VisibleTreeNode = Graph["nodes"][number] & { occurrenceCount: number; relativeGenerations: ReadonlyArray<number> };
+
+function relativeGenerationLabel(values: ReadonlyArray<number>): string {
+  if (values.length === 0) return "Đời tương đối: chưa đủ dữ liệu";
+  const labels = values.map((value) => value === 0 ? "gốc (0)" : value > 0 ? `+${value}` : String(value));
+  return `Đời tương đối: ${labels.join(", ")}`;
+}
 
 const modes: Array<{ value: GraphMode; label: string; hint: string }> = [
   { value: "family", label: "Gia đình gần", hint: "Cha mẹ, con, bạn đời và con trong union" },
@@ -59,12 +67,12 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
   }, [rootId, mode, depth, maxNodes]);
 
   const occurrenceGroups = useMemo(() => graph ? collapseGraphOccurrences(graph) : [], [graph]);
-  const visibleNodes = useMemo(() => {
+  const visibleNodes = useMemo<VisibleTreeNode[]>(() => {
     if (!graph) return [];
-    if (showOccurrences) return graph.nodes.map((node) => ({ ...node, occurrenceCount: 1 }));
+    if (showOccurrences) return graph.nodes.map((node) => ({ ...node, occurrenceCount: 1, relativeGenerations: node.generation === null ? [] : [node.generation] }));
     return occurrenceGroups.flatMap((group) => {
       const representative = graph.nodes.find((node) => node.occurrenceId === group.occurrenceIds[0]);
-      return representative ? [{ ...representative, occurrenceCount: group.occurrenceIds.length }] : [];
+      return representative ? [{ ...representative, occurrenceCount: group.occurrenceIds.length, relativeGenerations: group.generationRange.values }] : [];
     });
   }, [graph, occurrenceGroups, showOccurrences]);
   const currentNode = graph?.nodes.find((node) => node.person.id === rootId && node.depth === 0);
@@ -157,6 +165,7 @@ export function TreeExplorer({ rootId }: TreeExplorerProps) {
                   <span className="tree-person-copy">
                     <strong>{node.person.displayName}</strong>
                     <small>{node.person.yearLabel ?? "Chưa rõ"} · {node.depth === 0 ? "Điểm bắt đầu" : `Độ sâu ${node.depth}`}</small>
+                    <small>{relativeGenerationLabel(node.relativeGenerations)}</small>
                     <small>{node.occurrenceCount > 1 ? `${node.occurrenceCount} occurrence · cùng hồ sơ canonical` : "Hồ sơ canonical · occurrence riêng"}</small>
                   </span>
                 </Link>

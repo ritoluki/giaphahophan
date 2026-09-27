@@ -56,4 +56,23 @@ describe("M04 graph projection", () => {
     expect(new Set(sharedOccurrences.map((node) => node.occurrenceId)).size).toBe(2);
     expect(collapseGraphOccurrences(collapsedGraph).find((group) => group.canonicalPersonId === collapsePeople[4]!.id)?.occurrenceIds).toHaveLength(2);
   });
+  it("keeps relative generation root-dependent across pedigree collapse", () => {
+    const shared = { id: "00000000-0000-4000-8000-000000000005", version: 1, code: "SHARED", displayName: "Shared Person", lifeStatus: "deceased" as const, primaryBranchId: null, isDemo: true };
+    const bridge = { id: "00000000-0000-4000-8000-000000000006", version: 1, code: "BRIDGE", displayName: "Bridge Person", lifeStatus: "deceased" as const, primaryBranchId: null, isDemo: true };
+    const generationGraph = buildGraphProjection({
+      rootPersonId: people[0]!.id,
+      people: [...people, shared, bridge],
+      parentLinks: [
+        { id: "left", parentId: people[0]!.id, childId: people[1]!.id, kind: "biological", status: "confirmed" },
+        { id: "right", parentId: people[0]!.id, childId: people[2]!.id, kind: "biological", status: "confirmed" },
+        { id: "short", parentId: people[1]!.id, childId: shared.id, kind: "biological", status: "confirmed" },
+        { id: "long", parentId: people[2]!.id, childId: bridge.id, kind: "biological", status: "confirmed" },
+        { id: "shared", parentId: bridge.id, childId: shared.id, kind: "biological", status: "confirmed" }
+      ]
+    }, "descendants", 4, 120);
+    const sharedNodes = generationGraph.nodes.filter((node) => node.person.id === shared.id);
+    expect(sharedNodes.map((node) => node.generation).sort()).toEqual([2, 3]);
+    expect(collapseGraphOccurrences(generationGraph).find((group) => group.canonicalPersonId === shared.id)?.generationRange).toEqual({ values: [2, 3], min: 2, max: 3 });
+    expect(generationGraph.nodes.find((node) => node.person.id === people[0]!.id)?.generation).toBe(0);
+  });
 });

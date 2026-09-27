@@ -841,9 +841,9 @@
       "testIds": [
         "TC-M04-06"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["packages/domain/src/m04.ts and m04.test.ts: each occurrence carries signed root-relative generation; pedigree collapse exposes sorted generation values plus min/max range, with a synthetic shared person reached at generations 2 and 3." ,"packages/contracts/src/index.ts, contracts/domain.types.ts and contracts/openapi.yaml: generation is a required nullable integer on each graph node; contract regression passes." ,"supabase/migrations/0016_m04_relative_generation.sql and supabase/tests/m04_graph.sql: authorized DB graph RPC returns ancestor -1 and union partner 0 generation semantics after local reset; pnpm test:m04:graph PASS." ,"Tree Explorer displays generation set labels while retaining canonical occurrence collapse; pnpm test/e2e responsive matrix 24/24 PASS, full test contracts 9/9 domain 14/14 worker 5/5, typecheck, lint and build PASS. Lint retains one existing PostCSS warning; axe/manual/real-device/remote CI NOT_RUN; no real data/cloud/production used."]
     },
     {
       "id": "M05-01",

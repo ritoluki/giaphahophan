@@ -22,7 +22,7 @@ export type GraphInput = {
   graphRevision?: number;
 };
 
-type WorkItem = { personId: string; depth: number; path: ReadonlyArray<string> };
+type WorkItem = { personId: string; depth: number; generation: number | null; path: ReadonlyArray<string> };
 type EdgeDraft = {
   id: string;
   sourcePersonId: string;
@@ -37,33 +37,52 @@ function occurrenceId(mode: GraphMode, path: ReadonlyArray<string>): string {
   return `occurrence:${mode}:${path.join("/")}`;
 }
 
+export type RelativeGenerationRange = {
+  values: ReadonlyArray<number>;
+  min: number | null;
+  max: number | null;
+};
+
 export type GraphOccurrenceGroup = {
   canonicalPersonId: string;
   person: PersonSummary;
   occurrenceIds: ReadonlyArray<string>;
   depths: ReadonlyArray<number>;
+  generationRange: RelativeGenerationRange;
 };
 
+export function summarizeRelativeGenerations(values: ReadonlyArray<number>): RelativeGenerationRange {
+  const uniqueValues = [...new Set(values)].sort((left, right) => left - right);
+  return {
+    values: uniqueValues,
+    min: uniqueValues[0] ?? null,
+    max: uniqueValues[uniqueValues.length - 1] ?? null
+  };
+}
+
 export function collapseGraphOccurrences(graph: Graph): Array<GraphOccurrenceGroup> {
-  const groups = new Map<string, { person: PersonSummary; occurrenceIds: string[]; depths: number[] }>();
+  const groups = new Map<string, { person: PersonSummary; occurrenceIds: string[]; depths: number[]; generations: number[] }>();
   for (const node of graph.nodes) {
     const existing = groups.get(node.person.id);
     if (existing) {
       existing.occurrenceIds.push(node.occurrenceId);
       existing.depths.push(node.depth);
+      if (node.generation !== null) existing.generations.push(node.generation);
       continue;
     }
     groups.set(node.person.id, {
       person: node.person,
       occurrenceIds: [node.occurrenceId],
-      depths: [node.depth]
+      depths: [node.depth],
+      generations: node.generation === null ? [] : [node.generation]
     });
   }
   return [...groups.entries()].map(([canonicalPersonId, group]) => ({
     canonicalPersonId,
     person: group.person,
     occurrenceIds: group.occurrenceIds,
-    depths: group.depths
+    depths: group.depths,
+    generationRange: summarizeRelativeGenerations(group.generations)
   }));
 }
 function unique(values: ReadonlyArray<string>): string[] {
@@ -79,8 +98,8 @@ export function buildGraphProjection(input: GraphInput, mode: GraphMode, depth: 
   const unions = input.unions ?? [];
   const roots = input.people.filter((person) => !parentLinks.some((link) => link.childId === person.id));
   const seeds: WorkItem[] = mode === "roots"
-    ? roots.map((person) => ({ personId: person.id, depth: 0, path: [person.id] }))
-    : [{ personId: input.rootPersonId, depth: 0, path: [input.rootPersonId] }];
+    ? roots.map((person) => ({ personId: person.id, depth: 0, generation: 0, path: [person.id] }))
+    : [{ personId: input.rootPersonId, depth: 0, generation: 0, path: [input.rootPersonId] }];
 
   const queue = [...seeds];
   const visited = new Set<string>();
@@ -103,25 +122,25 @@ export function buildGraphProjection(input: GraphInput, mode: GraphMode, depth: 
     drafts.push({ work, person });
     if (work.depth >= depth || mode === "roots") continue;
 
-    const neighbors: Array<{ personId: string; kind: Graph["edges"][number]["kind"]; status?: "confirmed" | "disputed"; edgeId: string; sourcePersonId: string; targetPersonId: string }> = [];
+    const neighbors: Array<{ personId: string; kind: Graph["edges"][number]["kind"]; status?: "confirmed" | "disputed"; edgeId: string; sourcePersonId: string; targetPersonId: string; generationDelta: number | null }> = [];
     if (mode === "ancestors" || mode === "family") {
       for (const link of parentLinks.filter((candidate) => candidate.childId === work.personId)) {
-        neighbors.push({ personId: link.parentId, kind: link.kind, status: link.status, edgeId: link.id, sourcePersonId: link.parentId, targetPersonId: link.childId });
+        neighbors.push({ personId: link.parentId, kind: link.kind, status: link.status, edgeId: link.id, sourcePersonId: link.parentId, targetPersonId: link.childId, generationDelta: -1 });
       }
     }
     if (mode === "descendants" || mode === "family") {
       for (const link of parentLinks.filter((candidate) => candidate.parentId === work.personId)) {
-        neighbors.push({ personId: link.childId, kind: link.kind, status: link.status, edgeId: link.id, sourcePersonId: link.parentId, targetPersonId: link.childId });
+        neighbors.push({ personId: link.childId, kind: link.kind, status: link.status, edgeId: link.id, sourcePersonId: link.parentId, targetPersonId: link.childId, generationDelta: 1 });
       }
     }
     if (mode === "family") {
       for (const union of unions) {
         if (!union.partnerIds.includes(work.personId)) continue;
         for (const partnerId of union.partnerIds.filter((id) => id !== work.personId)) {
-          neighbors.push({ personId: partnerId, kind: "union", edgeId: union.id, sourcePersonId: work.personId, targetPersonId: partnerId });
+          neighbors.push({ personId: partnerId, kind: "union", edgeId: union.id, sourcePersonId: work.personId, targetPersonId: partnerId, generationDelta: 0 });
         }
         for (const childId of union.childIds) {
-          neighbors.push({ personId: childId, kind: "union", edgeId: union.id, sourcePersonId: work.personId, targetPersonId: childId });
+          neighbors.push({ personId: childId, kind: "union", edgeId: union.id, sourcePersonId: work.personId, targetPersonId: childId, generationDelta: null });
         }
       }
     }
@@ -131,7 +150,7 @@ export function buildGraphProjection(input: GraphInput, mode: GraphMode, depth: 
       const nextPath = [...work.path, neighbor.personId];
       const sourcePath = neighbor.sourcePersonId === work.personId ? work.path : nextPath;
       const targetPath = neighbor.targetPersonId === work.personId ? work.path : nextPath;
-      queue.push({ personId: neighbor.personId, depth: work.depth + 1, path: nextPath });
+      queue.push({ personId: neighbor.personId, depth: work.depth + 1, generation: neighbor.generationDelta === null || work.generation === null ? null : work.generation + neighbor.generationDelta, path: nextPath });
       edges.push({ id: neighbor.edgeId, sourcePersonId: neighbor.sourcePersonId, targetPersonId: neighbor.targetPersonId, sourcePath, targetPath, kind: neighbor.kind, status: neighbor.status });
     }
   }
@@ -156,7 +175,8 @@ export function buildGraphProjection(input: GraphInput, mode: GraphMode, depth: 
   const nodes = drafts.map(({ work, person }) => ({
     occurrenceId: occurrenceId(mode, work.path),
     person,
-    depth: work.depth
+    depth: work.depth,
+    generation: work.generation
   }));
   const expandablePersonIds = unique(drafts.filter(({ work }) => work.depth < depth).map(({ person }) => person.id));
   const nodeLimited = truncated;

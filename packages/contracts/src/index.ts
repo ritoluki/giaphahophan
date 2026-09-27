@@ -244,7 +244,8 @@ export const graphProjectionSchema = z.object({
   nodes: z.array(z.object({
     occurrenceId: z.string().min(1),
     person: personSummarySchema,
-    depth: z.number().int().nonnegative()
+    depth: z.number().int().nonnegative(),
+    generation: z.number().int().nullable()
   })),
   edges: z.array(graphEdgeSchema),
   roots: z.array(z.string().min(1)),

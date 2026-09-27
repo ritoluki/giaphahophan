@@ -11133,10 +11133,15 @@ components:
               person:
                 $ref: '#/components/schemas/PersonSummary'
               depth: *id008
+              generation:
+                anyOf:
+                - *id008
+                - type: 'null'
             required:
             - occurrenceId
             - person
             - depth
+            - generation
         edges:
           type: array
           items:

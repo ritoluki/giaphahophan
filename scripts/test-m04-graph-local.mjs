@@ -15,5 +15,5 @@ if (result.status !== 0) {
   process.stderr.write(result.stderr || result.stdout || "local M04-01 test failed\n");
   process.exitCode = 1;
 } else {
-  console.log("PASS local M04 graph projection: modes, union/adoption, disconnected roots, disputed labels, caps and nextExpansion");
+  console.log("PASS local M04 graph projection: modes, root-relative generations, union/adoption, disconnected roots, disputed labels, caps and nextExpansion");
 }
