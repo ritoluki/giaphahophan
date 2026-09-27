@@ -57,7 +57,8 @@
     "test:m13:place-media": "node scripts/test-m13-place-media-local.mjs",
     "test:m13:map-adapter": "node scripts/test-m13-map-adapter-local.mjs",
     "test:m14:ledger": "node scripts/test-m14-balanced-ledger-local.mjs",
-    "test:m14:two-person": "node scripts/test-m14-two-person-local.mjs"
+    "test:m14:two-person": "node scripts/test-m14-two-person-local.mjs",
+    "test:m14:reversal": "node scripts/test-m14-immutable-reversal-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

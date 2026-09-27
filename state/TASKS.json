@@ -2137,9 +2137,14 @@
       "testIds": [
         "TC-M14-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0041_m14_immutable_reversal.sql: unique one-reversal index, posted journal/journal-line immutability triggers, linked inverse-line reversal RPC and authenticated API wrapper.",
+        "apps/web/src/app/api/v1/journal/[id]/reverse/route.ts: verified session, UUID/reason/schema and Idempotency-Key boundary for creating a linked reversal draft.",
+        "supabase/tests/m14_immutable_reversal.sql + pnpm test:m14:reversal PASS: posted source remains posted/version-stable, inverse lines persist, reversal submit/approve uses independent MFA reviewer, replay is idempotent, duplicate reversal and service-role mutation are denied.",
+        "pnpm test:m14:ledger, pnpm test:m14:two-person, pnpm test:m14:reversal PASS; full pnpm test PASS (contracts 52/52, domain 76/76, worker 18/18, lunar 4/4, web 5/5); typecheck/build/lint/verify PASS with 2 pre-existing lint warnings. No real money/data/cloud/production used."
+      ]
     },
     {
       "id": "M14-04",

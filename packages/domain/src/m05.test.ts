@@ -20,7 +20,7 @@ const base: KinshipInput = {
 
 describe("M05 authorized kinship path", () => {
   it("returns a shortest path with explicit relation direction", () => {
-    const result = findKinshipPaths(base);
+    const result = findKinshipPaths({ ...base, now: () => 0 });
     expect(result.status).toBe("found");
     expect(result.paths[0]?.map((node) => node.via)).toEqual(["start", "child", "adoptive_child"]);
     expect(result.visitedCount).toBeGreaterThan(0);

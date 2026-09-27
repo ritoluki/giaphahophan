@@ -1235,8 +1235,12 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Posted không PATCH/delete; đảo/thay thế có link và approval, không đảo trùng.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": [
+        "Local Supabase PASS: posted source and lines cannot be updated/deleted; reversal has FK link, inverse balanced lines, independent MFA approval and one-reversal unique guard.",
+        "Reverse BFF route is included in production build; M05 deterministic clock test prevents full-suite timing flake observed during M14-03 regression.",
+        "Full tests/typecheck/build/lint/verify PASS; staging, remote CI, axe/manual, real-device and production approval remain NOT_RUN."
+      ]
     },
     {
       "id": "TC-M14-04",
