@@ -292,9 +292,16 @@ importers:
 
   packages/lunar:
     dependencies:
+      '@dqcai/vn-lunar':
+        specifier: 1.0.1
+        version: 1.0.1
       '@phan/contracts':
         specifier: workspace:*
         version: link:../contracts
+    devDependencies:
+      '@baostudio/viet-lunar':
+        specifier: 0.1.1
+        version: 0.1.1
 
   packages/ui:
     dependencies:
@@ -381,6 +388,9 @@ packages:
     resolution: {integrity: sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg==}
     engines: {node: '>=6.9.0'}
 
+  '@baostudio/viet-lunar@0.1.1':
+    resolution: {integrity: sha512-RiLKjtxoPfvNYvBr9ueHXlWPPFixYjxpGuY+XJBYXoCW7OENBXCOxAAY55N/Qt8iEbfW+wqSN6Kx9mHB9SX1jg==}
+
   '@csstools/color-helpers@5.1.0':
     resolution: {integrity: sha512-S11EXWJyy0Mz5SYvRmY8nJYTFFd1LCNV+7cXyAgQtOOuzb4EsgfqDufL+9esx72/eLhsRdGZwaldu/h+E4t4BA==}
     engines: {node: '>=18'}
@@ -408,6 +418,10 @@ packages:
   '@csstools/css-tokenizer@3.0.4':
     resolution: {integrity: sha512-Vd/9EVDiu6PPJt9yAh6roZP6El1xHrdvIVGjyBsHR0RYwNHgL7FJPyIIW4fANJNG6FtyZfvlRPpFI4ZM/lubvw==}
     engines: {node: '>=18'}
+
+  '@dqcai/vn-lunar@1.0.1':
+    resolution: {integrity: sha512-JucGjy32oZvUnfzsx00niG4jc1szlvxV2inQECfQ1j83Y6YB0V4lFuj1piVbaCsWCe1B8FTktyGpgH8IgVg98w==}
+    engines: {node: '>=14.0.0'}
 
   '@ecies/ciphers@0.2.6':
     resolution: {integrity: sha512-patgsRPKGkhhoBjETV4XxD0En4ui5fbX0hzayqI3M8tvNMGUoUvmyYAIWwlxBc1KX5cturfqByYdj5bYGRpN9g==}
@@ -3190,6 +3204,8 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
+  '@baostudio/viet-lunar@0.1.1': {}
+
   '@csstools/color-helpers@5.1.0': {}
 
   '@csstools/css-calc@2.1.4(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)':
@@ -3209,6 +3225,8 @@ snapshots:
       '@csstools/css-tokenizer': 3.0.4
 
   '@csstools/css-tokenizer@3.0.4': {}
+
+  '@dqcai/vn-lunar@1.0.1': {}
 
   '@ecies/ciphers@0.2.6(@noble/ciphers@1.3.0)':
     dependencies:

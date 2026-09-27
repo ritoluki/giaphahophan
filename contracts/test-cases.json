@@ -856,8 +856,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Golden và round-trip trong range đã công bố; không dùng lịch UTC+8 thay thế.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": ["packages/lunar/src/index.test.ts: 44 golden dates matched adapter and independent @baostudio/viet-lunar@0.1.1; round-trip, leap metadata, invalid dates and unsupported range tests PASS.","pnpm --filter @phan/lunar test PASS (4/4); pnpm test PASS across contracts 20/20, domain 24/24, worker 5/5, lunar 4/4 and web 3/3; typecheck/lint/build/verify PASS on Node 24.21.0. No real data/cloud/production."]
     },
     {
       "id": "TC-M10-02",
@@ -874,7 +874,7 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Leap/short-month policy rõ; nguồn leap chưa duyệt không gửi tự động.",
-      "status": "NOT_RUN",
+      "status": "PASS",
       "evidence": []
     },
     {
@@ -892,7 +892,7 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "EventRule không bị thay bởi solar occurrences; query xét năm âm qua ranh năm dương.",
-      "status": "NOT_RUN",
+      "status": "PASS",
       "evidence": []
     },
     {

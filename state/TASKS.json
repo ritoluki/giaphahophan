@@ -1571,9 +1571,9 @@
       "testIds": [
         "TC-M10-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["packages/lunar/src/index.ts + packages/lunar/README.md: strict Vietnamese lunar adapter wraps @dqcai/vn-lunar@1.0.1, publishes 1900-2099 range, UTC+7 civil-date policy, leap-month/month-length API and invalid-date errors without JavaScript Date timezone arithmetic.","packages/lunar/src/index.test.ts: 44 golden solar dates covering boundaries, Tet, Mid-Autumn, 29/30-day months, leap months and UTC+7/UTC+8 divergence cases; independent @baostudio/viet-lunar@0.1.1 comparison, round-trip and invalid-input tests all PASS 4/4.","pnpm test PASS: contracts 20/20, domain 24/24, worker 5/5, lunar 4/4, web 3/3; pnpm typecheck, lint, build and verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. No UI/DB/API surface changed, so loading/empty/error/restricted/mobile UI and DB/API checks are not applicable to this package-only slice; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "M10-02",
@@ -1598,7 +1598,7 @@
       "testIds": [
         "TC-M10-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
       "evidence": []
     },
@@ -1625,7 +1625,7 @@
       "testIds": [
         "TC-M10-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
       "evidence": []
     },

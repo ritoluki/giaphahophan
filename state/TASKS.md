@@ -57,7 +57,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M09-03 | P5 | Citation thật | M09-02 | IN_PROGRESS - local source/citation API, exact-one target, idempotency and real FK PASS; staging/remote/accessibility gates NOT_RUN |
 | M09-04 | P5 | Quyền liên kết | M09-03 | IN_PROGRESS - private asset to public revision link cannot escalate visibility; local DB/API/BFF PASS; staging/remote/accessibility gates NOT_RUN |
 | M09-05 | P5 | Viewer mobile | M09-04 | IN_PROGRESS - image/PDF/audio/video viewer, safe fallback/no autoplay, responsive Playwright 54/54 PASS; staging/remote/axe/real-device NOT_RUN |
-| M10-01 | P6 | Adapter Việt Nam | M03-06, M09-05 |  |
+| M10-01 | P6 | Adapter Việt Nam | M03-06, M09-05 | IN_PROGRESS — adapter 1900–2099, 44 golden dates, independent comparison and round-trip/invalid tests PASS; release/accessibility gates remain NOT_RUN |
 | M10-02 | P6 | Recurrence policy | M10-01 |  |
 | M10-03 | P6 | Ngày gốc và lần tới | M10-02 |  |
 | M10-04 | P6 | Override/version | M10-03 |  |
@@ -113,3 +113,6 @@ M08-02 evidence (2026-09-27): PASS locally on synthetic Supabase. Authorized dif
 M08-03 evidence (2026-09-27): PASS locally on synthetic Supabase. Person addition approval now creates canonical target and attaches it to the proposal item atomically with status, review decision, audit and outbox; same idempotency key replay does not duplicate. Correction, relationship, stale conflict and soft-delete regressions remain PASS. pnpm test:db, pnpm test:auth, full pnpm test, typecheck, lint, build and standalone artifact auth pass; M08-04 scope/two-person and M08-05 lifecycle remain TODO.
 
 M08-04 evidence (2026-09-27): PASS locally on synthetic Supabase. Branch-scoped reviewer grant outside the proposal branch returned HTTP 403; correct-scope reviewer required MFA and proposal authors remained unable to self-review. M08-05 lifecycle remains TODO; production approval and real data remain unavailable.
+
+
+M10-01 evidence (2026-09-28): packages/lunar now exposes the strict Vietnam UTC+7 adapter over @dqcai/vn-lunar@1.0.1; 44 golden dates match independent @baostudio/viet-lunar@0.1.1, with leap-month/month-length validation and round-trip tests. pnpm --filter @phan/lunar test PASS (4/4); full pnpm test PASS (contracts 20/20, domain 24/24, worker 5/5, lunar 4/4, web 3/3), typecheck/lint/build/verify PASS on Node 24.21.0. Package-only slice; no UI/DB/API change. Staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
