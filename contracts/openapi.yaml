@@ -3473,6 +3473,108 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReasonCommand'
+  /api/v1/media/{id}/links:
+    get:
+      operationId: get_media_id_links
+      tags:
+      - Media
+      summary: /media/{id}/links
+      description: Authorized link projection; target links never change asset visibility.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - name: treeId
+        in: query
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Media links
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MediaLink'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required: [data, meta]
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: Không có quyền asset/link
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    post:
+      operationId: post_media_id_links
+      tags:
+      - Media
+      summary: /media/{id}/links
+      description: Tạo link với đúng một target FK; link vào bài public không nâng visibility của asset.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - name: treeId
+        in: query
+        required: true
+        schema: *id001
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaLinkInput'
+      responses:
+        '201':
+          description: Media link created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MediaLink'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required: [data, meta]
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: Không có quyền asset/link
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: FK hoặc idempotency conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422':
+          description: Target không hợp lệ
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
   /api/v1/media/{id}/access:
     post:
       operationId: post_media_id_access
@@ -12393,6 +12495,34 @@ components:
       - uploadUrl
       - expiresAt
       - requiredHeaders
+    MediaLinkInput:
+      type: object
+      additionalProperties: false
+      properties:
+        personId: *id001
+        sourceId: *id001
+        contentRevisionId: *id001
+        caption:
+          anyOf:
+          - *id002
+          - type: 'null'
+      required: []
+      description: Exactly one of personId, sourceId or contentRevisionId must be non-null.
+    MediaLink:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id001
+        version: *id008
+        assetId: *id001
+        personId: *id001
+        sourceId: *id001
+        contentRevisionId: *id001
+        caption:
+          anyOf:
+          - *id002
+          - type: 'null'
+      required: [id, version, assetId]
     Download:
       type: object
       additionalProperties: false

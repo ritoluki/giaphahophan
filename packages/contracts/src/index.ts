@@ -289,6 +289,20 @@ export const mediaDownloadSchema = z.object({
   expiresAt: z.string().datetime({ offset: true }),
   mode: z.literal("signed")
 }).strict();
+export const mediaLinkInputSchema = z.object({
+  personId: z.string().uuid().nullable().optional(),
+  sourceId: z.string().uuid().nullable().optional(),
+  contentRevisionId: z.string().uuid().nullable().optional(),
+  caption: z.string().trim().min(1).max(1000).nullable().optional()
+}).strict().superRefine((value, ctx) => {
+  const targets = [value.personId, value.sourceId, value.contentRevisionId].filter(Boolean);
+  if (targets.length !== 1) ctx.addIssue({ code: "custom", message: "Exactly one media link target is required" });
+});
+export const mediaLinkSchema = mediaLinkInputSchema.safeExtend({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  assetId: z.string().uuid()
+}).strict();
 export const sourceKindSchema = z.enum(["book", "oral", "document", "photo", "website", "other"]);
 export const sourceVisibilitySchema = z.enum(["public", "members", "restricted"]);
 export const sourceSchema = z.object({

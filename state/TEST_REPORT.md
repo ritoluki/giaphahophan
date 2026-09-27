@@ -112,3 +112,8 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - `pnpm test` PASS: contracts 19/19, domain 24/24, worker 5/5, web 3/3; `pnpm typecheck`, `pnpm test:db`, `pnpm build`, `pnpm verify`, OpenAPI parse PASS.
 - `pnpm lint` PASS with the 2 existing warnings (postcss config anonymous export and MFA QR `<img>`).
 - No real data, cloud, production deployment or owner approval used; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
+
+## M09-04 evidence (2026-09-28)
+- `pnpm run test:m09:links` PASS on standalone local-configured Node 24.21.0 + Supabase local: private asset to public published revision link, visibility isolation, idempotent replay, exact-one validation, real FK orphan denial, owner/capability enforcement and restricted actor denial.
+- `pnpm test` PASS: contracts 20/20, domain 24/24, worker 5/5, web 3/3; `pnpm typecheck`, `pnpm lint`, `pnpm build`, OpenAPI parse PASS. Lint has the 2 existing warnings.
+- No real data, cloud, production deployment or owner approval used; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.

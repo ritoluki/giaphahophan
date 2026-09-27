@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mediaAssetSchema } from "@phan/contracts";
+import { mediaAssetSchema, mediaLinkSchema } from "@phan/contracts";
 
 export type MediaUploadContext = {
   id: string;
@@ -13,6 +13,19 @@ export type MediaUploadContext = {
   created_by: string;
 };
 
+export function parseMediaLinkRow(row: unknown) {
+  if (!row || typeof row !== "object" || Array.isArray(row)) throw new Error("Media link response was not an object");
+  const value = row as Record<string, unknown>;
+  return mediaLinkSchema.parse({
+    id: value.id,
+    version: value.version,
+    assetId: value.asset_id ?? value.assetId,
+    personId: value.person_id ?? value.personId ?? null,
+    sourceId: value.source_id ?? value.sourceId ?? null,
+    contentRevisionId: value.content_revision_id ?? value.contentRevisionId ?? null,
+    caption: value.caption ?? null
+  });
+}
 export function parseMediaAssetRow(row: unknown) {
   if (!row || typeof row !== "object" || Array.isArray(row)) throw new Error("Media response was not an object");
   const value = row as Record<string, unknown>;

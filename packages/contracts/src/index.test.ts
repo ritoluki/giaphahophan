@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { authRecoveryInputSchema, authRecoveryResultSchema, claimReviewInputSchema, claimSubmitInputSchema, commandResultSchema, grantInputSchema, memberInputSchema, membershipGrantSchema, membershipSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, mediaAssetSchema, mediaUploadInputSchema, mediaUploadIntentSchema, mediaDownloadSchema, passwordUpdateInputSchema, passwordUpdateResultSchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema, citationInputSchema, sourceInputSchema } from "./index";
+import { authRecoveryInputSchema, authRecoveryResultSchema, claimReviewInputSchema, claimSubmitInputSchema, commandResultSchema, grantInputSchema, memberInputSchema, membershipGrantSchema, membershipSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, mediaAssetSchema, mediaUploadInputSchema, mediaUploadIntentSchema, mediaDownloadSchema, passwordUpdateInputSchema, passwordUpdateResultSchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema, citationInputSchema, sourceInputSchema, mediaLinkInputSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
   it("requires source provenance and exactly one citation target", () => {
@@ -88,7 +88,17 @@ describe("CORE-01 contracts", () => {
     expect(() => personSearchResultSchema.parse({ ...result, sourceTitle: "Hidden source" })).toThrow();
     expect(() => personSearchResultSchema.parse({ ...result, matchedNames: [{ name: "Phan Đỗ", kind: "alias", sourceId: "hidden" }] })).toThrow();
   });
-  it("accepts the allowlisted person projection shape", () => {
+  it("requires media links to keep exactly one real target", () => {
+    expect(mediaLinkInputSchema.parse({
+      contentRevisionId: "70000000-0000-4000-8000-000000000001",
+      caption: "Synthetic public article image"
+    }).contentRevisionId).toBe("70000000-0000-4000-8000-000000000001");
+    expect(() => mediaLinkInputSchema.parse({ caption: "missing target" })).toThrow();
+    expect(() => mediaLinkInputSchema.parse({
+      personId: "30000000-0000-4000-8000-000000000001",
+      sourceId: "40000000-0000-4000-8000-000000000001"
+    })).toThrow();
+  });  it("accepts the allowlisted person projection shape", () => {
     expect(personProjectionSchema.parse({
       id: "30000000-0000-4000-8000-000000000001",
       treeId: "10000000-0000-4000-8000-000000000001",

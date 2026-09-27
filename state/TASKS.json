@@ -1516,9 +1516,9 @@
       "testIds": [
         "TC-M09-04"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["supabase/migrations/0032_m09_media_links.sql: content_pages/content_revisions foundation plus media_links with tree-scoped asset/person/source/content-revision composite FKs, exactly-one target check, RLS and no asset visibility mutation.","packages/contracts/src/index.ts + apps/web/src/lib/server/media.ts: strict media link input/output contracts and allowlisted parser; exactly-one target unit coverage.","apps/web/src/app/api/v1/media/[id]/links/route.ts: authenticated GET/POST BFF with owner/capability authorization, Idempotency-Key and redacted errors; link projection never returns raw storage paths.","pnpm run test:m09:links PASS on standalone local-configured Node 24/Supabase synthetic data: restricted asset linked to published public revision without visibility escalation, persistence/list, replay, FK orphan denial and unauthorized actor denial; no real data. No new UI surface changed in this task."]
     },
     {
       "id": "M09-05",

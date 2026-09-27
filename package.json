@@ -48,7 +48,8 @@
     "test:m07:recovery": "node scripts/test-m07-recovery-local.mjs",
     "test:m08:proposal": "node scripts/test-m08-proposal-local.mjs",
     "test:m09:media": "node scripts/test-m09-media-local.mjs",
-    "test:m09:sources": "node scripts/test-m09-sources-local.mjs"
+    "test:m09:sources": "node scripts/test-m09-sources-local.mjs",
+    "test:m09:links": "node scripts/test-m09-links-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",
