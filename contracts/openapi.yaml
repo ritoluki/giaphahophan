@@ -1393,8 +1393,7 @@ paths:
       tags:
       - Genealogy
       summary: /kinship
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Trả tối đa ba đường quan hệ ngắn nhất trên graph đã lọc quyền; actor lấy từ session.
       security:
       - sessionCookie: []
       responses:
@@ -11253,6 +11252,10 @@ components:
                   - partner
                   - adoptive_parent
                   - adoptive_child
+                  - guardian_parent
+                  - guardian_child
+                  - step_parent
+                  - step_child
               required:
               - person
               - via

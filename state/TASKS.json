@@ -900,9 +900,14 @@
       "testIds": [
         "TC-M05-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "packages/domain/src/m05.ts và m05.test.ts phân biệt biological/adoptive/guardian/step/union; confirmed guardian/step tạo path descriptive, disputed bị loại; domain 19/19 PASS.",
+        "packages/contracts/src/index.ts, contracts/domain.types.ts và contracts/openapi.yaml đồng bộ via guardian_parent/guardian_child/step_parent/step_child; contract 12/12 PASS.",
+        "supabase/migrations/0018_m05_relationship_semantics.sql + supabase/tests/m05_kinship.sql xác nhận guardian/step direction, adoptive toggle, disputed exclusion và hidden endpoint denial; pnpm test:m05:kinship PASS.",
+        "pnpm typecheck, lint, build và Playwright 27/27 desktop/Pixel5/320 PASS; axe/manual/real-device/remote CI NOT_RUN; không dùng dữ liệu thật/cloud/production."
+      ]
     },
     {
       "id": "M05-03",

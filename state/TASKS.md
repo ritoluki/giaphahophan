@@ -35,7 +35,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M04-05 | P4 | Cycle concurrency | M04-04 | IN_PROGRESS - concurrent inverse parent mutations are serialized by transaction advisory lock; one winner and one ANCESTRY_CYCLE rejection persist exactly one edge; local DB/API regression PASS; no new UI mutation surface, existing M04 states retained; axe/manual/real-device/remote CI NOT_RUN |
 | M04-06 | P4 | Đời tương đối | M04-05 | IN_PROGRESS - generation is root/path-relative per occurrence (ancestor negative, root 0, descendant positive, union-only lineage unknown); canonical collapse preserves generation set/range; DB/domain/contract/build and responsive E2E PASS; axe/manual/real-device/remote CI NOT_RUN |
 | M05-01 | P4 | Path có quyền | M04-06 | IN_PROGRESS — domain BFS/RPC/BFF/UI + local regression and responsive E2E 27/27 PASS; axe/manual/real-device/remote CI NOT_RUN |
-| M05-02 | P4 | Semantics quan hệ | M05-01 |  |
+| M05-02 | P4 | Semantics quan hệ | M05-01 | IN_PROGRESS — biological/adoptive/guardian/step/union explicit, disputed excluded; DB/domain/contract/build/E2E 27/27 PASS; axe/manual/real-device/remote CI NOT_RUN |
 | M05-03 | P4 | Giới hạn rõ | M05-02 |  |
 | M05-04 | P4 | Xưng hô thận trọng | M05-03 |  |
 | M06-01 | P3 | Tên có và không dấu | M03-06 |  |

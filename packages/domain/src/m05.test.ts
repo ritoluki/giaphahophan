@@ -38,6 +38,17 @@ describe("M05 authorized kinship path", () => {
     expect(result.paths[0]?.map((node) => node.person.id)).toEqual([people[0]!.id]);
   });
 
+  it("distinguishes guardian and step paths and excludes disputed edges", () => {
+    const semanticEdges: KinshipInput["edges"] = [
+      { sourcePersonId: people[0]!.id, targetPersonId: people[1]!.id, kind: "guardian", status: "confirmed" },
+      { sourcePersonId: people[1]!.id, targetPersonId: people[2]!.id, kind: "step", status: "confirmed" }
+    ];
+    const semanticResult = findKinshipPaths({ ...base, edges: semanticEdges });
+    expect(semanticResult.paths[0]?.map((node) => node.via)).toEqual(["start", "guardian_child", "step_child"]);
+    const disputedResult = findKinshipPaths({ ...base, toPersonId: people[1]!.id, edges: [{ sourcePersonId: people[0]!.id, targetPersonId: people[1]!.id, kind: "biological", status: "disputed" }] });
+    expect(disputedResult.status).toBe("not_found_within_visible_graph");
+  });
+
   it("reports a bounded search instead of claiming no relationship", () => {
     const result = findKinshipPaths({ ...base, maxSteps: 1 });
     expect(result.status).toBe("limit_reached");

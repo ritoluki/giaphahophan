@@ -12,7 +12,11 @@ const viaLabels: Record<NonNullable<Kinship["paths"][number][number]>["via"], st
   child: "con",
   partner: "bạn đời",
   adoptive_parent: "cha/mẹ nuôi",
-  adoptive_child: "con nuôi"
+  adoptive_child: "con nuôi",
+  guardian_parent: "người giám hộ",
+  guardian_child: "người được giám hộ",
+  step_parent: "cha/mẹ kế",
+  step_child: "con riêng"
 };
 
 export function KinshipFinder({ people }: KinshipFinderProps) {

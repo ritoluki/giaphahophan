@@ -230,7 +230,7 @@ export const kinshipQuerySchema = z.object({
 
 const kinshipPathNodeSchema = z.object({
   person: personSummarySchema,
-  via: z.enum(["start", "parent", "child", "partner", "adoptive_parent", "adoptive_child"])
+  via: z.enum(["start", "parent", "child", "partner", "adoptive_parent", "adoptive_child", "guardian_parent", "guardian_child", "step_parent", "step_child"])
 });
 export const kinshipSchema = z.object({
   status: z.enum(["found", "not_found_within_visible_graph", "limit_reached"]),

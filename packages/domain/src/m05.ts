@@ -3,7 +3,7 @@ import type { Kinship, PersonSummary } from "@phan/contracts";
 export type KinshipEdge = {
   sourcePersonId: string;
   targetPersonId: string;
-  kind: "biological" | "adoptive" | "union";
+  kind: "biological" | "adoptive" | "guardian" | "step" | "union";
   status: "confirmed" | "disputed";
 };
 
@@ -57,8 +57,8 @@ export function findKinshipPaths(input: KinshipInput): Kinship {
       add(edge.targetPersonId, { personId: edge.sourcePersonId, via: "partner" });
       continue;
     }
-    const parentVia = edge.kind === "adoptive" ? "adoptive_parent" : "parent";
-    const childVia = edge.kind === "adoptive" ? "adoptive_child" : "child";
+    const parentVia = edge.kind === "adoptive" ? "adoptive_parent" : edge.kind === "guardian" ? "guardian_parent" : edge.kind === "step" ? "step_parent" : "parent";
+    const childVia = edge.kind === "adoptive" ? "adoptive_child" : edge.kind === "guardian" ? "guardian_child" : edge.kind === "step" ? "step_child" : "child";
     add(edge.sourcePersonId, { personId: edge.targetPersonId, via: childVia });
     add(edge.targetPersonId, { personId: edge.sourcePersonId, via: parentVia });
   }

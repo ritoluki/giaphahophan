@@ -118,11 +118,15 @@ function graphParentStatus(value: string): GraphParentLink["status"] {
   throw new Error("Invalid synthetic parent-link status");
 }
 
+function kinshipEdgeKind(value: string): KinshipEdge["kind"] {
+  if (value === "biological" || value === "adoptive" || value === "guardian" || value === "step") return value;
+  throw new Error("Invalid synthetic kinship edge kind");
+}
 export function getDemoKinship(fromPersonId: string, toPersonId: string, includeAdoptive = true) {
   const people = summaries.map((person) => ({ ...person, version: 1 }));
   const parentEdges: KinshipEdge[] = fixture.parentLinks
-    .filter((link) => link.kind === "biological" || link.kind === "adoptive")
-    .map((link) => ({ sourcePersonId: link.parentId, targetPersonId: link.childId, kind: link.kind === "adoptive" ? "adoptive" as const : "biological" as const, status: link.status === "confirmed" ? "confirmed" as const : "disputed" as const }));
+    .filter((link) => link.kind === "biological" || link.kind === "adoptive" || link.kind === "guardian" || link.kind === "step")
+    .map((link) => ({ sourcePersonId: link.parentId, targetPersonId: link.childId, kind: kinshipEdgeKind(link.kind), status: link.status === "confirmed" ? "confirmed" as const : "disputed" as const }));
   const unionEdges: KinshipEdge[] = fixture.unions.flatMap((union) => union.partnerIds.flatMap((sourcePersonId, index) => union.partnerIds.slice(index + 1).map((targetPersonId) => ({ sourcePersonId, targetPersonId, kind: "union" as const, status: "confirmed" as const }))));
   return findKinshipPaths({ fromPersonId, toPersonId, people, edges: [...parentEdges, ...unionEdges], includeAdoptive });
 }
