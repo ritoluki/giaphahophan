@@ -13108,8 +13108,10 @@ components:
           enum:
           - draft
           - submitted
+          - needs_info
           - approved
           - rejected
+          - withdrawn
           - awarded
         personId: *id001
         statement: *id012

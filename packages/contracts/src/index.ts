@@ -472,7 +472,32 @@ export const reconciliationSchema = z.object({
 export const closePeriodInputSchema = reportRangeSchema.safeExtend({
   reason: z.string().trim().min(1).max(2000),
   baseVersion: z.number().int().positive(),
-}).strict();export const journalSchema = z.object({
+}).strict();
+export const scholarshipProgramStatusSchema = z.enum(["draft", "open", "closed", "awarded"]);
+export const scholarshipApplicationStatusSchema = z.enum(["draft", "submitted", "needs_info", "approved", "rejected", "withdrawn", "awarded"]);
+export const scholarshipProgramInputSchema = z.object({
+  fundId: z.string().uuid(),
+  title: z.string().trim().min(1).max(500),
+  criteria: z.string().trim().min(1).max(20_000),
+  closesAt: z.string().datetime({ offset: true }).nullable(),
+  status: scholarshipProgramStatusSchema,
+}).strict();
+export const scholarshipProgramSchema = scholarshipProgramInputSchema.extend({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+}).strict();
+export const scholarshipApplicationInputSchema = z.object({
+  personId: z.string().uuid(),
+  statement: z.string().trim().min(1).max(20_000),
+  evidenceAssetId: z.string().uuid(),
+}).strict();
+export const scholarshipApplicationSchema = scholarshipApplicationInputSchema.extend({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  programId: z.string().uuid(),
+  status: scholarshipApplicationStatusSchema,
+}).strict();
+export const journalSchema = z.object({
   id: z.string().uuid(),
   version: z.number().int().positive(),
   code: z.string().min(1),
@@ -492,6 +517,10 @@ export type FundRecord = z.infer<typeof fundSchema>;
 export type ReportRecord = z.infer<typeof reportSchema>;
 export type JournalRecord = z.infer<typeof journalSchema>;
 export type ReconciliationRecord = z.infer<typeof reconciliationSchema>;
+export type ScholarshipProgramInput = z.infer<typeof scholarshipProgramInputSchema>;
+export type ScholarshipProgramRecord = z.infer<typeof scholarshipProgramSchema>;
+export type ScholarshipApplicationInput = z.infer<typeof scholarshipApplicationInputSchema>;
+export type ScholarshipApplicationRecord = z.infer<typeof scholarshipApplicationSchema>;
 
 const placeCoordinatesSchema = z.object({
   latitude: z.number().min(-90).max(90).nullable().optional(),

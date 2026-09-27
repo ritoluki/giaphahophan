@@ -2235,9 +2235,13 @@
       "testIds": [
         "TC-M15-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "pnpm test:m15:program PASS: scoped program visibility, private evidence, applicant tracking, reviewer MFA workflow, same-key application/review replay and raw-table RLS denial",
+        "pnpm test PASS: contracts 56/56, domain 82/82, worker 18/18, lunar 4/4, web 5/5; pnpm typecheck/build/verify PASS; pnpm lint PASS with 2 pre-existing warnings",
+        "OpenAPI parse PASS; migration 0044/0045, BFF routes and /khuyen-hoc are included in production build"
+      ]
     },
     {
       "id": "M15-02",

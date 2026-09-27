@@ -80,7 +80,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M14-03 | P7 | Immutable/reversal | M14-02 | IN_PROGRESS - posted entry/lines immutable triggers, linked inverse-line reversal RPC, unique duplicate guard and reverse BFF route implemented; local M14-01..03 tests and full regression PASS; staging/remote, accessibility/device and production gates remain NOT_RUN |
 | M14-04 | P7 | Reports và privacy | M14-03 | IN_PROGRESS - local report RPC/BFF projection, opening/receipt/payment/closing totals, restricted authorization and donor/proof omission PASS; full regression/build/typecheck/verify PASS; staging/remote, accessibility/device and production gates remain NOT_RUN |
 | M14-05 | P7 | Đối chiếu kỳ | M14-04 | IN_PROGRESS - period reconciliation projection, immutable close snapshot, proof status and closed-period DB guard PASS locally; staging/remote, accessibility/device and production gates remain NOT_RUN |
-| M15-01 | P7 | Chương trình/đề cử | M14-05 |  |
+| M15-01 | P7 | Chương trình/đề cử | M14-05 | IN_PROGRESS — migration 0044/0045, BFF/API, domain/contracts, `/khuyen-hoc` UI and local synthetic workflow PASS; staging/remote CI, axe/manual, real-device, cloud wiring and production approval NOT_RUN |
 | M15-02 | P7 | Minors và nguồn | M15-01 |  |
 | M15-03 | P7 | Award và thanh toán | M15-02 |  |
 | M15-04 | P7 | Báo cáo | M15-03 |  |
