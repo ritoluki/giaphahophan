@@ -1978,9 +1978,9 @@
       "testIds": [
         "TC-M13-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["packages/contracts/src/index.ts + m13.test.ts: confirmed placeId/provider/confirmed=true external-map request; unconfirmed and invalid requests rejected; contract tests 44/44 PASS.","packages/domain/src/m13.ts + m13.test.ts: explicit external link is created only after coordinate projection authorization and confirmed action; restricted/unclear paths return null; domain tests 68/68 PASS.","apps/web/src/modules/m13/place-reader.tsx + globals.css: detail CTA boundary never auto-opens provider and shows no-coordinate permission state; localhost:3100 detail smoke returned 200 with map privacy copy.","No geocoding, provider fetch, automatic map navigation, real coordinates or real data were used. Full pnpm test, typecheck, build, lint and verify PASS on Node 24.21.0; lint retains 2 existing warnings."]
     },
     {
       "id": "M13-03",

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildExplicitExternalMapLink,
   canReadM13Visibility,
   hasBurialEvidence,
   hasCompletePlaceCoordinates,
@@ -63,5 +64,17 @@ describe("M13 place and burial boundaries", () => {
     expect(hasBurialEvidence(burial)).toBe(true);
     expect(hasBurialEvidence({ locator: null, sourceId: null })).toBe(false);
     expect(JSON.stringify(burial)).not.toContain("homeAddress");
+  });
+});
+describe("M13 external map boundary", () => {
+  it("does not create a link without coordinate authorization and explicit confirmation", () => {
+    expect(buildExplicitExternalMapLink(place, "public", "google_maps", true)).toBeNull();
+    expect(buildExplicitExternalMapLink({ ...place, coordinateVisibility: "public" }, "public", "google_maps", false)).toBeNull();
+  });
+
+  it("creates a provider URL only after an authorized explicit action", () => {
+    const link = buildExplicitExternalMapLink({ ...place, coordinateVisibility: "public" }, "public", "google_maps", true);
+    expect(link).toBe("https://www.google.com/maps/search/?api=1&query=10.1234567%2C106.1234567");
+    expect(buildExplicitExternalMapLink({ ...place, coordinateVisibility: "public" }, "public", "openstreetmap", true)).toContain("openstreetmap.org/?mlat=10.1234567");
   });
 });

@@ -1,8 +1,10 @@
 import {
+  explicitExternalMapLinkRequestSchema,
   placeInputSchema,
   type BurialRecord,
   type Place,
   type PlaceInput,
+  type ExternalMapProvider,
   type PlaceRecord,
 } from "@phan/contracts";
 
@@ -81,4 +83,19 @@ export function hasCompletePlaceCoordinates(place: Pick<Place, "latitude" | "lon
 
 export function hasBurialEvidence(burial: Pick<BurialRecord, "locator" | "sourceId">): boolean {
   return burial.locator != null || burial.sourceId != null;
+}
+export function buildExplicitExternalMapLink(
+  place: PlaceRecord,
+  viewer: M13ViewerScope,
+  provider: ExternalMapProvider,
+  confirmed: boolean,
+): string | null {
+  if (!confirmed || !explicitExternalMapLinkRequestSchema.safeParse({ placeId: place.id, provider, confirmed: true }).success) return null;
+  const projection = projectPlace(place, viewer);
+  if (!projection?.coordinates) return null;
+  const { latitude, longitude } = projection.coordinates;
+  if (provider === "google_maps") {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${latitude},${longitude}`)}`;
+  }
+  return `https://www.openstreetmap.org/?mlat=${encodeURIComponent(String(latitude))}&mlon=${encodeURIComponent(String(longitude))}#map=18/${encodeURIComponent(String(latitude))}/${encodeURIComponent(String(longitude))}`;
 }

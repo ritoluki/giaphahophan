@@ -12878,7 +12878,23 @@ components:
       - kind
       - visibility
       - coordinateVisibility
-    Fund:
+    ExternalMapLinkRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        placeId: *id001
+        provider:
+          type: string
+          enum:
+          - google_maps
+          - openstreetmap
+        confirmed:
+          type: boolean
+          const: true
+      required:
+      - placeId
+      - provider
+      - confirmed    Fund:
       type: object
       additionalProperties: false
       properties:

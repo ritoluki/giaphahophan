@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { burialInputSchema, placeInputSchema, placeSchema } from "./index";
+import { burialInputSchema, explicitExternalMapLinkRequestSchema, placeInputSchema, placeSchema } from "./index";
 
 const ids = {
   id: "a3700000-0000-4000-8000-000000000001",
@@ -46,5 +46,11 @@ describe("M13 place and burial contracts", () => {
   it("keeps burial locator and source independently optional", () => {
     expect(burialInputSchema.safeParse({ personId: ids.personId, placeId: ids.placeId, visibility: "restricted" }).success).toBe(true);
     expect(burialInputSchema.safeParse({ personId: ids.personId, placeId: ids.placeId, locator: "Lô A", sourceId: ids.sourceId, visibility: "members" }).success).toBe(true);
+  });
+});
+describe("M13 explicit external map link contract", () => {
+  it("accepts only a confirmed place-id/provider request", () => {
+    expect(explicitExternalMapLinkRequestSchema.safeParse({ placeId: ids.placeId, provider: "google_maps", confirmed: true }).success).toBe(true);
+    expect(explicitExternalMapLinkRequestSchema.safeParse({ placeId: ids.placeId, provider: "google_maps", confirmed: false }).success).toBe(false);
   });
 });

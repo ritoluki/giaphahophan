@@ -467,4 +467,5 @@ button, a, input, select { min-height: 44px; }
 @media (min-width: 700px) {
   .place-card-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .place-card, .place-detail-card { padding: 1.4rem; }
-}
+}.place-map-action { width: fit-content; margin-top: .35rem; }
+.place-map-unavailable { color: var(--ink-muted); font-size: .86rem; }

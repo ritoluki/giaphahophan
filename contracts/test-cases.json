@@ -1126,8 +1126,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Không tự gửi tọa độ/địa chỉ private đến map/geocoding; explicit external link.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": ["M13-02 explicit-map contract/domain tests PASS: unauthorized coordinates and unconfirmed action return null; authorized confirmed request creates only a URL.","Full pnpm test/typecheck/build/verify PASS; lint PASS with 2 existing warnings; localhost:3100 detail smoke 200 with no-coordinate permission boundary."]
     },
     {
       "id": "TC-M13-03",

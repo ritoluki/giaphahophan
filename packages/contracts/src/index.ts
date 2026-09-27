@@ -395,6 +395,14 @@ export type PlaceRecord = z.infer<typeof placeSchema>;
 export type BurialInput = z.infer<typeof burialInputSchema>;
 export type BurialRecord = z.infer<typeof burialRecordSchema>;
 
+export const externalMapProviderSchema = z.enum(["google_maps", "openstreetmap"]);
+export const explicitExternalMapLinkRequestSchema = z.object({
+  placeId: z.string().uuid(),
+  provider: externalMapProviderSchema,
+  confirmed: z.literal(true),
+}).strict();
+export type ExternalMapProvider = z.infer<typeof externalMapProviderSchema>;
+export type ExplicitExternalMapLinkRequest = z.infer<typeof explicitExternalMapLinkRequestSchema>;
 export const proposalDetailItemSchema = z.object({
   id: z.string().uuid(),
   targetKind: z.enum(["person", "fact", "parent_link", "union", "branch", "merge", "publication"]),

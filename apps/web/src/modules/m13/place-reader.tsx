@@ -52,6 +52,11 @@ export function PlaceIndex({ places }: { places: readonly PlaceRecord[] }) {
   );
 }
 
+export function ExternalMapAction({ href }: { href: string | null }) {
+  return href
+    ? <a className="button-secondary place-map-action" href={href} target="_blank" rel="noreferrer">Mở bản đồ ngoài</a>
+    : <span className="place-map-unavailable">Chưa có quyền tọa độ để mở bản đồ ngoài</span>;
+}
 export function PlaceDetail({ place }: { place: PlaceRecord }) {
   return (
     <SiteShell active="more">
@@ -66,7 +71,7 @@ export function PlaceDetail({ place }: { place: PlaceRecord }) {
             <div><dt>Tư liệu nguồn</dt><dd>Chưa có tư liệu được gắn trong fixture minh họa</dd></div>
             <div><dt>Ảnh</dt><dd>Chưa có ảnh được cấp quyền</dd></div>
           </dl>
-          <div className="place-privacy-note"><strong>Bản đồ ngoài</strong><span>Chỉ mở dịch vụ ngoài sau khi người dùng chủ động chọn và hệ thống xác nhận quyền tọa độ.</span></div>
+          <div className="place-privacy-note"><strong>Bản đồ ngoài</strong><span>Chỉ mở dịch vụ ngoài sau khi người dùng chủ động chọn và hệ thống xác nhận quyền tọa độ.</span><ExternalMapAction href={null} /></div>
         </article>
       </main>
     </SiteShell>
