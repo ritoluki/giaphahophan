@@ -1,5 +1,5 @@
 import fixture from "../../../../fixtures/demo-family.json";
-import { buildGraphProjection, type GraphMode, type GraphParentLink, type GraphUnion } from "@phan/domain";
+import { buildGraphProjection, findKinshipPaths, type GraphMode, type GraphParentLink, type GraphUnion, type KinshipEdge } from "@phan/domain";
 import type { Graph } from "@phan/contracts";
 
 export type DemoPersonSummary = {
@@ -118,6 +118,14 @@ function graphParentStatus(value: string): GraphParentLink["status"] {
   throw new Error("Invalid synthetic parent-link status");
 }
 
+export function getDemoKinship(fromPersonId: string, toPersonId: string, includeAdoptive = true) {
+  const people = summaries.map((person) => ({ ...person, version: 1 }));
+  const parentEdges: KinshipEdge[] = fixture.parentLinks
+    .filter((link) => link.kind === "biological" || link.kind === "adoptive")
+    .map((link) => ({ sourcePersonId: link.parentId, targetPersonId: link.childId, kind: link.kind === "adoptive" ? "adoptive" as const : "biological" as const, status: link.status === "confirmed" ? "confirmed" as const : "disputed" as const }));
+  const unionEdges: KinshipEdge[] = fixture.unions.flatMap((union) => union.partnerIds.flatMap((sourcePersonId, index) => union.partnerIds.slice(index + 1).map((targetPersonId) => ({ sourcePersonId, targetPersonId, kind: "union" as const, status: "confirmed" as const }))));
+  return findKinshipPaths({ fromPersonId, toPersonId, people, edges: [...parentEdges, ...unionEdges], includeAdoptive });
+}
 export function getDemoGraph(personId: string, mode: GraphMode, depth = 3, maxNodes = 120): Graph {
   const people = summaries.map((person) => ({ ...person, version: 1 }));
   const parentLinks: GraphParentLink[] = fixture.parentLinks.map((link) => ({

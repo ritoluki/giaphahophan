@@ -868,9 +868,14 @@
       "testIds": [
         "TC-M05-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "packages/domain/src/m05.ts BFS giới hạn max 12 bước, max 10.000 visited và tối đa 3 đường ngắn nhất; test 4/4 cho hướng cạnh, adoptive toggle, hidden endpoint và limit_reached.",
+        "supabase/migrations/0017_m05_kinship_path.sql + supabase/tests/m05_kinship.sql; pnpm test:m05:kinship và pnpm test:db PASS trên Supabase local synthetic.",
+        "BFF /api/v1/kinship, UI /quan-he, loading/empty/error/restricted/limit/mobile states; authenticated pnpm test:auth PASS và Playwright responsive 27/27 PASS.",
+        "pnpm test PASS (contracts 11/11, domain 18/18, worker 5/5), typecheck PASS, build PASS Next 16.3.3, lint PASS với 1 warning PostCSS; axe/manual/real-device/remote CI NOT_RUN; không dùng dữ liệu thật/cloud/production."
+      ]
     },
     {
       "id": "M05-02",

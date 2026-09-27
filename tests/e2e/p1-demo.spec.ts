@@ -111,6 +111,16 @@ test("tree explorer exposes bounded graph modes and fullscreen focus", async ({ 
   await page.keyboard.press("Escape");
   await expect(page.locator(".tree-explorer-fullscreen")).toHaveCount(0);
 });
+
+test("kinship finder exposes bounded permission-aware paths", async ({ page }, testInfo) => {
+  await page.goto("/quan-he");
+  await expect(page.getByRole("heading", { name: /Đường nối giữa hai người/ })).toBeVisible();
+  await expect(page.getByRole("combobox")).toHaveCount(2);
+  await page.getByRole("button", { name: "Tính đường quan hệ" }).click();
+  await expect(page.getByRole("heading", { name: /Đường 1/ })).toBeVisible();
+  await expect(page.getByText("Không tự suy ra cách xưng hô", { exact: false })).toBeVisible();
+  await capture(page, "kinship", testInfo.project.name);
+});
 test("keyboard and basic accessibility contracts remain available", async ({ page }) => {
   await page.goto("/");
   await page.keyboard.press("Tab");

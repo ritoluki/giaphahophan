@@ -271,6 +271,8 @@ try {
   assert(relationshipReviewed.response.status === 200 && relationshipReviewed.body?.data?.status === "approved", "relationship proposal did not approve");
   const relationshipVerified = runPsql("select count(*) from private.parent_links where tree_id = " + sqlString(treeId) + " and parent_id = " + sqlString(personId) + " and child_id = " + sqlString(childPersonId) + " and deleted_at is null;");
   assert(relationshipVerified.status === 0 && /\b1\b/.test(relationshipVerified.stdout), "approved relationship was not persisted");
+  const kinship = await jsonRequest(webUrl + "/api/v1/kinship?from=" + personId + "&to=" + childPersonId, { headers: { Cookie: cookieA } });
+  assert(kinship.response.status === 200 && kinship.body?.data?.status === "found", "kinship BFF projection failed");
 
   const cyclePayload = {
     ...relationshipPayload,

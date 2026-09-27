@@ -36,7 +36,8 @@
     "backup:check": "node scripts/status-not-run.mjs backup:check",
     "restore:verify": "node scripts/status-not-run.mjs restore:verify",
     "test:m04:graph": "node scripts/test-m04-graph-local.mjs",
-    "test:m04:cycle": "node scripts/test-m04-cycle-concurrency-local.mjs"
+    "test:m04:cycle": "node scripts/test-m04-cycle-concurrency-local.mjs",
+    "test:m05:kinship": "node scripts/test-m05-kinship-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

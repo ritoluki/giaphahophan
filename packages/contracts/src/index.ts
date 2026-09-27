@@ -221,6 +221,25 @@ export const errorResponseSchema = z.object({ error: z.object({ code: z.string()
 export function assertValidGenealogyDate(value: unknown): asserts value is z.infer<typeof genealogyDateSchema> {
   genealogyDateSchema.parse(value);
 }
+const kinshipBooleanQuerySchema = z.enum(["true", "false"]).transform((value) => value === "true");
+export const kinshipQuerySchema = z.object({
+  from: z.string().uuid(),
+  to: z.string().uuid(),
+  includeAdoptive: kinshipBooleanQuerySchema.optional().transform((value) => value === undefined ? true : value)
+});
+
+const kinshipPathNodeSchema = z.object({
+  person: personSummarySchema,
+  via: z.enum(["start", "parent", "child", "partner", "adoptive_parent", "adoptive_child"])
+});
+export const kinshipSchema = z.object({
+  status: z.enum(["found", "not_found_within_visible_graph", "limit_reached"]),
+  paths: z.array(z.array(kinshipPathNodeSchema)),
+  label: z.string().nullable(),
+  labelConfidence: z.enum(["reviewed_rule", "descriptive_only", "unknown"]),
+  visitedCount: z.number().int().nonnegative(),
+  truncated: z.boolean()
+});
 export const graphDirectionSchema = z.enum(["ancestors", "descendants", "family", "roots"]);
 export const graphQuerySchema = z.object({
   direction: graphDirectionSchema.default("family"),

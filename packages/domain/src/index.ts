@@ -85,3 +85,4 @@ export function publicLifeStatusAllowed(status: "living" | "deceased" | "unknown
   return explicitPublication && status === "deceased";
 }
 export * from "./m04";
+export * from "./m05";
