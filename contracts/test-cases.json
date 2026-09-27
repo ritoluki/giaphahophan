@@ -1000,8 +1000,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Opt-in, quiet/default hour, unsubscribe/suppression, recheck consent lúc gửi.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": ["apps/worker/src/notification-policy.ts + notification-policy.test.ts: send-time decision requires opt-in and current consent, applies Asia/Ho_Chi_Minh local-hour quiet window 22:00-07:00 by default, honors unsubscribe/suppression and rejects invalid hours; 4/4 worker tests PASS.","packages/contracts/src/index.ts + m11-privacy.test.ts: bounded preference and send-context schemas default quiet hours and reject invalid local hour; 2/2 contract tests PASS.","Full pnpm test PASS: contracts 31/31, domain 50/50, worker 13/13, lunar 4/4, web 3/3; pnpm typecheck, lint, build and verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. No UI/provider send changed; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "TC-M11-04",

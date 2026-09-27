@@ -635,3 +635,19 @@ export const deliveryAttemptSchema = z.object({
     });
   }
 }).strict();
+
+
+export const notificationPreferenceSchema = z.object({
+  channel: z.enum(["email", "in_app"]),
+  eventKind: z.string().trim().min(1).max(100),
+  enabled: z.boolean().default(false),
+  quietStartHour: z.number().int().min(0).max(23).default(22),
+  quietEndHour: z.number().int().min(0).max(23).default(7),
+  unsubscribed: z.boolean().default(false),
+  suppressed: z.boolean().default(false),
+}).strict();
+
+export const notificationSendContextSchema = z.object({
+  currentLocalHour: z.number().int().min(0).max(23),
+  consentAllowed: z.boolean(),
+}).strict();

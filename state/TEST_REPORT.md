@@ -167,3 +167,8 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - apps/worker/src/delivery.test.ts PASS: 4/4 tests cover crash after provider acceptance, reconcile without a second send, persisted-attempt dedupe and typed provider failure.
 - packages/contracts/src/m11.test.ts PASS: 2/2 tests enforce provider ID for accepted delivery and bounded delivery shape.
 - Full pnpm test PASS: contracts 29/29, domain 50/50, worker 9/9, lunar 4/4, web 3/3; pnpm typecheck, lint, build and verify PASS on Node 24.21.0. No real provider/email or UI; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
+
+## M11-03 evidence (2026-09-28)
+- apps/worker/src/notification-policy.test.ts PASS: 4/4 tests for explicit opt-in, consent revocation at send time, default quiet hours across midnight, unsubscribe/suppression and invalid hour rejection.
+- packages/contracts/src/m11-privacy.test.ts PASS: 2/2 tests for preference defaults and bounded send context.
+- Full pnpm test PASS: contracts 31/31, domain 50/50, worker 13/13, lunar 4/4, web 3/3; pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS on Node 24.21.0. No provider/email or UI; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.

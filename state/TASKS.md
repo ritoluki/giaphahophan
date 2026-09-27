@@ -65,7 +65,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M10-06 | P6 | ICS đúng ngày | M10-05 | IN_PROGRESS — scoped ICS exporter uses solar all-day dates, exclusive DTEND, stable UID, version-derived SEQUENCE and no public feed; 3/3 contract + 5/5 domain tests PASS; release/staging/UI gates remain NOT_RUN |
 | M11-01 | P6 | Outbox atomic | M10-06, JOBS-01 | IN_PROGRESS — migration 0009 and worker dispatcher provide atomic outbox durability, least-privilege claim/lease/retry and deduped publish; local DB/jobs/worker tests PASS; release/staging gates remain NOT_RUN |
 | M11-02 | P6 | Gửi idempotent | M11-01 | IN_PROGRESS — delivery attempts persist provider message ID, reconcile before retry and enforce channel/key uniqueness; local SQL/worker/contract tests PASS; real provider and release gates remain NOT_RUN |
-| M11-03 | P6 | Privacy và preference | M11-02 |  |
+| M11-03 | P6 | Privacy và preference | M11-02 | IN_PROGRESS — send-time policy enforces opt-in, quiet/default hour, unsubscribe/suppression and consent recheck; worker 4/4 + contract 2/2 tests PASS; provider/UI/release gates remain NOT_RUN |
 | M11-04 | P6 | Counters và failure | M11-03 |  |
 | M12-01 | P6 | Rich text an toàn | M09-05, M08-05 |  |
 | M12-02 | P6 | Revision/publish | M12-01 |  |
@@ -126,3 +126,4 @@ M10-04 evidence (2026-09-28): occurrence overrides now preserve logical key and 
 - M10-06 evidence: scoped ICS export has deterministic solar date output, exclusive DTEND, stable UID, cancellation/version handling and privacy denial; contracts 3/3, domain 5/5, full tests/typecheck/lint/build/verify PASS on Node 24.21.0. No UI/DB/API surface changed; staging, remote CI, axe/manual, real-device and production approval remain NOT_RUN.
 - M11-01 evidence: local Supabase proves service_role-only outbox claim, retry after failure/lease and exactly-once publish transition; core DB mutation tests prove audit/outbox transaction evidence; worker tests 5/5 and typecheck PASS. pnpm test:auth was FAIL (BFF login 401) in the existing auth harness, separate from JOBS-01; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
 - M11-02 evidence: provider acceptance is reconciled by stable idempotency key before a second send; provider ID is persisted, duplicate local keys are rejected and missing provider IDs after acceptance are invalid. SQL 1/1, worker 4/4, contract 2/2 and full regression PASS; no real provider/email was used.
+- M11-03 evidence: preference policy suppresses non-opted-in, quiet-hour, unsubscribed, suppressed and revoked-consent sends; permitted sends require current consent at dispatch time. Worker 4/4, contract 2/2 and full regression PASS; no real provider/email or UI changed.
