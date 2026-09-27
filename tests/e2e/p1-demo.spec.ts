@@ -162,3 +162,12 @@ test("keyboard and basic accessibility contracts remain available", async ({ pag
   }));
   expect(bottomNavTargets).toBe(true);
 });
+
+test("invitation page keeps token and private tree details out of visible copy", async ({ page }) => {
+  const token = "synthetic-invitation-token-2026-09-27";
+  await page.goto("/loi-moi/" + token);
+  await expect(page.getByRole("heading", { name: "Xác nhận lời mời" })).toBeVisible();
+  await expect(page.getByText("Thông tin về gia phả và vai trò sẽ chỉ hiển thị sau khi máy chủ xác thực đúng tài khoản.", { exact: false })).toBeVisible();
+  await expect(page.locator("button[type=submit]")).toBeDisabled();
+  expect(await page.locator("main").innerText()).not.toContain(token);
+});

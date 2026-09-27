@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { claimReviewInputSchema, claimSubmitInputSchema, graphProjectionSchema, graphQuerySchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
+import { claimReviewInputSchema, claimSubmitInputSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
   it("preserves canonical display and aliases in person search results", () => {
@@ -153,7 +153,27 @@ describe("CORE-01 contracts", () => {
       sourceIds: ["40000000-0000-4000-8000-000000000001"]
     }).sourceCount).toBe(1);
   });
-  it("keeps graph modes bounded and preserves disputed relationship labels", () => {
+  it("keeps invitation contracts strict and free of raw response secrets", () => {
+    const input = invitationInputSchema.parse({
+      treeId: "10000000-0000-4000-8000-000000000001",
+      email: "member@synthetic.test",
+      role: "member"
+    });
+    expect(input.email).toBe("member@synthetic.test");
+    expect(invitationAcceptInputSchema.parse({ token: "a".repeat(32) }).token).toHaveLength(32);
+    expect(invitationMutationResultSchema.parse({
+      id: "80000000-0000-4000-8000-000000000001",
+      treeId: "10000000-0000-4000-8000-000000000001",
+      status: "pending",
+      version: 1
+    })).not.toHaveProperty("token");
+    expect(() => invitationInputSchema.parse({
+      treeId: input.treeId,
+      email: input.email,
+      role: input.role,
+      token: "raw-secret"
+    })).toThrow();
+  });  it("keeps graph modes bounded and preserves disputed relationship labels", () => {
     expect(graphQuerySchema.parse({ direction: "roots", depth: "2", maxNodes: "120" })).toEqual({ direction: "roots", depth: 2, maxNodes: 120 });
     const parsed = graphProjectionSchema.parse({
       nodes: [{ occurrenceId: "root/demo", depth: 0, generation: 0, person: {

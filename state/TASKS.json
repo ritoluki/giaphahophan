@@ -1118,9 +1118,14 @@
       "testIds": [
         "TC-M07-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0021_m07_invitations.sql and 0022_m07_invitation_accept_idempotency.sql: seven-day single-use token hash, tree/email binding, verified-email acceptance, idempotent retry, audit/outbox and pending membership; direct non-idempotent API wrapper revoked.",
+        "apps/web/src/app/api/v1/invitations and /loi-moi/[token]: strict Zod BFF boundaries, redacted mobile-first acceptance UI, login return path validation, no raw token/email/tree details in response or visible copy.",
+        "pnpm test:m07:invitations PASS on standalone local-configured Node 24/Supabase synthetic users: create queue/replay/conflict, wrong email, expired TTL, matching accept/replay/conflict, single-use, hash persistence, no capability auto-grant and direct wrapper privilege revoked.",
+        "pnpm test PASS (contracts 14/14, domain 24/24, worker 5/5, web 2/2), pnpm typecheck PASS, pnpm lint PASS with one existing PostCSS warning, pnpm build PASS, pnpm exec playwright test PASS 36/36 desktop/Pixel5/320. Provider delivery, axe/manual, real-device, remote CI and staging remain NOT_RUN; H2 owner approval is required before choosing a provider or sending email."
+      ]
     },
     {
       "id": "M07-02",

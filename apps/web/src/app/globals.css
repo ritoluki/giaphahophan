@@ -168,6 +168,18 @@ button, a, input, select { min-height: 44px; }
 .deletion-impact-summary textarea { min-height: 6rem; resize: vertical; }
 .button-danger { min-height: 44px; width: fit-content; padding: .65rem 1rem; border: 1px solid var(--danger); border-radius: 8px; background: var(--danger); color: #fff; font-weight: 700; cursor: pointer; }
 .button-danger:disabled { opacity: .55; cursor: not-allowed; }
+.invitation-page { max-width: 760px; }
+.invitation-card { display: grid; gap: 1rem; margin-top: 1.25rem; padding: clamp(1.25rem, 5vw, 2.5rem); }
+.invitation-card h1 { margin: 0; }
+.invitation-card p { margin: 0; }
+.invitation-seal { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; border: 1px solid var(--accent); border-radius: 50%; background: #FBF1DE; color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-weight: 800; letter-spacing: .04em; }
+.invitation-notice { display: grid; gap: .2rem; padding: .9rem 1rem; border-left: 3px solid var(--accent); background: #FBF1DE; color: var(--ink-muted); }
+.invitation-notice strong { color: var(--brand); }
+.invitation-check { display: flex; align-items: flex-start; gap: .65rem; color: var(--ink-muted); font-size: .92rem; }
+.invitation-check input { flex: 0 0 auto; width: 1.2rem; height: 1.2rem; margin-top: .3rem; accent-color: var(--brand); }
+.invitation-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
+.invitation-actions .button-primary:disabled { opacity: .55; cursor: not-allowed; }
+.invitation-footnote { font-size: .88rem; }
 
 @media (min-width: 768px) {
   .container { width: min(1200px, calc(100% - 64px)); }

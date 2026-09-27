@@ -577,6 +577,15 @@
           "enum": null
         },
         {
+          "name": "branch_id",
+          "sqlType": "uuid",
+          "description": "Optional branch scope; must belong to tree",
+          "nullable": true,
+          "references": "branches",
+          "default": null,
+          "enum": null
+        },
+        {
           "name": "expires_at",
           "sqlType": "timestamptz",
           "description": "TTL",

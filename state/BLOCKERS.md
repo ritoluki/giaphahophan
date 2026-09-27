@@ -46,3 +46,5 @@ Agent ghi blocker thực theo mẫu: bằng chứng, nguyên nhân giả thuyế
 | M06-03 | Axe/manual audit, real-device validation and remote CI remain NOT_RUN | M06-03 final privacy/accessibility and remote acceptance | Strict allowlist plus local DB/BFF metadata-redaction regression PASS; continue M06-04 without owner action |
 
 | M06-04 | Axe/manual audit, real-device validation, remote CI and production hardware p95 remain NOT_RUN | M06-04 final performance/accessibility and remote acceptance | Local 10k benchmark p95 75.19ms, bounded BFF, index check and stale-request abort regression PASS; continue M07-01 without owner action |
+
+| M07-01 | Transactional email/provider adapter, sender/domain and service secret are not selected or approved (H2); provider delivery is intentionally NOT_RUN | Operational invitation delivery and staging acceptance | Local token/DB/BFF/UI implementation and synthetic tests PASS; owner must choose provider, region/budget/domain and provide secret through approved env/secret manager before email can be sent |

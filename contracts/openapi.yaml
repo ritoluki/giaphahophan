@@ -8151,10 +8151,8 @@ paths:
       operationId: post_invitations
       tags:
       - Administration
-      summary: Không trả invite token cho caller; provider gửi email, invitation token lưu hash.
-      description: 'Không trả invite token cho caller; provider gửi email, invitation token lưu hash.
-
-        Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server triển khai.'
+      summary: Create a seven-day single-use invitation without returning the token.
+      description: The token is generated server-side, stored only as a hash, and queued for a configured delivery provider. The response never contains the raw token or email. A verified matching account accepts it into pending membership.
       security:
       - sessionCookie: []
       responses:
@@ -8167,7 +8165,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/CommandResult'
+                    $ref: '#/components/schemas/InvitationMutationResult'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -8236,6 +8234,69 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/InvitationInput'
+  /api/v1/invitations/accept:
+    post:
+      operationId: post_invitations_accept
+      tags:
+      - Administration
+      summary: Accept a single-use invitation into pending membership.
+      description: The raw token is hashed at the boundary and is never persisted or returned. The verified account email must match the invitation; acceptance is idempotent and does not activate membership.
+      security:
+      - sessionCookie: []
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvitationAcceptInput'
+      responses:
+        '200':
+          description: Invitation accepted; membership remains pending.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/InvitationMutationResult'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required:
+                - data
+                - meta
+        '400':
+          description: Invalid invitation token payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Verified session required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Invitation unavailable, expired, revoked, or not bound to this email.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Idempotency conflict or existing membership.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '428':
+          description: Idempotency key required.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/v1/invitations/{id}:
     delete:
       operationId: delete_invitations_id
@@ -12400,6 +12461,9 @@ components:
       type: object
       additionalProperties: false
       properties:
+        treeId:
+          type: string
+          format: uuid
         email:
           type: string
           format: email
@@ -12412,8 +12476,39 @@ components:
           - member
         branchId: *id001
       required:
+      - treeId
       - email
       - role
+    InvitationAcceptInput:
+      type: object
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+          minLength: 32
+          maxLength: 256
+      required:
+      - token
+    InvitationMutationResult:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id001
+        treeId: *id001
+        status:
+          type: string
+          enum:
+          - queued
+          - pending
+          - revoked
+        version:
+          type: integer
+          minimum: 1
+      required:
+      - id
+      - treeId
+      - status
+      - version
     GrantInput:
       type: object
       additionalProperties: false

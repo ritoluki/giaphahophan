@@ -1,10 +1,13 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedNext = searchParams.get("next");
+  const nextPath = requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/gia-pha";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,7 +29,7 @@ export function LoginForm() {
         setError(payload.error?.message ?? "Đăng nhập chưa thành công.");
         return;
       }
-      router.push("/gia-pha");
+      router.push(nextPath);
       router.refresh();
     } catch {
       setError("Không thể kết nối. Vui lòng thử lại.");

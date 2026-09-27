@@ -234,6 +234,24 @@ export const loginInputSchema = z.object({
 
 export const idempotencyKeySchema = z.string().uuid();
 
+export const invitationInputSchema = z.object({
+  treeId: z.string().uuid(),
+  email: z.string().trim().email().max(320),
+  role: z.enum(["admin", "reviewer", "editor", "member"]),
+  branchId: z.string().uuid().optional()
+}).strict();
+
+export const invitationAcceptInputSchema = z.object({
+  token: z.string().trim().min(32).max(256)
+}).strict();
+
+export const invitationMutationResultSchema = z.object({
+  id: z.string().uuid(),
+  treeId: z.string().uuid(),
+  status: z.enum(["queued", "pending", "revoked"]),
+  version: z.number().int().positive()
+}).strict();
+
 export const apiMetaSchema = z.object({ requestId: z.string().min(1), version: z.number().int().positive().optional() });
 export const errorResponseSchema = z.object({ error: z.object({ code: z.string(), message: z.string(), fieldErrors: z.record(z.string(), z.array(z.string())).optional(), requestId: z.string(), retryable: z.boolean() }) });
 

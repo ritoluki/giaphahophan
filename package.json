@@ -40,7 +40,8 @@
     "test:m05:kinship": "node scripts/test-m05-kinship-local.mjs",
     "test:m06:search": "node scripts/test-m06-search-local.mjs",
     "test:m06:http": "node scripts/test-m06-search-http-local.mjs",
-    "test:m06:load": "node scripts/test-m06-search-load-local.mjs"
+    "test:m06:load": "node scripts/test-m06-search-load-local.mjs",
+    "test:m07:invitations": "node scripts/test-m07-invitations-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",
