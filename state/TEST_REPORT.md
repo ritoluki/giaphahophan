@@ -155,3 +155,9 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - packages/domain/src/m10-ics.test.ts PASS: 5/5 tests for exclusive all-day DTEND, stable UID, version sequence, cancellation/escaping, privacy denial and invalid input.
 - pnpm test PASS: contracts 27/27, domain 50/50, worker 5/5, lunar 4/4, web 3/3. pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS on Node 24.21.0. Lint retains 2 existing warnings.
 - No UI/DB/API change in this contracts/domain-only slice; staging persistence, UI/mobile/a11y, remote CI, real-device and production approval remain NOT_RUN.
+
+## M11-01 evidence (2026-09-28)
+- pnpm test:jobs PASS: local Supabase SQL verifies authenticated claim denial, service_role claim lease/attempt increment, failure retry by another worker and mark_published exactly-once guard.
+- pnpm test:db PASS: local CORE-01 authorization verifies projection, capability, review, audit/outbox and raw-table denial.
+- apps/worker/src/outbox.test.ts PASS: 5/5 typed dispatcher/retry tests; pnpm --filter @phan/worker typecheck PASS.
+- pnpm test:auth FAIL: existing BFF login returned HTTP 401 in the local auth harness; separate from JOBS-01 and not reported as PASS. No UI change; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.

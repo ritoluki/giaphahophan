@@ -1734,9 +1734,9 @@
       "testIds": [
         "TC-M11-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["supabase/migrations/0009_jobs_outbox_dispatch.sql + supabase/tests/jobs.sql: outbox status/lease/attempt fields, service_role-only claim/complete/retry, expired-lease retry and exactly-once publish transition; pnpm test:jobs PASS on local Supabase.","Existing atomic proposal/person relationship mutations insert audit and outbox in the same security-definer transaction; pnpm test:db PASS local CORE-01 for projection, capability, review, audit/outbox and raw-table denial.","apps/worker/src/outbox.ts + outbox.test.ts: typed dispatcher handles supported/unsupported events, marks publish only after handler success, records bounded exponential retry; worker tests 5/5 and typecheck PASS. No UI surface changed; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "M11-02",
