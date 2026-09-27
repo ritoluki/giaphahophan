@@ -932,9 +932,13 @@
       "testIds": [
         "TC-M05-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "packages/domain/src/m05.ts kiểm tra max 12 bước, max 10.000 discovered/visited và timeout mặc định 500ms; clock injection deterministic test; domain 21/21 PASS.",
+        "supabase/migrations/0018_m05_relationship_semantics.sql bounded recursive walk ở 10.001 rows để phát hiện budget, depth 12 trả limit_reached/truncated; fixture chain 15 bước xác nhận DB boundary qua pnpm test:m05:kinship PASS.",
+        "UI /quan-he hiển thị limit_reached và không kết luận không có quan hệ; Playwright responsive 27/27, typecheck/lint/build PASS; axe/manual/real-device/remote CI NOT_RUN; không dùng dữ liệu thật/cloud/production."
+      ]
     },
     {
       "id": "M05-04",

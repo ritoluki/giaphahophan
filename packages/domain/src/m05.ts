@@ -15,6 +15,8 @@ export type KinshipInput = {
   includeAdoptive?: boolean;
   maxSteps?: number;
   maxVisited?: number;
+  maxDurationMs?: number;
+  now?: () => number;
 };
 
 type Neighbor = { personId: string; via: NonNullable<Kinship["paths"][number][number]>["via"] };
@@ -34,8 +36,12 @@ function notFound(visitedCount = 0): Kinship {
 export function findKinshipPaths(input: KinshipInput): Kinship {
   const maxSteps = input.maxSteps ?? 12;
   const maxVisited = input.maxVisited ?? 10_000;
+  const maxDurationMs = input.maxDurationMs ?? 500;
+  const now = input.now ?? (() => Date.now());
   if (!Number.isInteger(maxSteps) || maxSteps < 1 || maxSteps > 12) throw new RangeError("maxSteps must be between 1 and 12");
   if (!Number.isInteger(maxVisited) || maxVisited < 1 || maxVisited > 10_000) throw new RangeError("maxVisited must be between 1 and 10000");
+  if (!Number.isInteger(maxDurationMs) || maxDurationMs < 1 || maxDurationMs > 500) throw new RangeError("maxDurationMs must be between 1 and 500");
+  const startedAt = now();
 
   const peopleById = new Map(input.people.map((person) => [person.id, person]));
   const from = peopleById.get(input.fromPersonId);
@@ -73,6 +79,10 @@ export function findKinshipPaths(input: KinshipInput): Kinship {
   let truncated = false;
 
   while (queue.length > 0) {
+    if (now() - startedAt >= maxDurationMs) {
+      truncated = true;
+      break;
+    }
     const current = queue.shift();
     if (!current) break;
     const depth = current.pathIds.length - 1;
@@ -95,7 +105,8 @@ export function findKinshipPaths(input: KinshipInput): Kinship {
     }
     for (const neighbor of neighbors) {
       if (current.pathIds.includes(neighbor.personId)) continue;
-      if (visited.size >= maxVisited) {
+      const discoveredCount = visited.size + new Set(queue.map((item) => item.personId)).size;
+      if (!visited.has(neighbor.personId) && discoveredCount >= maxVisited) {
         truncated = true;
         break;
       }

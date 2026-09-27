@@ -49,6 +49,19 @@ describe("M05 authorized kinship path", () => {
     expect(disputedResult.status).toBe("not_found_within_visible_graph");
   });
 
+  it("reports a visited budget instead of claiming no relationship", () => {
+    const result = findKinshipPaths({ ...base, maxVisited: 1 });
+    expect(result.status).toBe("limit_reached");
+    expect(result.truncated).toBe(true);
+  });
+
+  it("reports a deterministic timeout as limit_reached", () => {
+    let tick = 0;
+    const result = findKinshipPaths({ ...base, maxDurationMs: 500, now: () => tick++ === 0 ? 0 : 501 });
+    expect(result.status).toBe("limit_reached");
+    expect(result.truncated).toBe(true);
+  });
+
   it("reports a bounded search instead of claiming no relationship", () => {
     const result = findKinshipPaths({ ...base, maxSteps: 1 });
     expect(result.status).toBe("limit_reached");

@@ -94,6 +94,9 @@ begin
     where w.depth < 12
       and not (e.target_person_id = any(w.path))
   ),
+  walk_bounded as (
+    select * from walk limit 10001
+  ),
   path_rows as (
     select w.depth,
            (select jsonb_agg(jsonb_build_object(
@@ -110,7 +113,7 @@ begin
             ) order by s.index)
             from generate_subscripts(w.path, 1) as s(index)
             join visible_people as vp on vp.id = w.path[s.index]) as path_json
-    from walk as w
+    from walk_bounded as w
     where w.person_id = p_to_person_id
     order by w.depth, w.path
     limit 3
@@ -118,8 +121,9 @@ begin
   select jsonb_build_object(
     'status', case
       when exists (select 1 from path_rows) then 'found'
+      when (select count(*) from walk_bounded) > 10000 then 'limit_reached'
       when exists (
-        select 1 from walk as w
+        select 1 from walk_bounded as w
         where w.depth = 12
           and exists (select 1 from kin_edges as e where e.source_person_id = w.person_id and not (e.target_person_id = any(w.path)))
       ) then 'limit_reached'
@@ -128,9 +132,9 @@ begin
     'paths', coalesce((select jsonb_agg(path_json order by depth) from path_rows), '[]'::jsonb),
     'label', null,
     'labelConfidence', 'unknown',
-    'visitedCount', (select count(distinct person_id) from walk),
-    'truncated', exists (
-      select 1 from walk as w
+    'visitedCount', (select count(distinct person_id) from walk_bounded),
+    'truncated', (select count(*) > 10000 from walk_bounded) or exists (
+      select 1 from walk_bounded as w
       where w.depth = 12
         and exists (select 1 from kin_edges as e where e.source_person_id = w.person_id and not (e.target_person_id = any(w.path)))
     )

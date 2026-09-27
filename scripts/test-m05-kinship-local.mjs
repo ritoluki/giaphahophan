@@ -10,5 +10,5 @@ if (result.status !== 0) {
   process.stderr.write(result.stderr || result.stdout || "local M05 kinship test failed\n");
   process.exitCode = 1;
 } else {
-  console.log("PASS local M05-01/M05-02 kinship: permission path, adoptive toggle, guardian/step semantics, disputed exclusion and hidden endpoint denial");
+  console.log("PASS local M05-01/M05-02/M05-03 kinship: permission path, relationship semantics, disputed/hidden denial and depth limit");
 }

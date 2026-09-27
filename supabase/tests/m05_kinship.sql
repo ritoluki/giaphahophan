@@ -24,6 +24,16 @@ values
   ('62000000-0000-4000-8000-000000000006', '12000000-0000-4000-8000-000000000001', '22000000-0000-4000-8000-000000000001', '32000000-0000-4000-8000-000000000006', '32000000-0000-4000-8000-000000000007', 'biological', 'disputed', '42000000-0000-4000-8000-000000000001');
 insert into private.memberships (id, tree_id, created_by, auth_user_id, role, status) values ('92000000-0000-4000-8000-000000000001', '12000000-0000-4000-8000-000000000001', '22000000-0000-4000-8000-000000000001', '22000000-0000-4000-8000-000000000001', 'member', 'active'), ('92000000-0000-4000-8000-000000000002', '12000000-0000-4000-8000-000000000001', '22000000-0000-4000-8000-000000000001', '22000000-0000-4000-8000-000000000002', 'member', 'suspended');
 
+insert into private.persons (id, tree_id, created_by, code, display_name, name_search, life_status, visibility)
+select format('32000000-0000-4000-8000-%s', lpad(i::text, 12, '0'))::uuid, '12000000-0000-4000-8000-000000000001'::uuid, '22000000-0000-4000-8000-000000000001'::uuid, 'M05-L' || i, 'Synthetic Limit ' || i, 'synthetic limit ' || i, 'deceased', 'public'
+from generate_series(8, 22) as series(i);
+insert into private.parent_links (id, tree_id, created_by, parent_id, child_id, kind, status, source_id)
+select format('00000000-0000-4000-8000-%s', lpad((100 + i)::text, 12, '0'))::uuid, '12000000-0000-4000-8000-000000000001'::uuid, '22000000-0000-4000-8000-000000000001'::uuid,
+       format('32000000-0000-4000-8000-%s', lpad((i - 1)::text, 12, '0'))::uuid,
+       format('32000000-0000-4000-8000-%s', lpad(i::text, 12, '0'))::uuid,
+       'biological', 'confirmed', '42000000-0000-4000-8000-000000000001'::uuid
+from generate_series(8, 22) as series(i);
+
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '22000000-0000-4000-8000-000000000001', true);
 
@@ -40,6 +50,8 @@ begin
   if v_result ->> 'status' <> 'found' or not jsonb_path_exists(v_result, '$.paths[0][*] ? (@.via == "guardian_child")') or not jsonb_path_exists(v_result, '$.paths[0][*] ? (@.via == "step_child")') then raise exception 'guardian/step semantics were not preserved: %', v_result; end if;
   v_result := api.person_kinship('32000000-0000-4000-8000-000000000006', '32000000-0000-4000-8000-000000000007', true);
   if v_result ->> 'status' <> 'not_found_within_visible_graph' then raise exception 'disputed relationship entered kinship path: %', v_result; end if;
+  v_result := api.person_kinship('32000000-0000-4000-8000-000000000007', '32000000-0000-4000-8000-000000000022', true);
+  if v_result ->> 'status' <> 'limit_reached' or v_result ->> 'truncated' <> 'true' then raise exception 'depth limit did not return limit_reached: %', v_result; end if;
   perform set_config('request.jwt.claim.sub', '22000000-0000-4000-8000-000000000002', true);
   v_result := api.person_kinship('32000000-0000-4000-8000-000000000001', '32000000-0000-4000-8000-000000000004', true);
   if v_result ->> 'status' <> 'not_found_within_visible_graph' or jsonb_array_length(v_result -> 'paths') <> 0 then raise exception 'hidden endpoint leaked through kinship'; end if;
