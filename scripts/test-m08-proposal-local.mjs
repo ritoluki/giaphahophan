@@ -42,7 +42,7 @@ try {
   const proposals = [];
   const payloads = [
     { kind: "addition", reason: "Synthetic M08 addition with source", items: [{ targetKind: "person", targetId: null, baseVersion: null, operation: "create", fieldChanges: { display_name: "Synthetic Proposed Person", life_status: "unknown", visibility: "restricted", protected_minor: false, confidence: "unverified" }, sourceIds: [sourceId] }] },
-    { kind: "correction", reason: "Synthetic M08 correction with source", items: [{ targetKind: "person", targetId: personId, baseVersion: 1, operation: "update", fieldChanges: { display_name: "Synthetic Proposed Name" }, sourceIds: [sourceId] }] },
+    { kind: "correction", reason: "Synthetic M08 correction with source", baseSnapshot: { person: { version: 1, display_name: "Synthetic M08 Person", recorded_sex: "unknown", life_status: "unknown", visibility: "public", protected_minor: false, primary_branch_id: null, biography: null, confidence: "unverified" } }, items: [{ targetKind: "person", targetId: personId, baseVersion: 1, operation: "update", fieldChanges: { display_name: "Synthetic Proposed Name" }, sourceIds: [sourceId] }] },
     { kind: "relationship", reason: "Synthetic M08 relationship with source", items: [{ targetKind: "parent_link", targetId: null, baseVersion: null, operation: "create", fieldChanges: { parent_id: personId, child_id: personId, kind: "biological", status: "confirmed", source_id: sourceId }, sourceIds: [sourceId] }] }
   ];
   for (const payload of payloads) {
@@ -52,9 +52,11 @@ try {
   }
   const detail = await jsonRequest(webUrl + "/api/v1/proposals/" + proposals[0].id, { headers: { Cookie: cookie } });
   assert(detail.response.status === 200 && /^PGP-[A-Z0-9]{10}$/.test(detail.body?.data?.trackingCode) && detail.body?.data?.items?.[0]?.sourceIds?.[0] === sourceId, "proposal detail did not expose tracking code/source projection");
+  const diff = await jsonRequest(webUrl + "/api/v1/proposals/" + proposals[1].id + "/diff", { headers: { Cookie: cookie } });
+  assert(diff.response.status === 200 && diff.body?.data?.items?.[0]?.base?.display_name === "Synthetic M08 Person" && diff.body?.data?.items?.[0]?.current?.version === 1 && diff.body?.data?.items?.[0]?.isStale === false, "proposal diff did not expose base/current/proposed projection");
   const canonical = runPsql(`select (select count(*) from private.persons where tree_id = ${sqlString(treeId)}) || '|' || (select count(*) from private.parent_links where tree_id = ${sqlString(treeId)});`);
   assert(canonical.status === 0 && /1\|0/.test(canonical.stdout), "canonical data changed before approval");
-  console.log("PASS local M08-01: authorized context, sourced addition/correction/relationship proposals, tracking detail and canonical unchanged before approval");
+  console.log("PASS local M08-01/M08-02: authorized context, sourced addition/correction/relationship proposals, tracking detail, base/current/proposed diff and canonical unchanged before approval");
 } finally {
   runPsql(["begin;", `delete from private.outbox where tree_id = ${sqlString(treeId)};`, `delete from private.audit_events where tree_id = ${sqlString(treeId)};`, `delete from private.idempotency_records where tree_id = ${sqlString(treeId)};`, `delete from private.review_decisions where tree_id = ${sqlString(treeId)};`, `delete from private.proposal_items where tree_id = ${sqlString(treeId)};`, `delete from private.proposals where tree_id = ${sqlString(treeId)};`, `delete from private.capability_grants where tree_id = ${sqlString(treeId)};`, `delete from private.memberships where tree_id = ${sqlString(treeId)};`, `delete from private.parent_links where tree_id = ${sqlString(treeId)};`, `delete from private.person_names where tree_id = ${sqlString(treeId)};`, `delete from private.persons where tree_id = ${sqlString(treeId)};`, `delete from private.sources where tree_id = ${sqlString(treeId)};`, `delete from private.branches where tree_id = ${sqlString(treeId)};`, `delete from private.trees where id = ${sqlString(treeId)};`, "commit;"].join("\n"));
   await deleteUser(env, userId);

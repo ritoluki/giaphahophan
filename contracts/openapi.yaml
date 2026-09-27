@@ -2400,6 +2400,54 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReasonCommand'
+  /api/v1/proposals/{id}/diff:
+    get:
+      operationId: get_proposals_id_diff
+      tags:
+      - Review
+      summary: /proposals/{id}/diff
+      description: Trả projection được lọc quyền gồm base/current/proposed; stale không được silently overwrite.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Diff được lọc theo quyền hiện tại.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProposalDiff'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required:
+                - data
+                - meta
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Không có quyền
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Không tồn tại hoặc không được biết
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/v1/proposals/{id}/review:
     post:
       operationId: post_proposals_id_review
@@ -11708,6 +11756,44 @@ components:
       - status
       - kind
       - reason
+      - items
+    ProposalDiff:
+      type: object
+      additionalProperties: false
+      properties:
+        proposalId: *id001
+        items:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              itemId: *id001
+              targetKind:
+                type: string
+              base:
+                type: object
+                nullable: true
+                additionalProperties: true
+              current:
+                type: object
+                nullable: true
+                additionalProperties: true
+              proposed:
+                type: object
+                additionalProperties: true
+              isStale:
+                type: boolean
+            required:
+            - itemId
+            - targetKind
+            - base
+            - current
+            - proposed
+            - isStale
+      required:
+      - proposalId
       - items
     ReviewInput:
       type: object

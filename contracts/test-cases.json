@@ -671,8 +671,14 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Hiển thị base/current/proposed; stale version trả 409 và không silently overwrite.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "supabase/migrations/0026_m08_proposal_diff.sql and api.proposal_diff expose authorized base/current/proposed projections with person field allowlists and stale detection.",
+        "apps/web/src/app/api/v1/proposals/[id]/diff/route.ts and proposal-detail.tsx render the authorized diff with explicit stale conflict messaging; form captures the person base snapshot.",
+        "scripts/test-m08-proposal-local.mjs: PASS on standalone local-configured Node 24/Supabase synthetic data for base/current/proposed projection and canonical unchanged before approval.",
+        "scripts/test-auth-local.mjs: PASS with authenticated MFA reviewer; stale diff flagged isStale=true, stale review returned HTTP 409, and canonical external update/proposal submitted status remained unchanged.",
+        "pnpm test:db, pnpm test:auth, pnpm run test:m08:proposal, pnpm test, pnpm typecheck, pnpm lint, pnpm build, pnpm verify, OpenAPI parse and Playwright 51/51 PASS; no real data/cloud/production used."
+      ]
     },
     {
       "id": "TC-M08-03",

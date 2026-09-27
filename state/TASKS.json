@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-09-27T03:08:00+07:00",
+  "updatedAt": "2026-09-27T20:42:00+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -1301,9 +1301,15 @@
       "testIds": [
         "TC-M08-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0026_m08_proposal_diff.sql: authorized API projection includes base/current/proposed and isStale for person items; stale reads never expose raw private rows.",
+        "apps/web/src/app/api/v1/proposals/[id]/diff/route.ts, proposal-detail.tsx and proposal-form.tsx: validated diff BFF, visible three-way comparison, stale warning and submitted base snapshot.",
+        "scripts/test-m08-proposal-local.mjs: PASS for source-backed proposal detail and base/current/proposed projection on local Supabase synthetic data.",
+        "scripts/test-auth-local.mjs: PASS for MFA reviewer stale review HTTP 409 with canonical external update preserved and proposal left submitted.",
+        "pnpm test:db, pnpm test:auth, pnpm run test:m08:proposal, pnpm test, pnpm typecheck, pnpm lint, pnpm build, pnpm verify, OpenAPI parse and Playwright 51/51 PASS."
+      ]
     },
     {
       "id": "M08-03",

@@ -258,6 +258,23 @@ export const proposalContextSchema = z.object({
   branchName: z.string().min(1).nullable()
 }).strict();
 
+export const proposalDiffItemSchema = z.object({
+  itemId: z.string().uuid(),
+  targetKind: z.enum(["person", "fact", "parent_link", "union", "branch", "merge", "publication"]),
+  base: z.record(z.string(), z.unknown()).nullable(),
+  current: z.record(z.string(), z.unknown()).nullable(),
+  proposed: z.object({
+    baseVersion: z.number().int().positive().nullable(),
+    changes: z.record(z.string(), z.unknown())
+  }).strict(),
+  isStale: z.boolean()
+}).strict();
+
+export const proposalDiffSchema = z.object({
+  proposalId: z.string().uuid(),
+  items: z.array(proposalDiffItemSchema).max(100)
+}).strict();
+
 export const claimSubmitInputSchema = z.object({
   treeId: z.string().uuid(),
   personId: z.string().uuid(),

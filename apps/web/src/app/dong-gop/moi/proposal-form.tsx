@@ -68,6 +68,7 @@ export function ProposalForm() {
     }
 
     let item: Record<string, unknown>;
+    let baseSnapshot: Record<string, unknown> | null = null;
     if (kind === "correction") {
       const targetId = String(form.get("targetId") ?? "").trim();
       const baseVersion = Number(form.get("baseVersion") ?? 0);
@@ -86,13 +87,21 @@ export function ProposalForm() {
       if (!uuidPattern.test(parentId) || !uuidPattern.test(childId) || parentId === childId) { setError("Quan hệ cần hai mã người khác nhau và hợp lệ."); return; }
       item = { targetKind: "parent_link", targetId: null, baseVersion: null, operation: "create", fieldChanges: { parent_id: parentId, child_id: childId, kind: String(form.get("relationshipKind") ?? "biological"), status: "confirmed", source_id: sourceIds[0] }, sourceIds };
     }
-
     setPending(true);
     try {
+      if (kind === "correction") {
+        const targetId = String(form.get("targetId") ?? "").trim();
+        const baseVersion = Number(form.get("baseVersion") ?? 0);
+        const currentResult = await readApi(`/api/v1/people/${encodeURIComponent(targetId)}`);
+        if (!currentResult.response.ok || !currentResult.payload.data || typeof currentResult.payload.data !== "object") throw new Error("Không thể đọc phiên bản hiện tại của hồ sơ để tạo diff.");
+        const current = currentResult.payload.data as Record<string, unknown>;
+        if (current.version !== baseVersion) throw new Error("Hồ sơ đã thay đổi. Hãy tải lại phiên bản hiện tại trước khi gửi.");
+        baseSnapshot = { person: { version: current.version, display_name: current.displayName, recorded_sex: current.recordedSex, life_status: current.lifeStatus, visibility: current.visibility, protected_minor: current.protectedMinor, primary_branch_id: current.primaryBranchId, biography: current.biography ?? null, confidence: current.confidence } };
+      }
       const result = await readApi("/api/v1/proposals", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
-        body: JSON.stringify({ treeId: context.treeId, kind, reason, branchId: context.branchId, items: [item] })
+        body: JSON.stringify({ treeId: context.treeId, kind, reason, branchId: context.branchId, baseSnapshot, items: [item] })
       });
       if (!result.response.ok || !result.payload.data || typeof result.payload.data !== "object") throw new Error(result.payload.error?.message ?? "Đề nghị chưa được tiếp nhận.");
       const proposalId = (result.payload.data as { id?: unknown }).id;

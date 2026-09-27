@@ -4,28 +4,41 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type ProposalItem = { id: string; targetKind: string; targetId: string | null; baseVersion: number | null; operation: string; fieldChanges: Record<string, unknown>; sourceIds: string[] };
+type DiffItem = { itemId: string; targetKind: string; base: Record<string, unknown> | null; current: Record<string, unknown> | null; proposed: { baseVersion: number | null; changes: Record<string, unknown> }; isStale: boolean };
 type Proposal = { id: string; trackingCode: string; treeId: string; version: number; createdAt: string; updatedAt: string; status: "draft" | "submitted" | "needs_info" | "approved" | "rejected" | "withdrawn"; kind: string; reason: string; branchId: string | null; submittedBy: string | null; items: ProposalItem[] };
-type ApiPayload = { data?: Proposal; error?: { message?: string } };
+type ApiPayload = { data?: unknown; error?: { message?: string } };
 const statusLabels: Record<Proposal["status"], string> = { draft: "Bản nháp", submitted: "Đã gửi", needs_info: "Cần bổ sung", approved: "Đã duyệt", rejected: "Đã từ chối", withdrawn: "Đã rút" };
 const kindLabels: Record<string, string> = { correction: "Sửa thông tin", addition: "Bổ sung người", relationship: "Bổ sung quan hệ", merge: "Hợp nhất", publication: "Đề nghị công khai" };
 
+function formatDiff(value: Record<string, unknown> | null) {
+  if (!value) return "Chưa có projection";
+  return Object.entries(value).map(([key, entry]) => `${key}: ${typeof entry === "string" ? entry : JSON.stringify(entry)}`).join("\n");
+}
+
 export function ProposalDetail({ id }: { id: string }) {
   const [proposal, setProposal] = useState<Proposal | null>(null);
+  const [diff, setDiff] = useState<DiffItem[]>([]);
   const [state, setState] = useState<"loading" | "ready" | "error" | "restricted">("loading");
   const [message, setMessage] = useState("");
-
 
   useEffect(() => {
     let active = true;
     async function fetchProposal() {
       setState("loading"); setMessage("");
       try {
-        const response = await fetch(`/api/v1/proposals/${encodeURIComponent(id)}`, { cache: "no-store" });
-        const payload = (await response.json()) as ApiPayload;
+        const [proposalResponse, diffResponse] = await Promise.all([
+          fetch(`/api/v1/proposals/${encodeURIComponent(id)}`, { cache: "no-store" }),
+          fetch(`/api/v1/proposals/${encodeURIComponent(id)}/diff`, { cache: "no-store" })
+        ]);
+        const proposalPayload = (await proposalResponse.json()) as ApiPayload;
+        const diffPayload = (await diffResponse.json()) as ApiPayload;
+        const proposalData = proposalPayload.data as Proposal | undefined;
+        const diffData = diffPayload.data as { proposalId: string; items: DiffItem[] } | undefined;
         if (!active) return;
-        if (response.status === 401 || response.status === 403 || response.status === 404) { setState("restricted"); return; }
-        if (!response.ok || !payload.data) throw new Error(payload.error?.message ?? "Không thể tải đề nghị.");
-        setProposal(payload.data); setState("ready");
+        if ([proposalResponse.status, diffResponse.status].some((status) => status === 401 || status === 403 || status === 404)) { setState("restricted"); return; }
+        if (!proposalResponse.ok || !proposalData || typeof proposalData !== "object" || !("trackingCode" in proposalData)) throw new Error(proposalPayload.error?.message ?? "Không thể tải đề nghị.");
+        if (!diffResponse.ok || !diffData || typeof diffData !== "object" || !("items" in diffData)) throw new Error("Không thể tải phần so sánh của đề nghị.");
+        setProposal(proposalData); setDiff(diffData.items); setState("ready");
       } catch (cause) {
         if (active) { setMessage(cause instanceof Error ? cause.message : "Không thể tải đề nghị."); setState("error"); }
       }
@@ -45,6 +58,7 @@ export function ProposalDetail({ id }: { id: string }) {
     </div>
     <div className="card proposal-summary"><h2>Lý do gửi</h2><p>{proposal.reason}</p><p className="muted">Cập nhật lần cuối: {new Date(proposal.updatedAt).toLocaleString("vi-VN")}</p></div>
     <div className="card proposal-items"><h2>Nội dung đề nghị</h2>{proposal.items.map((item) => <article className="proposal-item" key={item.id}><div className="proposal-item-heading"><strong>{item.targetKind} · {item.operation}</strong>{item.baseVersion ? <span className="muted">Cơ sở v{item.baseVersion}</span> : null}</div><dl className="detail-list">{Object.entries(item.fieldChanges).map(([key, value]) => <div key={key}><dt>{key}</dt><dd>{typeof value === "string" ? value : JSON.stringify(value)}</dd></div>)}</dl><p className="proposal-source-note"><strong>Nguồn:</strong> {item.sourceIds.length ? `${item.sourceIds.length} mã nguồn đã liên kết` : "Chưa có nguồn"}</p></article>)}</div>
+    <div className="card proposal-diff"><h2>So sánh phiên bản</h2><p className="muted">Base là phiên bản tại lúc gửi, current là dữ liệu hiện tại, proposed là thay đổi đang chờ duyệt.</p>{diff.map((item) => <article className="proposal-diff-item" key={item.itemId}><div className="proposal-item-heading"><strong>{item.targetKind}</strong>{item.isStale ? <span className="proposal-conflict-label">Đã có xung đột phiên bản</span> : <span className="status-label">Đồng bộ</span>}</div><div className="proposal-diff-grid"><section><h3>Base</h3><pre>{formatDiff(item.base)}</pre></section><section><h3>Current</h3><pre>{formatDiff(item.current)}</pre></section><section><h3>Proposed</h3><pre>{formatDiff(item.proposed.changes)}</pre></section></div>{item.isStale ? <p className="field-error">Dữ liệu hiện tại đã khác phiên bản làm cơ sở. Không được silently overwrite; cần rebase có chủ đích trước khi duyệt.</p> : null}</article>)}</div>
     <div className="proposal-actions"><Link className="button-primary" href="/dong-gop/moi">Gửi đề nghị khác</Link><Link className="button-secondary" href="/them">Về mục Thêm</Link></div>
   </section>;
 }

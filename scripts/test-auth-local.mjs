@@ -302,6 +302,51 @@ try {
 
   const verified = runPsql("select p.status, p.version, person.display_name, person.version, (select count(*) from private.audit_events where resource_id = p.id) as audit_count, (select count(*) from private.outbox where resource_id = p.id) as proposal_outbox_count, (select count(*) from private.outbox where resource_id = person.id and event_type = 'person.updated') as person_outbox_count from private.proposals p join private.persons person on person.id = " + sqlString(personId) + " and person.tree_id = p.tree_id where p.id = " + sqlString(proposalId) + ";");
   assert(verified.status === 0 && /approved\s+\|\s+2\s+\|\s+Synthetic Auth Person Updated\s+\|\s+2\s+\|\s+2\s+\|\s+2\s+\|\s+1/.test(verified.stdout), "proposal projection/audit/outbox verification failed");
+  const approvedDiff = await jsonRequest(webUrl + "/api/v1/proposals/" + proposalId + "/diff", { headers: { Cookie: cookieA } });
+  assert(approvedDiff.response.status === 200 && approvedDiff.body?.data?.items?.[0]?.isStale === true, "proposal diff did not expose the approved proposal as stale after canonical version advanced");
+
+  const stalePayload = {
+    treeId,
+    kind: "correction",
+    reason: "Synthetic stale correction",
+    branchId,
+    baseSnapshot: { person: { version: 2, display_name: "Synthetic Auth Person Updated" } },
+    items: [{
+      targetKind: "person",
+      targetId: personId,
+      baseVersion: 2,
+      operation: "update",
+      fieldChanges: { display_name: "Synthetic Stale Proposal" },
+      sourceIds: [sourceId]
+    }]
+  };
+  const staleSubmitted = await jsonRequest(webUrl + "/api/v1/proposals", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieA },
+    body: JSON.stringify(stalePayload)
+  });
+  assert(staleSubmitted.response.status === 201 && staleSubmitted.body?.data?.status === "submitted", "stale proposal fixture was not submitted");
+  const staleProposalId = staleSubmitted.body.data.id;
+  const staleProposalVersion = staleSubmitted.body.data.version;
+  const advanced = runPsql("update private.persons set display_name = 'Synthetic External Update' where id = " + sqlString(personId) + " and tree_id = " + sqlString(treeId) + ";");
+  assert(advanced.status === 0, "external canonical update fixture failed");
+
+  const staleDiff = await jsonRequest(webUrl + "/api/v1/proposals/" + staleProposalId + "/diff", { headers: { Cookie: cookieA } });
+  assert(staleDiff.response.status === 200 && staleDiff.body?.data?.items?.[0]?.isStale === true, "proposal diff did not flag a stale current version");
+
+  const staleReview = await jsonRequest(webUrl + "/api/v1/proposals/" + staleProposalId + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieB },
+    body: JSON.stringify({
+      decision: "approve",
+      reason: "Synthetic stale review must conflict",
+      baseVersion: staleProposalVersion,
+      reviewedSnapshotHash: "synthetic-stale-hash"
+    })
+  });
+  assert(staleReview.response.status === 409, "stale review did not return 409");
+  const staleCanonical = runPsql("select person.version, person.display_name, p.status from private.persons person join private.proposals p on p.id = " + sqlString(staleProposalId) + " where person.id = " + sqlString(personId) + ";");
+  assert(staleCanonical.status === 0 && /3\s+\|\s+Synthetic External Update\s+\|\s+submitted/.test(staleCanonical.stdout), "stale review changed canonical data or proposal status");
   const relationshipPayload = {
     treeId,
     kind: "relationship",
@@ -459,7 +504,7 @@ try {
     body: JSON.stringify({ factorId: mfaStatus.body.data.factorId })
   });
   assert(unenrolled.response.status === 200 && unenrolled.body?.data?.mfaEnrolled === false, "MFA unenroll policy did not remove the verified factor");
-  console.log("PASS local authenticated CORE-02/M03-04/M03-05/M03-06/M07-03: BFF login, pre-MFA review denial, TOTP enroll/challenge/verify aal2, proposal review, factor status/unenroll, claims, corrections, impact preview and soft-delete persistence");
+  console.log("PASS local authenticated CORE-02/M03-04/M03-05/M03-06/M07-03/M08-02: BFF login, pre-MFA review denial, TOTP enroll/challenge/verify aal2, proposal review, stale diff projection, stale review 409 without overwrite, factor status/unenroll, claims, corrections, impact preview and soft-delete persistence");
 } finally {
   const cleanup = [
     "begin;",
