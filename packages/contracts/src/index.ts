@@ -289,6 +289,52 @@ export const mediaDownloadSchema = z.object({
   expiresAt: z.string().datetime({ offset: true }),
   mode: z.literal("signed")
 }).strict();
+export const sourceKindSchema = z.enum(["book", "oral", "document", "photo", "website", "other"]);
+export const sourceVisibilitySchema = z.enum(["public", "members", "restricted"]);
+export const sourceSchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  title: z.string().min(1).max(500),
+  kind: sourceKindSchema,
+  providerName: z.string().max(500).nullable().optional(),
+  provenance: z.string().min(1).max(5000),
+  recordedDate: genealogyDateSchema.nullable().optional(),
+  originalAssetId: z.string().uuid().nullable().optional(),
+  visibility: sourceVisibilitySchema,
+  rightsNote: z.string().max(5000).nullable().optional()
+}).strict();
+
+export const sourceInputSchema = z.object({
+  title: z.string().trim().min(1).max(500),
+  kind: sourceKindSchema,
+  providerName: z.string().trim().max(500).nullable().optional(),
+  provenance: z.string().trim().min(1).max(5000),
+  recordedDate: genealogyDateSchema.nullable().optional(),
+  originalAssetId: z.string().uuid().nullable().optional(),
+  visibility: sourceVisibilitySchema,
+  rightsNote: z.string().trim().max(5000).nullable().optional()
+}).strict();
+
+export const citationConfidenceSchema = z.enum(["unverified", "supported", "verified", "disputed"]);
+const citationTargetSchema = z.object({
+  personId: z.string().uuid().nullable().optional(),
+  factId: z.string().uuid().nullable().optional(),
+  parentLinkId: z.string().uuid().nullable().optional(),
+  unionId: z.string().uuid().nullable().optional()
+}).strict();
+export const citationInputSchema = citationTargetSchema.extend({
+  sourceId: z.string().uuid(),
+  locator: z.string().trim().min(1).max(1000),
+  quotedText: z.string().max(5000).nullable().optional(),
+  confidence: citationConfidenceSchema.nullable().optional()
+}).superRefine((value, ctx) => {
+  const targets = [value.personId, value.factId, value.parentLinkId, value.unionId].filter(Boolean);
+  if (targets.length !== 1) ctx.addIssue({ code: "custom", message: "Exactly one citation target is required" });
+});
+export const citationSchema = citationInputSchema.safeExtend({
+  id: z.string().uuid(),
+  version: z.number().int().positive()
+}).strict();
 
 export const proposalDetailItemSchema = z.object({
   id: z.string().uuid(),

@@ -1,7 +1,38 @@
 import { describe, expect, it } from "vitest";
-import { authRecoveryInputSchema, authRecoveryResultSchema, claimReviewInputSchema, claimSubmitInputSchema, commandResultSchema, grantInputSchema, memberInputSchema, membershipGrantSchema, membershipSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, mediaAssetSchema, mediaUploadInputSchema, mediaUploadIntentSchema, mediaDownloadSchema, passwordUpdateInputSchema, passwordUpdateResultSchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
+import { authRecoveryInputSchema, authRecoveryResultSchema, claimReviewInputSchema, claimSubmitInputSchema, commandResultSchema, grantInputSchema, memberInputSchema, membershipGrantSchema, membershipSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, mediaAssetSchema, mediaUploadInputSchema, mediaUploadIntentSchema, mediaDownloadSchema, passwordUpdateInputSchema, passwordUpdateResultSchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema, citationInputSchema, sourceInputSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
+  it("requires source provenance and exactly one citation target", () => {
+    const source = sourceInputSchema.parse({
+      title: "Synthetic family register",
+      kind: "book",
+      providerName: "Synthetic archive",
+      recordedDate: { calendar: "gregorian", precision: "exact", year: 2026, month: 9, day: 27, originalText: "2026-09-27" },
+      provenance: "Synthetic fixture; not real family data",
+      visibility: "restricted",
+      rightsNote: null,
+      originalAssetId: null
+    });
+    expect(source.kind).toBe("book");
+
+    expect(citationInputSchema.parse({
+      sourceId: "40000000-0000-4000-8000-000000000001",
+      personId: "30000000-0000-4000-8000-000000000001",
+      locator: "page 12, line 3",
+      quotedText: null,
+      confidence: "supported"
+    }).personId).toBe("30000000-0000-4000-8000-000000000001");
+    expect(() => citationInputSchema.parse({
+      sourceId: "40000000-0000-4000-8000-000000000001",
+      locator: "page 12"
+    })).toThrow();
+    expect(() => citationInputSchema.parse({
+      sourceId: "40000000-0000-4000-8000-000000000001",
+      personId: "30000000-0000-4000-8000-000000000001",
+      factId: "60000000-0000-4000-8000-000000000001",
+      locator: "page 12"
+    })).toThrow();
+  });
   it("keeps media upload intents typed, bounded and free of storage paths", () => {
     const input = mediaUploadInputSchema.parse({
       treeId: "10000000-0000-4000-8000-000000000001",

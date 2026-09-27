@@ -1489,9 +1489,9 @@
       "testIds": [
         "TC-M09-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["supabase/migrations/0031_m09_sources_citations.sql: sources provenance/original-asset FK and citations with tree-scoped real target FKs plus exact-one-target constraint; authorized source/citation RPCs, RLS, audit and outbox.","packages/contracts/src/index.ts + apps/web/src/lib/server/sources.ts: strict Source/Citation contracts and allowlisted projections; contracts test covers provenance and exactly-one target.","apps/web/src/app/api/v1/sources/route.ts + apps/web/src/app/api/v1/sources/[id]/route.ts + apps/web/src/app/api/v1/sources/[id]/citations/route.ts: authenticated BFF source/citation list/create/get with Idempotency-Key and redacted errors.","pnpm run test:m09:sources PASS on standalone local-configured Node 24/Supabase synthetic data: source persistence/list, idempotent replay, exact-one validation, real FK orphan denial; no real data. No new UI surface changed in this task."]
     },
     {
       "id": "M09-04",

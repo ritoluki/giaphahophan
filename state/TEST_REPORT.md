@@ -106,3 +106,9 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - `pnpm build` — PASS; route `/api/v1/media/[id]/access` có trong production route manifest.
 - `pnpm lint` — PASS với 2 warning tồn tại trước đó (postcss config, MFA QR image).
 - Không dùng dữ liệu thật, không deploy production. Staging/remote CI, axe/manual và real-device vẫn NOT_RUN.
+
+## M09-03 evidence (2026-09-28)
+- `pnpm run test:m09:sources` PASS on standalone local-configured Node 24.21.0 + Supabase local: source create/list persistence, Idempotency-Key replay, exact-one citation target validation, citation persistence/list and tree-scoped real FK orphan denial.
+- `pnpm test` PASS: contracts 19/19, domain 24/24, worker 5/5, web 3/3; `pnpm typecheck`, `pnpm test:db`, `pnpm build`, `pnpm verify`, OpenAPI parse PASS.
+- `pnpm lint` PASS with the 2 existing warnings (postcss config anonymous export and MFA QR `<img>`).
+- No real data, cloud, production deployment or owner approval used; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.

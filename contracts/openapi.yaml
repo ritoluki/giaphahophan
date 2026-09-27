@@ -2712,8 +2712,7 @@ paths:
       tags:
       - Media
       summary: /sources
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Authenticated source list/create with tree-scoped capability checks, idempotency and redacted source projection.
       security:
       - sessionCookie: []
       responses:
@@ -2888,8 +2887,7 @@ paths:
       tags:
       - Media
       summary: /sources/{id}
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Authenticated source lookup with tree-scoped capability checks and no private raw-table exposure.
       security:
       - sessionCookie: []
       responses:
@@ -11117,6 +11115,108 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/RetentionInput'
+  /api/v1/sources/{id}/citations:
+    get:
+      operationId: get_source_id_citations
+      tags:
+      - Media
+      summary: /sources/{id}/citations
+      description: Authorized citation projection for a source; each citation has a real foreign-key target and locator.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - name: treeId
+        in: query
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Citation list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Citation'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required: [data, meta]
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: Không có capability
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+    post:
+      operationId: post_source_id_citations
+      tags:
+      - Media
+      summary: /sources/{id}/citations
+      description: Tạo citation với đúng một target FK trong cùng tree; mutation có Idempotency-Key.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - name: treeId
+        in: query
+        required: true
+        schema: *id001
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CitationInput'
+      responses:
+        '201':
+          description: Citation created
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Citation'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required: [data, meta]
+        '400':
+          description: Request sai
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '409':
+          description: FK hoặc idempotency conflict
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422':
+          description: Citation target/locator không hợp lệ
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
 components:
   securitySchemes:
     sessionCookie:
@@ -12159,6 +12259,29 @@ components:
       - kind
       - provenance
       - visibility
+    CitationInput:
+      type: object
+      additionalProperties: false
+      properties:
+        sourceId: *id001
+        personId: *id001
+        factId: *id001
+        parentLinkId: *id001
+        unionId: *id001
+        locator: *id002
+        quotedText:
+          anyOf:
+          - *id002
+          - type: 'null'
+        confidence:
+          anyOf:
+          - type: string
+            enum: [unverified, supported, verified, disputed]
+          - type: 'null'
+      required:
+      - sourceId
+      - locator
+      description: Exactly one of personId, factId, parentLinkId or unionId must be non-null.
     Source:
       type: object
       additionalProperties: false
