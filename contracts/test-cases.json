@@ -1018,8 +1018,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Queued/processed/succeeded/failed/skipped đúng; failed jobs có retry audit, không giả complete.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": ["apps/worker/src/job-ledger.ts + job-ledger.test.ts: typed queued/processed/succeeded/failed/skipped state machine, failure-code history, bounded retry/max-attempt guard, explicit skip and counter summary; worker tests 5/5 PASS.","packages/contracts/src/index.ts + m11-counters.test.ts: bounded five-status and non-negative counter schemas; contract tests 2/2 PASS.","Full pnpm test PASS: contracts 33/33, domain 50/50, worker 18/18, lunar 4/4, web 3/3; pnpm typecheck, lint, build and verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. No UI/API/provider changed; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "TC-M12-01",

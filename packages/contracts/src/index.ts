@@ -651,3 +651,13 @@ export const notificationSendContextSchema = z.object({
   currentLocalHour: z.number().int().min(0).max(23),
   consentAllowed: z.boolean(),
 }).strict();
+
+
+export const jobStatusSchema = z.enum(["queued", "processed", "succeeded", "failed", "skipped"]);
+export const jobCountersSchema = z.object({
+  queued: z.number().int().nonnegative(),
+  processed: z.number().int().nonnegative(),
+  succeeded: z.number().int().nonnegative(),
+  failed: z.number().int().nonnegative(),
+  skipped: z.number().int().nonnegative(),
+}).strict();

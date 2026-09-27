@@ -66,7 +66,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M11-01 | P6 | Outbox atomic | M10-06, JOBS-01 | IN_PROGRESS — migration 0009 and worker dispatcher provide atomic outbox durability, least-privilege claim/lease/retry and deduped publish; local DB/jobs/worker tests PASS; release/staging gates remain NOT_RUN |
 | M11-02 | P6 | Gửi idempotent | M11-01 | IN_PROGRESS — delivery attempts persist provider message ID, reconcile before retry and enforce channel/key uniqueness; local SQL/worker/contract tests PASS; real provider and release gates remain NOT_RUN |
 | M11-03 | P6 | Privacy và preference | M11-02 | IN_PROGRESS — send-time policy enforces opt-in, quiet/default hour, unsubscribe/suppression and consent recheck; worker 4/4 + contract 2/2 tests PASS; provider/UI/release gates remain NOT_RUN |
-| M11-04 | P6 | Counters và failure | M11-03 |  |
+| M11-04 | P6 | Counters và failure | M11-03 | IN_PROGRESS — job ledger phân biệt queued/processed/succeeded/failed/skipped, lưu failure audit, giới hạn retry và tổng hợp counters; worker 5/5 + contract 2/2 tests PASS; release/provider gates remain NOT_RUN |
 | M12-01 | P6 | Rich text an toàn | M09-05, M08-05 |  |
 | M12-02 | P6 | Revision/publish | M12-01 |  |
 | M12-03 | P6 | Public SEO | M12-02 |  |

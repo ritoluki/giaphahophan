@@ -172,3 +172,8 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - apps/worker/src/notification-policy.test.ts PASS: 4/4 tests for explicit opt-in, consent revocation at send time, default quiet hours across midnight, unsubscribe/suppression and invalid hour rejection.
 - packages/contracts/src/m11-privacy.test.ts PASS: 2/2 tests for preference defaults and bounded send context.
 - Full pnpm test PASS: contracts 31/31, domain 50/50, worker 13/13, lunar 4/4, web 3/3; pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS on Node 24.21.0. No provider/email or UI; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
+
+## M11-04 evidence (2026-09-28)
+- apps/worker/src/job-ledger.test.ts PASS: 5/5 tests cho transition queued/processed/succeeded/failed/skipped, failure audit, bounded retry, max-attempt denial, explicit skip và counter summary.
+- packages/contracts/src/m11-counters.test.ts PASS: 2/2 tests cho năm trạng thái job và counters không âm.
+- Full pnpm test PASS: contracts 33/33, domain 50/50, worker 18/18, lunar 4/4, web 3/3; pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS trên Node 24.21.0. Lint còn 2 cảnh báo cũ. Không đổi UI/API/provider; staging/remote CI, axe/manual, real-device và production approval vẫn NOT_RUN.
