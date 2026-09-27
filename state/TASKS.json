@@ -1897,9 +1897,9 @@
       "testIds": [
         "TC-M12-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["packages/contracts/src/index.ts + m12-seo.test.ts: public SEO input accepts only visibility=public, revisionStatus=published and matching publishedRevisionId/revisionId; cover is explicit public URL/alt only; contract tests 2/2 PASS.","packages/domain/src/m12-seo.ts + m12-seo.test.ts: fail-closed public projection, metadata/OG builder, generic no-index preview/restricted metadata and sitemap builder contain no private projection fields; domain tests 4/4 PASS.","apps/web/src/app/robots.ts + sitemap.ts + tin-ho metadata + tin-ho/[slug] no-index boundary: demo/non-real mode disallows indexing and returns empty sitemap; production real mode exposes only static public routes plus typed public projections; article route has no content until an approved projection exists. Full pnpm test PASS: contracts 39/39, domain 62/62, worker 18/18, lunar 4/4, web 3/3; typecheck/lint/build/verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. DB-backed public article projection, API integration, M12-04 reader/accessibility, staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "M12-04",

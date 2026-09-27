@@ -69,7 +69,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M11-04 | P6 | Counters và failure | M11-03 | IN_PROGRESS — job ledger phân biệt queued/processed/succeeded/failed/skipped, lưu failure audit, giới hạn retry và tổng hợp counters; worker 5/5 + contract 2/2 tests PASS; release/provider gates remain NOT_RUN |
 | M12-01 | P6 | Rich text an toàn | M09-05, M08-05 | IN_PROGRESS — versioned AST allowlist, server sanitizer, DB body constraint, safe link/media renderer; contract 2/2 + domain 4/4 + local DB test PASS; revision/publish/release gates remain NOT_RUN |
 | M12-02 | P6 | Revision/publish | M12-01 | IN_PROGRESS — draft/submitted/approved/published/archived workflow, scheduled projection, optimistic locks, no-index expiring preview grants, immutable published pointer/DB guard; contract 2/2 + domain 4/4 + local DB test PASS; API/editor/scheduler/release gates remain NOT_RUN |
-| M12-03 | P6 | Public SEO | M12-02 |  |
+| M12-03 | P6 | Public SEO | M12-02 | IN_PROGRESS — public published projection contract, fail-closed OG/metadata/sitemap, demo noindex robots and preview/restricted noindex article boundary; contract 2/2 + domain 4/4 + full build PASS; DB/API content integration and release gates remain NOT_RUN |
 | M12-04 | P6 | Tìm đọc mobile | M12-03 |  |
 | M13-01 | P6 | Place/burial model | M09-05 |  |
 | M13-02 | P6 | Coordinates private | M13-01 |  |

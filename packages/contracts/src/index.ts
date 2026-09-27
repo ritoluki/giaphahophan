@@ -776,3 +776,27 @@ export type ContentRevisionStatus = z.infer<typeof contentRevisionStatusSchema>;
 export type ContentLifecycleStatus = z.infer<typeof contentLifecycleStatusSchema>;
 export type ContentRevisionTransition = z.infer<typeof contentRevisionTransitionSchema>;
 export type PreviewGrant = z.infer<typeof previewGrantSchema>;
+
+
+export const publicContentKindSchema = z.enum(["history", "news", "guide", "policy"]);
+export const publicContentSeoInputSchema = z.object({
+  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(120),
+  kind: publicContentKindSchema,
+  title: z.string().trim().min(1).max(200),
+  summary: z.string().trim().min(1).max(320),
+  visibility: z.literal("public"),
+  publishedRevisionId: z.string().uuid(),
+  revisionId: z.string().uuid(),
+  revisionStatus: z.literal("published"),
+  updatedAt: z.string().datetime({ offset: true }),
+  cover: z.object({
+    url: z.string().url(),
+    alt: z.string().trim().min(1).max(300),
+  }).strict().nullable(),
+}).strict().superRefine((value, context) => {
+  if (value.publishedRevisionId !== value.revisionId) {
+    context.addIssue({ code: "custom", path: ["revisionId"], message: "public projection must point to published revision" });
+  }
+});
+
+export type PublicContentSeoInput = z.infer<typeof publicContentSeoInputSchema>;

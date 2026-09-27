@@ -189,3 +189,9 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - packages/domain/src/m12-publish.test.ts PASS: 4/4 tests cho reviewer độc lập, public pointer, scheduled snapshot, stale/self transition rejection và deterministic preview expiry.
 - pnpm test:m12:publish PASS trên local Supabase: published pointer chỉ trỏ revision published, published snapshot immutable, draft không thể thành public, preview token table lưu private.
 - Full pnpm test PASS: contracts 37/37, domain 58/58, worker 18/18, lunar 4/4, web 3/3; pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS trên Node 24.21.0. Lint còn 2 cảnh báo cũ. API/editor UI, scheduler/worker integration, public SEO, staging/remote CI, axe/manual, real-device và production approval vẫn NOT_RUN.
+
+## M12-03 evidence (2026-09-28)
+- packages/contracts/src/m12-seo.test.ts PASS: 2/2 tests chặn members/draft/mismatched published pointer và giữ cover public explicit.
+- packages/domain/src/m12-seo.test.ts PASS: 4/4 tests cho fail-closed projection, OG metadata không private, sitemap public-only và no-index preview/restricted metadata.
+- apps/web build PASS: robots.txt, sitemap.xml và tin-ho/[slug] no-index boundary được route hóa; demo/non-real mode không index và không sinh sitemap entries.
+- Full pnpm test PASS: contracts 39/39, domain 62/62, worker 18/18, lunar 4/4, web 3/3; pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS trên Node 24.21.0. Lint còn 2 cảnh báo cũ. DB/API public content integration, M12-04 reader/a11y, staging/remote CI, axe/manual, real-device và production approval vẫn NOT_RUN.
