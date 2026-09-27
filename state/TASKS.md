@@ -61,7 +61,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M10-02 | P6 | Recurrence policy | M10-01 | IN_PROGRESS — leap/short-month policies and unreviewed leap-source gate PASS; release/accessibility gates remain NOT_RUN |
 | M10-03 | P6 | Ngày gốc và lần tới | M10-02 | IN_PROGRESS — occurrencesBetween crosses lunar/solar year boundary, preserves logical keys and source rule; release/accessibility gates remain NOT_RUN |
 | M10-04 | P6 | Override/version | M10-03 | IN_PROGRESS — override preserves logical key/id, records reason/version and dedupes rule updates; release/accessibility gates remain NOT_RUN |
-| M10-05 | P6 | RSVP | M10-04 |  |
+| M10-05 | P6 | RSVP | M10-04 | IN_PROGRESS — RSVP schema/domain mutation supports yes/no/maybe, bounded headcount/note, idempotent replay/conflict, optimistic versioning and private projections; 4/4 contract + 6/6 domain tests PASS; release/staging/UI gates remain NOT_RUN |
 | M10-06 | P6 | ICS đúng ngày | M10-05 |  |
 | M11-01 | P6 | Outbox atomic | M10-06, JOBS-01 |  |
 | M11-02 | P6 | Gửi idempotent | M11-01 |  |
@@ -122,3 +122,4 @@ M10-02 evidence (2026-09-28): packages/domain/src/m10.ts adds deterministic annu
 M10-03 evidence (2026-09-28): occurrencesBetween now checks lunar years Y−1/Y/Y+1 around a solar query range, filters solar occurrences, preserves EventRule source identity and stable logical keys, and supports once/annual-solar without replacing the source rule. Six M10-03 tests PASS; full pnpm test PASS (contracts 20/20, domain 36/36, worker 5/5, lunar 4/4, web 3/3), typecheck/lint/build/verify PASS on Node 24.21.0. Domain-only slice; no UI/DB/API change. Staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
 
 M10-04 evidence (2026-09-28): occurrence overrides now preserve logical key and id, validate supported date/reason/approver/monotonic version, and attach override reason/version; rule updates dedupe by logical key and select newest rule version. Three M10-04 tests PASS; full pnpm test PASS (contracts 20/20, domain 39/39, worker 5/5, lunar 4/4, web 3/3), typecheck/lint/build/verify PASS on Node 24.21.0. Domain-only slice; no UI/DB/API change. Staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
+- M10-05 evidence: bounded RSVP contracts and private domain mutation with idempotency/optimistic versioning; contracts 24/24, domain 45/45, worker 5/5, lunar 4/4, web 3/3, typecheck/lint/build/verify PASS on Node 24.21.0. No UI/DB/API surface changed; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.

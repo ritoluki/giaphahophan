@@ -928,8 +928,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Yes/no/maybe và headcount có version/idempotency; danh sách khách không public.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": ["packages/contracts/src/m10.test.ts: RSVP defaults note, headcount bounds, UUID occurrence/idempotency and bounded record note; 4/4 PASS.","packages/domain/src/m10-rsvp.test.ts: create/update versioning, idempotent replay/reuse conflict, stale version conflict, validation boundaries and non-public projection; 6/6 PASS.","Local Node 24.21.0 full regression: contracts 24/24, domain 45/45, worker 5/5, lunar 4/4, web 3/3; typecheck/lint/build/verify PASS. No real data/cloud/production. Staging DB persistence, UI/mobile/a11y, remote CI and production approval remain NOT_RUN."]
     },
     {
       "id": "TC-M10-06",

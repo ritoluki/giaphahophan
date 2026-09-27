@@ -1679,9 +1679,9 @@
       "testIds": [
         "TC-M10-05"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["packages/contracts/src/index.ts + packages/contracts/src/m10.test.ts: bounded RSVP input/mutation/record schemas, occurrence boundary and idempotency validation; 4/4 M10-05 contract tests PASS.","packages/domain/src/m10-rsvp.ts + packages/domain/src/m10-rsvp.test.ts: create/update/replay/idempotency conflict, optimistic version conflict, headcount/note validation and private projection/manager aggregate; 6/6 M10-05 domain tests PASS.","pnpm test PASS: contracts 24/24, domain 45/45, worker 5/5, lunar 4/4, web 3/3; pnpm typecheck, lint, build and verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. No UI/DB/API surface changed in this domain/contracts-only slice; UI/DB/API loading/empty/error/restricted/mobile checks are not applicable. Staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "M10-06",

@@ -586,3 +586,28 @@ export const graphProjectionSchema = z.object({
   nextExpansion: graphExpansionSchema.nullable().default(null),
   expandablePersonIds: z.array(z.string().uuid())
 });
+
+export const rsvpResponseSchema = z.enum(["yes", "no", "maybe"]);
+export const rsvpInputSchema = z.object({
+  response: rsvpResponseSchema,
+  headcount: z.number().int().min(0).max(20),
+  note: z.string().trim().max(2000).default("")
+}).strict();
+export const rsvpMutationInputSchema = z.object({
+  occurrenceId: z.string().uuid(),
+  idempotencyKey: z.string().uuid(),
+  baseVersion: z.number().int().positive().nullable().default(null),
+  response: rsvpResponseSchema,
+  headcount: z.number().int().min(0).max(20),
+  note: z.string().trim().max(2000).default("")
+}).strict();
+export const rsvpRecordSchema = z.object({
+  id: z.string().min(1),
+  occurrenceId: z.string().min(1),
+  membershipId: z.string().min(1),
+  version: z.number().int().positive(),
+  response: rsvpResponseSchema,
+  headcount: z.number().int().min(0).max(20),
+  note: z.string().max(2000),
+  idempotencyKey: z.string().min(1)
+}).strict();

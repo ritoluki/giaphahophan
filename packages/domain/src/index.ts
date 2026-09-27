@@ -89,3 +89,5 @@ export * from "./m05";
 export * from "./m06";
 
 export * from "./m10";
+
+export * from "./m10-rsvp";

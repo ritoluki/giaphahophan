@@ -143,3 +143,9 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - packages/domain/src/m10.test.ts PASS: 15/15 M10 tests total, including 3 M10-04 tests for reviewer override, logical key/id stability, reason/version validation and rule-update dedupe.
 - pnpm test PASS: contracts 20/20, domain 39/39, worker 5/5, lunar 4/4, web 3/3. pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS on Node 24.21.0. Lint retains 2 existing warnings.
 - No UI/DB/API change in this domain-only slice; no real data, cloud or production deployment. Staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
+
+## M10-05 evidence (2026-09-28)
+- packages/contracts/src/m10.test.ts PASS: 4/4 tests for RSVP defaults, headcount bounds, UUID/idempotency boundaries and record note limit.
+- packages/domain/src/m10-rsvp.test.ts PASS: 6/6 tests for create/update optimistic version, idempotent replay/reuse conflict, stale write conflict, validation boundaries and privacy projection.
+- pnpm test PASS: contracts 24/24, domain 45/45, worker 5/5, lunar 4/4, web 3/3. pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS on Node 24.21.0. Lint retains 2 existing warnings.
+- No UI/DB/API change in this contracts/domain-only slice; staging DB persistence, UI/mobile/a11y, remote CI, real-device and production approval remain NOT_RUN.
