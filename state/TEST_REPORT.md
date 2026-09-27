@@ -221,3 +221,9 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - Report contract/domain tests and /api/v1/funds/{id}/report BFF route are included in the production build. /quy-ho now shows period report cards using demo-only data and preserves mobile empty/error/restricted states.
 - Full pnpm test PASS: contracts 53/53, domain 78/78, worker 18/18, lunar 4/4, web 5/5. pnpm typecheck, pnpm build, pnpm verify PASS. pnpm lint PASS with 2 pre-existing warnings in PostCSS default export and MFA QR img.
 - Status remains IN_PROGRESS: staging/remote CI, axe/manual accessibility, real-device validation, authenticated cloud wiring, real money/data and production approval remain NOT_RUN.
+## M14-05 evidence (2026-09-28)
+- pnpm test:m14:period-close PASS on local Supabase Docker: open and locked reconciliation totals, proof status counts, treasury.approve plus MFA authorization, same-key idempotent replay, and closed-period journal insert denial are covered.
+- Migration 0043 stores an immutable projection snapshot, advances fund version/closed_through, records redacted audit/outbox metadata, rejects unposted journals during close, and blocks later journal writes in a closed period. No bank synchronization is present.
+- BFF GET /api/v1/funds/{id}/reconciliation and POST /api/v1/funds/{id}/close-period compile in production build with session/schema/idempotency checks and whitelist response; OpenAPI includes Reconciliation and PeriodClose.
+- Full pnpm test PASS: contracts 54/54, domain 79/79, worker 18/18, lunar 4/4, web 5/5. pnpm typecheck, pnpm build, pnpm verify PASS. pnpm lint PASS with 2 pre-existing warnings in PostCSS default export and MFA QR img.
+- Status remains IN_PROGRESS: staging/remote CI, axe/manual accessibility, real-device validation, authenticated cloud wiring, real money/data and production approval remain NOT_RUN.

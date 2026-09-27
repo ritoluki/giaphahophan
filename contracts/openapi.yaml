@@ -10385,6 +10385,68 @@ paths:
         required: true
         schema: *id005
         description: ''
+  /api/v1/funds/{id}/reconciliation:
+    get:
+      operationId: get_funds_id_reconciliation
+      tags:
+      - Treasury
+      summary: /funds/{id}/reconciliation
+      description: Returns an authorization-filtered open or locked period projection. Donor/proof identifiers and bank data are never returned.
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Reconciliation projection
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Reconciliation'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required:
+                - data
+                - meta
+        '400':
+          description: Invalid range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Capability or membership denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Fund not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - name: from
+        in: query
+        required: true
+        schema: *id005
+      - name: to
+        in: query
+        required: true
+        schema: *id005
   /api/v1/funds/{id}/close-period:
     post:
       operationId: post_funds_id_close_period
@@ -10405,7 +10467,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/Fund'
+                    $ref: '#/components/schemas/Reconciliation'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -12913,7 +12975,8 @@ components:
       required:
       - placeId
       - provider
-      - confirmed    Fund:
+      - confirmed
+    Fund:
       type: object
       additionalProperties: false
       properties:
@@ -13879,13 +13942,65 @@ components:
       type: object
       additionalProperties: false
       properties:
-        closedThrough: *id005
+        from: *id005
+        to: *id005
         reason: *id002
         baseVersion: *id008
       required:
-      - closedThrough
+      - from
+      - to
       - reason
       - baseVersion
+    Reconciliation:
+      type: object
+      additionalProperties: false
+      properties:
+        fundId: *id001
+        from: *id005
+        to: *id005
+        status:
+          type: string
+          enum: [open, locked]
+        version: *id008
+        report:
+          $ref: '#/components/schemas/Report'
+        postedEntries:
+          type: integer
+          minimum: 0
+        proof:
+          type: object
+          additionalProperties: false
+          properties:
+            total:
+              type: integer
+              minimum: 0
+            ready:
+              type: integer
+              minimum: 0
+            pending:
+              type: integer
+              minimum: 0
+            missing:
+              type: integer
+              minimum: 0
+            rejected:
+              type: integer
+              minimum: 0
+          required: [total, ready, pending, missing, rejected]
+        lockedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - fundId
+      - from
+      - to
+      - status
+      - version
+      - report
+      - postedEntries
+      - proof
+      - lockedAt
     AuthRecoveryInput:
       type: object
       additionalProperties: false

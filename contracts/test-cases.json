@@ -1279,8 +1279,12 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Kỳ đã khóa không sửa, phiếu thật có proof trạng thái rõ, không giả đồng bộ ngân hàng.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": [
+  "Local Supabase PASS: open reconciliation projects posted period totals and proof counts; close requires treasury.approve plus MFA, stores a locked snapshot, supports same-key replay, and blocks journal insert into the closed period.",
+  "Closed-period projection is safe by construction: response contains report totals, proof status counts and locked metadata only; donor/proof identifiers and bank-sync fields are absent.",
+  "Full tests/typecheck/build/verify PASS on Node 24.21.0; build includes /api/v1/funds/{id}/reconciliation and /api/v1/funds/{id}/close-period; lint PASS with 2 pre-existing warnings. Staging, remote CI, axe/manual, real-device and production approval remain NOT_RUN."
+]
     },
     {
       "id": "TC-M15-01",

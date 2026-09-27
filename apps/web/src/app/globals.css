@@ -492,3 +492,11 @@ button, a, input, select { min-height: 44px; }
 @media (min-width: 768px) {
   .fund-report-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+.fund-reconciliation-card { display: grid; gap: .7rem; margin: 1rem 0 1.5rem; padding: 1rem; border: 1px solid var(--border); border-radius: 14px; background: rgba(255,255,255,.72); }
+.fund-reconciliation-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; color: var(--brand); }
+.fund-reconciliation-head span, .fund-reconciliation-card p, .fund-reconciliation-card small { color: var(--ink-muted); }
+.fund-reconciliation-card p { margin: 0; }
+.fund-proof-status { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; margin: 0; }
+.fund-proof-status div { padding: .65rem; border: 1px solid var(--border); border-radius: 10px; }
+.fund-proof-status dt { color: var(--ink-muted); font-size: .78rem; }
+.fund-proof-status dd { margin: .15rem 0 0; color: var(--brand); font-size: 1.1rem; font-weight: 800; }

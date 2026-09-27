@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  closePeriodInputSchema,
   balancedJournalInputSchema,
   fundSchema,
   journalInputSchema,
   journalLineInputSchema,
   reasonCommandSchema,
   reportRangeSchema,
+  reconciliationSchema,
   reportSchema,
   reviewInputSchema,
   vndIntegerStringSchema,
@@ -73,6 +75,31 @@ describe("M14 VND and balanced ledger contracts", () => {
     expect(reportSchema.safeParse(report).success).toBe(true);
     expect(reportSchema.safeParse({ ...report, incomeVnd: "-1" }).success).toBe(false);
     expect(reportSchema.safeParse({ ...report, donorPersonId: debitAccountId }).success).toBe(false);
+  });
+  it("requires coherent reconciliation proof counts and versioned close input", () => {
+    const reconciliation = {
+      fundId,
+      from: "2026-09-01",
+      to: "2026-09-30",
+      status: "open",
+      version: 1,
+      report: {
+        fundId,
+        from: "2026-09-01",
+        to: "2026-09-30",
+        openingVnd: "1000",
+        incomeVnd: "500",
+        expenseVnd: "200",
+        closingVnd: "1300",
+      },
+      postedEntries: 2,
+      proof: { total: 2, ready: 1, pending: 1, missing: 0, rejected: 0 },
+      lockedAt: null,
+    };
+    expect(reconciliationSchema.safeParse(reconciliation).success).toBe(true);
+    expect(reconciliationSchema.safeParse({ ...reconciliation, proof: { ...reconciliation.proof, total: 3 } }).success).toBe(false);
+    expect(closePeriodInputSchema.safeParse({ from: reconciliation.from, to: reconciliation.to, reason: "Đã đối chiếu kỳ", baseVersion: 1 }).success).toBe(true);
+    expect(closePeriodInputSchema.safeParse({ from: reconciliation.to, to: reconciliation.from, reason: "Đã đối chiếu kỳ", baseVersion: 1 }).success).toBe(false);
   });
   it("keeps fund balance as a VND string", () => {
     expect(fundSchema.safeParse({ id: fundId, version: 1, name: "Quỹ minh họa", currency: "VND", balanceVnd: "150000", closedThrough: null }).success).toBe(true);

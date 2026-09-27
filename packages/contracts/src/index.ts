@@ -445,7 +445,34 @@ export const reportSchema = z.object({
   expenseVnd: nonNegativeVndIntegerStringSchema,
   closingVnd: vndIntegerStringSchema,
 }).strict();
-export const journalSchema = z.object({
+export const periodStatusSchema = z.enum(["open", "locked"]);
+export const proofStatusSchema = z.enum(["missing", "pending", "ready", "rejected"]);
+export const reconciliationProofSchema = z.object({
+  total: z.number().int().nonnegative(),
+  ready: z.number().int().nonnegative(),
+  pending: z.number().int().nonnegative(),
+  missing: z.number().int().nonnegative(),
+  rejected: z.number().int().nonnegative(),
+}).strict().superRefine((value, context) => {
+  if (value.ready + value.pending + value.missing + value.rejected !== value.total) {
+    context.addIssue({ code: "custom", path: ["total"], message: "Proof status counts must add up to total" });
+  }
+});
+export const reconciliationSchema = z.object({
+  fundId: z.string().uuid(),
+  from: isoDateStringSchema,
+  to: isoDateStringSchema,
+  status: periodStatusSchema,
+  version: z.number().int().positive(),
+  report: reportSchema,
+  postedEntries: z.number().int().nonnegative(),
+  proof: reconciliationProofSchema,
+  lockedAt: z.string().datetime({ offset: true }).nullable(),
+}).strict();
+export const closePeriodInputSchema = reportRangeSchema.safeExtend({
+  reason: z.string().trim().min(1).max(2000),
+  baseVersion: z.number().int().positive(),
+}).strict();export const journalSchema = z.object({
   id: z.string().uuid(),
   version: z.number().int().positive(),
   code: z.string().min(1),
@@ -464,6 +491,7 @@ export type JournalInput = z.infer<typeof journalInputSchema>;
 export type FundRecord = z.infer<typeof fundSchema>;
 export type ReportRecord = z.infer<typeof reportSchema>;
 export type JournalRecord = z.infer<typeof journalSchema>;
+export type ReconciliationRecord = z.infer<typeof reconciliationSchema>;
 
 const placeCoordinatesSchema = z.object({
   latitude: z.number().min(-90).max(90).nullable().optional(),

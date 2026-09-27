@@ -59,7 +59,8 @@
     "test:m14:ledger": "node scripts/test-m14-balanced-ledger-local.mjs",
     "test:m14:two-person": "node scripts/test-m14-two-person-local.mjs",
     "test:m14:reversal": "node scripts/test-m14-immutable-reversal-local.mjs",
-    "test:m14:report": "node scripts/test-m14-fund-report-local.mjs"
+    "test:m14:report": "node scripts/test-m14-fund-report-local.mjs",
+    "test:m14:period-close": "node scripts/test-m14-period-close-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",
