@@ -1150,9 +1150,14 @@
       "testIds": [
         "TC-M07-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+            "evidence": [
+        "apps/web/src/app/api/v1/auth/sign-out and /logout: idempotent global Supabase signOut with redacted failure response; apiJson preserves Cache-Control no-store and SSR Set-Cookie clearing.",
+        "apps/web/src/app/_components/logout-button.tsx and /them: mobile-first pending/error/success logout action using existing shared tokens and responsive E2E coverage.",
+        "scripts/test-m07-session-local.mjs + pnpm test:m07:session PASS on standalone local-configured Node 24/Supabase: cookies, no-store headers, cookie clearing, revoked sensitive action denial and empty-state retry.",
+        "pnpm typecheck, pnpm lint, pnpm build and Playwright 39/39 PASS; lint retains one existing PostCSS warning. Provider H2, staging/remote CI, axe/manual, real-device, real data and production remain NOT_RUN."
+      ]
     },
     {
       "id": "M07-03",

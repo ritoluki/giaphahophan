@@ -273,3 +273,8 @@ button, a, input, select { min-height: 44px; }
   .kinship-form .kinship-check, .kinship-form .button-primary { grid-column: span 2; }
   .kinship-form .button-primary { width: fit-content; }
 }
+
+.account-session-card { display: grid; gap: .65rem; margin-top: 1rem; }
+.account-session-card h2 { margin-bottom: 0; }
+.account-action { display: grid; gap: .35rem; justify-items: start; margin-top: .25rem; }
+.account-action .button-secondary:disabled { opacity: .55; cursor: not-allowed; }

@@ -171,3 +171,9 @@ test("invitation page keeps token and private tree details out of visible copy",
   await expect(page.locator("button[type=submit]")).toBeDisabled();
   expect(await page.locator("main").innerText()).not.toContain(token);
 });
+test("account page exposes a clear mobile logout action", async ({ page }) => {
+  await page.goto("/them");
+  await expect(page.getByRole("heading", { name: "Phiên hiện tại" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Đăng xuất" })).toBeVisible();
+  await expect(page.getByText("Đăng xuất sẽ kết thúc phiên", { exact: false })).toBeVisible();
+});

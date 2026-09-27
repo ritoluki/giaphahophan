@@ -182,8 +182,8 @@ paths:
       tags:
       - Auth
       summary: /auth/sign-out
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Mutation kiểm tra phiên hiện tại và kết thúc session theo scope mặc định; thao tác idempotent khi phiên đã hết hạn hoặc không tồn tại.
+
       security:
       - sessionCookie: []
       responses:

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LogoutButton } from "../_components/logout-button";
 import { SiteShell } from "../_components/site-chrome";
 
 const menuItems = [
@@ -15,6 +16,11 @@ export default function MorePage() {
         <p className="eyebrow">Mục lục</p>
         <h1>Thêm</h1>
         <div className="cards">{menuItems.map((item) => <Link className="card" href={item.href} key={item.href}><h2>{item.title}</h2><p>{item.description}</p></Link>)}</div>
+        <section className="card account-session-card" aria-labelledby="session-heading">
+          <h2 id="session-heading">Phiên hiện tại</h2>
+          <p>Đăng xuất sẽ kết thúc phiên trên các thiết bị đang dùng tài khoản này.</p>
+          <LogoutButton />
+        </section>
       </main>
     </SiteShell>
   );

@@ -568,8 +568,12 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Refresh cookie đúng; no-store Set-Cookie; sensitive action deny phiên đã revoked.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+            "evidence": [
+        "pnpm test:m07:session PASS on standalone local-configured Node 24/Supabase synthetic user: login cookies, no-store login/logout, global session revocation, sensitive kinship action 401 with the revoked cookie and idempotent logout without a session.",
+        "pnpm exec playwright test PASS 39/39 across desktop Chromium, Pixel 5 and 320px including the mobile account logout action.",
+        "pnpm typecheck, pnpm lint and pnpm build PASS; lint retains one existing PostCSS warning. No real data, cloud or production deployment used."
+      ]
     },
     {
       "id": "TC-M07-03",
