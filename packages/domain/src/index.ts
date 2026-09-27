@@ -87,3 +87,5 @@ export function publicLifeStatusAllowed(status: "living" | "deceased" | "unknown
 export * from "./m04";
 export * from "./m05";
 export * from "./m06";
+
+export * from "./m10";

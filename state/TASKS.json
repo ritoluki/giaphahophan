@@ -1600,7 +1600,7 @@
       ],
       "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["packages/domain/src/m10.ts + packages/domain/src/index.ts: deterministic annual lunar recurrence planner over @phan/lunar; regular_only, leap_only_skip, prefer_leap_else_regular and both_if_exists are explicit; source leap requires approved review; no Gregorian 365-day substitution or JavaScript Date arithmetic.","packages/domain/src/m10.test.ts: 6 tests cover leap policy selection/skip/prefer/both, 29-day short-month last_day/next_month_first/skip/manual_override, source immutability, unreviewed leap blocking, incomplete/non-lunar source and supported-range guard; PASS.","pnpm test PASS: contracts 20/20, domain 30/30, worker 5/5, lunar 4/4, web 3/3; pnpm typecheck, lint, build and verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. No UI/DB/API surface changed, so loading/empty/error/restricted/mobile UI and DB/API checks are not applicable to this domain-only slice; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "M10-03",

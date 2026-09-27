@@ -128,3 +128,8 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - pnpm --filter @phan/lunar test PASS: 4/4 tests; 44 golden solar dates; independent comparison with @baostudio/viet-lunar@0.1.1; leap month/month length; round-trip; invalid date, invalid leap and unsupported range.
 - pnpm test PASS: contracts 20/20, domain 24/24, worker 5/5, lunar 4/4, web 3/3. pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS on Node 24.21.0. Lint retains 2 existing warnings.
 - No UI/DB/API change in this package-only slice; no real data, cloud or production deployment. Staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
+
+## M10-02 evidence (2026-09-28)
+- packages/domain/src/m10.test.ts PASS: 6/6 tests for leap policy matrix, short-month matrix, source leap review gate, source validation, range guard and source immutability.
+- pnpm test PASS: contracts 20/20, domain 30/30, worker 5/5, lunar 4/4, web 3/3. pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS on Node 24.21.0. Lint retains 2 existing warnings.
+- No UI/DB/API change in this domain-only slice; no real data, cloud or production deployment. Staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.

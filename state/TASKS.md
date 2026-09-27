@@ -58,7 +58,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M09-04 | P5 | Quyền liên kết | M09-03 | IN_PROGRESS - private asset to public revision link cannot escalate visibility; local DB/API/BFF PASS; staging/remote/accessibility gates NOT_RUN |
 | M09-05 | P5 | Viewer mobile | M09-04 | IN_PROGRESS - image/PDF/audio/video viewer, safe fallback/no autoplay, responsive Playwright 54/54 PASS; staging/remote/axe/real-device NOT_RUN |
 | M10-01 | P6 | Adapter Việt Nam | M03-06, M09-05 | IN_PROGRESS — adapter 1900–2099, 44 golden dates, independent comparison and round-trip/invalid tests PASS; release/accessibility gates remain NOT_RUN |
-| M10-02 | P6 | Recurrence policy | M10-01 |  |
+| M10-02 | P6 | Recurrence policy | M10-01 | IN_PROGRESS — leap/short-month policies and unreviewed leap-source gate PASS; release/accessibility gates remain NOT_RUN |
 | M10-03 | P6 | Ngày gốc và lần tới | M10-02 |  |
 | M10-04 | P6 | Override/version | M10-03 |  |
 | M10-05 | P6 | RSVP | M10-04 |  |
@@ -116,3 +116,5 @@ M08-04 evidence (2026-09-27): PASS locally on synthetic Supabase. Branch-scoped 
 
 
 M10-01 evidence (2026-09-28): packages/lunar now exposes the strict Vietnam UTC+7 adapter over @dqcai/vn-lunar@1.0.1; 44 golden dates match independent @baostudio/viet-lunar@0.1.1, with leap-month/month-length validation and round-trip tests. pnpm --filter @phan/lunar test PASS (4/4); full pnpm test PASS (contracts 20/20, domain 24/24, worker 5/5, lunar 4/4, web 3/3), typecheck/lint/build/verify PASS on Node 24.21.0. Package-only slice; no UI/DB/API change. Staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
+
+M10-02 evidence (2026-09-28): packages/domain/src/m10.ts adds deterministic annual lunar recurrence planning over the verified adapter: four leap policies, four short-month policies, source leap review gate, safe skip/block outcomes and no Gregorian 365-day or JavaScript Date substitution. m10.test.ts 6/6 PASS; full pnpm test PASS (contracts 20/20, domain 30/30, worker 5/5, lunar 4/4, web 3/3), typecheck/lint/build/verify PASS on Node 24.21.0. Domain-only slice; no UI/DB/API change. Staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.

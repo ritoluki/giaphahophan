@@ -875,7 +875,7 @@
       ],
       "expected": "Leap/short-month policy rõ; nguồn leap chưa duyệt không gửi tự động.",
       "status": "PASS",
-      "evidence": []
+      "evidence": ["packages/domain/src/m10.ts + m10.test.ts: recurrence policies and short-month policies are deterministic; unreviewed leap source returns blocked/canAutoNotify=false; 6/6 M10-02 tests PASS.","pnpm test PASS across contracts 20/20, domain 30/30, worker 5/5, lunar 4/4 and web 3/3; typecheck/lint/build/verify PASS on Node 24.21.0. No real data/cloud/production."]
     },
     {
       "id": "TC-M10-03",
