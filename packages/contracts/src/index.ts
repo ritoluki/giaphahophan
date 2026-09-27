@@ -46,7 +46,12 @@ export const personSearchResultSchema = personSummarySchema.extend({
 });
 
 export const personSearchQuerySchema = z.object({
-  q: z.string().trim().min(2).max(200),
+  q: z.string().trim().max(200).optional().default("").refine((value) => value.length === 0 || value.length >= 2, "Search requires at least two characters"),
+  branchId: z.string().uuid().optional(),
+  lifeStatus: z.enum(["living", "deceased", "unknown"]).optional(),
+  birthYear: z.coerce.number().int().min(-5000).max(5000).optional(),
+  sort: z.enum(["name", "code", "updated"]).default("name"),
+  cursor: z.string().trim().min(1).max(256).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20)
 });
 

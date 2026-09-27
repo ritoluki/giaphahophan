@@ -699,8 +699,7 @@ paths:
       tags:
       - Genealogy
       summary: /persons
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Permission-aware canonical-name, alias and filter search; cursor is opaque and scoped by the authorized projection.
       security:
       - sessionCookie: []
       responses:
@@ -801,6 +800,14 @@ paths:
           - deceased
           - unknown
         description: ''
+      - name: birthYear
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: -5000
+          maximum: 5000
+        description: Năm sinh theo fact được phép xem; không trả count của dữ liệu ẩn.
       - name: sort
         in: query
         required: false

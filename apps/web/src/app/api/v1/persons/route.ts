@@ -5,11 +5,26 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-function searchResponse(data: unknown, status = 200) {
+function searchResponse(data: unknown, page: { nextCursor: string | null; hasMore: boolean }, status = 200) {
   return Response.json(
-    { data, meta: { requestId: crypto.randomUUID() }, page: { nextCursor: null, hasMore: false } },
+    { data, meta: { requestId: crypto.randomUUID() }, page },
     { status, headers: { "Cache-Control": "no-store" } }
   );
+}
+
+function decodeCursor(cursor: string | undefined): string | null {
+  if (!cursor) return null;
+  try {
+    const decoded = Buffer.from(cursor, "base64url").toString("utf8");
+    const parsed = personSearchResultSchema.shape.id.safeParse(decoded);
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
+function encodeCursor(personId: string): string {
+  return Buffer.from(personId, "utf8").toString("base64url");
 }
 
 export async function GET(request: Request) {
@@ -17,10 +32,18 @@ export async function GET(request: Request) {
   const parsed = personSearchQuerySchema.safeParse(Object.fromEntries(url.searchParams.entries()));
   if (!parsed.success) return apiJson({ code: "INVALID_PERSON_SEARCH", message: "Search requires at least two characters" }, 400);
 
+  const cursorPersonId = decodeCursor(parsed.data.cursor);
+  if (parsed.data.cursor && !cursorPersonId) return apiJson({ code: "INVALID_PERSON_CURSOR", message: "Cursor is invalid or expired" }, 400);
+
   const client = await createRequestSupabaseClient();
   const { data, error } = await client.schema("api").rpc("persons_search", {
     p_query: parsed.data.q,
-    p_limit: parsed.data.limit
+    p_branch_id: parsed.data.branchId ?? null,
+    p_life_status: parsed.data.lifeStatus ?? null,
+    p_birth_year: parsed.data.birthYear ?? null,
+    p_sort: parsed.data.sort,
+    p_cursor_person_id: cursorPersonId,
+    p_limit: parsed.data.limit + 1
   });
   if (error) return apiJson({ code: "PERSON_SEARCH_FAILED", message: "Authorized person search is unavailable" }, rpcErrorStatus(error.code));
 
@@ -44,7 +67,10 @@ export async function GET(request: Request) {
         matchedNames
       });
     });
-    return searchResponse(results);
+    const hasMore = results.length > parsed.data.limit;
+    const pageResults = hasMore ? results.slice(0, parsed.data.limit) : results;
+    const lastResult = pageResults.at(-1);
+    return searchResponse(pageResults, { nextCursor: hasMore && lastResult ? encodeCursor(lastResult.id) : null, hasMore });
   } catch {
     return apiJson({ code: "PERSON_SEARCH_INVALID_RESPONSE", message: "Person search projection was invalid" }, 502);
   }

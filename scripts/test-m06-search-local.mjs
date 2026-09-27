@@ -10,5 +10,5 @@ if (result.status !== 0) {
   process.stderr.write(result.stderr || result.stdout || "local M06 search test failed\n");
   process.exitCode = 1;
 } else {
-  console.log("PASS local M06-01 search: accent-insensitive canonical/alias match, display preservation and restricted denial");
+  console.log("PASS local M06-01/M06-02 search: accent-insensitive canonical/alias match, display preservation and restricted denial");
 }

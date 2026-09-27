@@ -35,6 +35,15 @@ test("search matches an unaccented alias and preserves canonical display", async
   await expect(page.getByText("Tên khác: Phan Đỗ", { exact: true })).toBeVisible();
 });
 
+test("search applies status and birth-year filters without changing result identity", async ({ page }) => {
+  await page.goto("/tra-cuu");
+  await page.getByLabel("Từ khóa").fill("Phan");
+  await page.getByLabel("Trạng thái").selectOption("deceased");
+  await page.getByLabel("Năm sinh").fill("1870");
+  await expect(page.getByRole("link", { name: /Phan Đức An/ })).toBeVisible();
+  await expect(page.getByText("1 kết quả", { exact: true })).toBeVisible();
+});
+
 test("family focus is readable before the optional tree view", async ({ page }, testInfo) => {
   await page.goto("/gia-pha");
   await expect(page.locator("main > h1")).toHaveText("Cây gia phả");

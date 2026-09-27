@@ -480,8 +480,12 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Lọc chi/trạng thái/năm theo quyền; cursor ổn định không duplicate/missing khi back.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "pnpm test:m06:search PASS: local Supabase filters branch/life/birth year under authorization and keyset cursor returns exactly the next synthetic result without duplication.",
+        "pnpm test:m06:http PASS: standalone BFF returns alias result, applies branch/life/year filters and advances by opaque cursor without duplicate first ID.",
+        "pnpm test PASS (contracts 13/13, domain 24/24, worker 5/5), pnpm typecheck, pnpm build, pnpm lint (one existing PostCSS warning), and Playwright 33/33 desktop/Pixel5/320 PASS. Axe/manual/real-device/remote CI NOT_RUN; no real data/cloud/production."
+      ]
     },
     {
       "id": "TC-M06-03",

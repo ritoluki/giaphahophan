@@ -4,7 +4,7 @@ import { SearchBox } from "../_components/search-box";
 import { SearchResults } from "../_components/search-results";
 import { demoBranches, demoPeople } from "../../lib/demo-data";
 
-type SearchPageProps = { searchParams: Promise<{ q?: string }> };
+type SearchPageProps = { searchParams: Promise<{ q?: string; branchId?: string; lifeStatus?: string; birthYear?: string }> };
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const params = await searchParams;
@@ -18,7 +18,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <SearchBox initialValue={initialQuery} compact />
         <DemoNotice />
         <p><Link className="button-secondary" href="/quan-he">Tra quan hệ giữa hai người →</Link></p>
-        <SearchResults people={demoPeople} branches={demoBranches} initialQuery={initialQuery} />
+        <SearchResults people={demoPeople} branches={demoBranches} initialQuery={initialQuery} initialBranchId={params.branchId ?? ""} initialLifeStatus={params.lifeStatus ?? ""} initialBirthYear={params.birthYear ?? ""} />
       </main>
     </SiteShell>
   );

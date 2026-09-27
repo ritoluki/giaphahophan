@@ -1025,9 +1025,13 @@
       "testIds": [
         "TC-M06-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0020_m06_search_filters_cursor.sql adds permission-aware branch/life/birth-year filters and keyset ordering with opaque UUID cursor; pnpm test:m06:search PASS including no duplicate next page.",
+        "GET /api/v1/persons validates filters, base64url cursor and flat data/page envelope; pnpm test:m06:http PASS for alias, filters and stable cursor on standalone local artifact.",
+        "UI search exposes branch/status/birth-year filters with mobile-safe empty state; full pnpm test 13/13 contracts, 24/24 domain, 5/5 worker; typecheck, build, lint and Playwright 33/33 desktop/Pixel5/320 PASS. Axe/manual/real-device/remote CI NOT_RUN; no real data/cloud/production."
+      ]
     },
     {
       "id": "M06-03",

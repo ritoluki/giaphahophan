@@ -3,7 +3,7 @@ import { claimReviewInputSchema, claimSubmitInputSchema, graphProjectionSchema, 
 
 describe("CORE-01 contracts", () => {
   it("preserves canonical display and aliases in person search results", () => {
-    expect(personSearchQuerySchema.parse({ q: "phan do", limit: "8" })).toEqual({ q: "phan do", limit: 8 });
+    expect(personSearchQuerySchema.parse({ q: "phan do", limit: "8" })).toEqual({ q: "phan do", sort: "name", limit: 8 });
     const result = personSearchResultSchema.parse({
       id: "30000000-0000-4000-8000-000000000001",
       version: 1,
