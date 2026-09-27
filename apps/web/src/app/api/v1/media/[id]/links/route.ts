@@ -34,7 +34,7 @@ export async function POST(request: Request, context: RouteContext) {
   if (!(await getVerifiedUser(client))) return apiJson({ code: "AUTH_REQUIRED", message: "A verified session is required" }, 401);
   const { data, error } = await client.schema("api").rpc("media_link_create_idempotent", {
     p_tree_id: treeId, p_asset_id: id, p_person_id: input.personId ?? null, p_source_id: input.sourceId ?? null,
-    p_content_revision_id: input.contentRevisionId ?? null, p_caption: input.caption ?? null,
+    p_content_revision_id: input.contentRevisionId ?? null, p_place_id: input.placeId ?? null, p_caption: input.caption ?? null,
     p_idempotency_key: key.data, p_request_hash: createRequestHash(input)
   });
   if (error) return apiJson({ code: "MEDIA_LINK_CREATE_FAILED", message: "Media link could not be saved" }, rpcErrorStatus(error.code));

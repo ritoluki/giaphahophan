@@ -2005,9 +2005,15 @@
       "testIds": [
         "TC-M13-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0037_m13_place_media_directions.sql + supabase/tests/m13_place_media.sql: place_id media target, tree-scoped place_directions, exact-one target, cross-place FK denial, forced RLS and raw private read denial.",
+        "packages/contracts/src/index.ts + packages/contracts/src/m13.test.ts: place-target media link and directions schemas; contract suite 46/46 PASS.",
+        "packages/domain/src/m13.ts + packages/domain/src/m13.test.ts: fail-closed directions projection and restricted redaction; domain suite 70/70 PASS.",
+        "apps/web/src/modules/m13/place-reader.tsx + globals.css: mobile-first media empty state and directions text remain visible without map provider; localhost:3100 detail smoke 200.",
+        "pnpm test:m13:place-media, pnpm test, pnpm typecheck, pnpm build, pnpm lint and pnpm verify PASS on Node 24.21.0/Supabase local; lint retains 2 existing warnings; no real data/cloud/production used."
+      ]
     },
     {
       "id": "M13-04",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { burialInputSchema, explicitExternalMapLinkRequestSchema, placeInputSchema, placeSchema } from "./index";
+import { burialInputSchema, explicitExternalMapLinkRequestSchema, mediaLinkInputSchema, placeDirectionsInputSchema, placeInputSchema, placeSchema } from "./index";
 
 const ids = {
   id: "a3700000-0000-4000-8000-000000000001",
@@ -52,5 +52,15 @@ describe("M13 explicit external map link contract", () => {
   it("accepts only a confirmed place-id/provider request", () => {
     expect(explicitExternalMapLinkRequestSchema.safeParse({ placeId: ids.placeId, provider: "google_maps", confirmed: true }).success).toBe(true);
     expect(explicitExternalMapLinkRequestSchema.safeParse({ placeId: ids.placeId, provider: "google_maps", confirmed: false }).success).toBe(false);
+  });
+});
+describe("M13 place media target", () => {
+  it("allows a place media target and keeps exactly-one semantics", () => {
+    expect(mediaLinkInputSchema.safeParse({ placeId: ids.placeId, caption: "Ảnh khu mộ minh họa" }).success).toBe(true);
+    expect(mediaLinkInputSchema.safeParse({ placeId: ids.placeId, personId: ids.personId }).success).toBe(false);
+  });
+
+  it("validates directions independently from provider links", () => {
+    expect(placeDirectionsInputSchema.safeParse({ placeId: ids.placeId, instructionText: "Lối vào minh họa", visibility: "members" }).success).toBe(true);
   });
 });

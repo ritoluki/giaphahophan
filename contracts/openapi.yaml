@@ -12502,12 +12502,13 @@ components:
         personId: *id001
         sourceId: *id001
         contentRevisionId: *id001
+        placeId: *id001
         caption:
           anyOf:
           - *id002
           - type: 'null'
       required: []
-      description: Exactly one of personId, sourceId or contentRevisionId must be non-null.
+      description: Exactly one of personId, sourceId, contentRevisionId or placeId must be non-null.
     MediaLink:
       type: object
       additionalProperties: false
@@ -12518,11 +12519,29 @@ components:
         personId: *id001
         sourceId: *id001
         contentRevisionId: *id001
+        placeId: *id001
         caption:
           anyOf:
           - *id002
           - type: 'null'
       required: [id, version, assetId]
+    PlaceDirectionsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        placeId: *id001
+        instructionText:
+          type: string
+          minLength: 1
+          maxLength: 10000
+        sourceId:
+          anyOf:
+          - *id001
+          - type: 'null'
+        visibility:
+          type: string
+          enum: [restricted, members, public]
+      required: [placeId, instructionText, visibility]
     Download:
       type: object
       additionalProperties: false

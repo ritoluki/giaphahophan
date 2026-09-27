@@ -293,9 +293,10 @@ export const mediaLinkInputSchema = z.object({
   personId: z.string().uuid().nullable().optional(),
   sourceId: z.string().uuid().nullable().optional(),
   contentRevisionId: z.string().uuid().nullable().optional(),
+  placeId: z.string().uuid().nullable().optional(),
   caption: z.string().trim().min(1).max(1000).nullable().optional()
 }).strict().superRefine((value, ctx) => {
-  const targets = [value.personId, value.sourceId, value.contentRevisionId].filter(Boolean);
+  const targets = [value.personId, value.sourceId, value.contentRevisionId, value.placeId].filter(Boolean);
   if (targets.length !== 1) ctx.addIssue({ code: "custom", message: "Exactly one media link target is required" });
 });
 export const mediaLinkSchema = mediaLinkInputSchema.safeExtend({
@@ -351,6 +352,20 @@ export const citationSchema = citationInputSchema.safeExtend({
 }).strict();
 export const placeKindSchema = z.enum(["temple", "cemetery", "grave", "hometown", "other"]);
 export const placeVisibilitySchema = z.enum(["public", "members", "restricted"]);
+
+export const placeDirectionsInputSchema = z.object({
+  placeId: z.string().uuid(),
+  instructionText: z.string().trim().min(1).max(10_000),
+  sourceId: z.string().uuid().nullable().optional(),
+  visibility: placeVisibilitySchema,
+}).strict();
+export const placeDirectionsSchema = placeDirectionsInputSchema.safeExtend({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  sourceId: z.string().uuid().nullable(),
+}).strict();
+export type PlaceDirectionsInput = z.infer<typeof placeDirectionsInputSchema>;
+export type PlaceDirections = z.infer<typeof placeDirectionsSchema>;
 
 const placeCoordinatesSchema = z.object({
   latitude: z.number().min(-90).max(90).nullable().optional(),

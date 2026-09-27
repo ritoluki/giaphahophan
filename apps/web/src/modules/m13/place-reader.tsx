@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { DemoNotice, SectionHeading, SiteShell } from "../../app/_components/site-chrome";
-import type { PlaceRecord } from "@phan/contracts";
+import type { PlaceDirections, PlaceRecord } from "@phan/contracts";
 
 export type PlaceListState = "loading" | "empty" | "error" | "restricted";
 
@@ -15,6 +15,16 @@ export const demoPlaces: readonly PlaceRecord[] = [
     longitude: null,
     visibility: "members",
     coordinateVisibility: "restricted",
+  },
+];
+export const demoDirections: readonly PlaceDirections[] = [
+  {
+    id: "a3500000-0000-4000-8000-000000000011",
+    version: 1,
+    placeId: "a3500000-0000-4000-8000-000000000001",
+    instructionText: "Hướng dẫn minh họa: đi theo lối chính vào khu tưởng niệm; nội dung này không phải chỉ dẫn đến địa chỉ nhà người sống.",
+    sourceId: null,
+    visibility: "members",
   },
 ];
 
@@ -58,6 +68,7 @@ export function ExternalMapAction({ href }: { href: string | null }) {
     : <span className="place-map-unavailable">Chưa có quyền tọa độ để mở bản đồ ngoài</span>;
 }
 export function PlaceDetail({ place }: { place: PlaceRecord }) {
+  const directions = demoDirections.find((item) => item.placeId === place.id);
   return (
     <SiteShell active="more">
       <main id="main-content" className="container page place-page">
@@ -71,6 +82,14 @@ export function PlaceDetail({ place }: { place: PlaceRecord }) {
             <div><dt>Tư liệu nguồn</dt><dd>Chưa có tư liệu được gắn trong fixture minh họa</dd></div>
             <div><dt>Ảnh</dt><dd>Chưa có ảnh được cấp quyền</dd></div>
           </dl>
+          <section className="place-detail-section" aria-labelledby="place-media-heading">
+            <h2 id="place-media-heading">Tư liệu hình ảnh</h2>
+            <PlaceStateCard status="empty" />
+          </section>
+          <section className="place-detail-section" aria-labelledby="place-directions-heading">
+            <h2 id="place-directions-heading">Hướng dẫn đường đi</h2>
+            {directions ? <div className="place-directions-card"><p>{directions.instructionText}</p><span>Nguồn hướng dẫn: chưa gắn tư liệu trong fixture minh họa</span></div> : <PlaceStateCard status="empty" />}
+          </section>
           <div className="place-privacy-note"><strong>Bản đồ ngoài</strong><span>Chỉ mở dịch vụ ngoài sau khi người dùng chủ động chọn và hệ thống xác nhận quyền tọa độ.</span><ExternalMapAction href={null} /></div>
         </article>
       </main>

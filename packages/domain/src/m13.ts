@@ -1,10 +1,12 @@
 import {
   explicitExternalMapLinkRequestSchema,
+  placeDirectionsInputSchema,
   placeInputSchema,
   type BurialRecord,
   type Place,
   type PlaceInput,
   type ExternalMapProvider,
+  type PlaceDirections,
   type PlaceRecord,
 } from "@phan/contracts";
 
@@ -19,6 +21,14 @@ export type PublicPlaceProjection = {
   readonly coordinates: { readonly latitude: number; readonly longitude: number } | null;
 };
 
+export type PublicPlaceDirections = {
+  readonly id: string;
+  readonly version: number;
+  readonly placeId: string;
+  readonly instructionText: string;
+  readonly sourceId: string | null;
+  readonly visibility: M13ViewerScope;
+};
 export type PublicBurialProjection = {
   readonly id: string;
   readonly version: number;
@@ -98,4 +108,23 @@ export function buildExplicitExternalMapLink(
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${latitude},${longitude}`)}`;
   }
   return `https://www.openstreetmap.org/?mlat=${encodeURIComponent(String(latitude))}&mlon=${encodeURIComponent(String(longitude))}#map=18/${encodeURIComponent(String(latitude))}/${encodeURIComponent(String(longitude))}`;
+}
+export function parsePlaceDirectionsInput(input: unknown) {
+  const result = placeDirectionsInputSchema.safeParse(input);
+  return result.success ? result.data : null;
+}
+
+export function projectPlaceDirections(
+  directions: PlaceDirections,
+  viewer: M13ViewerScope,
+): PublicPlaceDirections | null {
+  if (!canReadM13Visibility(directions.visibility, viewer)) return null;
+  return {
+    id: directions.id,
+    version: directions.version,
+    placeId: directions.placeId,
+    instructionText: directions.instructionText,
+    sourceId: directions.sourceId,
+    visibility: directions.visibility,
+  };
 }

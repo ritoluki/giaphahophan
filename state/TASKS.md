@@ -73,7 +73,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M12-04 | P6 | Tìm đọc mobile | M12-03 | IN_PROGRESS — ordered news list/article reader, SafeRichText long content/image/heading layout, demo-only approved asset, explicit reader states and no-index unknown boundary; localhost smoke + full test/build PASS; axe/zoom/device/API/release gates remain NOT_RUN |
 | M13-01 | P6 | Place/burial model | M09-05 | IN_PROGRESS — migration/domain/contracts/UI + synthetic local DB test PASS; API mutation, full accessibility/device, staging/remote and production gates remain NOT_RUN |
 | M13-02 | P6 | Coordinates private | M13-01 | IN_PROGRESS — explicit provider URL contract/domain boundary and restricted CTA PASS; provider adapter/quota, API integration, accessibility/device, staging/remote and production gates remain NOT_RUN |
-| M13-03 | P6 | Media và directions | M13-02 |  |
+| M13-03 | P6 | Media và directions | M13-02 | IN_PROGRESS — place-scoped media links, directions visibility/projection, private DB boundary and mobile empty/text states PASS; staging/remote/axe/real-device/production gates NOT_RUN |
 | M13-04 | P6 | Map adapter gate | M13-03 |  |
 | M14-01 | P7 | Balanced ledger | M07-05, M09-05 |  |
 | M14-02 | P7 | 2-person post | M14-01 |  |

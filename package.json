@@ -53,7 +53,8 @@
     "test:m09:media": "node scripts/test-m09-media-local.mjs",
     "test:m09:sources": "node scripts/test-m09-sources-local.mjs",
     "test:m09:links": "node scripts/test-m09-links-local.mjs",
-    "test:m13:place": "node scripts/test-m13-place-local.mjs"
+    "test:m13:place": "node scripts/test-m13-place-local.mjs",
+    "test:m13:place-media": "node scripts/test-m13-place-media-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

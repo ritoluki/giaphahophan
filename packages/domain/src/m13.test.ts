@@ -4,9 +4,11 @@ import {
   canReadM13Visibility,
   hasBurialEvidence,
   hasCompletePlaceCoordinates,
+  parsePlaceDirectionsInput,
   parsePlaceInput,
   projectBurialRecord,
   projectPlace,
+  projectPlaceDirections,
 } from "./m13";
 
 const place = {
@@ -76,5 +78,17 @@ describe("M13 external map boundary", () => {
     const link = buildExplicitExternalMapLink({ ...place, coordinateVisibility: "public" }, "public", "google_maps", true);
     expect(link).toBe("https://www.google.com/maps/search/?api=1&query=10.1234567%2C106.1234567");
     expect(buildExplicitExternalMapLink({ ...place, coordinateVisibility: "public" }, "public", "openstreetmap", true)).toContain("openstreetmap.org/?mlat=10.1234567");
+  });
+});
+describe("M13 place media and directions boundary", () => {
+  it("parses typed directions without requiring a map provider", () => {
+    expect(parsePlaceDirectionsInput({ placeId: place.id, instructionText: "Đi theo lối chính; rẽ trái ở cổng.", visibility: "members" })).not.toBeNull();
+    expect(parsePlaceDirectionsInput({ placeId: place.id, instructionText: "", visibility: "members" })).toBeNull();
+  });
+
+  it("redacts restricted directions while retaining authorized text", () => {
+    const directions = { id: "a3000000-0000-4000-8000-000000000005", version: 1, placeId: place.id, instructionText: "Lối vào minh họa", sourceId: null, visibility: "members" as const };
+    expect(projectPlaceDirections(directions, "public")).toBeNull();
+    expect(projectPlaceDirections(directions, "members")?.instructionText).toBe("Lối vào minh họa");
   });
 });

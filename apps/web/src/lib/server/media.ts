@@ -23,6 +23,7 @@ export function parseMediaLinkRow(row: unknown) {
     personId: value.person_id ?? value.personId ?? null,
     sourceId: value.source_id ?? value.sourceId ?? null,
     contentRevisionId: value.content_revision_id ?? value.contentRevisionId ?? null,
+    placeId: value.place_id ?? value.placeId ?? null,
     caption: value.caption ?? null
   });
 }

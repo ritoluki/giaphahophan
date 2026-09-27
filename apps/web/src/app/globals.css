@@ -468,4 +468,8 @@ button, a, input, select { min-height: 44px; }
   .place-card-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .place-card, .place-detail-card { padding: 1.4rem; }
 }.place-map-action { width: fit-content; margin-top: .35rem; }
-.place-map-unavailable { color: var(--ink-muted); font-size: .86rem; }
+.place-map-unavailable { color: var(--ink-muted); font-size: .86rem; }.place-detail-section { display: grid; gap: .65rem; margin-top: 1.25rem; }
+.place-detail-section h2 { margin: 0; color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: 1.15rem; }
+.place-directions-card { display: grid; gap: .35rem; padding: 1rem; border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,.65); }
+.place-directions-card p { margin: 0; line-height: 1.65; }
+.place-directions-card span { color: var(--ink-muted); font-size: .84rem; }

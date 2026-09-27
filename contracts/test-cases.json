@@ -1144,8 +1144,13 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Ảnh và hướng dẫn có quyền; không có provider vẫn xem được địa điểm text.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": [
+        "pnpm test:m13:place-media PASS: synthetic media-to-place FK, exact-one target, cross-place denial, scoped directions and private raw-table denial.",
+        "Contract 46/46 and domain 70/70 PASS; directions projection fails closed for restricted visibility.",
+        "localhost:3100 place detail smoke 200 renders media empty state and directions text without a provider; full pnpm test, typecheck, build, lint and verify PASS; 2 pre-existing lint warnings.",
+        "No real data/cloud/production used; staging, remote CI, axe/manual, real-device and production approval remain NOT_RUN."
+      ]
     },
     {
       "id": "TC-M13-04",

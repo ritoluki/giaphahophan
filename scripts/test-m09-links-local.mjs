@@ -51,11 +51,12 @@ try {
     `insert into private.capability_grants (id, tree_id, created_by, membership_id, capability) values (${sql(readGrantId)}, ${sql(treeId)}, ${sql(ownerId)}, ${sql(membershipId)}, 'media.read'), (${sql(writeGrantId)}, ${sql(treeId)}, ${sql(ownerId)}, ${sql(membershipId)}, 'media.write');`,
     `insert into private.media_assets (id, tree_id, created_by, filename, declared_mime, mime_type, size_bytes, actual_size_bytes, expected_sha256, actual_sha256, purpose, visibility, state, object_path, alt_text) values (${sql(assetId)}, ${sql(treeId)}, ${sql(ownerId)}, 'synthetic-public-article.png', 'image/png', 'image/png', 8, 8, ${sql("a".repeat(64))}, ${sql("a".repeat(64))}, 'source', 'restricted', 'ready', ${sql(ownerId + "/" + assetId + "/original")}, 'Synthetic private asset');`,
     `insert into private.content_pages (id, tree_id, created_by, slug, kind, visibility) values (${sql(pageId)}, ${sql(treeId)}, ${sql(ownerId)}, 'synthetic-public-article', 'history', 'public');`,
-    `insert into private.content_revisions (id, tree_id, created_by, page_id, title, body, status, approved_by) values (${sql(revisionId)}, ${sql(treeId)}, ${sql(ownerId)}, ${sql(pageId)}, 'Synthetic public article', '{"type":"doc","content":[]}', 'published', ${sql(ownerId)});`,
+    `insert into private.content_revisions (id, tree_id, created_by, page_id, title, body, status, approved_by) values (${sql(revisionId)}, ${sql(treeId)}, null, ${sql(pageId)}, 'Synthetic public article', '{"version":1,"blocks":[]}', 'published', ${sql(ownerId)});`,
     `update private.content_pages set published_revision_id = ${sql(revisionId)} where tree_id = ${sql(treeId)} and id = ${sql(pageId)};`,
     "commit;"
   ].join("\n");
-  assert(psql(seed).status === 0, "media link fixture seed failed");
+  const seedResult = psql(seed);
+  assert(seedResult.status === 0, "media link fixture seed failed: " + (seedResult.stderr || seedResult.stdout));
   const ownerCookie = await login(ownerEmail, ownerPassword);
   const input = { contentRevisionId: revisionId, caption: "Synthetic public article image" };
   const key = randomUUID();
