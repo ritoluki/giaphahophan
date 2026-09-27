@@ -1036,8 +1036,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Allowlist schema, sanitize server, safe link/media; stored XSS không thực thi.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": ["packages/contracts/src/index.ts + m12.test.ts: versioned rich-text AST allowlist for paragraph/heading/list/quote/divider/image, safe http(s)/site-relative links, opaque UUID media references and bounded content revision input; contract tests 2/2 PASS.","packages/domain/src/m12.ts + m12.test.ts: server sanitizer strips unknown nodes/attributes, converts unsafe links to text, bounds nodes/text/media and rejects malformed roots; domain tests 4/4 PASS.","supabase/migrations/0034_m12_rich_text_allowlist.sql + supabase/tests/m12_rich_text.sql: DB check constraint mirrors the allowlist and rejects javascript links/unknown blocks; pnpm test:m12:rich-text PASS on local Supabase. SafeRichText renderer has no dangerouslySetInnerHTML and renders only typed AST/media capabilities. Full pnpm test PASS: contracts 35/35, domain 54/54, worker 18/18, lunar 4/4, web 3/3; typecheck/lint/build/verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. Revision/publish/API UI, staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "TC-M12-02",

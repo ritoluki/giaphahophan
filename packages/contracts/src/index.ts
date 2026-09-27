@@ -661,3 +661,85 @@ export const jobCountersSchema = z.object({
   failed: z.number().int().nonnegative(),
   skipped: z.number().int().nonnegative(),
 }).strict();
+
+
+const safeRichTextHref = (value: string): boolean => {
+  if (/[^\P{Cc}\t\n\r]/u.test(value)) return false;
+  if (value === "/" || (value.startsWith("/") && !value.startsWith("//"))) return true;
+  try {
+    const url = new URL(value);
+    return (url.protocol === "http:" || url.protocol === "https:") && url.username === "" && url.password === "";
+  } catch {
+    return false;
+  }
+};
+
+export const richTextInlineSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("text"),
+    text: z.string().min(1).max(10_000),
+  }).strict(),
+  z.object({
+    type: z.literal("strong"),
+    text: z.string().min(1).max(10_000),
+  }).strict(),
+  z.object({
+    type: z.literal("emphasis"),
+    text: z.string().min(1).max(10_000),
+  }).strict(),
+  z.object({
+    type: z.literal("link"),
+    href: z.string().trim().min(1).max(2_048).refine(safeRichTextHref, "unsafe rich text link"),
+    label: z.string().min(1).max(10_000),
+  }).strict(),
+]);
+
+const richTextListItemSchema = z.object({
+  type: z.literal("list_item"),
+  children: z.array(richTextInlineSchema).min(1).max(100),
+}).strict();
+
+export const richTextBlockSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("paragraph"),
+    children: z.array(richTextInlineSchema).max(100),
+  }).strict(),
+  z.object({
+    type: z.literal("heading"),
+    level: z.union([z.literal(2), z.literal(3)]),
+    children: z.array(richTextInlineSchema).min(1).max(100),
+  }).strict(),
+  z.object({
+    type: z.literal("list"),
+    ordered: z.boolean(),
+    items: z.array(richTextListItemSchema).min(1).max(50),
+  }).strict(),
+  z.object({
+    type: z.literal("quote"),
+    children: z.array(richTextInlineSchema).min(1).max(100),
+  }).strict(),
+  z.object({
+    type: z.literal("divider"),
+  }).strict(),
+  z.object({
+    type: z.literal("image"),
+    assetId: z.string().uuid(),
+    alt: z.string().min(1).max(300),
+    caption: z.string().max(1_000).optional(),
+  }).strict(),
+]);
+
+export const richTextDocumentSchema = z.object({
+  version: z.literal(1),
+  blocks: z.array(richTextBlockSchema).max(200),
+}).strict();
+
+export const contentRevisionInputSchema = z.object({
+  pageId: z.string().uuid(),
+  title: z.string().trim().min(1).max(200),
+  body: richTextDocumentSchema,
+}).strict();
+
+export type RichTextDocument = z.infer<typeof richTextDocumentSchema>;
+export type RichTextBlock = z.infer<typeof richTextBlockSchema>;
+export type RichTextInline = z.infer<typeof richTextInlineSchema>;

@@ -400,3 +400,20 @@ button, a, input, select { min-height: 44px; }
 .media-viewer-state-restricted { border-color: var(--accent); background: #FBF1DE; }
 .media-viewer-state-error { border-color: var(--danger); background: #FBE6E8; }
 @media (min-width: 768px) { .media-viewer-gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.safe-rich-text { display: grid; gap: 1rem; max-width: 68ch; color: var(--ink); font-size: 1.05rem; line-height: 1.75; }
+.safe-rich-text h2, .safe-rich-text h3 { margin: 1rem 0 0; color: var(--brand); font-family: "Noto Serif", Georgia, serif; line-height: 1.25; }
+.safe-rich-text h2 { font-size: clamp(1.45rem, 5vw, 2rem); }
+.safe-rich-text h3 { font-size: clamp(1.2rem, 4vw, 1.55rem); }
+.safe-rich-text p, .safe-rich-text ul, .safe-rich-text ol, .safe-rich-text blockquote { margin: 0; }
+.safe-rich-text a { color: var(--brand); font-weight: 700; text-decoration-thickness: .1em; text-underline-offset: .16em; overflow-wrap: anywhere; }
+.safe-rich-text ul, .safe-rich-text ol { display: grid; gap: .45rem; padding-left: 1.35rem; }
+.safe-rich-text blockquote { padding: .75rem 1rem; border-left: 3px solid var(--accent); background: #FBF1DE; color: var(--ink-muted); }
+.safe-rich-text hr { width: 100%; border: 0; border-top: 1px solid var(--border); }
+.safe-rich-text-media { display: grid; gap: .45rem; margin: .25rem 0; }
+.safe-rich-text-media img { display: block; width: 100%; height: auto; border-radius: 12px; background: var(--muted); }
+.safe-rich-text-media figcaption, .safe-rich-text-empty { margin: 0; color: var(--ink-muted); font-size: .9rem; }
+.safe-rich-text-media-placeholder { display: grid; place-items: center; min-height: 180px; padding: 1rem; border: 1px dashed var(--border); border-radius: 12px; background: var(--muted); color: var(--ink-muted); text-align: center; }
+@media (max-width: 767px) {
+  .safe-rich-text { font-size: 1.0625rem; }
+}

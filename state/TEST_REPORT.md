@@ -177,3 +177,9 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - apps/worker/src/job-ledger.test.ts PASS: 5/5 tests cho transition queued/processed/succeeded/failed/skipped, failure audit, bounded retry, max-attempt denial, explicit skip và counter summary.
 - packages/contracts/src/m11-counters.test.ts PASS: 2/2 tests cho năm trạng thái job và counters không âm.
 - Full pnpm test PASS: contracts 33/33, domain 50/50, worker 18/18, lunar 4/4, web 3/3; pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS trên Node 24.21.0. Lint còn 2 cảnh báo cũ. Không đổi UI/API/provider; staging/remote CI, axe/manual, real-device và production approval vẫn NOT_RUN.
+
+## M12-01 evidence (2026-09-28)
+- packages/contracts/src/m12.test.ts PASS: 2/2 tests cho AST allowlist, safe links, opaque media ID, strict attributes và bounded revision input.
+- packages/domain/src/m12.test.ts PASS: 4/4 tests cho server sanitizer, stored-XSS payload removal, unsafe-link text fallback, malformed root và bounded text/media.
+- pnpm test:m12:rich-text PASS trên local Supabase: migration 0034 check constraint chặn javascript link và unknown block, body hợp lệ được chấp nhận.
+- Full pnpm test PASS: contracts 35/35, domain 54/54, worker 18/18, lunar 4/4, web 3/3; pnpm typecheck, pnpm lint, pnpm build, pnpm verify PASS trên Node 24.21.0. Lint còn 2 cảnh báo cũ. Revision/publish/API UI, staging/remote CI, axe/manual, real-device và production approval vẫn NOT_RUN.
