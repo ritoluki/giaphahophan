@@ -1940,6 +1940,70 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/BranchInput'
+  /api/v1/proposals/draft:
+    post:
+      operationId: post_proposals_draft
+      tags:
+      - Review
+      summary: Lưu bản nháp đề nghị
+      description: Tạo proposal ở trạng thái draft; chưa thay đổi dữ liệu chính thức.
+      security:
+      - sessionCookie: []
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/CSRF'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalInput'
+      responses:
+        '201':
+          description: Bản nháp đã được lưu.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProposalMutationResult'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required:
+                - data
+                - meta
+        '400':
+          description: Request sai
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Không có capability
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột idempotency
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '428':
+          description: Thiếu Idempotency-Key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/v1/proposals:
     get:
       operationId: get_proposals
@@ -2400,6 +2464,107 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ReasonCommand'
+  /api/v1/proposals/{id}/withdraw:
+    post:
+      operationId: post_proposals_id_withdraw
+      tags:
+      - Review
+      summary: Rút đề nghị
+      description: Tác giả có thể rút draft, submitted hoặc needs_info; terminal state không thể quay lại.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/CSRF'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProposalLifecycleInput'
+      responses:
+        '200':
+          description: Đề nghị đã rút.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProposalMutationEnvelope'
+        '400':
+          description: Request sai hoặc transition không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Không phải tác giả hoặc không có capability
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Xung đột idempotency/lifecycle
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /api/v1/proposals/{id}/history:
+    get:
+      operationId: get_proposals_id_history
+      tags:
+      - Review
+      summary: Lịch sử đề nghị
+      description: Projection lịch sử đã redacted, chỉ trả cho tác giả hoặc reviewer có phạm vi.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      responses:
+        '200':
+          description: Lịch sử đã lọc quyền.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ProposalHistory'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required:
+                - data
+                - meta
+        '401':
+          description: Chưa xác thực
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Không có quyền
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Không tồn tại hoặc không được biết
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/v1/proposals/{id}/diff:
     get:
       operationId: get_proposals_id_diff
@@ -11757,6 +11922,96 @@ components:
       - kind
       - reason
       - items
+    ProposalMutationResult:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id001
+        treeId: *id001
+        status:
+          type: string
+          enum:
+          - draft
+          - submitted
+          - needs_info
+          - approved
+          - rejected
+          - withdrawn
+        version: *id008
+      required:
+      - id
+      - treeId
+      - status
+      - version
+    ProposalMutationEnvelope:
+      type: object
+      additionalProperties: false
+      properties:
+        data:
+          $ref: '#/components/schemas/ProposalMutationResult'
+        meta:
+          $ref: '#/components/schemas/Meta'
+      required:
+      - data
+      - meta
+    ProposalLifecycleInput:
+      type: object
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 4000
+      required:
+      - reason
+    ProposalHistory:
+      type: object
+      additionalProperties: false
+      properties:
+        proposalId: *id001
+        entries:
+          type: array
+          maxItems: 200
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id: *id001
+              kind:
+                type: string
+                enum:
+                - review
+                - event
+              status:
+                type: string
+                enum:
+                - drafted
+                - submitted
+                - needs_info
+                - approved
+                - rejected
+                - withdrawn
+              decision:
+                anyOf:
+                - type: string
+                  enum:
+                  - approve
+                  - reject
+                  - needs_info
+                - type: 'null'
+              reason:
+                type: string
+              createdAt: *id006
+            required:
+            - id
+            - kind
+            - status
+            - decision
+            - reason
+            - createdAt
+      required:
+      - proposalId
+      - entries
     ProposalDiff:
       type: object
       additionalProperties: false

@@ -319,6 +319,50 @@ try {
   const approvedDiff = await jsonRequest(webUrl + "/api/v1/proposals/" + proposalId + "/diff", { headers: { Cookie: cookieA } });
   assert(approvedDiff.response.status === 200 && approvedDiff.body?.data?.items?.[0]?.isStale === true, "proposal diff did not expose the approved proposal as stale after canonical version advanced");
 
+  const needsInfoPayload = {
+    treeId,
+    kind: "correction",
+    reason: "Synthetic needs-info lifecycle",
+    branchId,
+    baseSnapshot: { person: { version: 2, display_name: "Synthetic Auth Person Updated" } },
+    items: [{
+      targetKind: "person",
+      targetId: personId,
+      baseVersion: 2,
+      operation: "update",
+      fieldChanges: { display_name: "Synthetic Needs Info Name" },
+      sourceIds: [sourceId]
+    }]
+  };
+  const needsInfoSubmitted = await jsonRequest(webUrl + "/api/v1/proposals", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieA },
+    body: JSON.stringify(needsInfoPayload)
+  });
+  assert(needsInfoSubmitted.response.status === 201 && needsInfoSubmitted.body?.data?.status === "submitted", "needs-info proposal submit failed");
+  const needsInfoId = needsInfoSubmitted.body.data.id;
+  const needsInfoVersion = needsInfoSubmitted.body.data.version;
+  const needsInfoReview = await jsonRequest(webUrl + "/api/v1/proposals/" + needsInfoId + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieB },
+    body: JSON.stringify({ decision: "needs_info", reason: "Synthetic reviewer requests source clarification", baseVersion: needsInfoVersion, reviewedSnapshotHash: "synthetic-needs-info-hash" })
+  });
+  assert(needsInfoReview.response.status === 200 && needsInfoReview.body?.data?.status === "needs_info", "needs-info review transition failed");
+  const resubmitNeedsInfo = await jsonRequest(webUrl + "/api/v1/proposals/" + needsInfoId + "/submit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieA },
+    body: JSON.stringify({ reason: "Synthetic author supplied the requested clarification" })
+  });
+  assert(resubmitNeedsInfo.response.status === 200 && resubmitNeedsInfo.body?.data?.status === "submitted", "needs-info resubmission failed");
+  const rejectedNeedsInfo = await jsonRequest(webUrl + "/api/v1/proposals/" + needsInfoId + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieB },
+    body: JSON.stringify({ decision: "reject", reason: "Synthetic reviewer rejects unresolved evidence", baseVersion: resubmitNeedsInfo.body.data.version, reviewedSnapshotHash: "synthetic-rejected-hash" })
+  });
+  assert(rejectedNeedsInfo.response.status === 200 && rejectedNeedsInfo.body?.data?.status === "rejected", "rejected lifecycle transition failed");
+  const needsInfoHistory = await jsonRequest(webUrl + "/api/v1/proposals/" + needsInfoId + "/history", { headers: { Cookie: cookieA } });
+  const needsInfoStatuses = new Set((needsInfoHistory.body?.data?.entries ?? []).map((entry) => entry.status));
+  assert(needsInfoHistory.response.status === 200 && needsInfoStatuses.has("needs_info") && needsInfoStatuses.has("rejected"), "needs-info/rejected history is incomplete");
   const stalePayload = {
     treeId,
     kind: "correction",
@@ -565,7 +609,7 @@ try {
     body: JSON.stringify({ factorId: mfaStatus.body.data.factorId })
   });
   assert(unenrolled.response.status === 200 && unenrolled.body?.data?.mfaEnrolled === false, "MFA unenroll policy did not remove the verified factor");
-  console.log("PASS local authenticated CORE-02/M03-04/M03-05/M03-06/M07-03/M08-02/M08-03/M08-04: BFF login, pre-MFA review denial, TOTP enroll/challenge/verify aal2, proposal review, atomic person addition with idempotent replay, stale diff projection, stale review 409 without overwrite, factor status/unenroll, branch-scope denial, claims, corrections, impact preview and soft-delete persistence");
+  console.log("PASS local authenticated CORE-02/M03-04/M03-05/M03-06/M07-03/M08-02/M08-03/M08-04/M08-05: BFF login, pre-MFA review denial, TOTP enroll/challenge/verify aal2, proposal review, atomic person addition with idempotent replay, stale diff projection, stale review 409 without overwrite, factor status/unenroll, branch-scope denial, claims, corrections, impact preview and soft-delete persistence");
 } finally {
   const cleanup = [
     "begin;",

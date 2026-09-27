@@ -740,8 +740,13 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Draft/submitted/needs_info/approved/rejected/withdrawn có transition valid và history.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "supabase/migrations/0028_m08_proposal_lifecycle.sql adds authorized draft, lifecycle transition, history projection and redacted audit status mapping with idempotent wrappers.",
+        "pnpm run test:m08:proposal PASS on standalone local-configured Node 24/Supabase: draft, submit replay, withdraw, terminal guard, history and canonical unchanged before approval.",
+        "pnpm test:auth PASS on standalone local-configured Node 24/Supabase: needs_info -> resubmit -> rejected, history, MFA, branch scope and previous approval/stale regressions.",
+        "Proposal detail UI exposes lifecycle actions/history plus loading, empty, error, restricted and mobile-safe states; pnpm typecheck, lint, build, OpenAPI parse and Playwright 51/51 PASS. No real data/cloud/production; axe/manual, real-device, remote CI and production approval remain NOT_RUN."
+      ]
     },
     {
       "id": "TC-M09-01",

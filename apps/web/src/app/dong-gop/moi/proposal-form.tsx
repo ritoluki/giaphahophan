@@ -59,6 +59,7 @@ export function ProposalForm() {
     const context = contexts[contextIndex];
     const reason = String(form.get("reason") ?? "").trim();
     const sourceIds = parseSourceIds(String(form.get("sourceIds") ?? ""));
+    const intent = String(form.get("intent") ?? "submit");
     setError("");
     if (!context) { setError("Chưa có phạm vi gia phả được cấp quyền đóng góp."); return; }
     if (!reason) { setError("Vui lòng nêu lý do để người duyệt có đủ ngữ cảnh."); return; }
@@ -98,7 +99,8 @@ export function ProposalForm() {
         if (current.version !== baseVersion) throw new Error("Hồ sơ đã thay đổi. Hãy tải lại phiên bản hiện tại trước khi gửi.");
         baseSnapshot = { person: { version: current.version, display_name: current.displayName, recorded_sex: current.recordedSex, life_status: current.lifeStatus, visibility: current.visibility, protected_minor: current.protectedMinor, primary_branch_id: current.primaryBranchId, biography: current.biography ?? null, confidence: current.confidence } };
       }
-      const result = await readApi("/api/v1/proposals", {
+      const endpoint = intent === "draft" ? "/api/v1/proposals/draft" : "/api/v1/proposals";
+      const result = await readApi(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({ treeId: context.treeId, kind, reason, branchId: context.branchId, baseSnapshot, items: [item] })
@@ -137,7 +139,7 @@ export function ProposalForm() {
       </> : null}
       <label>Nguồn tham chiếu (bắt buộc)<textarea name="sourceIds" rows={3} placeholder="Mã nguồn UUID, phân tách bằng dấu phẩy" required /></label>
       <label>Lý do và ngữ cảnh<textarea name="reason" rows={5} minLength={1} maxLength={4000} placeholder="Mô tả điều cần bổ sung và căn cứ nguồn" required /></label>
-      <div className="proposal-actions"><button className="button-primary" type="submit" disabled={pending}>{pending ? "Đang gửi…" : "Gửi đề nghị"}</button><Link className="button-secondary" href="/them">Hủy</Link></div>
+      <div className="proposal-actions"><button className="button-primary" name="intent" value="submit" type="submit" disabled={pending}>{pending ? "Đang gửi…" : "Gửi đề nghị"}</button><button className="button-secondary" name="intent" value="draft" type="submit" disabled={pending}>Lưu bản nháp</button><Link className="button-secondary" href="/them">Hủy</Link></div>
     </form>
   );
 }

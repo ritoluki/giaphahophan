@@ -222,10 +222,27 @@ export const proposalReviewInputSchema = z.object({
 export const proposalMutationResultSchema = z.object({
   id: z.string().uuid(),
   treeId: z.string().uuid(),
-  status: z.enum(["submitted", "needs_info", "approved", "rejected"]),
+  status: z.enum(["draft", "submitted", "needs_info", "approved", "rejected", "withdrawn"]),
   version: z.number().int().positive()
 });
 
+export const proposalLifecycleInputSchema = z.object({
+  reason: z.string().trim().min(1).max(4000)
+}).strict();
+
+export const proposalHistoryEntrySchema = z.object({
+  id: z.string().uuid(),
+  kind: z.enum(["review", "event"]),
+  status: z.enum(["drafted", "submitted", "needs_info", "approved", "rejected", "withdrawn"]),
+  decision: z.enum(["approve", "reject", "needs_info"]).nullable(),
+  reason: z.string().min(1),
+  createdAt: z.string().datetime({ offset: true })
+}).strict();
+
+export const proposalHistorySchema = z.object({
+  proposalId: z.string().uuid(),
+  entries: z.array(proposalHistoryEntrySchema).max(200)
+}).strict();
 export const proposalDetailItemSchema = z.object({
   id: z.string().uuid(),
   targetKind: z.enum(["person", "fact", "parent_link", "union", "branch", "merge", "publication"]),

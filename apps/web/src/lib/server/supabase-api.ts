@@ -58,7 +58,7 @@ export function rpcErrorStatus(code: string | undefined) {
   if (code === 'P0008' || code === 'P0009') return 409;
   if (code === "28000") return 401;
   if (code === "42501") return 403;
-  if (code === "40001") return 409;
+  if (code === "40001" || code === "P0001") return 409;
   if (code === "P0002") return 404;
   return 502;
 }
