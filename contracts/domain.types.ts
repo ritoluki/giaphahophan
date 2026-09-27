@@ -48,6 +48,7 @@ export type PlaceKind = "temple" | "cemetery" | "grave" | "hometown" | "other";
 export type PlaceInput = { name: string; kind: PlaceKind; addressText?: string | null; latitude?: number | null; longitude?: number | null; visibility: "restricted" | "members" | "public"; coordinateVisibility: "restricted" | "members" | "public" };
 export type Place = { id: string; version: number; name: string; kind: PlaceKind; addressText: string | null; latitude: number | null; longitude: number | null; visibility: "restricted" | "members" | "public"; coordinateVisibility: "restricted" | "members" | "public" };
 export type Fund = { id: string; version: number; name: string; currency: "VND"; balanceVnd: string; closedThrough: string | null };
+export type FundAccount = { id: string; version: number; fundId: string; code: string; kind: "asset" | "income" | "expense" | "equity"; name: string };
 export type JournalLine = { accountId: string; signedAmountVnd: string };
 export type JournalInput = { fundId: string; entryDate: string; description: string; lines: Array<JournalLine>; proofAssetId?: string; donorPersonId?: string };
 export type Journal = { id: string; version: number; code: string; status: "draft" | "submitted" | "posted" | "rejected"; fundId: string; entryDate: string; description: string; lines: Array<JournalLine>; proofAssetId?: string; donorPersonId?: string };

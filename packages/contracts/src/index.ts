@@ -366,6 +366,75 @@ export const placeDirectionsSchema = placeDirectionsInputSchema.safeExtend({
 }).strict();
 export type PlaceDirectionsInput = z.infer<typeof placeDirectionsInputSchema>;
 export type PlaceDirections = z.infer<typeof placeDirectionsSchema>;
+const signedVndPattern = /^-?(0|[1-9][0-9]*)$/;
+const maxVnd = BigInt("9223372036854775807");
+const minVnd = BigInt("-9223372036854775808");
+export const vndIntegerStringSchema = z.string().regex(signedVndPattern, "VND must be an integer string").refine((value) => {
+  try {
+    const amount = BigInt(value);
+    return amount >= minVnd && amount <= maxVnd;
+  } catch {
+    return false;
+  }
+}, "VND is outside bigint range");
+export const nonZeroVndIntegerStringSchema = vndIntegerStringSchema.refine((value) => value !== "0", "VND line cannot be zero");
+export const fundVisibilitySchema = z.enum(["restricted", "members"]);
+export const fundAccountKindSchema = z.enum(["asset", "income", "expense", "equity"]);
+export const fundInputSchema = z.object({
+  name: z.string().trim().min(1).max(500),
+  visibility: fundVisibilitySchema,
+}).strict();
+export const fundAccountSchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  fundId: z.string().uuid(),
+  code: z.string().trim().min(1).max(50),
+  kind: fundAccountKindSchema,
+  name: z.string().trim().min(1).max(500),
+}).strict();
+export const journalStatusSchema = z.enum(["draft", "submitted", "posted", "rejected"]);
+export const journalLineInputSchema = z.object({
+  accountId: z.string().uuid(),
+  signedAmountVnd: nonZeroVndIntegerStringSchema,
+}).strict();
+export const journalInputSchema = z.object({
+  fundId: z.string().uuid(),
+  entryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "entryDate must be YYYY-MM-DD"),
+  description: z.string().trim().min(1).max(5000),
+  lines: z.array(journalLineInputSchema).min(2).max(100),
+  proofAssetId: z.string().uuid().nullable().optional(),
+  donorPersonId: z.string().uuid().nullable().optional(),
+}).strict();
+export const balancedJournalInputSchema = journalInputSchema.superRefine((value, context) => {
+  const total = value.lines.reduce((sum, line) => sum + BigInt(line.signedAmountVnd), 0n);
+  if (total !== 0n) context.addIssue({ code: "custom", path: ["lines"], message: "Journal lines must balance to zero" });
+});
+export const fundSchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  name: z.string().min(1),
+  currency: z.literal("VND"),
+  balanceVnd: vndIntegerStringSchema,
+  closedThrough: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
+}).strict();
+export const journalSchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  code: z.string().min(1),
+  status: journalStatusSchema,
+  fundId: z.string().uuid(),
+  entryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  description: z.string().min(1),
+  lines: z.array(journalLineInputSchema).min(2).max(100),
+  proofAssetId: z.string().uuid().nullable().optional(),
+  donorPersonId: z.string().uuid().nullable().optional(),
+}).strict();
+export type FundInput = z.infer<typeof fundInputSchema>;
+export type FundAccount = z.infer<typeof fundAccountSchema>;
+export type JournalLineInput = z.infer<typeof journalLineInputSchema>;
+export type JournalInput = z.infer<typeof journalInputSchema>;
+export type FundRecord = z.infer<typeof fundSchema>;
+export type JournalRecord = z.infer<typeof journalSchema>;
 
 const placeCoordinatesSchema = z.object({
   latitude: z.number().min(-90).max(90).nullable().optional(),

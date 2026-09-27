@@ -2072,9 +2072,15 @@
       "testIds": [
         "TC-M14-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0039_m14_balanced_ledger.sql + supabase/tests/m14_balanced_ledger.sql: private tree-scoped funds/fund_accounts/journal_entries/journal_lines, composite FKs, bigint VND line check, deferred posted zero-sum guard and fail-closed RLS/grants.",
+        "packages/contracts/src/index.ts + packages/contracts/src/m14.test.ts: VND integer-string range, non-zero lines, journal shape/balance validation and fund schema; contract suite 51/51 PASS.",
+        "packages/domain/src/m14.ts + packages/domain/src/m14.test.ts: bigint-safe sum, balance inspection and posting validation; domain suite 76/76 PASS.",
+        "apps/web/src/modules/m14/fund-reader.tsx + apps/web/src/app/quy-ho/page.tsx: mobile-first demo-only summary/entry reader with VND string formatting, privacy copy and empty/error/restricted states; localhost:3100/quy-ho smoke 200.",
+        "pnpm test:m14:ledger, pnpm test, pnpm typecheck, pnpm build, pnpm lint and pnpm verify PASS on Node 24.21.0/Supabase local; lint retains 2 existing warnings; no real money, donor, proof or production used."
+      ]
     },
     {
       "id": "M14-02",

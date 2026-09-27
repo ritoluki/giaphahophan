@@ -1190,8 +1190,13 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Journal lines integer bigint VND sum=0; API tiền string, không float.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": [
+        "pnpm test:m14:ledger PASS: balanced posted journal persisted, deferred zero-sum guard rejects unbalanced post, zero amount line rejected and authenticated raw table read denied.",
+        "Contract 51/51 and domain 76/76 PASS; sum uses bigint and API money remains string without float conversion.",
+        "localhost:3100/quy-ho smoke 200 renders demo-only fund summary and entry card with VND formatting; full pnpm test, typecheck, build, lint and verify PASS; 2 pre-existing lint warnings.",
+        "No real money/donor/proof/cloud/production used; authenticated API mutation, staging, remote CI, axe/manual, real-device and production approval remain NOT_RUN."
+      ]
     },
     {
       "id": "TC-M14-02",
