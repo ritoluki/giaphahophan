@@ -189,3 +189,16 @@ test("membership administration exposes restricted state without a session", asy
   await expect(page.locator("main > h1")).toBeVisible();
   await expect(page.locator(".admin-restricted")).toBeVisible();
 });
+
+test("password recovery keeps enumeration-safe and reset states usable on mobile", async ({ page }) => {
+  await page.goto("/quen-mat-khau");
+  await expect(page.locator("#recovery-email")).toBeVisible();
+  await expect(page.locator(".recovery-form button[type=submit]")).toBeEnabled();
+  await page.goto("/quen-mat-khau?mode=reset");
+  await expect(page.locator("#recovery-password")).toBeVisible();
+  await expect(page.locator("#recovery-confirmation")).toBeVisible();
+  await page.locator("#recovery-password").fill("Synthetic!123456");
+  await page.locator("#recovery-confirmation").fill("Synthetic!654321");
+  await page.locator(".recovery-form button[type=submit]").click();
+  await expect(page.locator(".field-error")).toBeVisible();
+});

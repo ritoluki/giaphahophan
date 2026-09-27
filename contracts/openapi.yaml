@@ -10111,9 +10111,7 @@ paths:
       tags:
       - Auth
       summary: Response đồng nhất để chống user enumeration; redirect URL allowlist.
-      description: 'Response đồng nhất để chống user enumeration; redirect URL allowlist.
-
-        Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server triển khai.'
+      description: Response đồng nhất để chống user enumeration; redirect URL allowlist. Server không trả về email hoặc trạng thái tồn tại tài khoản.
       security: []
       responses:
         '200':
@@ -10125,7 +10123,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/Health'
+                    $ref: '#/components/schemas/AuthRecoveryResult'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -10194,6 +10192,49 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/AuthRecoveryInput'
+  /api/v1/auth/password-update:
+    post:
+      operationId: post_auth_password_update
+      tags:
+      - Auth
+      summary: Đổi mật khẩu sau khi session đã được xác thực.
+      description: Chỉ cập nhật mật khẩu cho session Supabase hiện tại; không nhận user id từ client.
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Đổi mật khẩu thành công.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PasswordUpdateResult'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required:
+                - data
+                - meta
+        '400':
+          description: Mật khẩu không hợp lệ hoặc provider từ chối.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Chưa xác thực.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordUpdateInput'
   /api/v1/auth/mfa/status:
     get:
       operationId: get_auth_mfa_status
@@ -13134,6 +13175,34 @@ components:
           format: email
       required:
       - email
+    AuthRecoveryResult:
+      type: object
+      additionalProperties: false
+      properties:
+        accepted:
+          type: boolean
+          enum: [true]
+      required:
+      - accepted
+    PasswordUpdateInput:
+      type: object
+      additionalProperties: false
+      properties:
+        password:
+          type: string
+          minLength: 8
+          maxLength: 128
+      required:
+      - password
+    PasswordUpdateResult:
+      type: object
+      additionalProperties: false
+      properties:
+        updated:
+          type: boolean
+          enum: [true]
+      required:
+      - updated
     MfaInput:
       type: object
       additionalProperties: false

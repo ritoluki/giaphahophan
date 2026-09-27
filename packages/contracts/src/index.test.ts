@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { claimReviewInputSchema, claimSubmitInputSchema, commandResultSchema, grantInputSchema, memberInputSchema, membershipGrantSchema, membershipSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
+import { authRecoveryInputSchema, authRecoveryResultSchema, claimReviewInputSchema, claimSubmitInputSchema, commandResultSchema, grantInputSchema, memberInputSchema, membershipGrantSchema, membershipSchema, mfaChallengeResultSchema, mfaEnrollResultSchema, mfaFactorInputSchema, mfaInputSchema, mfaStatusSchema, graphProjectionSchema, invitationAcceptInputSchema, invitationInputSchema, invitationMutationResultSchema, graphQuerySchema, passwordUpdateInputSchema, passwordUpdateResultSchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
+  it("keeps recovery and password update payloads bounded and secret-free", () => {
+    expect(authRecoveryInputSchema.parse({ email: "demo@example.test" })).toEqual({ email: "demo@example.test" });
+    expect(authRecoveryResultSchema.parse({ accepted: true })).toEqual({ accepted: true });
+    expect(passwordUpdateInputSchema.parse({ password: "demo-password-123" })).toEqual({ password: "demo-password-123" });
+    expect(passwordUpdateResultSchema.parse({ updated: true })).toEqual({ updated: true });
+    expect(() => authRecoveryInputSchema.parse({ email: "demo@example.test", password: "secret" })).toThrow();
+    expect(() => passwordUpdateInputSchema.parse({ password: "short", email: "demo@example.test" })).toThrow();
+  });
   it("preserves canonical display and aliases in person search results", () => {
     expect(personSearchQuerySchema.parse({ q: "phan do", limit: "8" })).toEqual({ q: "phan do", sort: "name", limit: 8 });
     const result = personSearchResultSchema.parse({

@@ -1241,9 +1241,14 @@
       "testIds": [
         "TC-M07-05"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "apps/web/src/app/quen-mat-khau and auth BFF routes: recovery request, reset-mode password update, loading/success/error/restricted states, safe callback allowlist and login link.",
+        "packages/contracts/src/index.ts and contracts/openapi.yaml: strict recovery/password-update DTOs and documented endpoints.",
+        "pnpm run test:m07:recovery PASS on Node 24/Supabase local synthetic: known/unknown recovery responses have identical data DTO and no email leak, callback rejects external redirect, authenticated password update rotates credential.",
+        "apps/web/src/lib/safe-next-path.test.ts and pnpm --filter @phan/web test PASS; Playwright recovery UI 3/3 desktop/Pixel5/320 PASS; existing claim independent-review coverage remains PASS via pnpm test:m03:claims and pnpm test:auth."
+      ]
     },
     {
       "id": "M08-01",

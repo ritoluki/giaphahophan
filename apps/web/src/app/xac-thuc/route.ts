@@ -1,9 +1,5 @@
 import { createRequestSupabaseClient } from "@/lib/server/supabase-api";
-
-function safeNextPath(value: string | null) {
-  if (value && value.startsWith("/") && !value.startsWith("//")) return value;
-  return "/gia-pha";
-}
+import { safeNextPath } from "@/lib/safe-next-path";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);

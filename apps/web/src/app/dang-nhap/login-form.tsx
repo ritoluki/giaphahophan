@@ -1,13 +1,15 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { safeNextPath } from "@/lib/safe-next-path";
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const requestedNext = searchParams.get("next");
-  const nextPath = requestedNext && requestedNext.startsWith("/") && !requestedNext.startsWith("//") ? requestedNext : "/gia-pha";
+  const nextPath = safeNextPath(requestedNext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -69,6 +71,7 @@ export function LoginForm() {
       <button className="button-primary" type="submit" disabled={pending}>
         {pending ? "Đang xác thực…" : "Đăng nhập"}
       </button>
+      <p className="recovery-link"><Link href="/quen-mat-khau">Quên mật khẩu?</Link></p>
       <p className="muted">Tài khoản thành viên được cấp qua lời mời của gia phả. Không dùng dữ liệu thật trong bản demo.</p>
     </form>
   );

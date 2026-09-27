@@ -631,8 +631,12 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Reset/callback không enumeration/open redirect; claim person có người khác duyệt.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "pnpm run test:m07:recovery PASS on local Supabase with synthetic user: uniform known/unknown recovery response, no email enumeration/leak, safe callback redirect, authenticated password update and credential rotation.",
+        "pnpm test:m03:claims and pnpm test:auth PASS: person claim requires an independent reviewer and persists membership link/audit without self-review or auto-capability.",
+        "Playwright recovery UI PASS 3/3 across desktop Chromium, Pixel 5 and 320px; loading, validation/error and reset form states exercised."
+      ]
     },
     {
       "id": "TC-M08-01",

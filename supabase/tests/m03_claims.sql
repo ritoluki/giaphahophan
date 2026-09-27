@@ -141,6 +141,7 @@ end;
 $$;
 
 select set_config('request.jwt.claim.sub', '25000000-0000-4000-8000-000000000002', true);
+select set_config('request.jwt.claims', '{"sub":"25000000-0000-4000-8000-000000000002","aal":"aal2"}', true);
 
 select *
 from api.person_claim_review_idempotent(

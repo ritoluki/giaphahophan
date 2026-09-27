@@ -232,6 +232,22 @@ export const loginInputSchema = z.object({
   password: z.string().min(8).max(128)
 });
 
+export const authRecoveryInputSchema = z.object({
+  email: z.string().trim().email().max(320)
+}).strict();
+
+export const authRecoveryResultSchema = z.object({
+  accepted: z.literal(true)
+}).strict();
+
+export const passwordUpdateInputSchema = z.object({
+  password: z.string().min(8).max(128)
+}).strict();
+
+export const passwordUpdateResultSchema = z.object({
+  updated: z.literal(true)
+}).strict();
+
 export const idempotencyKeySchema = z.string().uuid();
 
 export const mfaInputSchema = z.object({
