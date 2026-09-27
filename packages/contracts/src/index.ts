@@ -36,6 +36,20 @@ export const personSummarySchema = z.object({
   isDemo: z.boolean()
 });
 
+export const personSearchMatchSchema = z.object({
+  name: z.string().min(1),
+  kind: z.enum(["birth", "preferred", "alias", "religious", "other"])
+});
+
+export const personSearchResultSchema = personSummarySchema.extend({
+  matchedNames: z.array(personSearchMatchSchema).max(10)
+});
+
+export const personSearchQuerySchema = z.object({
+  q: z.string().trim().min(2).max(200),
+  limit: z.coerce.number().int().min(1).max(100).default(20)
+});
+
 export const personProjectionSchema = z.object({
   id: z.string().uuid(),
   treeId: z.string().uuid(),

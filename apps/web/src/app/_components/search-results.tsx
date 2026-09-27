@@ -2,22 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { searchPeople } from "@phan/domain";
 import type { DemoPersonSummary } from "../../lib/demo-data";
 import { branchName } from "../../lib/demo-data";
-
-function normalize(value: string): string {
-  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
-}
 
 export function SearchResults({ people, branches, initialQuery = "" }: { people: DemoPersonSummary[]; branches: Array<{ id: string; name: string }>; initialQuery?: string }) {
   const [query, setQuery] = useState(initialQuery);
   const [branchId, setBranchId] = useState("");
-  const normalizedQuery = normalize(query);
-  const results = useMemo(() => people.filter((person) => {
-    const matchesQuery = normalizedQuery.length >= 2 && [person.displayName, person.code].some((value) => normalize(value).includes(normalizedQuery));
-    const matchesBranch = !branchId || person.primaryBranchId === branchId;
-    return matchesQuery && matchesBranch;
-  }), [branchId, normalizedQuery, people]);
+  const results = useMemo(() => searchPeople(people, query).filter((person) => !branchId || person.primaryBranchId === branchId), [branchId, people, query]);
 
   return (
     <section className="search-results" aria-labelledby="result-title">
@@ -34,7 +26,7 @@ export function SearchResults({ people, branches, initialQuery = "" }: { people:
         <h2 id="result-title">Kết quả tra cứu</h2>
         <span className="muted" aria-live="polite">{results.length} kết quả</span>
       </div>
-      {normalizedQuery.length < 2 ? (
+      {query.trim().length < 2 ? (
         <div className="card empty-state"><h3>Bắt đầu bằng một tên hoặc mã hồ sơ</h3><p>Chỉ hiển thị người trong dữ liệu minh họa và phạm vi được phép xem.</p></div>
       ) : results.length === 0 ? (
         <div className="card empty-state"><h3>Chưa tìm thấy trong phạm vi bạn được xem</h3><p>Thử tên gọi khác hoặc chọn lại chi họ.</p></div>
@@ -45,7 +37,8 @@ export function SearchResults({ people, branches, initialQuery = "" }: { people:
               <span className="monogram" aria-hidden="true">{person.displayName.slice(0, 1)}</span>
               <span>
                 <strong>{person.displayName}</strong>
-                <small>{person.code} · {branchName(person.primaryBranchId)} · {person.yearLabel}</small>
+                <small>{person.code} · {branchName(person.primaryBranchId ?? null)} · {person.yearLabel}</small>
+                {person.matchedNames.length > 0 ? <small>Tên khác: {person.matchedNames.map((name) => name.name).join(", ")}</small> : null}
               </span>
               <span className="result-arrow" aria-hidden="true">→</span>
             </Link>

@@ -39,6 +39,11 @@
           "name": "Phan Đức An",
           "kind": "preferred",
           "isPreferred": true
+        },
+        {
+          "name": "Phan Đỗ",
+          "kind": "alias",
+          "isPreferred": false
         }
       ],
       "recordedSex": "M",

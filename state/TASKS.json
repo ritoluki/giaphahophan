@@ -994,9 +994,13 @@
       "testIds": [
         "TC-M06-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "packages/domain/src/m06.ts and synthetic fixture searchPeople match Phan Đỗ and phan do to one canonical display while preserving matched alias; domain suite 24/24 PASS.",
+        "supabase/migrations/0019_m06_person_search.sql adds indexed, authorization-aware canonical/alias projection; pnpm test:m06:search PASS for accent normalization, display preservation and restricted denial.",
+        "GET /api/v1/persons BFF validates query/response and HTTP synthetic regression PASS; full pnpm test 13/13 contracts, 24/24 domain, 5/5 worker; typecheck, build, lint and Playwright 30/30 desktop/Pixel5/320 PASS. Axe/manual/real-device/remote CI NOT_RUN; no real data/cloud/production."
+      ]
     },
     {
       "id": "M06-02",

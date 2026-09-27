@@ -10823,6 +10823,25 @@ components:
           - *id001
           - type: 'null'
         isDemo: *id007
+        matchedNames:
+          type: array
+          maxItems: 10
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              name: *id002
+              kind:
+                type: string
+                enum:
+                - birth
+                - preferred
+                - alias
+                - religious
+                - other
+            required:
+            - name
+            - kind
       required:
       - id
       - version

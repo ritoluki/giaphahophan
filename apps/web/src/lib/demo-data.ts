@@ -4,12 +4,14 @@ import type { Graph } from "@phan/contracts";
 
 export type DemoPersonSummary = {
   id: string;
+  version: number;
   code: string;
   displayName: string;
   lifeStatus: "living" | "deceased" | "unknown";
   primaryBranchId: string | null;
   yearLabel: string;
   isDemo: true;
+  names: Array<{ name: string; kind: "birth" | "preferred" | "alias" | "religious" | "other" }>;
 };
 
 export type DemoFamilyFocus = {
@@ -28,6 +30,11 @@ export type DemoSource = {
   provenance: string;
 };
 
+function normalizeNameKind(value: string): DemoPersonSummary["names"][number]["kind"] {
+  if (value === "birth" || value === "preferred" || value === "alias" || value === "religious" || value === "other") return value;
+  throw new Error("Invalid synthetic name kind");
+}
+
 function normalizeLifeStatus(value: string): DemoPersonSummary["lifeStatus"] {
   if (value === "living" || value === "deceased") return value;
   return "unknown";
@@ -35,12 +42,14 @@ function normalizeLifeStatus(value: string): DemoPersonSummary["lifeStatus"] {
 
 const summaries = fixture.persons.map<DemoPersonSummary>((person) => ({
   id: person.id,
+  version: 1,
   code: person.externalId,
   displayName: person.displayName,
   lifeStatus: normalizeLifeStatus(person.lifeStatus),
   primaryBranchId: person.branchId ?? null,
   yearLabel: person.birth?.year ? String(person.birth.year) : "Chưa rõ",
-  isDemo: true
+  isDemo: true,
+  names: person.names.map(({ name, kind }) => ({ name, kind: normalizeNameKind(kind) }))
 }));
 
 const summaryById = new Map(summaries.map((person) => [person.id, person]));

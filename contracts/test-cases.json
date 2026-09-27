@@ -458,8 +458,12 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Phan Đỗ và phan do có thể tìm cùng canonical name; giữ display nguyên gốc và alias.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "pnpm test:m06:search PASS: local Supabase RPC finds Phan Đỗ via phan do, preserves canonical display/alias and excludes restricted person.",
+        "pnpm test:m06:http PASS: standalone BFF returns validated flat data/page envelope and canonical alias projection with synthetic UUID-v4 fixture.",
+        "pnpm test PASS (contracts 13/13, domain 24/24, worker 5/5), pnpm typecheck, pnpm build, pnpm lint (one existing PostCSS warning), and Playwright 30/30 desktop/Pixel5/320 PASS. Axe/manual/real-device/remote CI NOT_RUN; no real data/cloud/production."
+      ]
     },
     {
       "id": "TC-M06-02",

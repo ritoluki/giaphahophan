@@ -1,7 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { claimReviewInputSchema, claimSubmitInputSchema, graphProjectionSchema, graphQuerySchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema } from "./index";
+import { claimReviewInputSchema, claimSubmitInputSchema, graphProjectionSchema, graphQuerySchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema, personSearchQuerySchema, personSearchResultSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
+  it("preserves canonical display and aliases in person search results", () => {
+    expect(personSearchQuerySchema.parse({ q: "phan do", limit: "8" })).toEqual({ q: "phan do", limit: 8 });
+    const result = personSearchResultSchema.parse({
+      id: "30000000-0000-4000-8000-000000000001",
+      version: 1,
+      code: "M06-P001",
+      displayName: "Phan Đức An",
+      lifeStatus: "deceased",
+      primaryBranchId: null,
+      isDemo: true,
+      matchedNames: [{ name: "Phan Đỗ", kind: "alias" }]
+    });
+    expect(result.displayName).toBe("Phan Đức An");
+    expect(result.matchedNames[0]?.name).toBe("Phan Đỗ");
+  });
   it("accepts the allowlisted person projection shape", () => {
     expect(personProjectionSchema.parse({
       id: "30000000-0000-4000-8000-000000000001",

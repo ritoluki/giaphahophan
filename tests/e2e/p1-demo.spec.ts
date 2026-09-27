@@ -28,6 +28,13 @@ test("search keeps result context and opens a demo profile", async ({ page }, te
   await capture(page, "person", testInfo.project.name);
 });
 
+test("search matches an unaccented alias and preserves canonical display", async ({ page }) => {
+  await page.goto("/tra-cuu");
+  await page.getByLabel("Từ khóa").fill("phan do");
+  await expect(page.getByRole("link", { name: /Phan Đức An/ })).toBeVisible();
+  await expect(page.getByText("Tên khác: Phan Đỗ", { exact: true })).toBeVisible();
+});
+
 test("family focus is readable before the optional tree view", async ({ page }, testInfo) => {
   await page.goto("/gia-pha");
   await expect(page.locator("main > h1")).toHaveText("Cây gia phả");
