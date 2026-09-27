@@ -1213,8 +1213,12 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Tác giả không tự approve kể cả owner; grant+MFA+version kiểm tra DB.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": [
+        "Local Supabase test PASS: write grant, independent MFA approval, author self-approval denial, reviewer MFA denial, exact version and idempotent replay.",
+        "BFF route build PASS: /api/v1/journal/{id}/submit and /approve validate session/input/key and return whitelist Journal DTO.",
+        "Full tests/typecheck/build/verify PASS on Node 24.21.0; lint PASS with 2 pre-existing warnings. Staging, remote CI, axe/manual, real-device and production approval remain NOT_RUN."
+      ]
     },
     {
       "id": "TC-M14-03",

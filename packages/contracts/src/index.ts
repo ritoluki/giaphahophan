@@ -239,6 +239,16 @@ export const proposalHistoryEntrySchema = z.object({
   createdAt: z.string().datetime({ offset: true })
 }).strict();
 
+export const reasonCommandSchema = z.object({
+  reason: z.string().trim().min(5).max(2000),
+  baseVersion: z.number().int().positive(),
+}).strict();
+export const reviewInputSchema = z.object({
+  decision: z.enum(["approve", "reject", "needs_info"]),
+  reason: z.string().trim().min(1).max(4000),
+  baseVersion: z.number().int().positive(),
+  reviewedSnapshotHash: z.string().trim().min(1).max(256),
+}).strict();
 export const proposalHistorySchema = z.object({
   proposalId: z.string().uuid(),
   entries: z.array(proposalHistoryEntrySchema).max(200)

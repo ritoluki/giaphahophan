@@ -4,6 +4,8 @@ import {
   fundSchema,
   journalInputSchema,
   journalLineInputSchema,
+  reasonCommandSchema,
+  reviewInputSchema,
   vndIntegerStringSchema,
 } from "./index";
 
@@ -36,6 +38,23 @@ describe("M14 VND and balanced ledger contracts", () => {
     expect(balancedJournalInputSchema.safeParse({ ...journal, lines: [{ accountId: debitAccountId, signedAmountVnd: "150000" }, { accountId: creditAccountId, signedAmountVnd: "-149999" }] }).success).toBe(false);
   });
 
+
+  it("requires versioned reasons for submit and complete review input for approve", () => {
+    expect(reasonCommandSchema.safeParse({ reason: "Gửi duyệt phiếu", baseVersion: 2 }).success).toBe(true);
+    expect(reasonCommandSchema.safeParse({ reason: "x", baseVersion: 2 }).success).toBe(false);
+    expect(reviewInputSchema.safeParse({
+      decision: "approve",
+      reason: "Đã đối chiếu chứng từ",
+      baseVersion: 2,
+      reviewedSnapshotHash: "sha256:synthetic"
+    }).success).toBe(true);
+    expect(reviewInputSchema.safeParse({
+      decision: "approve",
+      reason: "Đã đối chiếu chứng từ",
+      baseVersion: 2,
+      reviewedSnapshotHash: ""
+    }).success).toBe(false);
+  });
   it("keeps fund balance as a VND string", () => {
     expect(fundSchema.safeParse({ id: fundId, version: 1, name: "Quỹ minh họa", currency: "VND", balanceVnd: "150000", closedThrough: null }).success).toBe(true);
     expect(fundSchema.safeParse({ id: fundId, version: 1, name: "Quỹ minh họa", currency: "VND", balanceVnd: 150000, closedThrough: null }).success).toBe(false);

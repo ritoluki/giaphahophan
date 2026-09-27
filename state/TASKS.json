@@ -2105,9 +2105,14 @@
       "testIds": [
         "TC-M14-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "supabase/migrations/0040_m14_two_person_post.sql: authenticated SECURITY DEFINER RPC enforces treasury.write/treasury.approve capability, MFA, author separation, exact version and idempotency.",
+        "apps/web/src/app/api/v1/journal/[id]/submit/route.ts + approve/route.ts: session, UUID/schema, Idempotency-Key, request hash and whitelist Journal response BFF routes.",
+        "supabase/tests/m14_two_person_post.sql + pnpm test:m14:two-person PASS: synthetic author submit, self-approval denial, reviewer no-MFA denial, independent MFA post, version assertion, replay and raw-table denial.",
+        "pnpm test PASS (contracts 52/52, domain 76/76, worker 18/18, lunar 4/4, web 5/5); pnpm typecheck/build/verify PASS; pnpm lint PASS with 2 pre-existing warnings. No real money/data/cloud/production used."
+      ]
     },
     {
       "id": "M14-03",
