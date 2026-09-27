@@ -153,32 +153,39 @@ async function setupSyntheticMfa(cookieHeader) {
 const env = localEnv();
 const treeId = randomUUID();
 const branchId = randomUUID();
+const otherBranchId = randomUUID();
 const personId = randomUUID();
 const childPersonId = randomUUID();
 const sourceId = randomUUID();
 const membershipA = randomUUID();
 const membershipB = randomUUID();
+const membershipC = randomUUID();
 const grantA = randomUUID();
 const grantB = randomUUID();
+const grantC = randomUUID();
 const emailA = "core-a-" + randomUUID() + "@synthetic.test";
 const emailB = "core-b-" + randomUUID() + "@synthetic.test";
+const emailC = "core-c-" + randomUUID() + "@synthetic.test";
 const passwordA = "Synthetic!" + randomUUID();
 const passwordB = "Synthetic!" + randomUUID();
+const passwordC = "Synthetic!" + randomUUID();
 let userA;
 let userB;
+let userC;
 
 try {
   userA = await createSyntheticUser(env, emailA, passwordA);
   userB = await createSyntheticUser(env, emailB, passwordB);
+  userC = await createSyntheticUser(env, emailC, passwordC);
 
   const seed = [
     "begin;",
     "insert into private.trees (id, created_by, slug, name, data_mode) values (" + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString("auth-" + treeId) + ", 'Synthetic Auth Integration Tree', 'demo');",
-    "insert into private.branches (id, tree_id, created_by, code, name) values (" + sqlString(branchId) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", 'AUTH', 'Synthetic Auth Branch');",
+    "insert into private.branches (id, tree_id, created_by, code, name) values (" + sqlString(branchId) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", 'AUTH', 'Synthetic Auth Branch'), (" + sqlString(otherBranchId) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", 'OTHER', 'Synthetic Other Branch');",
     "insert into private.persons (id, tree_id, created_by, code, display_name, name_search, visibility, protected_minor) values (" + sqlString(personId) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", 'AUTH-PERSON', 'Synthetic Auth Person', 'synthetic auth person', 'public', false), (" + sqlString(childPersonId) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", 'AUTH-CHILD', 'Synthetic Auth Child', 'synthetic auth child', 'public', false);",
     "insert into private.sources (id, tree_id, created_by, title, kind, provenance) values (" + sqlString(sourceId) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", 'Synthetic Auth Source', 'oral', 'Synthetic local test only');",
-    "insert into private.memberships (id, tree_id, created_by, auth_user_id, role, status) values (" + sqlString(membershipA) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(userA) + ", 'editor', 'active'), (" + sqlString(membershipB) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(userB) + ", 'reviewer', 'active');",
-    "insert into private.capability_grants (id, tree_id, created_by, membership_id, capability) values (" + sqlString(grantA) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(membershipA) + ", 'proposal.submit'), (" + sqlString(grantB) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(membershipB) + ", 'proposal.review');",
+    "insert into private.memberships (id, tree_id, created_by, auth_user_id, role, status) values (" + sqlString(membershipA) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(userA) + ", 'editor', 'active'), (" + sqlString(membershipB) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(userB) + ", 'reviewer', 'active'), (" + sqlString(membershipC) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(userC) + ", 'reviewer', 'active');",
+    "insert into private.capability_grants (id, tree_id, created_by, membership_id, capability, branch_id) values (" + sqlString(grantA) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(membershipA) + ", 'proposal.submit', null), (" + sqlString(grantB) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(membershipB) + ", 'proposal.review', null), (" + sqlString(grantC) + ", " + sqlString(treeId) + ", " + sqlString(userA) + ", " + sqlString(membershipC) + ", 'proposal.review', " + sqlString(otherBranchId) + ");",
     "commit;"
   ].join("\n");
   const seeded = runPsql(seed);
@@ -186,6 +193,7 @@ try {
 
   const cookieA = await loginThroughBff(emailA, passwordA);
   let cookieB = await loginThroughBff(emailB, passwordB);
+  const cookieC = await loginThroughBff(emailC, passwordC);
   const submitKey = randomUUID();
   const selfReviewKey = randomUUID();
   const reviewKey = randomUUID();
@@ -257,6 +265,12 @@ try {
   });
   assert(conflictingSubmit.response.status === 409, "same submit idempotency key with a different body was accepted");
 
+  const wrongBranchReview = await jsonRequest(webUrl + "/api/v1/proposals/" + proposalId + "/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieC },
+    body: JSON.stringify({ decision: "approve", reason: "Synthetic wrong-branch reviewer must be denied", baseVersion: proposalVersion, reviewedSnapshotHash: "synthetic-wrong-branch-hash" })
+  });
+  assert(wrongBranchReview.response.status === 403, "reviewer outside proposal branch scope was allowed");
   const preMfaReview = await jsonRequest(webUrl + "/api/v1/proposals/" + proposalId + "/review", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Idempotency-Key": randomUUID(), Cookie: cookieB },
@@ -551,7 +565,7 @@ try {
     body: JSON.stringify({ factorId: mfaStatus.body.data.factorId })
   });
   assert(unenrolled.response.status === 200 && unenrolled.body?.data?.mfaEnrolled === false, "MFA unenroll policy did not remove the verified factor");
-  console.log("PASS local authenticated CORE-02/M03-04/M03-05/M03-06/M07-03/M08-02/M08-03: BFF login, pre-MFA review denial, TOTP enroll/challenge/verify aal2, proposal review, atomic person addition with idempotent replay, stale diff projection, stale review 409 without overwrite, factor status/unenroll, claims, corrections, impact preview and soft-delete persistence");
+  console.log("PASS local authenticated CORE-02/M03-04/M03-05/M03-06/M07-03/M08-02/M08-03/M08-04: BFF login, pre-MFA review denial, TOTP enroll/challenge/verify aal2, proposal review, atomic person addition with idempotent replay, stale diff projection, stale review 409 without overwrite, factor status/unenroll, branch-scope denial, claims, corrections, impact preview and soft-delete persistence");
 } finally {
   const cleanup = [
     "begin;",
@@ -575,4 +589,5 @@ try {
   runPsql(cleanup);
   await deleteSyntheticUser(env, userA);
   await deleteSyntheticUser(env, userB);
+  await deleteSyntheticUser(env, userC);
 }

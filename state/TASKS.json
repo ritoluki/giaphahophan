@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-09-27T21:10:00+07:00",
+  "updatedAt": "2026-09-27T21:25:00+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -1365,9 +1365,13 @@
       "testIds": [
         "TC-M08-04"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "Existing server authorization uses proposal branch_id in private.has_capability; owner/admin global scope is explicit and branch grants are bounded.",
+        "scripts/test-auth-local.mjs: PASS for wrong-branch reviewer HTTP 403, correct-scope reviewer MFA gate, and author self-review denial; no frontend-only authorization.",
+        "pnpm test:auth, pnpm test:db, full pnpm test, pnpm typecheck, pnpm lint and pnpm build PASS; M08-05 lifecycle remains TODO."
+      ]
     },
     {
       "id": "M08-05",

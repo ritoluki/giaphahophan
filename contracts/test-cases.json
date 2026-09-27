@@ -718,8 +718,12 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Reviewer chi khác bị deny; structural/merge/public-living cần người khác tác giả.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": [
+        "private.has_capability(tree_id, 'proposal.review', proposal.branch_id) enforces branch-scoped grants while owner/admin retain explicit global scope; author self-review remains denied server-side.",
+        "scripts/test-auth-local.mjs: PASS with synthetic reviewer in another branch denied HTTP 403, correct-scope reviewer requiring MFA, and author self-review denial.",
+        "pnpm test:auth, pnpm test:db, full pnpm test, pnpm typecheck, pnpm lint and pnpm build PASS; no real data/cloud/production used."
+      ]
     },
     {
       "id": "TC-M08-05",
