@@ -1,4 +1,6 @@
 import fixture from "../../../../fixtures/demo-family.json";
+import { buildGraphProjection, type GraphMode, type GraphParentLink, type GraphUnion } from "@phan/domain";
+import type { Graph } from "@phan/contracts";
 
 export type DemoPersonSummary = {
   id: string;
@@ -104,4 +106,37 @@ export function getFamilyFocus(personId = summaries[0]?.id): DemoFamilyFocus | n
     children: uniquePeople(childLinks.map((link) => summaryById.get(link.childId))),
     links: [...parentLinks, ...childLinks].map((link) => ({ id: link.id, kind: link.kind, status: link.status }))
   };
+}
+
+function graphParentKind(value: string): GraphParentLink["kind"] {
+  if (value === "biological" || value === "adoptive" || value === "guardian" || value === "step") return value;
+  throw new Error("Invalid synthetic parent-link kind");
+}
+
+function graphParentStatus(value: string): GraphParentLink["status"] {
+  if (value === "confirmed" || value === "disputed") return value;
+  throw new Error("Invalid synthetic parent-link status");
+}
+
+export function getDemoGraph(personId: string, mode: GraphMode, depth = 3, maxNodes = 120): Graph {
+  const people = summaries.map((person) => ({ ...person, version: 1 }));
+  const parentLinks: GraphParentLink[] = fixture.parentLinks.map((link) => ({
+    id: link.id,
+    parentId: link.parentId,
+    childId: link.childId,
+    kind: graphParentKind(link.kind),
+    status: graphParentStatus(link.status)
+  }));
+  const unions: GraphUnion[] = fixture.unions.map((union) => ({
+    id: union.id,
+    partnerIds: union.partnerIds,
+    childIds: union.childIds
+  }));
+  return buildGraphProjection({
+    rootPersonId: personId,
+    people,
+    parentLinks,
+    unions,
+    graphRevision: 1
+  }, mode, depth, maxNodes);
 }

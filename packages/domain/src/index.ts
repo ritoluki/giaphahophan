@@ -84,3 +84,4 @@ export function isBalancedJournal(lines: ReadonlyArray<JournalLine>): boolean {
 export function publicLifeStatusAllowed(status: "living" | "deceased" | "unknown", explicitPublication: boolean): boolean {
   return explicitPublication && status === "deceased";
 }
+export * from "./m04";

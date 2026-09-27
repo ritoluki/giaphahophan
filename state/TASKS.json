@@ -690,9 +690,13 @@
       "testIds": [
         "TC-M04-01"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "packages/domain/src/m04.ts and m04.test.ts: bounded ancestor, descendant, family and disconnected roots projection with path occurrence IDs, union/adoption edges and disputed status tests PASS.",
+        "supabase/migrations/0015_m04_graph_projection.sql and supabase/tests/m04_graph.sql: authorized /api graph RPC, RLS-safe visibility, union/adoption/disputed labels, roots and node cap integration PASS on synthetic local data.",
+        "packages/contracts/src/index.ts, contracts/openapi.yaml and /api/v1/persons/[id]/graph: graph query/projection contract and BFF boundary validated; pnpm test, typecheck, lint, build and pnpm test:e2e 24/24 PASS. Axe/manual/real-device/remote CI remain NOT_RUN."
+      ]
     },
     {
       "id": "M04-02",

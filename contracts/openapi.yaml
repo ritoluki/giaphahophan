@@ -1367,6 +1367,7 @@ paths:
           - ancestors
           - descendants
           - family
+          - roots
         description: ''
       - name: depth
         in: query
@@ -11153,12 +11154,20 @@ components:
                 - guardian
                 - step
                 - union
+              status:
+                type: string
+                enum:
+                - confirmed
+                - disputed
             required:
             - id
             - sourceOccurrenceId
             - targetOccurrenceId
             - kind
         graphRevision: *id008
+        roots:
+          type: array
+          items: *id002
         truncated: *id007
         reason:
           anyOf:
@@ -11175,6 +11184,7 @@ components:
       - nodes
       - edges
       - graphRevision
+      - roots
       - truncated
       - reason
       - expandablePersonIds

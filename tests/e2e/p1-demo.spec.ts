@@ -30,7 +30,7 @@ test("search keeps result context and opens a demo profile", async ({ page }, te
 
 test("family focus is readable before the optional tree view", async ({ page }, testInfo) => {
   await page.goto("/gia-pha");
-  await expect(page.getByRole("heading", { name: "Cây gia phả" })).toBeVisible();
+  await expect(page.locator("main > h1")).toHaveText("Cây gia phả");
   await expect(page.getByRole("heading", { name: "Nhánh quanh người đang chọn" })).toBeVisible();
   await page.getByRole("button", { name: "Mở sơ đồ" }).click();
   await expect(page.getByRole("group", { name: "Sơ đồ gia đình minh họa" })).toBeVisible();
@@ -72,6 +72,21 @@ test("person profile exposes layered tabs and mobile-safe empty states", async (
   await expect(page.getByText("Chưa có tư liệu ảnh", { exact: true })).toBeVisible();
 });
 
+test("tree explorer exposes bounded graph modes and fullscreen focus", async ({ page }) => {
+  await page.goto("/gia-pha");
+  await expect(page.locator("#tree-explorer-title")).toBeVisible();
+  await expect(page.locator(".tree-viewport")).toBeVisible();
+  const tabs = page.getByRole("tab");
+  await expect(tabs).toHaveCount(4);
+  await tabs.nth(1).click();
+  await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
+  await tabs.nth(2).click();
+  await expect(tabs.nth(2)).toHaveAttribute("aria-selected", "true");
+  await tabs.nth(3).click();
+  await expect(tabs.nth(3)).toHaveAttribute("aria-selected", "true");
+  await page.locator(".tree-explorer-header button").click();
+  await expect(page.locator(".tree-explorer-fullscreen")).toBeVisible();
+});
 test("keyboard and basic accessibility contracts remain available", async ({ page }) => {
   await page.goto("/");
   await page.keyboard.press("Tab");

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { claimReviewInputSchema, claimSubmitInputSchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema } from "./index";
+import { claimReviewInputSchema, claimSubmitInputSchema, graphProjectionSchema, graphQuerySchema, personDeletionImpactSchema, personDeletionInputSchema, personIdentityProjectionSchema, personProjectionSchema, proposalSubmitInputSchema } from "./index";
 
 describe("CORE-01 contracts", () => {
   it("accepts the allowlisted person projection shape", () => {
@@ -135,5 +135,16 @@ describe("CORE-01 contracts", () => {
       factIds: ["60000000-0000-4000-8000-000000000001"],
       sourceIds: ["40000000-0000-4000-8000-000000000001"]
     }).sourceCount).toBe(1);
+  });
+  it("keeps graph modes bounded and preserves disputed relationship labels", () => {
+    expect(graphQuerySchema.parse({ direction: "roots", depth: "2", maxNodes: "120" })).toEqual({ direction: "roots", depth: 2, maxNodes: 120 });
+    const parsed = graphProjectionSchema.parse({
+      nodes: [{ occurrenceId: "root/demo", depth: 0, person: {
+        id: "30000000-0000-4000-8000-000000000001", version: 1, code: "ROOT", displayName: "Synthetic Root", lifeStatus: "deceased", primaryBranchId: null, isDemo: true
+      }}],
+      edges: [{ id: "edge-1", sourceOccurrenceId: "root/demo", targetOccurrenceId: "child/demo", kind: "adoptive", status: "disputed" }],
+      roots: ["root/demo"], graphRevision: 1, truncated: false, reason: null, expandablePersonIds: []
+    });
+    expect(parsed.edges[0]?.status).toBe("disputed");
   });
 });

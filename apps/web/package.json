@@ -14,6 +14,7 @@
   "dependencies": {
     "@phan/config": "workspace:*",
     "@phan/contracts": "workspace:*",
+    "@phan/domain": "workspace:*",
     "@phan/ui": "workspace:*",
     "@supabase/ssr": "0.7.0",
     "@supabase/supabase-js": "2.57.0",
@@ -23,9 +24,9 @@
     "zod": "4.1.5"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "4.1.13",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
-    "tailwindcss": "4.1.13",
-    "@tailwindcss/postcss": "4.1.13"
+    "tailwindcss": "4.1.13"
   }
 }

@@ -221,3 +221,29 @@ export const errorResponseSchema = z.object({ error: z.object({ code: z.string()
 export function assertValidGenealogyDate(value: unknown): asserts value is z.infer<typeof genealogyDateSchema> {
   genealogyDateSchema.parse(value);
 }
+export const graphDirectionSchema = z.enum(["ancestors", "descendants", "family", "roots"]);
+export const graphQuerySchema = z.object({
+  direction: graphDirectionSchema.default("family"),
+  depth: z.coerce.number().int().min(1).max(6).default(3),
+  maxNodes: z.coerce.number().int().min(1).max(300).default(120)
+});
+const graphEdgeSchema = z.object({
+  id: z.string().min(1),
+  sourceOccurrenceId: z.string().min(1),
+  targetOccurrenceId: z.string().min(1),
+  kind: z.enum(["biological", "adoptive", "guardian", "step", "union"]),
+  status: z.enum(["confirmed", "disputed"]).optional()
+});
+export const graphProjectionSchema = z.object({
+  nodes: z.array(z.object({
+    occurrenceId: z.string().min(1),
+    person: personSummarySchema,
+    depth: z.number().int().nonnegative()
+  })),
+  edges: z.array(graphEdgeSchema),
+  roots: z.array(z.string().min(1)),
+  graphRevision: z.number().int().positive(),
+  truncated: z.boolean(),
+  reason: z.enum(["node_limit", "depth_limit", "time_budget"]).nullable(),
+  expandablePersonIds: z.array(z.string().uuid())
+});

@@ -34,7 +34,8 @@
     "seed:demo": "node scripts/status-not-run.mjs seed:demo",
     "seed:benchmark": "node scripts/status-not-run.mjs seed:benchmark",
     "backup:check": "node scripts/status-not-run.mjs backup:check",
-    "restore:verify": "node scripts/status-not-run.mjs restore:verify"
+    "restore:verify": "node scripts/status-not-run.mjs restore:verify",
+    "test:m04:graph": "node scripts/test-m04-graph-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

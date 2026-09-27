@@ -32,3 +32,4 @@
 Git push P0: CLEAR — commit `eab975447bd4b5f73daf4685590fac633e4166da` đã đồng bộ trên `origin/main`; không phát sinh blocker quyền truy cập remote.
 
 Agent ghi blocker thực theo mẫu: bằng chứng, nguyên nhân giả thuyết, thử đã làm, rủi ro, hành động còn thiếu, owner, task phụ thuộc. Không lặp yêu cầu người dùng đã hoàn tất.
+| M04-01 | Axe/manual audit, real-device validation and remote CI are NOT_RUN; M04-02+ remain pending | M04-01 final UI/accessibility acceptance | Graph modes, authorization, synthetic DB/domain/contract/build and Playwright 24/24 PASS locally; continue M04-02 without owner action |

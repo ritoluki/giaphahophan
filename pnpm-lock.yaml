@@ -211,6 +211,9 @@ importers:
       '@phan/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@phan/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@phan/ui':
         specifier: workspace:*
         version: link:../../packages/ui
