@@ -616,3 +616,22 @@ export const icsExportInputSchema = z.object({
   scope: z.enum(["self", "members"]),
   generatedAt: z.string().regex(/^\d{8}T\d{6}Z$/)
 }).strict();
+
+
+export const deliveryAttemptSchema = z.object({
+  id: z.string().min(1),
+  notificationId: z.string().min(1),
+  channel: z.enum(["email", "in_app"]),
+  status: z.enum(["queued", "accepted", "sent", "failed", "suppressed"]),
+  providerMessageId: z.string().min(1).nullable(),
+  idempotencyKey: z.string().min(1).max(500),
+  attemptCount: z.number().int().min(0).max(20)
+}).superRefine((value, context) => {
+  if ((value.status === "accepted" || value.status === "sent") && value.providerMessageId === null) {
+    context.addIssue({
+      code: "custom",
+      path: ["providerMessageId"],
+      message: "provider message id is required after acceptance",
+    });
+  }
+}).strict();

@@ -982,8 +982,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Crash sau provider accepted không gửi trùng vô hạn; lưu/reconcile provider ID.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "PASS",
+      "evidence": ["supabase/migrations/0033_m11_notification_delivery.sql + supabase/tests/m11_delivery.sql: private notification/delivery_attempts schema with tree-scoped FK, fail-closed RLS, provider_message_id required after accepted/sent and unique provider idempotency key; pnpm test:m11:delivery PASS on local Supabase.","apps/worker/src/delivery.ts + delivery.test.ts: reconcile provider by idempotency key before send, persist provider ID, skip already recorded attempts, surface persistence crash for outbox retry and record typed provider failure; worker delivery tests 4/4 PASS.","packages/contracts/src/index.ts + m11.test.ts: delivery status/provider ID contract rejects accepted state without provider ID; contract tests 2/2 PASS. Full pnpm test PASS: contracts 29/29, domain 50/50, worker 9/9, lunar 4/4, web 3/3; typecheck/lint/build/verify PASS on Node 24.21.0. Lint retains 2 pre-existing warnings. No real provider/email or UI; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN."]
     },
     {
       "id": "TC-M11-03",

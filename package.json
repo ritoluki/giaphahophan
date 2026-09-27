@@ -16,6 +16,7 @@
     "test:unit": "pnpm --filter @phan/domain test",
     "test:db": "node scripts/test-db-local.mjs",
     "test:jobs": "node scripts/test-jobs-local.mjs",
+    "test:m11:delivery": "node scripts/test-m11-delivery-local.mjs",
     "test:m03": "node scripts/test-m03-local.mjs",
     "test:m03:dates": "node scripts/test-m03-dates-local.mjs",
     "test:m03:claims": "node scripts/test-m03-claims-local.mjs",

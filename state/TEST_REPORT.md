@@ -161,3 +161,9 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 - pnpm test:db PASS: local CORE-01 authorization verifies projection, capability, review, audit/outbox and raw-table denial.
 - apps/worker/src/outbox.test.ts PASS: 5/5 typed dispatcher/retry tests; pnpm --filter @phan/worker typecheck PASS.
 - pnpm test:auth FAIL: existing BFF login returned HTTP 401 in the local auth harness; separate from JOBS-01 and not reported as PASS. No UI change; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
+
+## M11-02 evidence (2026-09-28)
+- pnpm test:m11:delivery PASS: local Supabase migration test proves private delivery schema, authenticated raw-table denial, provider_message_id persistence after acceptance and duplicate idempotency key rejection.
+- apps/worker/src/delivery.test.ts PASS: 4/4 tests cover crash after provider acceptance, reconcile without a second send, persisted-attempt dedupe and typed provider failure.
+- packages/contracts/src/m11.test.ts PASS: 2/2 tests enforce provider ID for accepted delivery and bounded delivery shape.
+- Full pnpm test PASS: contracts 29/29, domain 50/50, worker 9/9, lunar 4/4, web 3/3; pnpm typecheck, lint, build and verify PASS on Node 24.21.0. No real provider/email or UI; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
