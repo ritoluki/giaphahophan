@@ -62,7 +62,8 @@
     "test:m14:report": "node scripts/test-m14-fund-report-local.mjs",
     "test:m14:period-close": "node scripts/test-m14-period-close-local.mjs",
     "test:m15:program": "node scripts/test-m15-program-application-local.mjs",
-    "test:m15:minor": "node scripts/test-m15-program-application-local.mjs"
+    "test:m15:minor": "node scripts/test-m15-program-application-local.mjs",
+    "test:m15:award": "node scripts/test-m15-program-application-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

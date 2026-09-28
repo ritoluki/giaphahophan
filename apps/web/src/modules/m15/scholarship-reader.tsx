@@ -1,4 +1,4 @@
-import type { ScholarshipApplicationRecord, ScholarshipProgramRecord } from "@phan/contracts";
+import type { ScholarshipApplicationRecord, ScholarshipAwardRecord, ScholarshipProgramRecord } from "@phan/contracts";
 import { DemoNotice, SectionHeading, SiteShell } from "../../app/_components/site-chrome";
 
 export type ScholarshipState = "loading" | "empty" | "error" | "restricted";
@@ -23,6 +23,19 @@ export const demoScholarshipApplication: ScholarshipApplicationRecord = {
   evidenceAssetId: "b9500000-0000-4000-8000-000000000013",
 };
 
+export const demoScholarshipAward: ScholarshipAwardRecord = {
+  id: "b9500000-0000-4000-8000-000000000014",
+  version: 1,
+  applicationId: demoScholarshipApplication.id,
+  fundId: demoScholarshipProgram.fundId,
+  amountVnd: "300000",
+  reason: "Khích lệ thành tích học tập minh họa.",
+  approvedBy: "b9500000-0000-4000-8000-000000000015",
+  paidJournalEntryId: null,
+  reversalJournalEntryId: null,
+  status: "approved",
+};
+
 const statusLabels: Record<ScholarshipApplicationRecord["status"], string> = {
   draft: "Bản nháp",
   submitted: "Đã nộp",
@@ -31,6 +44,13 @@ const statusLabels: Record<ScholarshipApplicationRecord["status"], string> = {
   rejected: "Chưa phù hợp",
   withdrawn: "Đã rút",
   awarded: "Đã ghi nhận trao",
+};
+
+const awardStatusLabels: Record<ScholarshipAwardRecord["status"], string> = {
+  approved: "Đã duyệt hỗ trợ",
+  paid: "Đã ghi nhận chi",
+  reversed: "Đã hoàn tác",
+  withdrawn: "Đã rút",
 };
 
 const stateCopy: Record<ScholarshipState, [string, string]> = {
@@ -45,12 +65,16 @@ export function ScholarshipStateCard({ status }: { status: ScholarshipState }) {
   return <div className="scholarship-state-card" role={status === "error" ? "alert" : "status"}><strong>{title}</strong><span>{message}</span></div>;
 }
 
+function formatVnd(value: string) {
+  return new Intl.NumberFormat("vi-VN").format(Number(value)) + " ₫";
+}
+
 function formatDeadline(value: string | null) {
   if (!value) return "Chưa đặt hạn";
   return new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric", timeZone: "Asia/Ho_Chi_Minh" }).format(new Date(value));
 }
 
-export function ScholarshipReader({ program = demoScholarshipProgram, application = demoScholarshipApplication }: { program?: ScholarshipProgramRecord; application?: ScholarshipApplicationRecord | null }) {
+export function ScholarshipReader({ program = demoScholarshipProgram, application = demoScholarshipApplication, award = demoScholarshipAward }: { program?: ScholarshipProgramRecord; application?: ScholarshipApplicationRecord | null; award?: ScholarshipAwardRecord | null }) {
   return (
     <SiteShell active="more">
       <main id="main-content" className="container page scholarship-page">
@@ -79,6 +103,18 @@ export function ScholarshipReader({ program = demoScholarshipProgram, applicatio
           <div className="scholarship-progress" aria-label="Tiến trình hồ sơ"><span className="is-complete">Đã nộp</span><span className="is-current">Cần bổ sung</span><span>Đang duyệt</span><span>Kết quả</span></div>
           <small>Minh chứng được lưu riêng tư; không hiển thị trong trang công khai.</small>
         </section> : <ScholarshipStateCard status="empty" />}
+
+        <SectionHeading title="Kết quả hỗ trợ" />
+        {award ? <section className="scholarship-award-card" aria-label="Kết quả hỗ trợ minh họa">
+          <div className="scholarship-application-head"><span>Quyết định minh họa</span><span className="scholarship-status-pill">{awardStatusLabels[award.status]}</span></div>
+          <h2>Khoản hỗ trợ học tập</h2>
+          <dl className="scholarship-meta-list">
+            <div><dt>Mức hỗ trợ</dt><dd>{formatVnd(award.amountVnd)}</dd></div>
+            <div><dt>Thanh toán</dt><dd>{award.paidJournalEntryId ? "Đã liên kết bút toán posted" : "Chưa ghi nhận chi"}</dd></div>
+            <div><dt>Trạng thái</dt><dd>{awardStatusLabels[award.status]}</dd></div>
+          </dl>
+          <small>Award được duyệt không đồng nghĩa đã chi. Chỉ bút toán đã posted mới được liên kết; nếu có reversal, lịch sử vẫn được giữ và trạng thái được phản ánh.</small>
+        </section> : <ScholarshipStateCard status="restricted" />}
 
         <SectionHeading title="Câu chuyện được duyệt" />
         <section className="scholarship-story-card">

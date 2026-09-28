@@ -235,3 +235,7 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 ## M15-02 evidence (2026-09-28)
 - PASS `pnpm test:m15:minor`; PASS full `pnpm test` (contracts 57/57, domain 84/84, worker 18/18, lunar 4/4, web 5/5), `pnpm typecheck`, `pnpm build`, `pnpm lint`, `pnpm verify`, and OpenAPI parse.
 - M15-02 remains IN_PROGRESS because staging/remote CI, axe/manual, real-device, cloud wiring and production approval are NOT_RUN. No real minor, guardian, source or scholarship data was used.
+
+## M15-03 evidence (2026-09-28)
+- PASS `pnpm test:m15:award`: local synthetic award/payment/reversal workflow, including idempotent mark-paid replay and reversal projection. PASS localhost HTTP `/khuyen-hoc` award status UI check. PASS M14 ledger/two-person/reversal/report/period-close regressions.
+- PASS full `pnpm test`, `pnpm typecheck`, `pnpm build`, `pnpm verify`; PASS `pnpm lint` with the same 2 pre-existing warnings. No real data, cloud wiring or production deployment.

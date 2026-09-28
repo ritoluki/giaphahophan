@@ -501,10 +501,10 @@ button, a, input, select { min-height: 44px; }
 .fund-proof-status dt { color: var(--ink-muted); font-size: .78rem; }
 .fund-proof-status dd { margin: .15rem 0 0; color: var(--brand); font-size: 1.1rem; font-weight: 800; }
 .scholarship-page { max-width: 960px; }
-.scholarship-hero-card, .scholarship-application-card, .scholarship-story-card { display: grid; gap: .8rem; margin-top: 1rem; padding: 1.2rem; border: 1px solid var(--border); border-radius: 16px; background: rgba(255,255,255,.9); box-shadow: 0 8px 24px rgba(41,37,32,.05); }
+.scholarship-hero-card, .scholarship-application-card, .scholarship-award-card, .scholarship-story-card { display: grid; gap: .8rem; margin-top: 1rem; padding: 1.2rem; border: 1px solid var(--border); border-radius: 16px; background: rgba(255,255,255,.9); box-shadow: 0 8px 24px rgba(41,37,32,.05); }
 .scholarship-hero-card { background: linear-gradient(135deg, #fffdf8, #F2EEE7); }
-.scholarship-hero-card h2, .scholarship-application-card h2, .scholarship-story-card h2 { margin: 0; color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: clamp(1.35rem, 5vw, 2rem); line-height: 1.25; }
-.scholarship-hero-card p, .scholarship-application-card p, .scholarship-story-card p { margin: 0; color: var(--ink-muted); }
+.scholarship-hero-card h2, .scholarship-application-card h2, .scholarship-award-card h2, .scholarship-story-card h2 { margin: 0; color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: clamp(1.35rem, 5vw, 2rem); line-height: 1.25; }
+.scholarship-hero-card p, .scholarship-application-card p, .scholarship-award-card p, .scholarship-story-card p { margin: 0; color: var(--ink-muted); }
 .scholarship-card-kicker, .scholarship-application-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; color: var(--accent); font-size: .78rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
 .scholarship-card-kicker > span:first-child { color: var(--success); }
 .scholarship-meta-list { display: grid; gap: .6rem; margin: .4rem 0; }
@@ -518,6 +518,7 @@ button, a, input, select { min-height: 44px; }
 .scholarship-progress .is-complete { border-color: var(--success); color: var(--success); }
 .scholarship-progress .is-current { border-color: var(--accent); background: #FBF1DE; color: var(--brand); font-weight: 800; }
 .scholarship-application-card small, .scholarship-story-card p, .scholarship-privacy-note { color: var(--ink-muted); font-size: .88rem; }
+.scholarship-award-card { border-top: 3px solid var(--success); }
 .scholarship-story-card { border-top: 3px solid var(--accent); }
 .scholarship-story-link { color: var(--brand); font-weight: 800; }
 .scholarship-state-card { display: grid; gap: .25rem; margin-top: 1rem; padding: 1rem; border: 1px dashed var(--border); border-radius: 12px; background: rgba(255,255,255,.65); }
@@ -526,7 +527,7 @@ button, a, input, select { min-height: 44px; }
 .scholarship-privacy-note { display: grid; gap: .2rem; margin-top: 1rem; padding: .85rem 1rem; border-left: 3px solid var(--accent); background: #FBF1DE; }
 .scholarship-privacy-note strong { color: var(--brand); }
 @media (min-width: 700px) {
-  .scholarship-hero-card, .scholarship-application-card, .scholarship-story-card { padding: 1.5rem; }
+  .scholarship-hero-card, .scholarship-application-card, .scholarship-award-card, .scholarship-story-card { padding: 1.5rem; }
   .scholarship-meta-list { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
   .scholarship-meta-list div { display: block; padding-top: 0; border-top: 0; }
   .scholarship-meta-list dd { margin-top: .25rem; }

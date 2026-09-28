@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { scholarshipApplicationSchema, scholarshipProgramInputSchema, scholarshipPublicationSchema, scholarshipSafeguardInputSchema, scholarshipStorySchema } from "./index";
+import { scholarshipApplicationSchema, scholarshipProgramInputSchema, scholarshipPublicationSchema, scholarshipSafeguardInputSchema, scholarshipStorySchema, scholarshipAwardInputSchema, scholarshipAwardPaymentInputSchema, scholarshipAwardSchema } from "./index";
 
 describe("M15 scholarship contracts", () => {
   it("accepts a public program and keeps the status vocabulary bounded", () => {
@@ -34,5 +34,11 @@ describe("M15 scholarship contracts", () => {
     expect(scholarshipApplicationSchema.parse({ ...base, status: "needs_info" }).status).toBe("needs_info");
     expect(scholarshipApplicationSchema.parse({ ...base, status: "withdrawn" }).status).toBe("withdrawn");
     expect(scholarshipApplicationSchema.safeParse({ ...base, status: "approved", evidenceAssetId: "not-uuid" }).success).toBe(false);
+  });
+
+  it("keeps approved awards separate from posted journal payment", () => {
+    expect(scholarshipAwardInputSchema.parse({ applicationId: "a5100000-0000-4000-8000-000000000001", amountVnd: "300000", reason: "Hỗ trợ minh họa." }).amountVnd).toBe("300000");
+    expect(scholarshipAwardPaymentInputSchema.safeParse({ postedJournalEntryId: "a5100000-0000-4000-8000-000000000002", baseVersion: 1 }).success).toBe(true);
+    expect(scholarshipAwardSchema.parse({ id: "a5100000-0000-4000-8000-000000000010", version: 1, applicationId: "a5100000-0000-4000-8000-000000000001", fundId: "a5100000-0000-4000-8000-000000000003", amountVnd: "300000", reason: "Hỗ trợ minh họa.", approvedBy: "a5100000-0000-4000-8000-000000000004", paidJournalEntryId: null, reversalJournalEntryId: null, status: "approved" }).status).toBe("approved");
   });
 });

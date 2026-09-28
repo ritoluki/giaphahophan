@@ -1,4 +1,4 @@
-import { scholarshipApplicationSchema, scholarshipProgramSchema, scholarshipPublicationSchema, scholarshipSafeguardSchema, scholarshipStorySchema } from "@phan/contracts";
+import { scholarshipApplicationSchema, scholarshipAwardSchema, scholarshipProgramSchema, scholarshipPublicationSchema, scholarshipSafeguardSchema, scholarshipStorySchema } from "@phan/contracts";
 
 function objectRow(data: unknown): Record<string, unknown> | null {
   const candidate = Array.isArray(data) ? data[0] : data;
@@ -32,4 +32,9 @@ export function parseScholarshipStoryRpcResponse(data: unknown) {
   const row = objectRow(data);
   if (!row) return null;
   return scholarshipStorySchema.parse({ id: row.id, version: row.version, title: row.title, story: row.story, publishedAt: row.published_at });
+}
+export function parseScholarshipAwardRpcResponse(data: unknown) {
+  const row = objectRow(data);
+  if (!row) return null;
+  return scholarshipAwardSchema.parse({ id: row.id, version: row.version, applicationId: row.application_id, fundId: row.fund_id, amountVnd: String(row.amount_vnd), reason: row.reason, approvedBy: row.approved_by, paidJournalEntryId: row.paid_journal_entry_id, reversalJournalEntryId: row.reversal_journal_entry_id, status: row.status });
 }

@@ -1337,8 +1337,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Approved award không đồng nghĩa paid; journal posted liên kết một lần và reversal được phản ánh.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": ["pnpm test:m15:award PASS on local Supabase Docker: approved award starts unpaid, independently posted journal links once, mark-paid replay is idempotent, reversal changes award to reversed; full unit/typecheck/build/verify PASS. Staging/remote CI, axe/manual, real-device and cloud/production gates NOT_RUN."]
     },
     {
       "id": "TC-M15-04",

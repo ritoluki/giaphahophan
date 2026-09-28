@@ -82,7 +82,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M14-05 | P7 | Đối chiếu kỳ | M14-04 | IN_PROGRESS - period reconciliation projection, immutable close snapshot, proof status and closed-period DB guard PASS locally; staging/remote, accessibility/device and production gates remain NOT_RUN |
 | M15-01 | P7 | Chương trình/đề cử | M14-05 | IN_PROGRESS — migration 0044/0045, BFF/API, domain/contracts, `/khuyen-hoc` UI and local synthetic workflow PASS; staging/remote CI, axe/manual, real-device, cloud wiring and production approval NOT_RUN |
 | M15-02 | P7 | Minors và nguồn | M15-01 | IN_PROGRESS — minor/guardian safeguard, restricted source evidence, independent story publication/review and redacted approved-story projection PASS locally; staging/remote CI, axe/manual, real-device, cloud wiring and production approval NOT_RUN |
-| M15-03 | P7 | Award và thanh toán | M15-02 |  |
+| M15-03 | P7 | Award và thanh toán | M15-02 | IN_PROGRESS — award approval remains distinct from payment; posted journal links once, mark-paid replay is idempotent and reversal is reflected; local synthetic DB/API/BFF/contract/mobile UI/build evidence PASS; M14 ledger regressions PASS; staging/remote CI, axe/manual, real-device, cloud wiring and production approval NOT_RUN |
 | M15-04 | P7 | Báo cáo | M15-03 |  |
 | M16-01 | P5 | Intake/dry-run | M03-06, M08-05, M09-05 |  |
 | M16-02 | P5 | Structured schema | M16-01 |  |

@@ -533,7 +533,27 @@ export const scholarshipStorySchema = z.object({
   title: z.string().min(1),
   story: z.string().min(1),
   publishedAt: z.string().datetime({ offset: true }),
-}).strict();export const journalSchema = z.object({
+}).strict();
+export const scholarshipAwardStatusSchema = z.enum(["approved", "paid", "reversed", "withdrawn"]);
+export const scholarshipAwardInputSchema = z.object({
+  applicationId: z.string().uuid(),
+  amountVnd: z.string().regex(/^[1-9][0-9]*$/).max(18),
+  reason: z.string().trim().min(1).max(4000),
+}).strict();
+export const scholarshipAwardSchema = scholarshipAwardInputSchema.extend({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  fundId: z.string().uuid(),
+  approvedBy: z.string().uuid(),
+  paidJournalEntryId: z.string().uuid().nullable(),
+  reversalJournalEntryId: z.string().uuid().nullable(),
+  status: scholarshipAwardStatusSchema,
+}).strict();
+export const scholarshipAwardPaymentInputSchema = z.object({
+  postedJournalEntryId: z.string().uuid(),
+  baseVersion: z.number().int().positive(),
+}).strict();
+export const journalSchema = z.object({
   id: z.string().uuid(),
   version: z.number().int().positive(),
   code: z.string().min(1),
@@ -556,6 +576,9 @@ export type ReconciliationRecord = z.infer<typeof reconciliationSchema>;
 export type ScholarshipProgramInput = z.infer<typeof scholarshipProgramInputSchema>;
 export type ScholarshipProgramRecord = z.infer<typeof scholarshipProgramSchema>;
 export type ScholarshipApplicationInput = z.infer<typeof scholarshipApplicationInputSchema>;
+export type ScholarshipAwardInput = z.infer<typeof scholarshipAwardInputSchema>;
+export type ScholarshipAwardRecord = z.infer<typeof scholarshipAwardSchema>;
+export type ScholarshipAwardPaymentInput = z.infer<typeof scholarshipAwardPaymentInputSchema>;
 export type ScholarshipSafeguardInput = z.infer<typeof scholarshipSafeguardInputSchema>;
 export type ScholarshipSafeguardRecord = z.infer<typeof scholarshipSafeguardSchema>;
 export type ScholarshipPublicationInput = z.infer<typeof scholarshipPublicationInputSchema>;

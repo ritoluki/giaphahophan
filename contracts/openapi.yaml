@@ -7075,7 +7075,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/CommandResult'
+                    $ref: '#/components/schemas/ScholarshipAwardResponse'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -7164,7 +7164,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/CommandResult'
+                    $ref: '#/components/schemas/ScholarshipAwardResponse'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -13367,6 +13367,38 @@ components:
         data:
           type: array
           items: { $ref: '#/components/schemas/ScholarshipStory' }
+        meta: { $ref: '#/components/schemas/Meta' }
+      required: [data, meta]
+    ScholarshipAward:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id001
+        version: *id008
+        applicationId: *id001
+        fundId: *id001
+        amountVnd:
+          type: string
+          pattern: ^[1-9][0-9]*$
+        reason: *id002
+        approvedBy: *id001
+        paidJournalEntryId:
+          oneOf:
+          - *id001
+          - type: 'null'
+        reversalJournalEntryId:
+          oneOf:
+          - *id001
+          - type: 'null'
+        status:
+          type: string
+          enum: [approved, paid, reversed, withdrawn]
+      required: [id, version, applicationId, fundId, amountVnd, reason, approvedBy, paidJournalEntryId, reversalJournalEntryId, status]
+    ScholarshipAwardResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        data: { $ref: '#/components/schemas/ScholarshipAward' }
         meta: { $ref: '#/components/schemas/Meta' }
       required: [data, meta]
     AwardInput:

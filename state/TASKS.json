@@ -2297,9 +2297,9 @@
       "testIds": [
         "TC-M15-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["Local migration 0049/0050, BFF routes, contracts/OpenAPI and synthetic award/payment/reversal fixture PASS; staging/remote CI, axe/manual, real-device, cloud wiring and production approval NOT_RUN"]
     },
     {
       "id": "M15-04",
