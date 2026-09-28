@@ -5,11 +5,14 @@ import {
   scholarshipPublicationInputSchema,
   scholarshipPublicationStatusSchema,
   scholarshipSafeguardInputSchema,
+  reportRangeSchema,
+  scholarshipReportSchema,
   type ScholarshipApplicationInput,
   type ScholarshipApplicationRecord,
   type ScholarshipProgramInput,
   type ScholarshipPublicationInput,
   type ScholarshipSafeguardInput,
+  type ScholarshipReportRecord,
 } from "@phan/contracts";
 
 export function parseScholarshipProgramInput(input: unknown): ScholarshipProgramInput | null {
@@ -67,4 +70,61 @@ export function canTransitionScholarshipApplication(
     awarded: [],
   };
   return transitions[from].includes(to);
+}
+export type ScholarshipReportAwardInput = {
+  applicationId: string;
+  amountVnd: string;
+  status: "approved" | "paid" | "reversed" | "withdrawn";
+  approvedOn: string;
+  paidOn: string | null;
+  reversedOn: string | null;
+};
+
+function inRange(value: string | null, from: string, to: string) {
+  return value !== null && value >= from && value <= to;
+}
+
+export function buildScholarshipReport(input: {
+  fundId: string;
+  from: string;
+  to: string;
+  awards: readonly ScholarshipReportAwardInput[];
+  applicantsCount: number | null;
+  donorsCount: number | null;
+}): ScholarshipReportRecord | null {
+  const range = reportRangeSchema.safeParse({ from: input.from, to: input.to });
+  if (!range.success || !/^[0-9a-f-]{36}$/i.test(input.fundId)) return null;
+  if (input.applicantsCount !== null && (!Number.isInteger(input.applicantsCount) || input.applicantsCount < 0)) return null;
+  if (input.donorsCount !== null && (!Number.isInteger(input.donorsCount) || input.donorsCount < 0)) return null;
+
+  let awardsCount = 0;
+  let approved = 0n;
+  let paid = 0n;
+  let reversed = 0n;
+  for (const award of input.awards) {
+    if (!/^[0-9a-f-]{36}$/i.test(award.applicationId)) return null;
+    const amount = scholarshipReportSchema.shape.approvedAmountVnd.safeParse(award.amountVnd);
+    if (!amount.success || !inRange(award.approvedOn, input.from, input.to)) continue;
+    if (award.status !== "withdrawn") {
+      awardsCount += 1;
+      approved += BigInt(award.amountVnd);
+    }
+    if (award.status === "paid" || award.status === "reversed") {
+      if (inRange(award.paidOn, input.from, input.to)) paid += BigInt(award.amountVnd);
+    }
+    if (award.status === "reversed" && inRange(award.reversedOn, input.from, input.to)) reversed += BigInt(award.amountVnd);
+  }
+
+  return scholarshipReportSchema.parse({
+    fundId: input.fundId,
+    from: input.from,
+    to: input.to,
+    awardsCount,
+    applicantsCount: input.applicantsCount,
+    donorsCount: input.donorsCount,
+    approvedAmountVnd: approved.toString(),
+    paidAmountVnd: paid.toString(),
+    reversedAmountVnd: reversed.toString(),
+    netPaidAmountVnd: (paid - reversed).toString(),
+  });
 }

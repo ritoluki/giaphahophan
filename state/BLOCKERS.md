@@ -89,3 +89,6 @@ Agent ghi blocker thực theo mẫu: bằng chứng, nguyên nhân giả thuyế
 | M15-02 | Staging/remote CI, axe/manual accessibility, real-device validation, authenticated cloud wiring and production approval remain NOT_RUN; no real minor/guardian data or evidence used | M15-02 release/accessibility gates | Local synthetic DB/API/BFF/contract/domain/UI evidence PASS; continue M15-03 without owner action |
 
 | M15-03 | Staging/remote CI, axe/manual accessibility, real-device validation, authenticated cloud wiring and production approval remain NOT_RUN; no real scholarship or financial data used | M15-03 release/accessibility/cloud gates | Local synthetic award/payment/reversal DB/API/BFF/contract/build evidence PASS; continue M15-04 without owner action |
+
+
+| M15-04 | Staging/remote CI, axe/manual accessibility, real-device validation, authenticated cloud wiring and production approval remain NOT_RUN; no real scholarship, donor, child or financial data used | M15-04 release/accessibility/cloud gates | Local synthetic report DB/API/BFF/domain/contract/UI evidence PASS; continue M16-01 without owner action |

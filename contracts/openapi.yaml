@@ -10523,6 +10523,78 @@ paths:
         required: true
         schema: *id005
         description: ''
+  /api/v1/funds/{id}/scholarship-report:
+    get:
+      operationId: get_funds_id_scholarship_report
+      tags:
+      - Scholarships
+      summary: /funds/{id}/scholarship-report
+      description: Aggregate scholarship report with permission-scoped applicant/donor counts; person and child identifiers are never returned.
+      security:
+      - sessionCookie: []
+      responses:
+        '200':
+          description: Scholarship report projection
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ScholarshipReport'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required: [data, meta]
+        '400':
+          description: Invalid fund id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Capability or membership denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Fund not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Invalid report range
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '503':
+          description: Dependency unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - name: from
+        in: query
+        required: true
+        schema: *id005
+      - name: to
+        in: query
+        required: true
+        schema: *id005
   /api/v1/funds/{id}/reconciliation:
     get:
       operationId: get_funds_id_reconciliation
@@ -14198,6 +14270,29 @@ components:
       - occursOn
       - reason
       - baseVersion
+    ScholarshipReport:
+      type: object
+      additionalProperties: false
+      properties:
+        fundId: *id001
+        from: *id005
+        to: *id005
+        awardsCount:
+          type: integer
+          minimum: 0
+        applicantsCount:
+          type: integer
+          minimum: 0
+          nullable: true
+        donorsCount:
+          type: integer
+          minimum: 0
+          nullable: true
+        approvedAmountVnd: *id002
+        paidAmountVnd: *id002
+        reversedAmountVnd: *id002
+        netPaidAmountVnd: *id002
+      required: [fundId, from, to, awardsCount, applicantsCount, donorsCount, approvedAmountVnd, paidAmountVnd, reversedAmountVnd, netPaidAmountVnd]
     Report:
       type: object
       additionalProperties: false

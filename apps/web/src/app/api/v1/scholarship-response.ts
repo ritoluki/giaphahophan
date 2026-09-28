@@ -1,4 +1,4 @@
-import { scholarshipApplicationSchema, scholarshipAwardSchema, scholarshipProgramSchema, scholarshipPublicationSchema, scholarshipSafeguardSchema, scholarshipStorySchema } from "@phan/contracts";
+import { scholarshipApplicationSchema, scholarshipAwardSchema, scholarshipProgramSchema, scholarshipPublicationSchema, scholarshipReportSchema, scholarshipSafeguardSchema, scholarshipStorySchema } from "@phan/contracts";
 
 function objectRow(data: unknown): Record<string, unknown> | null {
   const candidate = Array.isArray(data) ? data[0] : data;
@@ -37,4 +37,10 @@ export function parseScholarshipAwardRpcResponse(data: unknown) {
   const row = objectRow(data);
   if (!row) return null;
   return scholarshipAwardSchema.parse({ id: row.id, version: row.version, applicationId: row.application_id, fundId: row.fund_id, amountVnd: String(row.amount_vnd), reason: row.reason, approvedBy: row.approved_by, paidJournalEntryId: row.paid_journal_entry_id, reversalJournalEntryId: row.reversal_journal_entry_id, status: row.status });
+}
+
+export function parseScholarshipReportRpcResponse(data: unknown) {
+  const row = objectRow(data);
+  if (!row) return null;
+  return scholarshipReportSchema.parse({ fundId: row.fund_id, from: row.from_date, to: row.to_date, awardsCount: Number(row.awards_count), applicantsCount: row.applicants_count === null ? null : Number(row.applicants_count), donorsCount: row.donors_count === null ? null : Number(row.donors_count), approvedAmountVnd: String(row.approved_amount_vnd), paidAmountVnd: String(row.paid_amount_vnd), reversedAmountVnd: String(row.reversed_amount_vnd), netPaidAmountVnd: String(row.net_paid_amount_vnd) });
 }

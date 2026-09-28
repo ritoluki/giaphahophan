@@ -239,3 +239,8 @@ Mỗi test record: testId, requirementId, env, commit, command, startedAt, exitC
 ## M15-03 evidence (2026-09-28)
 - PASS `pnpm test:m15:award`: local synthetic award/payment/reversal workflow, including idempotent mark-paid replay and reversal projection. PASS localhost HTTP `/khuyen-hoc` award status UI check. PASS M14 ledger/two-person/reversal/report/period-close regressions.
 - PASS full `pnpm test`, `pnpm typecheck`, `pnpm build`, `pnpm verify`; PASS `pnpm lint` with the same 2 pre-existing warnings. No real data, cloud wiring or production deployment.
+
+
+## M15-04 evidence (2026-09-28)
+- PASS `pnpm test:m15:award`: approved/paid/reversed/net report totals and permission-scoped applicant/donor counts; no private identifiers in output.
+- PASS full `pnpm test` (contracts 59/59, domain 85/85, worker 18/18, lunar 4/4, web 5/5), `pnpm typecheck`, `pnpm build`, `pnpm lint`, `pnpm verify`, OpenAPI YAML parse and localhost UI/BFF guards. No real data or production deployment.

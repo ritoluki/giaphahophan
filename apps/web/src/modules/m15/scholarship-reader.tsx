@@ -66,7 +66,7 @@ export function ScholarshipStateCard({ status }: { status: ScholarshipState }) {
 }
 
 function formatVnd(value: string) {
-  return new Intl.NumberFormat("vi-VN").format(Number(value)) + " ₫";
+  return new Intl.NumberFormat("vi-VN").format(BigInt(value)) + " ₫";
 }
 
 function formatDeadline(value: string | null) {

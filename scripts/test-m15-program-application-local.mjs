@@ -9,4 +9,4 @@ if (result.status !== 0) {
   process.stderr.write(result.stderr || "local M15 program/application SQL failed\n");
   process.exit(result.status ?? 1);
 }
-console.log("PASS local M15-01/02/03: scoped programs, private evidence, idempotent application, reviewer MFA workflow, guardian safeguard, approved story projection, award payment journal link and reversal");
+console.log("PASS local M15-01/02/03/04: scoped programs, private evidence, idempotent application, reviewer MFA workflow, guardian safeguard, approved story projection, award payment journal link and reversal");

@@ -534,6 +534,18 @@ export const scholarshipStorySchema = z.object({
   story: z.string().min(1),
   publishedAt: z.string().datetime({ offset: true }),
 }).strict();
+export const scholarshipReportSchema = z.object({
+  fundId: z.string().uuid(),
+  from: isoDateStringSchema,
+  to: isoDateStringSchema,
+  awardsCount: z.number().int().nonnegative(),
+  applicantsCount: z.number().int().nonnegative().nullable(),
+  donorsCount: z.number().int().nonnegative().nullable(),
+  approvedAmountVnd: nonNegativeVndIntegerStringSchema,
+  paidAmountVnd: nonNegativeVndIntegerStringSchema,
+  reversedAmountVnd: nonNegativeVndIntegerStringSchema,
+  netPaidAmountVnd: vndIntegerStringSchema,
+}).strict();
 export const scholarshipAwardStatusSchema = z.enum(["approved", "paid", "reversed", "withdrawn"]);
 export const scholarshipAwardInputSchema = z.object({
   applicationId: z.string().uuid(),
@@ -576,6 +588,7 @@ export type ReconciliationRecord = z.infer<typeof reconciliationSchema>;
 export type ScholarshipProgramInput = z.infer<typeof scholarshipProgramInputSchema>;
 export type ScholarshipProgramRecord = z.infer<typeof scholarshipProgramSchema>;
 export type ScholarshipApplicationInput = z.infer<typeof scholarshipApplicationInputSchema>;
+export type ScholarshipReportRecord = z.infer<typeof scholarshipReportSchema>;
 export type ScholarshipAwardInput = z.infer<typeof scholarshipAwardInputSchema>;
 export type ScholarshipAwardRecord = z.infer<typeof scholarshipAwardSchema>;
 export type ScholarshipAwardPaymentInput = z.infer<typeof scholarshipAwardPaymentInputSchema>;

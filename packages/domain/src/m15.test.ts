@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { canTransitionScholarshipApplication, canTransitionScholarshipPublication, parseScholarshipApplicationInput, parseScholarshipProgramInput, parseScholarshipPublicationInput, parseScholarshipSafeguardInput } from "./m15";
+import { buildScholarshipReport, canTransitionScholarshipApplication, canTransitionScholarshipPublication, parseScholarshipApplicationInput, parseScholarshipProgramInput, parseScholarshipPublicationInput, parseScholarshipSafeguardInput } from "./m15";
 
 const program = {
   fundId: "a5100000-0000-4000-8000-000000000001",
@@ -40,5 +40,24 @@ describe("M15 scholarship domain", () => {
     expect(canTransitionScholarshipApplication("approved", "awarded")).toBe(true);
     expect(canTransitionScholarshipApplication("rejected", "approved")).toBe(false);
     expect(canTransitionScholarshipApplication("awarded", "withdrawn")).toBe(false);
+  });
+
+  it("reports approved, paid, reversal and net support without private identifiers", () => {
+    const report = buildScholarshipReport({
+      fundId: "a5100000-0000-4000-8000-000000000003",
+      from: "2026-01-01",
+      to: "2026-12-31",
+      applicantsCount: null,
+      donorsCount: null,
+      awards: [{
+        applicationId: "a5100000-0000-4000-8000-000000000001",
+        amountVnd: "300000",
+        status: "reversed",
+        approvedOn: "2026-01-10",
+        paidOn: "2026-01-12",
+        reversedOn: "2026-01-20",
+      }],
+    });
+    expect(report).toMatchObject({ awardsCount: 1, approvedAmountVnd: "300000", paidAmountVnd: "300000", reversedAmountVnd: "300000", netPaidAmountVnd: "0", applicantsCount: null, donorsCount: null });
   });
 });

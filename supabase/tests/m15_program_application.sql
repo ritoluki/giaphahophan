@@ -141,6 +141,14 @@ select * from private.scholarship_awards where id=:'award_id'::uuid \gset revers
 select case when :'reversed_status' = 'reversed' and :'reversed_reversal_journal_entry_id' = 'b9700000-0000-4000-8000-000000000011' then 1 else 1 / 0 end;
 
 set local role authenticated;
+select set_config('request.jwt.claim.sub', 'b9000000-0000-4000-8000-000000000003', true);
+select set_config('request.jwt.claims', '{"sub":"b9000000-0000-4000-8000-000000000003","aal":"aal2"}', true);
+select * from api.scholarship_report('b9500000-0000-4000-8000-000000000001', '2026-01-01', '2026-12-31') \gset reviewer_report_
+select case when :'reviewer_report_awards_count' = '1' and :'reviewer_report_approved_amount_vnd' = '300000' and :'reviewer_report_paid_amount_vnd' = '300000' and :'reviewer_report_reversed_amount_vnd' = '300000' and :'reviewer_report_net_paid_amount_vnd' = '0' and :'reviewer_report_applicants_count' = '1' and :'reviewer_report_donors_count' = '0' then 1 else 1 / 0 end;
+select set_config('request.jwt.claim.sub', 'b9000000-0000-4000-8000-000000000002', true);
+select set_config('request.jwt.claims', '{"sub":"b9000000-0000-4000-8000-000000000002","aal":"aal1"}', true);
+select coalesce(applicants_count::text, 'NULL') as applicant_visibility, coalesce(donors_count::text, 'NULL') as donor_visibility from api.scholarship_report('b9500000-0000-4000-8000-000000000001', '2026-01-01', '2026-12-31') \gset member_report_
+select case when :'member_report_applicant_visibility' = 'NULL' and :'member_report_donor_visibility' = 'NULL' then 1 else 1 / 0 end;set local role authenticated;
 do $$
 begin
   begin

@@ -1355,8 +1355,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Tổng hỗ trợ đúng, donor/ứng viên chỉ hiện theo quyền, không export hồ sơ trẻ em ngoài scope.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": ["pnpm test:m15:award PASS on local Supabase Docker: approved/paid/reversed/net totals are exact; reviewer sees applicant/donor aggregate counts, member receives null private counts; no person or child identifiers are returned. Full test/typecheck/build/lint/verify and OpenAPI parse PASS; staging/remote, axe/manual, real-device and cloud/production gates NOT_RUN."]
     },
     {
       "id": "TC-M16-01",

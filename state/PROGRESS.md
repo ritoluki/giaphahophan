@@ -136,3 +136,13 @@ Agent bổ sung theo mẫu: ngày, task, commit, thay đổi, command thực ch�
 - `pnpm test:m15:award` PASS on local Supabase Docker with synthetic-only users/tree: approved award is unpaid until a separately posted, independently approved journal is linked; repeated mark-paid request returns the persisted result; journal reversal changes the award to `reversed`.
 - Full `pnpm test` PASS: contracts 58/58, domain 84/84, worker 18/18, lunar 4/4, web 5/5. `pnpm typecheck`, `pnpm build`, `pnpm lint`, `pnpm verify` PASS; lint retains 2 pre-existing warnings.
 - M15-03 adds migrations 0049/0050, award/payment BFF routes, typed DTO/OpenAPI schemas, mobile-first award status UI and local fixture coverage. HTTP `/khuyen-hoc` returned 200 with the award status copy. M14 ledger/two-person/reversal/report/period-close regressions also PASS. No real scholarship, financial or production data used; staging/remote CI, axe/manual, real-device, cloud wiring and production approval remain NOT_RUN.
+
+
+## M15-04 started (2026-09-28)
+- Đã đối chiếu REQ-M15-04, screen spec SCR-23/SCR-38 và data dictionary; report sẽ dùng aggregate VND integer strings, tách approved/paid/reversed/net và fail-closed privacy projection cho donor/ứng viên.
+
+
+## M15-04 evidence (2026-09-28)
+- `pnpm test:m15:award` PASS on local Supabase Docker: report separates approved, posted paid, reversed and net support; reviewer-capability projection returns applicant/donor aggregate counts while an ordinary member receives null private counts.
+- Full `pnpm test` PASS: contracts 59/59, domain 85/85, worker 18/18, lunar 4/4, web 5/5. `pnpm typecheck`, `pnpm build`, `pnpm lint`, `pnpm verify`, OpenAPI YAML parse and localhost UI/BFF guards PASS; lint retains 2 pre-existing warnings.
+- M15-04 adds migration 0051, typed report contract/domain aggregation, `/api/v1/funds/{id}/scholarship-report`, `/quan-tri/khuyen-hoc` mobile report UI and no-person-ID aggregate projection. No real scholarship, donor, child or financial data used; staging/remote CI, axe/manual, real-device, cloud wiring and production approval remain NOT_RUN.

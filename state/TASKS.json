@@ -2324,9 +2324,9 @@
       "testIds": [
         "TC-M15-04"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["M15-04 implementation started: scholarship report contract/domain/DB/BFF/UI design follows fund scope, VND integer strings and privacy projection rules."]
     },
     {
       "id": "M16-01",
