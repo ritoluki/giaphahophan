@@ -64,7 +64,8 @@
     "test:m15:program": "node scripts/test-m15-program-application-local.mjs",
     "test:m15:minor": "node scripts/test-m15-program-application-local.mjs",
     "test:m15:award": "node scripts/test-m15-program-application-local.mjs",
-    "test:m16:import": "node scripts/test-m16-import-local.mjs"
+    "test:m16:import": "node scripts/test-m16-import-local.mjs",
+    "test:m16:http": "node scripts/test-m16-import-http-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",
