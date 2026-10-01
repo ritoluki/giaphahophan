@@ -33,6 +33,9 @@ export function ImportIntake() {
   const [externalIdColumn, setExternalIdColumn] = useState("externalId");
   const [displayNameColumn, setDisplayNameColumn] = useState("displayName");
   const [birthDateColumn, setBirthDateColumn] = useState("birthDate");
+  const [deathDateColumn, setDeathDateColumn] = useState("deathDate");
+  const [genderColumn, setGenderColumn] = useState("gender");
+  const [notesColumn, setNotesColumn] = useState("notes");
   const [dateInterpretation, setDateInterpretation] = useState<"explicit_only" | "gregorian_dmy" | "lunar_dmy">("explicit_only");
   const [preview, setPreview] = useState<ImportPreviewRecord | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
@@ -63,13 +66,34 @@ export function ImportIntake() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!file) { setError("Vui lòng chọn tệp JSON."); return; }
+    if (!file) { setError("Vui lòng chọn tệp nguồn."); return; }
     setPending(true); setError(""); setPreview(null);
     try {
       const tree = treeId.trim();
       if (!trees.some((item) => item.id === tree)) throw new Error("Vui lòng chọn cây gia phả có quyền nhập liệu.");
       if (file.size < 1 || file.size > 10 * 1024 * 1024) throw new Error("Tệp nguồn phải nhỏ hơn hoặc bằng 10 MiB.");
-      if (format === "csv" && (!externalIdColumn.trim() || !displayNameColumn.trim() || externalIdColumn.trim() === displayNameColumn.trim())) throw new Error("Mapping cá»™t mÃ£ nguá»“n vÃ  há» tÃªn pháº£i riÃªng biá»‡t.");
+      if ((format === "csv" || format === "structured_json") && (!externalIdColumn.trim() || !displayNameColumn.trim() || externalIdColumn.trim() === displayNameColumn.trim())) throw new Error("Cột mã nguồn và cột họ tên phải khác nhau.");
+      const mappingVersion = format === "csv" ? "structured-csv/1" : format === "structured_json" ? "structured-json/1" : format.startsWith("gedcom") ? "gedcom-subset/1" : "canonical-json/1";
+      const mapping = format === "csv" || format === "structured_json" ? (() => {
+        const columns: Record<string, "externalId" | "displayName" | "birthDate" | "deathDate" | "gender" | "notes"> = {
+          [externalIdColumn.trim()]: "externalId",
+          [displayNameColumn.trim()]: "displayName",
+        };
+        const optionalColumns = [
+          [birthDateColumn, "birthDate"], [deathDateColumn, "deathDate"],
+          [genderColumn, "gender"], [notesColumn, "notes"],
+        ] as const;
+        for (const [headerValue, target] of optionalColumns) {
+          const header = headerValue.trim();
+          if (!header) continue;
+          if (columns[header]) throw new Error("Mỗi trường chỉ được ánh xạ từ một cột riêng biệt.");
+          columns[header] = target;
+        }
+        return {
+          mappingVersion: format === "csv" ? "structured-csv/1" : "structured-json/1",
+          sourceNamespace: sourceNamespace.trim(), dateInterpretation, columns,
+        };
+      })() : undefined;
       const bytes = await file.arrayBuffer();
       const digest = await crypto.subtle.digest("SHA-256", bytes);
       const sha256 = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
@@ -85,11 +109,6 @@ export function ImportIntake() {
         method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }
       });
       await responseData<unknown>(finalizeResponse);
-      const mappingVersion = format === "csv" ? "structured-csv/1" : format === "structured_json" ? "structured-json/1" : format.startsWith("gedcom") ? "gedcom-subset/1" : "canonical-json/1";
-      const mapping = format === "csv" || format === "structured_json" ? {
-        mappingVersion: format === "csv" ? "structured-csv/1" : "structured-json/1", sourceNamespace: sourceNamespace.trim(), dateInterpretation,
-        columns: { [externalIdColumn.trim()]: "externalId", [displayNameColumn.trim()]: "displayName", ...(birthDateColumn.trim() ? { [birthDateColumn.trim()]: "birthDate" } : {}) },
-      } : undefined;
       const importResponse = await fetch("/api/v1/imports", {
         method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({ treeId: tree, assetId: intent.assetId, format: format === "csv" ? "csv" : format === "gedcom_551" || format === "gedcom_7" ? format : "canonical_json", sourceNamespace: sourceNamespace.trim(), mappingVersion, ...(mapping ? { mapping } : {}), mode: "demo" })
@@ -114,7 +133,7 @@ export function ImportIntake() {
         <select id="import-format" value={format} onChange={(event) => { setFormat(event.target.value as typeof format); setFile(null); }}><option value="canonical_json">JSON canonical</option><option value="structured_json">JSON có mapping</option><option value="csv">CSV có mapping</option><option value="gedcom_551">GEDCOM 5.5.1 (subset)</option><option value="gedcom_7">GEDCOM 7 (subset)</option></select>
         {format.startsWith("gedcom") && <p className="muted">Profile GEDCOM hiện nhận UTF-8 và subset được công bố; tag/lịch không hỗ trợ sẽ được giữ nguyên để rà soát, không tự diễn giải.</p>}
         <h2 id="import-step-title">Bản nhập demo</h2>
-        <p className="muted">Nhận JSON canonical, JSON có mapping hoặc CSV có mapping. Tệp được giữ trong bucket private; bản gốc không xuất hiện trong phản hồi. Ngày mơ hồ được giữ để rà soát, không tự ép thành ngày chính xác.</p>
+        <p className="muted">Nhận JSON canonical, JSON/CSV có mapping hoặc GEDCOM 5.5.1/7 theo subset. Tệp được giữ trong bucket riêng tư; bản gốc không xuất hiện trong phản hồi. Ngày mơ hồ được giữ để rà soát, không tự ép thành ngày chính xác.</p>
         <label htmlFor="import-tree">Cây gia phả được cấp quyền</label>
         <select id="import-tree" required value={treeId} disabled={loadingTrees || trees.length === 0} onChange={(event) => setTreeId(event.target.value)}>
           {loadingTrees && <option value="">Đang tải danh sách…</option>}
@@ -129,6 +148,9 @@ export function ImportIntake() {
           <label htmlFor="mapping-external-id">Tiêu đề cột mã nguồn</label><input id="mapping-external-id" required maxLength={100} value={externalIdColumn} onChange={(event) => setExternalIdColumn(event.target.value)} />
           <label htmlFor="mapping-display-name">Tiêu đề cột họ tên</label><input id="mapping-display-name" required maxLength={100} value={displayNameColumn} onChange={(event) => setDisplayNameColumn(event.target.value)} />
           <label htmlFor="mapping-birth-date">Tiêu đề cột ngày sinh (không bắt buộc)</label><input id="mapping-birth-date" maxLength={100} value={birthDateColumn} onChange={(event) => setBirthDateColumn(event.target.value)} />
+          <label htmlFor="mapping-death-date">Tiêu đề cột ngày mất (không bắt buộc)</label><input id="mapping-death-date" maxLength={100} value={deathDateColumn} onChange={(event) => setDeathDateColumn(event.target.value)} />
+          <label htmlFor="mapping-gender">Tiêu đề cột giới tính ghi nhận (không bắt buộc)</label><input id="mapping-gender" maxLength={100} value={genderColumn} onChange={(event) => setGenderColumn(event.target.value)} />
+          <label htmlFor="mapping-notes">Tiêu đề cột ghi chú nguồn (không bắt buộc)</label><input id="mapping-notes" maxLength={100} value={notesColumn} onChange={(event) => setNotesColumn(event.target.value)} />
           <label htmlFor="mapping-date-format">Cách diễn giải ngày mơ hồ</label><select id="mapping-date-format" value={dateInterpretation} onChange={(event) => setDateInterpretation(event.target.value as typeof dateInterpretation)}><option value="explicit_only">Giữ nguyên để rà soát</option><option value="gregorian_dmy">Dương lịch ngày/tháng/năm đã xác nhận</option><option value="lunar_dmy">Âm lịch, không tự suy đoán tháng nhuận</option></select>
         </fieldset>}
         <p className="import-safety-note">Chế độ demo không áp dụng thay đổi vào gia phả chính. Dữ liệu thật đang bị khóa cho đến khi có phê duyệt H5.</p>

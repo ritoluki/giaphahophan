@@ -22,4 +22,27 @@ describe("M16 structured CSV/JSON mapping", () => {
     expect(dryRunStructuredImport([{ id: "P-1", name: "Fictional" }], { ...mapping, mappingVersion: "structured-csv/1" }, "json")).toBeNull();
     expect(dryRunStructuredImport('id,name\nP-1,"unterminated', { mappingVersion: "structured-csv/1", sourceNamespace: "synthetic-v1", dateInterpretation: "explicit_only", columns: { id: "externalId", name: "displayName" } }, "csv")).toBeNull();
   });
+
+  it("retains every optional mapped field without interpreting source notes", () => {
+    const mapping = {
+      mappingVersion: "structured-csv/1", sourceNamespace: "synthetic-v1", dateInterpretation: "explicit_only",
+      columns: {
+        id: "externalId", name: "displayName", born: "birthDate", died: "deathDate",
+        sex_recorded: "gender", note: "notes",
+      },
+    } as const;
+    const result = dryRunStructuredImport(
+      'id,name,born,died,sex_recorded,note\nP-1,"Nguyễn An",1901,1970,M,"Ghi nguyên văn từ nguồn; chưa xác minh"',
+      mapping,
+      "csv",
+    );
+    expect(result?.valid).toBe(1);
+    expect(result?.rows[0]?.normalized).toMatchObject({
+      externalId: "P-1", displayName: "Nguyễn An", gender: "M",
+      notes: "Ghi nguyên văn từ nguồn; chưa xác minh",
+      birthDate: { precision: "year", year: 1901, originalText: "1901" },
+      deathDate: { precision: "year", year: 1970, originalText: "1970" },
+    });
+    expect(result?.rows[0]?.rawPayload).toMatchObject({ note: "Ghi nguyên văn từ nguồn; chưa xác minh" });
+  });
 });

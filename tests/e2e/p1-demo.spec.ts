@@ -191,6 +191,11 @@ test("membership administration exposes restricted state without a session", asy
 });
 
 test("import intake keeps demo-only safeguards and remains mobile-sized without capability", async ({ page }) => {
+  await page.route("**/api/v1/imports**", (route) => route.fulfill({
+    status: 401,
+    contentType: "application/json",
+    body: JSON.stringify({ data: { code: "AUTH_REQUIRED", message: "A verified session is required" }, meta: { requestId: "00000000-0000-4000-8000-000000000099" } }),
+  }));
   await page.setViewportSize({ width: 320, height: 844 });
   await page.goto("/quan-tri/nhap-lieu");
   await expect(page.locator(".import-page h1")).toBeVisible();
@@ -199,11 +204,18 @@ test("import intake keeps demo-only safeguards and remains mobile-sized without 
   await expect(page.getByText(/Dữ liệu thật đang bị khóa/)).toBeVisible();
   await expect(page.locator(".import-form [role=alert]")).toContainText("verified session");
   await expect(page.locator(".import-form [role=alert]")).toContainText(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
-  const previewResponse = await page.request.get("/api/v1/imports/00000000-0000-4000-8000-000000000099/preview");
-  expect(previewResponse.status()).toBe(401);
-  expect(await previewResponse.text()).not.toContain("sampleRows");
+  const previewResponse = await page.evaluate(async () => {
+    const response = await fetch("/api/v1/imports/00000000-0000-4000-8000-000000000099/preview");
+    return { status: response.status, body: await response.text() };
+  });
+  expect(previewResponse.status).toBe(401);
+  expect(previewResponse.body).not.toContain("sampleRows");
   await page.getByLabel("Định dạng").selectOption("csv");
   await expect(page.getByLabel("Tiêu đề cột mã nguồn")).toBeVisible();
+  await expect(page.getByLabel("Tiêu đề cột ngày sinh (không bắt buộc)")).toBeVisible();
+  await expect(page.getByLabel("Tiêu đề cột ngày mất (không bắt buộc)")).toBeVisible();
+  await expect(page.getByLabel("Tiêu đề cột giới tính ghi nhận (không bắt buộc)")).toBeVisible();
+  await expect(page.getByLabel("Tiêu đề cột ghi chú nguồn (không bắt buộc)")).toBeVisible();
   await expect(page.getByLabel("Cách diễn giải ngày mơ hồ")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });

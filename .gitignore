@@ -5,6 +5,8 @@ node_modules/
 !.env.example
 .next/
 apps/web/.next/
+.next-m16-e2e*/
+apps/web/.next-m16-e2e*/
 *.tsbuildinfo
 apps/web/.env*
 !apps/web/.env.example
