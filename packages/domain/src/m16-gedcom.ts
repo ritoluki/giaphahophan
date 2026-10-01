@@ -19,6 +19,8 @@ type Line = { level: number; xref: string | null; tag: string; value: string; ra
 const MAX_BYTES = 10 * 1024 * 1024;
 const months: Record<string, number> = { JAN: 1, FEB: 2, MAR: 3, APR: 4, MAY: 5, JUN: 6, JUL: 7, AUG: 8, SEP: 9, OCT: 10, NOV: 11, DEC: 12 };
 const knownTags = new Set(["HEAD", "TRLR", "GEDC", "VERS", "CHAR", "SOUR", "DEST", "DATE", "SUBM", "INDI", "FAM", "NAME", "GIVN", "SURN", "NICK", "NPFX", "SPFX", "NSFX", "SEX", "BIRT", "DEAT", "BURI", "EVEN", "TYPE", "PLAC", "FAMC", "FAMS", "PEDI", "STAT", "HUSB", "WIFE", "CHIL", "MARR", "DIV", "SOUR", "NOTE", "CONT", "CONC", "OBJE", "FILE", "TITL", "FORM", "RESN", "CHAN", "DATA", "TEXT", "PAGE", "QUAY", "_PHAN_LUNAR_DATE", "_PHAN_PRIVACY"]);
+const normalizedTags = new Set(["HEAD", "TRLR", "GEDC", "VERS", "CHAR", "INDI", "FAM", "NAME", "GIVN", "SURN", "NICK", "NPFX", "SPFX", "NSFX", "SEX", "BIRT", "DEAT", "DATE", "TYPE", "PLAC", "FAMC", "FAMS", "PEDI", "STAT", "HUSB", "WIFE", "CHIL", "MARR", "_PHAN_LUNAR_DATE", "_PHAN_PRIVACY"]);
+const MAX_REPORTED_TAGS = 200;
 
 function parsedate(text: string): Record<string, unknown> {
   const raw = text.trim();
@@ -97,8 +99,8 @@ export function dryRunGedcomImport(input: string): GedcomDryRun | null {
   if (recordRoots.length > 10_000) return null;
   for (const root of roots) {
     const visit = (line: Line): void => {
-      if (line.tag.startsWith("_")) unknownTags.add(line.tag);
-      else if (knownTags.has(line.tag)) supported.add(line.tag);
+      if (normalizedTags.has(line.tag)) supported.add(line.tag);
+      else if (knownTags.has(line.tag)) unsupported.add(line.tag);
       else unknownTags.add(line.tag);
       for (const child of line.children) visit(child);
     };
@@ -111,7 +113,7 @@ export function dryRunGedcomImport(input: string): GedcomDryRun | null {
     const visit = (line: Line): void => { descendants.push(line); for (const child of line.children) visit(child); };
     visit(root);
     for (const line of descendants) {
-      if (["CONC", "CONT", "OBJE", "FILE", "TITL", "FORM", "NOTE", "SOUR", "TEXT", "PAGE", "QUAY"].includes(line.tag)) unsupported.add(line.tag);
+      if (!normalizedTags.has(line.tag) && knownTags.has(line.tag)) unsupported.add(line.tag);
     }
     const raw = descendants.map((line) => line.raw);
     const normalized: Record<string, unknown> = { externalId: root.xref, recordType: root.tag };
@@ -144,9 +146,16 @@ export function dryRunGedcomImport(input: string): GedcomDryRun | null {
     const match = /^\d+ (?:FAMC|FAMS|HUSB|WIFE|CHIL) @([^@]+)@/.exec(line);
     if (match && !idSet.has(match[1]!)) brokenRefs.set(record.xref, [...(brokenRefs.get(record.xref) ?? []), "unresolved_relationship_reference"]);
   }
+  const conformance = {
+    supported: [...supported].sort().slice(0, MAX_REPORTED_TAGS),
+    unsupported: [...unsupported].sort().slice(0, MAX_REPORTED_TAGS),
+    unknownTags: [...unknownTags].sort().slice(0, MAX_REPORTED_TAGS),
+  };
+  const reportTruncated = supported.size > MAX_REPORTED_TAGS || unsupported.size > MAX_REPORTED_TAGS || unknownTags.size > MAX_REPORTED_TAGS;
   const warnings = [
     ...(unknownTags.size ? ["unknown_tags_preserved_for_review"] : []),
     ...(unsupported.size ? ["known_but_unmapped_structures_preserved_for_review"] : []),
+    ...(reportTruncated ? ["gedcom_conformance_tag_list_truncated_to_200"] : []),
     ...(brokenRefs.size ? ["unresolved_relationship_references_require_review"] : []),
     ...(records.some((record) => record.raw.some((line) => /\s_PHAN_LUNAR_DATE(?:\s|$)/.test(line))) ? [] : ["lunar_calendar_sidecar_not_present"]),
     "privacy_defaults_to_restricted; no GEDCOM note or media path is published",
@@ -163,6 +172,6 @@ export function dryRunGedcomImport(input: string): GedcomDryRun | null {
     valid: rows.filter((row) => row.status === "valid").length, invalid: 0,
     possibleDuplicates: rows.filter((row) => row.status === "review").length,
     warnings: [...new Set(warnings)],
-    conformance: { supported: [...supported].sort(), unsupported: [...unsupported].sort(), unknownTags: [...unknownTags].sort() }, records, rows,
+    conformance, records, rows,
   };
 }

@@ -22,6 +22,14 @@ GEDCOM 5.5.1 và GEDCOM 7 được hỗ trợ **theo subset có công bố**, v�
 | Tags không biết / extension | Preserve raw + warning | Xuất raw nếu an toàn và tương thích | Không tự drop, không tự diễn giải |
 | Âm lịch Việt Nam / quỹ / quyền app | Extension/sidecar riêng | JSON sidecar là chuẩn lossless | Không ghi ngày âm như Gregorian DATE |
 
+### Import profile đang triển khai
+
+`gedcom-subset/1` nhận GEDCOM 5.5.1 và FamilySearch GEDCOM 7 dạng UTF-8, có `HEAD`/`GEDC.VERS`/`TRLR`, tối đa 10 MiB và 10.000 top-level records. Parser normalize `INDI.NAME` và name pieces, `SEX` (không suy luận), `BIRT`/`DEAT` với `DATE`/`PLAC`, `FAMC`/`FAMS`/`PEDI`/`STAT`, cùng `FAM.HUSB`/`WIFE`/`CHIL`/`MARR.DATE`. `ABT`/`CAL`/`EST`/`BEF`/`AFT`, năm/tháng/ngày không đầy đủ và lịch Julian được giữ độ chính xác; lịch không nhận diện hoặc date range phức tạp giữ nguyên text để review.
+
+Tag chuẩn đã biết nhưng chưa normalize (ví dụ `NOTE`, `SOUR`, `OBJE`, `BURI`, `CONT`/`CONC`) và extension lạ được phân loại riêng trong conformance report; mọi root record và raw line vẫn ở staging riêng tư để không mất dữ liệu. `_PHAN_LUNAR_DATE` và `_PHAN_PRIVACY` được giữ như app sidecar; ngày âm không đổi thành ngày dương. Quan hệ dùng external xref; pointer thiếu thành `needs_review`; tên `HUSB`/`WIFE` không quyết định giới tính. Notes, source payload và đường dẫn media không đi vào preview công khai; quyền riêng tư mặc định `restricted`.
+
+Profile chỉ chấp nhận UTF-8 hiện tại; nguồn encoding khác cần được chuyển đổi có kiểm tra trước khi upload. GEDCOM export/round-trip chưa được cung cấp bởi profile này; không được hiểu parser/import PASS là export PASS.
+
 Agent tạo fixture từ nguồn chuẩn và từ hai phần mềm nguồn mở được phép dùng; test import/export semantics chứ không byte-equality của thứ tự tag. Profile hỗ trợ/không hỗ trợ phải được hiển thị trước import và đính kèm export.
 
 ## Pipeline nhập thật

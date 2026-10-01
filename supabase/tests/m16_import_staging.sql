@@ -38,6 +38,16 @@ select * from api.import_source_context('b1630000-0000-4000-8000-000000000001') 
 select case when :'source_tree_id'='b1610000-0000-4000-8000-000000000001' and :'source_sha256'=repeat('a',64) then 1 else 1/0 end;
 select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-v1','v1','demo','b1640000-0000-4000-8000-000000000001',repeat('c',64)) \gset job_
 select case when :'job_status'='queued' and :'job_classification'='canonical' and :'job_file_sha256'=repeat('a',64) then 1 else 1/0 end;
+select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-v1','v1','demo','b1640000-0000-4000-8000-000000000008',repeat('c',64)) \gset content_replay_
+select case when :'content_replay_id'=:'job_id' and :'content_replay_version'=:'job_version' then 1 else 1/0 end;
+reset role;
+select ((select count(*) from private.import_jobs where tree_id='b1610000-0000-4000-8000-000000000001' and file_sha256=repeat('a',64) and mapping_version='v1')=1
+  and (select count(*) from private.audit_events where tree_id='b1610000-0000-4000-8000-000000000001' and action='import.created' and resource_id=:'job_id'::uuid)=1) as content_key_replay_safe \gset content_check_
+\if :content_check_content_key_replay_safe
+\else
+  \quit 1
+\endif
+set local role authenticated;
 select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-v1','structured-json/1','demo','b1640000-0000-4000-8000-000000000007',repeat('d',64)) \gset structured_json_
 select case when :'structured_json_classification'='structured' then 1 else 1/0 end;
 select * from api.import_mapping_attach(:'structured_json_id'::uuid,

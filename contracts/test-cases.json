@@ -1427,8 +1427,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Cùng file+mapping+tree không nhân người/cạnh; external IDs ổn định.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": ["2026-10-02 local synthetic: PASS SQL fixture and authenticated BFF replay with same tree/checksum/mapping but a new idempotency key; same job UUID/version returned, exactly one job, same staging row count, and one creation audit event. Canonical person count remains unchanged in demo mode; duplicate source IDs remain review-only, not auto-merged. Stable apply/edge mapping, full accessibility and staging/cloud remain NOT_RUN; task remains IN_PROGRESS."]
     },
     {
       "id": "TC-M16-05",
