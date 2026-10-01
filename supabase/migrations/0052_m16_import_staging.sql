@@ -239,6 +239,40 @@ begin
 end;
 $$;
 
+create or replace function private.import_preview(p_job_id uuid)
+returns jsonb
+language plpgsql stable security definer set search_path=pg_catalog,private
+as $$
+declare v_job private.import_jobs%rowtype;
+begin
+  select * into v_job from private.import_jobs j where j.id=p_job_id;
+  if not found then raise exception using errcode='P0002',message='import job not found'; end if;
+  if not private.has_capability(v_job.tree_id,'imports.manage',null) then
+    raise exception using errcode='42501',message='imports.manage capability required'; end if;
+  return jsonb_build_object(
+    'jobId',v_job.id,'version',v_job.version,'snapshotHash',coalesce(v_job.manifest->>'previewHash',encode(extensions.digest('[]','sha256'),'hex')),
+    'fileSha256',v_job.file_sha256,'classification',v_job.classification,
+    'valid',coalesce((v_job.manifest->>'valid')::bigint,0),
+    'invalid',coalesce((v_job.manifest->>'invalid')::bigint,0),
+    'possibleDuplicates',coalesce((v_job.manifest->>'possibleDuplicates')::bigint,0),
+    'warnings',coalesce(v_job.manifest->'warnings','[]'::jsonb),
+    'sampleRows',coalesce((
+      select jsonb_agg(jsonb_build_object('rowNumber',sample.row_number,
+        'externalId',sample.external_id,'displayName',sample.display_name,
+        'status',sample.status,'errors',sample.errors) order by sample.row_number)
+      from (
+        select r.row_number,coalesce(left(r.external_id,300),'') as external_id,
+          coalesce(left(r.normalized->>'displayName',300),left(r.raw_payload->>'displayName',300),'(không có tên)') as display_name,
+          r.status,(select coalesce(jsonb_agg(left(error_text.value,1000)),'[]'::jsonb)
+            from jsonb_array_elements_text(r.errors) error_text(value)) as errors
+        from private.import_rows r where r.tree_id=v_job.tree_id and r.job_id=v_job.id
+        order by r.row_number limit 50
+      ) sample
+    ),'[]'::jsonb)
+  );
+end;
+$$;
+
 create or replace function api.import_create(p_tree_id uuid,p_asset_id uuid,p_format text,
   p_source_namespace text,p_mapping_version text,p_mode text,p_idempotency_key uuid,p_request_hash text)
 returns table(id uuid,version bigint,status text,tree_id uuid,source_asset_id uuid,file_sha256 text,
@@ -255,6 +289,10 @@ create or replace function api.import_stage_rows(p_job_id uuid,p_rows jsonb,p_wa
 returns table(id uuid,version bigint,status text,valid bigint,invalid bigint,possible_duplicates bigint,snapshot_hash text)
 language sql security invoker set search_path=pg_catalog
 as $$ select * from private.import_stage_rows($1,$2,$3); $$;
+
+create or replace function api.import_preview(p_job_id uuid)
+returns jsonb language sql security invoker set search_path=pg_catalog
+as $$ select private.import_preview($1); $$;
 
 -- Dedicated grant path: M07's established grant RPC intentionally has a fixed capability allowlist.
 create or replace function private.import_membership_grant_create(
@@ -340,6 +378,10 @@ revoke all on function api.import_source_context(uuid) from public,anon,authenti
 grant execute on function api.import_source_context(uuid) to authenticated;
 revoke all on function api.import_stage_rows(uuid,jsonb,jsonb) from public,anon,authenticated;
 grant execute on function api.import_stage_rows(uuid,jsonb,jsonb) to authenticated;
+revoke all on function private.import_preview(uuid) from public,anon,authenticated;
+grant execute on function private.import_preview(uuid) to authenticated;
+revoke all on function api.import_preview(uuid) from public,anon,authenticated;
+grant execute on function api.import_preview(uuid) to authenticated;
 revoke all on function private.import_membership_grant_create(uuid,uuid,timestamptz,uuid,text) from public,anon,authenticated;
 grant execute on function private.import_membership_grant_create(uuid,uuid,timestamptz,uuid,text) to authenticated;
 revoke all on function api.import_grant_create(uuid,uuid,timestamptz,uuid,text) from public,anon,authenticated;

@@ -13676,6 +13676,12 @@ components:
         jobId: *id001
         version: *id008
         snapshotHash: *id002
+        fileSha256:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+        classification:
+          type: string
+          enum: [structured, gedcom, canonical]
         valid: *id008
         invalid: *id008
         possibleDuplicates: *id008
@@ -13710,6 +13716,8 @@ components:
       - jobId
       - version
       - snapshotHash
+      - fileSha256
+      - classification
       - valid
       - invalid
       - possibleDuplicates

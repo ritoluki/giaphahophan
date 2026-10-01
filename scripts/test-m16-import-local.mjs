@@ -12,4 +12,4 @@ if (result.status !== 0) {
   process.stderr.write(result.stderr || "local M16 import staging fixture failed\n");
   process.exit(result.status ?? 1);
 }
-console.log("PASS local M16-01: checksum-bound private intake, import capability, dry-run row counts, review flags, canonical projection unchanged and real-data mode denied");
+console.log("PASS local M16-01: private import-only MIME, capability grant/idempotency, persisted redacted preview, dry-run counts and canonical projection unchanged; real-data mode denied");

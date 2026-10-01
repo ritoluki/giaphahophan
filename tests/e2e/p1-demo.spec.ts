@@ -197,7 +197,11 @@ test("import intake keeps demo-only safeguards and remains mobile-sized without 
   await expect(page.getByLabel("Cây gia phả được cấp quyền")).toBeDisabled();
   await expect(page.getByLabel("Tệp JSON · tối đa 10 MiB")).toBeVisible();
   await expect(page.getByText(/Dữ liệu thật đang bị khóa/)).toBeVisible();
-  await expect(page.locator(".import-form [role=alert]")).toContainText("imports.manage");
+  await expect(page.locator(".import-form [role=alert]")).toContainText("verified session");
+  await expect(page.locator(".import-form [role=alert]")).toContainText(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+  const previewResponse = await page.request.get("/api/v1/imports/00000000-0000-4000-8000-000000000099/preview");
+  expect(previewResponse.status()).toBe(401);
+  expect(await previewResponse.text()).not.toContain("sampleRows");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 

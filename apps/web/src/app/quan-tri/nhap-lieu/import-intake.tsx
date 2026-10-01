@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import type { ImportPreviewRecord } from "@phan/contracts";
 
 type Envelope<T> = { data?: T; meta?: { requestId?: string } };
 type UploadIntent = { assetId: string; uploadUrl: string; requiredHeaders: Record<string, string> };
@@ -12,7 +13,13 @@ type ImportJob = {
 
 async function responseData<T>(response: Response): Promise<T> {
   const body = await response.json() as Envelope<T>;
-  if (!response.ok || body.data === undefined) throw new Error(`Yêu cầu chưa hoàn tất (${response.status}). Hãy kiểm tra quyền và thử lại an toàn.`);
+  if (!response.ok) {
+    const detail = body.data && typeof body.data === "object" ? body.data as { message?: unknown } : null;
+    const message = typeof detail?.message === "string" ? detail.message : `Yêu cầu chưa hoàn tất (${response.status}).`;
+    const requestId = typeof body.meta?.requestId === "string" ? ` Mã yêu cầu: ${body.meta.requestId}.` : "";
+    throw new Error(`${message}${requestId}`);
+  }
+  if (body.data === undefined) throw new Error("Máy chủ trả về nội dung không hợp lệ.");
   return body.data;
 }
 
@@ -22,7 +29,8 @@ export function ImportIntake() {
   const [loadingTrees, setLoadingTrees] = useState(true);
   const [sourceNamespace, setSourceNamespace] = useState("family-records");
   const [file, setFile] = useState<File | null>(null);
-  const [job, setJob] = useState<ImportJob | null>(null);
+  const [preview, setPreview] = useState<ImportPreviewRecord | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
 
@@ -30,15 +38,28 @@ export function ImportIntake() {
     let active = true;
     fetch("/api/v1/imports", { cache: "no-store" }).then(async (response) => responseData<ImportTree[]>(response))
       .then((items) => { if (active) { setTrees(items); setTreeId(items[0]?.id ?? ""); } })
-      .catch(() => { if (active) setError("Không tải được danh sách cây được cấp quyền nhập liệu. Hãy đăng nhập bằng tài khoản có imports.manage."); })
+      .catch((cause: unknown) => { if (active) setError(cause instanceof Error ? cause.message : "Không tải được danh sách cây được cấp quyền nhập liệu."); })
       .finally(() => { if (active) setLoadingTrees(false); });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    const jobId = new URLSearchParams(window.location.search).get("job");
+    if (!jobId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(jobId)) return;
+    let active = true;
+    queueMicrotask(() => { if (active) setLoadingPreview(true); });
+    fetch(`/api/v1/imports/${jobId}/preview`, { cache: "no-store" })
+      .then((response) => responseData<ImportPreviewRecord>(response))
+      .then((result) => { if (active) setPreview(result); })
+      .catch((cause: unknown) => { if (active) setError(cause instanceof Error ? cause.message : "Không thể tải bản dry-run đã lưu."); })
+      .finally(() => { if (active) setLoadingPreview(false); });
     return () => { active = false; };
   }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!file) { setError("Vui lòng chọn tệp JSON."); return; }
-    setPending(true); setError(""); setJob(null);
+    setPending(true); setError(""); setPreview(null);
     try {
       const tree = treeId.trim();
       if (!trees.some((item) => item.id === tree)) throw new Error("Vui lòng chọn cây gia phả có quyền nhập liệu.");
@@ -62,7 +83,11 @@ export function ImportIntake() {
         method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({ treeId: tree, assetId: intent.assetId, format: "canonical_json", sourceNamespace: sourceNamespace.trim(), mappingVersion: "canonical-json/1", mode: "demo" })
       });
-      setJob(await responseData<ImportJob>(importResponse));
+      const job = await responseData<ImportJob>(importResponse);
+      const savedPreview = await fetch(`/api/v1/imports/${job.id}/preview`, { cache: "no-store" });
+      const parsedPreview = await responseData<ImportPreviewRecord>(savedPreview);
+      window.history.replaceState(null, "", `${window.location.pathname}?job=${job.id}`);
+      setPreview(parsedPreview);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Không thể tiếp nhận tệp lúc này.");
     } finally { setPending(false); }
@@ -90,13 +115,14 @@ export function ImportIntake() {
         {error && <p className="field-error" role="alert">{error}</p>}
         <button className="button-primary" type="submit" disabled={pending}>{pending ? "Đang kiểm tra và tiếp nhận…" : "Tải lên và chạy dry-run"}</button>
       </form>
-      {pending && <div className="card import-result" role="status" aria-live="polite"><span className="skeleton-line" /><span className="skeleton-line skeleton-line-short" /><p>Đang xác minh tệp trong kho riêng. Không đóng trang cho đến khi hoàn tất.</p></div>}
-      {job && <section className="card import-result" aria-live="polite" aria-labelledby="import-result-title">
-        <span className="status-label">{job.status === "needs_review" ? "Cần rà soát" : job.status}</span>
+      {(pending || loadingPreview) && <div className="card import-result" role="status" aria-live="polite"><span className="skeleton-line" /><span className="skeleton-line skeleton-line-short" /><p>{loadingPreview ? "Đang tải bản dry-run đã lưu…" : "Đang xác minh tệp trong kho riêng. Không đóng trang cho đến khi hoàn tất."}</p></div>}
+      {preview && <section className="card import-result" aria-live="polite" aria-labelledby="import-result-title">
+        <span className="status-label">Cần rà soát</span>
         <h2 id="import-result-title">Kết quả dry-run</h2>
-        <dl className="import-counts"><div><dt>Tổng dòng</dt><dd>{job.counters.processed}</dd></div><div><dt>Hợp lệ</dt><dd>{job.counters.succeeded}</dd></div><div><dt>Cần sửa</dt><dd>{job.counters.failed}</dd></div><div><dt>Cần rà soát</dt><dd>{job.counters.skipped}</dd></div></dl>
-        <p>Phân loại: {job.classification}. Checksum SHA-256: <code className="import-hash">{job.fileSha256}</code></p>
-        {job.warnings.length > 0 && <div><h3>Lưu ý</h3><ul>{job.warnings.map((warning, index) => <li key={`${index}-${warning}`}>{warning}</li>)}</ul></div>}
+        <dl className="import-counts"><div><dt>Tổng dòng</dt><dd>{preview.valid + preview.invalid + preview.possibleDuplicates}</dd></div><div><dt>Hợp lệ</dt><dd>{preview.valid}</dd></div><div><dt>Cần sửa</dt><dd>{preview.invalid}</dd></div><div><dt>Cần rà soát</dt><dd>{preview.possibleDuplicates}</dd></div></dl>
+        <p>Phân loại: {preview.classification}. Checksum SHA-256: <code className="import-hash">{preview.fileSha256}</code></p>
+        {preview.warnings.length > 0 && <div><h3>Lưu ý</h3><ul>{preview.warnings.map((warning, index) => <li key={`${index}-${warning}`}>{warning}</li>)}</ul></div>}
+        <div><h3>Dòng mẫu · tối đa 50</h3>{preview.sampleRows.length === 0 ? <p className="muted">Chưa có dòng để xem trước.</p> : <ul className="import-row-list">{preview.sampleRows.map((row) => <li className="import-row-card" key={row.rowNumber}><div className="import-row-heading"><strong>Dòng {row.rowNumber}: {row.displayName}</strong><span className="tag">{row.status === "valid" ? "Hợp lệ" : row.status === "review" ? "Cần rà soát" : "Cần sửa"}</span></div><p>Mã nguồn: <code>{row.externalId}</code></p>{row.errors.length > 0 && <ul>{row.errors.map((issue, index) => <li key={`${index}-${issue}`}>{issue}</li>)}</ul>}</li>)}</ul>}</div>
         <p className="import-safety-note">Chưa có dữ liệu canonical nào được ghi. Bước áp dụng sẽ chỉ mở khi có luồng review được phê duyệt.</p>
       </section>}
     </section>

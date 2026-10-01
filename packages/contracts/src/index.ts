@@ -1030,6 +1030,8 @@ export const importPreviewSchema = z.object({
   jobId: z.string().uuid(),
   version: z.number().int().positive(),
   snapshotHash: z.string().regex(/^[a-f0-9]{64}$/),
+  fileSha256: z.string().regex(/^[a-f0-9]{64}$/),
+  classification: z.enum(["structured", "gedcom", "canonical"]),
   valid: z.number().int().nonnegative(),
   invalid: z.number().int().nonnegative(),
   possibleDuplicates: z.number().int().nonnegative(),

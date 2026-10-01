@@ -42,6 +42,13 @@ select * from api.import_stage_rows(:'job_id'::uuid,
   '[{"rowNumber":1,"externalId":"synthetic-1","rawPayload":{"birthDate":"circa 1940"},"normalized":{"externalId":"synthetic-1","displayName":"Fictional Person"},"status":"valid","errors":[]},{"rowNumber":2,"externalId":"synthetic-1","rawPayload":{"name":"duplicate"},"normalized":null,"status":"review","errors":["duplicate_external_id_in_source"]},{"rowNumber":3,"externalId":"row-3","rawPayload":{"displayName":""},"normalized":null,"status":"invalid","errors":["displayName"]}]'::jsonb,
   '["duplicate_external_ids_require_review"]'::jsonb) \gset stage_replay_
 select case when :'stage_replay_version'=:'preview_version' and :'stage_replay_snapshot_hash'=:'preview_snapshot_hash' then 1 else 1/0 end;
+select ((preview->>'valid')='1' and jsonb_array_length(preview->'sampleRows')=3
+  and preview->>'fileSha256'=repeat('a',64) and not ((preview->'sampleRows'->0) ? 'rawPayload')) as preview_safe
+from (select api.import_preview(:'job_id'::uuid) as preview) result \gset preview_
+\if :preview_preview_safe
+\else
+  \quit 1
+\endif
 reset role;
 select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002',true);
 select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal1"}',true);
@@ -53,6 +60,7 @@ do $$ begin
   exception when insufficient_privilege then null;
   end;
 end $$;
+select format('do $body$ begin begin perform api.import_preview(%L::uuid); raise exception ''member without import grant could read preview''; exception when insufficient_privilege then null; end; end $body$;', :'job_id') \gexec
 reset role;
 select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000001',true);
 select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);

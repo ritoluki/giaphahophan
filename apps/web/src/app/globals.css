@@ -179,6 +179,13 @@ button, a, input, select { min-height: 44px; }
 .import-counts dt { color: var(--ink-muted); font-size: .82rem; }
 .import-counts dd { margin: .15rem 0 0; color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: 1.4rem; font-weight: 700; }
 .import-hash { overflow-wrap: anywhere; }
+.import-row-list { display: grid; gap: .65rem; margin: .6rem 0 0; padding: 0; list-style: none; }
+.import-row-card { display: grid; gap: .35rem; min-width: 0; padding: .8rem; border: 1px solid var(--border); border-radius: 10px; background: #FFFCF8; }
+.import-row-card p { margin: 0; color: var(--ink-muted); font-size: .9rem; }
+.import-row-card code { overflow-wrap: anywhere; }
+.import-row-card ul { margin: .2rem 0 0; padding-left: 1.25rem; color: var(--danger); font-size: .88rem; }
+.import-row-heading { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .5rem; }
+.import-row-heading strong { min-width: 0; overflow-wrap: anywhere; }
 @media (min-width: 768px) { .import-workspace { grid-template-columns: minmax(280px, .8fr) minmax(0, 1.2fr); align-items: start; } .import-stepper { grid-column: 1 / -1; } .import-form button { width: fit-content; } .import-counts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
 .deletion-impact-card { border-color: color-mix(in srgb, var(--danger) 32%, var(--border)); }
