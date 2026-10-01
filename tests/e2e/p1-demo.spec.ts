@@ -202,6 +202,9 @@ test("import intake keeps demo-only safeguards and remains mobile-sized without 
   const previewResponse = await page.request.get("/api/v1/imports/00000000-0000-4000-8000-000000000099/preview");
   expect(previewResponse.status()).toBe(401);
   expect(await previewResponse.text()).not.toContain("sampleRows");
+  await page.getByLabel("Định dạng").selectOption("csv");
+  await expect(page.getByLabel("Tiêu đề cột mã nguồn")).toBeVisible();
+  await expect(page.getByLabel("Cách diễn giải ngày mơ hồ")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 

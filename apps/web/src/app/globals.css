@@ -171,6 +171,9 @@ button, a, input, select { min-height: 44px; }
 .import-form h2, .import-result h2 { margin: 0; color: var(--brand); font-family: "Noto Serif", Georgia, serif; }
 .import-form label { color: var(--ink-muted); font-size: .9rem; font-weight: 700; }
 .import-form input:not([type="file"]) { width: 100%; min-height: 48px; padding: .65rem .8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.import-form select { width: 100%; min-height: 48px; padding: .65rem .8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--ink); }
+.import-mapping-fields { display: grid; gap: .7rem; min-width: 0; margin: 0; padding: 1rem; border: 1px solid var(--border); border-radius: 10px; }
+.import-mapping-fields legend { padding: 0 .35rem; color: var(--brand); font-weight: 700; }
 .import-form input[type="file"] { min-height: 48px; width: 100%; padding: .45rem; border: 1px dashed var(--accent); border-radius: 8px; background: #FFFCF8; }
 .import-form button { width: 100%; }
 .import-safety-note { margin: 0; padding: .75rem 1rem; border-left: 3px solid var(--accent); background: #FBF1DE; color: #594A38; font-size: .9rem; }

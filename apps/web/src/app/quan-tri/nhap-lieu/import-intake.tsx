@@ -29,6 +29,11 @@ export function ImportIntake() {
   const [loadingTrees, setLoadingTrees] = useState(true);
   const [sourceNamespace, setSourceNamespace] = useState("family-records");
   const [file, setFile] = useState<File | null>(null);
+  const [format, setFormat] = useState<"canonical_json" | "structured_json" | "csv">("canonical_json");
+  const [externalIdColumn, setExternalIdColumn] = useState("externalId");
+  const [displayNameColumn, setDisplayNameColumn] = useState("displayName");
+  const [birthDateColumn, setBirthDateColumn] = useState("birthDate");
+  const [dateInterpretation, setDateInterpretation] = useState<"explicit_only" | "gregorian_dmy" | "lunar_dmy">("explicit_only");
   const [preview, setPreview] = useState<ImportPreviewRecord | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
   const [pending, setPending] = useState(false);
@@ -64,10 +69,11 @@ export function ImportIntake() {
       const tree = treeId.trim();
       if (!trees.some((item) => item.id === tree)) throw new Error("Vui lòng chọn cây gia phả có quyền nhập liệu.");
       if (file.size < 1 || file.size > 10 * 1024 * 1024) throw new Error("Tệp JSON phải nhỏ hơn hoặc bằng 10 MiB.");
+      if (format === "csv" && (!externalIdColumn.trim() || !displayNameColumn.trim() || externalIdColumn.trim() === displayNameColumn.trim())) throw new Error("Mapping cá»™t mÃ£ nguá»“n vÃ  há» tÃªn pháº£i riÃªng biá»‡t.");
       const bytes = await file.arrayBuffer();
       const digest = await crypto.subtle.digest("SHA-256", bytes);
       const sha256 = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-      const mimeType = "application/json";
+      const mimeType = format === "csv" ? "text/csv" : "application/json";
       const intentResponse = await fetch("/api/v1/media/uploads", {
         method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({ treeId: tree, filename: file.name, mimeType, sizeBytes: file.size, sha256, purpose: "import", visibility: "restricted" })
@@ -79,9 +85,14 @@ export function ImportIntake() {
         method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }
       });
       await responseData<unknown>(finalizeResponse);
+      const mappingVersion = format === "csv" ? "structured-csv/1" : format === "structured_json" ? "structured-json/1" : "canonical-json/1";
+      const mapping = format !== "canonical_json" ? {
+        mappingVersion: format === "csv" ? "structured-csv/1" : "structured-json/1", sourceNamespace: sourceNamespace.trim(), dateInterpretation,
+        columns: { [externalIdColumn.trim()]: "externalId", [displayNameColumn.trim()]: "displayName", ...(birthDateColumn.trim() ? { [birthDateColumn.trim()]: "birthDate" } : {}) },
+      } : undefined;
       const importResponse = await fetch("/api/v1/imports", {
         method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
-        body: JSON.stringify({ treeId: tree, assetId: intent.assetId, format: "canonical_json", sourceNamespace: sourceNamespace.trim(), mappingVersion: "canonical-json/1", mode: "demo" })
+        body: JSON.stringify({ treeId: tree, assetId: intent.assetId, format: format === "csv" ? "csv" : "canonical_json", sourceNamespace: sourceNamespace.trim(), mappingVersion, ...(mapping ? { mapping } : {}), mode: "demo" })
       });
       const job = await responseData<ImportJob>(importResponse);
       const savedPreview = await fetch(`/api/v1/imports/${job.id}/preview`, { cache: "no-store" });
@@ -99,8 +110,10 @@ export function ImportIntake() {
         <span aria-current="step"><b>1</b> Tư liệu</span><span><b>2</b> Kiểm tra</span><span><b>3</b> Rà soát</span>
       </div>
       <form className="card import-form" onSubmit={submit}>
+        <label htmlFor="import-format">Định dạng</label>
+        <select id="import-format" value={format} onChange={(event) => { setFormat(event.target.value as typeof format); setFile(null); }}><option value="canonical_json">JSON canonical</option><option value="structured_json">JSON có mapping</option><option value="csv">CSV có mapping</option></select>
         <h2 id="import-step-title">Bản nhập demo</h2>
-        <p className="muted">Chỉ nhận JSON UTF-8 theo envelope canonical hiện hỗ trợ. Tệp được giữ trong bucket private; bản gốc không xuất hiện trong phản hồi.</p>
+        <p className="muted">Nhận JSON canonical, JSON có mapping hoặc CSV có mapping. Tệp được giữ trong bucket private; bản gốc không xuất hiện trong phản hồi. Ngày mơ hồ được giữ để rà soát, không tự ép thành ngày chính xác.</p>
         <label htmlFor="import-tree">Cây gia phả được cấp quyền</label>
         <select id="import-tree" required value={treeId} disabled={loadingTrees || trees.length === 0} onChange={(event) => setTreeId(event.target.value)}>
           {loadingTrees && <option value="">Đang tải danh sách…</option>}
@@ -109,8 +122,14 @@ export function ImportIntake() {
         </select>
         <label htmlFor="import-source">Không gian nguồn</label>
         <input id="import-source" required maxLength={200} value={sourceNamespace} onChange={(event) => setSourceNamespace(event.target.value)} />
-        <label htmlFor="import-file">Tệp JSON · tối đa 10 MiB</label>
-        <input id="import-file" type="file" accept="application/json,.json" required onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+        <label htmlFor="import-file">Tệp {format === "csv" ? "CSV" : "JSON"} · tối đa 10 MiB</label>
+        <input id="import-file" type="file" accept={format === "csv" ? "text/csv,.csv" : "application/json,.json"} required onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+        {format !== "canonical_json" && <fieldset className="import-mapping-fields"><legend>Mapping {format === "csv" ? "structured-csv/1" : "structured-json/1"}</legend>
+          <label htmlFor="mapping-external-id">Tiêu đề cột mã nguồn</label><input id="mapping-external-id" required maxLength={100} value={externalIdColumn} onChange={(event) => setExternalIdColumn(event.target.value)} />
+          <label htmlFor="mapping-display-name">Tiêu đề cột họ tên</label><input id="mapping-display-name" required maxLength={100} value={displayNameColumn} onChange={(event) => setDisplayNameColumn(event.target.value)} />
+          <label htmlFor="mapping-birth-date">Tiêu đề cột ngày sinh (không bắt buộc)</label><input id="mapping-birth-date" maxLength={100} value={birthDateColumn} onChange={(event) => setBirthDateColumn(event.target.value)} />
+          <label htmlFor="mapping-date-format">Cách diễn giải ngày mơ hồ</label><select id="mapping-date-format" value={dateInterpretation} onChange={(event) => setDateInterpretation(event.target.value as typeof dateInterpretation)}><option value="explicit_only">Giữ nguyên để rà soát</option><option value="gregorian_dmy">Dương lịch ngày/tháng/năm đã xác nhận</option><option value="lunar_dmy">Âm lịch, không tự suy đoán tháng nhuận</option></select>
+        </fieldset>}
         <p className="import-safety-note">Chế độ demo không áp dụng thay đổi vào gia phả chính. Dữ liệu thật đang bị khóa cho đến khi có phê duyệt H5.</p>
         {error && <p className="field-error" role="alert">{error}</p>}
         <button className="button-primary" type="submit" disabled={pending}>{pending ? "Đang kiểm tra và tiếp nhận…" : "Tải lên và chạy dry-run"}</button>

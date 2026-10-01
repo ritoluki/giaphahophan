@@ -1000,14 +1000,35 @@ export const notificationSendContextSchema = z.object({
 export const importFormatSchema = z.enum(["csv", "gedcom_551", "gedcom_7", "canonical_json"]);
 export const importModeSchema = z.enum(["demo", "real"]);
 export const importTreeOptionSchema = z.object({ id: z.string().uuid(), name: z.string().min(1).max(300) }).strict();
+export const importMappedFieldSchema = z.enum(["externalId", "displayName", "birthDate", "deathDate", "gender", "notes"]);
+export const importMappingSchema = z.object({
+  mappingVersion: z.string().trim().regex(/^structured-(csv|json)\/[1-9][0-9]*$/).max(100),
+  columns: z.record(z.string().trim().min(1).max(100), importMappedFieldSchema).refine((columns) => Object.keys(columns).length > 0 && Object.keys(columns).length <= 50),
+  dateInterpretation: z.enum(["explicit_only", "gregorian_dmy", "lunar_dmy"]),
+  sourceNamespace: z.string().trim().min(1).max(200),
+}).strict();
 export const importInputSchema = z.object({
   treeId: z.string().uuid(),
   assetId: z.string().uuid(),
   format: importFormatSchema,
   sourceNamespace: z.string().trim().min(1).max(200),
   mappingVersion: z.string().trim().min(1).max(100),
+  mapping: importMappingSchema.optional(),
   mode: importModeSchema,
-}).strict();
+}).strict().superRefine((value, context) => {
+  if (value.mapping && value.mapping.mappingVersion !== value.mappingVersion) {
+    context.addIssue({ code: "custom", path: ["mapping", "mappingVersion"], message: "Mapping version must match the import job version" });
+  }
+  if (value.mapping && value.mapping.sourceNamespace !== value.sourceNamespace) {
+    context.addIssue({ code: "custom", path: ["mapping", "sourceNamespace"], message: "Mapping namespace must match the import job namespace" });
+  }
+  if (value.format === "csv" && (!value.mapping || !value.mapping.mappingVersion.startsWith("structured-csv/"))) {
+    context.addIssue({ code: "custom", path: ["mapping"], message: "CSV imports require a versioned CSV mapping" });
+  }
+  if (value.format === "canonical_json" && value.mapping && !value.mapping.mappingVersion.startsWith("structured-json/")) {
+    context.addIssue({ code: "custom", path: ["mapping", "mappingVersion"], message: "JSON imports require a versioned JSON mapping" });
+  }
+});
 export const importJobStatusSchema = z.enum(["queued", "parsing", "needs_review", "ready", "applying", "partially_applied", "completed", "failed", "cancelled"]);
 export const importJobSchema = z.object({
   id: z.string().uuid(),

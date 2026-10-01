@@ -13,9 +13,11 @@
   "dependencies": {
     "@phan/contracts": "workspace:*",
     "@phan/lunar": "workspace:*",
+    "papaparse": "5.5.3",
     "zod": "4.1.5"
   },
   "devDependencies": {
+    "@types/papaparse": "5.3.16",
     "fast-check": "4.3.0",
     "vitest": "4.1.11"
   }

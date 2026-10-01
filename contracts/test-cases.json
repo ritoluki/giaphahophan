@@ -1391,8 +1391,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "CSV/JSON mapping có version và validation; unknown dates không bị đổi thành exact.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": ["2026-10-02 PASS local contract/domain validation: structured-csv/1 and structured-json/1 mappings are version-bound, CSV mapping required, quoted CSV parsed, malformed CSV rejected, duplicate column targets rejected, ISO/Gregorian DMY parsed only under explicit policy, approximate years retain about precision, ambiguous and lunar DMY dates retain unknown precision/original text. SQL fixture verifies mapping snapshot capability, persistence, idempotent replay, immutability and unauthorized denial. Mobile unauthenticated intake mapping controls E2E 3/3; full authenticated upload-to-staging integration and manual a11y remain NOT_RUN."]
     },
     {
       "id": "TC-M16-03",

@@ -13595,6 +13595,9 @@ components:
           - canonical_json
         sourceNamespace: *id002
         mappingVersion: *id002
+        mapping:
+          $ref: '#/components/schemas/MappingInput'
+          description: Required for CSV and mapped JSON; mappingVersion/sourceNamespace must match the enclosing import request.
         mode:
           type: string
           enum:
@@ -13653,10 +13656,16 @@ components:
       type: object
       additionalProperties: false
       properties:
-        mappingVersion: *id002
+        mappingVersion:
+          type: string
+          pattern: '^structured-(csv|json)/[1-9][0-9]*$'
         columns:
           type: object
-          additionalProperties: *id002
+          minProperties: 1
+          maxProperties: 50
+          additionalProperties:
+            type: string
+            enum: [externalId, displayName, birthDate, deathDate, gender, notes]
         dateInterpretation:
           type: string
           enum:

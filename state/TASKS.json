@@ -2382,9 +2382,9 @@
       "testIds": [
         "TC-M16-02"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["2026-10-02: M16-02 adds pinned Papaparse 5.5.3 (MIT), strict versioned CSV/JSON mapping contract, authenticated BFF parsing for CSV and mapped JSON, responsive mapping controls, structured JSON DB classification and immutable mapping snapshot storage with capability/audit checks. Local parser tests verify quoted CSV, version mismatch rejection, ambiguous date preservation, Gregorian DMY only under explicit mapping and malformed CSV rejection; lunar DMY is never guessed exact without leap evidence. PASS domain 90, contracts 61, workspace typecheck, lint (2 pre-existing warnings), build, verify, SQL M16 fixture (mapping attach/replay/immutability and unauthorized denial), and Playwright intake 3/3 with mapping controls on desktop/mobile/320. Authenticated browser upload→parse→stored-preview and manual a11y remain NOT_RUN; task remains IN_PROGRESS."]
     },
     {
       "id": "M16-03",

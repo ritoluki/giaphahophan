@@ -32,6 +32,22 @@ select * from api.import_source_context('b1630000-0000-4000-8000-000000000001') 
 select case when :'source_tree_id'='b1610000-0000-4000-8000-000000000001' and :'source_sha256'=repeat('a',64) then 1 else 1/0 end;
 select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-v1','v1','demo','b1640000-0000-4000-8000-000000000001',repeat('c',64)) \gset job_
 select case when :'job_status'='queued' and :'job_classification'='canonical' and :'job_file_sha256'=repeat('a',64) then 1 else 1/0 end;
+select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-v1','structured-json/1','demo','b1640000-0000-4000-8000-000000000007',repeat('d',64)) \gset structured_json_
+select case when :'structured_json_classification'='structured' then 1 else 1/0 end;
+select * from api.import_mapping_attach(:'structured_json_id'::uuid,
+  '{"mappingVersion":"structured-json/1","sourceNamespace":"synthetic-v1","dateInterpretation":"explicit_only","columns":{"id":"externalId","name":"displayName"}}'::jsonb) \gset mapping_
+select * from api.import_mapping_attach(:'structured_json_id'::uuid,
+  '{"mappingVersion":"structured-json/1","sourceNamespace":"synthetic-v1","dateInterpretation":"explicit_only","columns":{"id":"externalId","name":"displayName"}}'::jsonb) \gset mapping_replay_
+select case when :'mapping_version'=:'mapping_replay_version' then 1 else 1/0 end;
+select format('do $body$ begin begin perform * from api.import_mapping_attach(%L::uuid,%L::jsonb); raise exception ''mapping snapshot changed after attachment''; exception when sqlstate ''P0008'' then null; end; end $body$;',
+  :'structured_json_id', '{"mappingVersion":"structured-json/1","sourceNamespace":"synthetic-v1","dateInterpretation":"gregorian_dmy","columns":{"id":"externalId","name":"displayName"}}') \gexec
+reset role;
+select (select mapping_snapshot->>'mappingVersion'='structured-json/1' from private.import_jobs where id=:'structured_json_id'::uuid) as mapping_saved \gset mapping_snapshot_
+\if :mapping_snapshot_mapping_saved
+\else
+  \quit 1
+\endif
+set local role authenticated;
 select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-v1','v1','demo','b1640000-0000-4000-8000-000000000001',repeat('c',64)) \gset replay_
 select case when :'replay_id'=:'job_id' and :'replay_version'=:'job_version' then 1 else 1/0 end;
 select * from api.import_stage_rows(:'job_id'::uuid,
@@ -60,6 +76,8 @@ do $$ begin
   exception when insufficient_privilege then null;
   end;
 end $$;
+select format('do $body$ begin begin perform * from api.import_mapping_attach(%L::uuid,%L::jsonb); raise exception ''member without import grant attached mapping''; exception when insufficient_privilege then null; end; end $body$;',
+  :'structured_json_id', '{"mappingVersion":"structured-json/1","sourceNamespace":"synthetic-v1","dateInterpretation":"explicit_only","columns":{"id":"externalId","name":"displayName"}}') \gexec
 select format('do $body$ begin begin perform api.import_preview(%L::uuid); raise exception ''member without import grant could read preview''; exception when insufficient_privilege then null; end; end $body$;', :'job_id') \gexec
 reset role;
 select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000001',true);
