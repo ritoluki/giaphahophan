@@ -100,6 +100,7 @@ Canonical: `TASKS.json`. P0 đang có scaffold ứng dụng và foundation code;
 | M18-03 | P9 | Backup đầy đủ | M18-02 |  |
 | M18-04 | P9 | Monitoring/runbooks | M18-03 |  |
 | M18-05 | P9 | Chuẩn bị công cụ và checklist deployment gate | M18-04 |  |
+
 | M18-06 | P9 | Handover | M18-05 |  |
 | QA-ALL | P8 | Kiểm tra toàn bộ phạm vi bản 1 | M01-04, M02-04, M03-06, M04-06, M05-04, M06-04, M07-05, M08-05, M09-05, M10-06, M11-04, M12-04, M13-04, M14-05, M15-04, M16-06, M17-05 | H1 |
 | STAGE-01 | P9 | UAT và diễn tập restore trên staging | QA-ALL, M18-06 | H2, H3 |
@@ -127,3 +128,7 @@ M10-04 evidence (2026-09-28): occurrence overrides now preserve logical key and 
 - M11-01 evidence: local Supabase proves service_role-only outbox claim, retry after failure/lease and exactly-once publish transition; core DB mutation tests prove audit/outbox transaction evidence; worker tests 5/5 and typecheck PASS. pnpm test:auth was FAIL (BFF login 401) in the existing auth harness, separate from JOBS-01; staging/remote CI, axe/manual, real-device and production approval remain NOT_RUN.
 - M11-02 evidence: provider acceptance is reconciled by stable idempotency key before a second send; provider ID is persisted, duplicate local keys are rejected and missing provider IDs after acceptance are invalid. SQL 1/1, worker 4/4, contract 2/2 and full regression PASS; no real provider/email was used.
 - M11-03 evidence: preference policy suppresses non-opted-in, quiet-hour, unsubscribed, suppressed and revoked-consent sends; permitted sends require current consent at dispatch time. Worker 4/4, contract 2/2 and full regression PASS; no real provider/email or UI changed.
+
+## Current implementation follow-up — 2026-10-02
+
+M16-02: optional CSV/JSON date, sex and notes mapping inputs now start blank and are only attached when selected; unmapped fields remain in private raw staging. Authenticated local browser/API upload→preview and desktop/Pixel 5/320px intake checks PASS. M16-04 remains IN_PROGRESS: stable external IDs and content-key replay PASS locally, while canonical apply/edge mapping, full accessibility, staging and production gates remain NOT_RUN.

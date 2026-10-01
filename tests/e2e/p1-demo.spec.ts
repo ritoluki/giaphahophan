@@ -212,6 +212,10 @@ test("import intake keeps demo-only safeguards and remains mobile-sized without 
   expect(previewResponse.body).not.toContain("sampleRows");
   await page.getByLabel("Định dạng").selectOption("csv");
   await expect(page.getByLabel("Tiêu đề cột mã nguồn")).toBeVisible();
+  await expect(page.locator("#mapping-birth-date")).toHaveValue("");
+  await expect(page.locator("#mapping-death-date")).toHaveValue("");
+  await expect(page.locator("#mapping-gender")).toHaveValue("");
+  await expect(page.locator("#mapping-notes")).toHaveValue("");
   await expect(page.getByLabel("Tiêu đề cột ngày sinh (không bắt buộc)")).toBeVisible();
   await expect(page.getByLabel("Tiêu đề cột ngày mất (không bắt buộc)")).toBeVisible();
   await expect(page.getByLabel("Tiêu đề cột giới tính ghi nhận (không bắt buộc)")).toBeVisible();

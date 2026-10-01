@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import { chromium } from "@playwright/test";
 
 const container = "supabase_db_phan-gia-pha-local";
-const webUrl = process.env.TEST_WEB_URL || "http://127.0.0.1:3123";
+const webUrl = process.env.TEST_WEB_URL || "http://localhost:3123";
 
 function localEnv() {
   const result = spawnSync(process.env.ComSpec || "cmd.exe", ["/d", "/s", "/c", "pnpm.cmd exec supabase status -o env"], { encoding: "utf8", windowsHide: true });
@@ -158,6 +158,9 @@ try {
     await page.waitForFunction((id) => Array.from(document.querySelectorAll("#import-tree option")).some((option) => option.value === id), treeId);
     await treeSelect.selectOption(treeId);
     await page.getByLabel("Định dạng").selectOption("csv");
+    assert((await page.locator("#mapping-death-date").inputValue()) === "" &&
+      (await page.locator("#mapping-gender").inputValue()) === "" &&
+      (await page.locator("#mapping-notes").inputValue()) === "", "optional source mappings should start unmapped");
     await page.getByLabel("Tiêu đề cột mã nguồn").fill("id");
     await page.getByLabel("Tiêu đề cột họ tên").fill("name");
     await page.getByLabel("Tiêu đề cột ngày sinh (không bắt buộc)").fill("birth");
@@ -171,8 +174,9 @@ try {
     const uploadIntentBody = await uploadIntent.json();
     if (typeof uploadIntentBody?.data?.assetId === "string") assetIds.push(uploadIntentBody.data.assetId);
     const browserImport = await importPromise;
-    assert(browserImport.status() === 202, `authenticated browser import failed (${browserImport.status()})`);
-    const browserJob = await browserImport.json();
+    const browserImportBody = await browserImport.json();
+    assert(browserImport.status() === 202, `authenticated browser import failed (${browserImport.status()}, ${browserImportBody?.data?.code ?? "no code"})`);
+    const browserJob = browserImportBody;
     if (typeof browserJob?.data?.id === "string") jobIds.push(browserJob.data.id);
     await page.getByRole("heading", { name: "Kết quả dry-run" }).waitFor({ state: "visible", timeout: 15_000 });
     assert((await page.locator(".import-result").innerText()).includes("Fictional Gia đình"), "browser did not render the persisted mapped preview row");
