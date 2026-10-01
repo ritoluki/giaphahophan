@@ -16,7 +16,7 @@ export default defineConfig({
     video: "retain-on-failure"
   },
   webServer: {
-    command: "node server.js",
+    command: "node --env-file-if-exists=../../../../.env.local server.js",
     cwd: "apps/web/.next/standalone/apps/web",
     url: "http://127.0.0.1:3000",
     timeout: 120_000,

@@ -50,6 +50,14 @@ export function hasAllowedMagic(bytes: Uint8Array, mimeType: string) {
   if (mimeType === "image/png") return equalsAt(bytes, 0, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
   if (mimeType === "image/webp") return equalsAt(bytes, 0, [0x52, 0x49, 0x46, 0x46]) && equalsAt(bytes, 8, [0x57, 0x45, 0x42, 0x50]);
   if (mimeType === "application/pdf") return new TextDecoder().decode(bytes.slice(0, 5)) === "%PDF-";
+  if (mimeType === "application/json" || mimeType === "text/csv") {
+    try {
+      const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      return !text.includes("\u0000");
+    } catch {
+      return false;
+    }
+  }
   if (mimeType === "audio/mpeg") {
     return new TextDecoder().decode(bytes.slice(0, 3)) === "ID3" ||
       (bytes.length > 1 && bytes[0] === 0xff && bytes[1] !== undefined && (bytes[1] & 0xe0) === 0xe0);

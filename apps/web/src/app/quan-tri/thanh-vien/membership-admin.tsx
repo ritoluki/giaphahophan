@@ -34,7 +34,8 @@ const capabilities = [
   "privacy.manage",
   "exports.bulk",
   "publication.manage",
-  "operations.read"
+  "operations.read",
+  "imports.manage"
 ] as const;
 
 async function readApi(path: string, init?: RequestInit) {

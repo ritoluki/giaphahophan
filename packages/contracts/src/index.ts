@@ -262,7 +262,7 @@ export const mediaStateSchema = z.enum([
 
 export const mediaMimeTypeSchema = z.enum([
   "image/jpeg", "image/png", "image/webp", "application/pdf",
-  "audio/mpeg", "audio/mp4", "video/mp4"
+  "audio/mpeg", "audio/mp4", "video/mp4", "application/json", "text/csv"
 ]);
 
 export const mediaPurposeSchema = z.enum(["portrait", "source", "album", "import", "receipt", "scholarship"]);
@@ -286,7 +286,11 @@ export const mediaUploadInputSchema = z.object({
   sha256: z.string().regex(/^[a-f0-9]{64}$/),
   purpose: mediaPurposeSchema,
   visibility: mediaVisibilitySchema
-}).strict();
+}).strict().superRefine((value, context) => {
+  if ((value.mimeType === "application/json" || value.mimeType === "text/csv") && value.purpose !== "import") {
+    context.addIssue({ code: "custom", path: ["purpose"], message: "Structured source MIME types are reserved for imports" });
+  }
+});
 
 export const mediaUploadIntentSchema = z.object({
   assetId: z.string().uuid(),
@@ -582,6 +586,9 @@ export type FundAccount = z.infer<typeof fundAccountSchema>;
 export type JournalLineInput = z.infer<typeof journalLineInputSchema>;
 export type JournalInput = z.infer<typeof journalInputSchema>;
 export type FundRecord = z.infer<typeof fundSchema>;
+export type ImportInput = z.infer<typeof importInputSchema>;
+export type ImportJobRecord = z.infer<typeof importJobSchema>;
+export type ImportPreviewRecord = z.infer<typeof importPreviewSchema>;
 export type ReportRecord = z.infer<typeof reportSchema>;
 export type JournalRecord = z.infer<typeof journalSchema>;
 export type ReconciliationRecord = z.infer<typeof reconciliationSchema>;
@@ -811,7 +818,7 @@ export const mfaStatusSchema = z.object({
 export const membershipGrantSchema = z.object({
   id: z.string().uuid(),
   version: z.number().int().positive(),
-  capability: z.enum(["treasury.write", "treasury.approve", "scholarship.review", "privacy.manage", "exports.bulk", "publication.manage", "operations.read"]),
+  capability: z.enum(["treasury.write", "treasury.approve", "scholarship.review", "privacy.manage", "exports.bulk", "publication.manage", "operations.read", "imports.manage"]),
   branchId: z.string().uuid().nullable(),
   expiresAt: z.string().min(1).max(64).nullable(),
   revokedAt: z.string().min(1).max(64).nullable()
@@ -835,7 +842,7 @@ export const memberInputSchema = z.object({
 }).strict();
 
 export const grantInputSchema = z.object({
-  capability: z.enum(["treasury.write", "treasury.approve", "scholarship.review", "privacy.manage", "exports.bulk", "publication.manage", "operations.read"]),
+  capability: z.enum(["treasury.write", "treasury.approve", "scholarship.review", "privacy.manage", "exports.bulk", "publication.manage", "operations.read", "imports.manage"]),
   branchId: z.string().uuid().nullable(),
   expiresAt: z.string().min(1).max(64).nullable()
 }).strict();
@@ -990,6 +997,45 @@ export const notificationSendContextSchema = z.object({
 }).strict();
 
 
+export const importFormatSchema = z.enum(["csv", "gedcom_551", "gedcom_7", "canonical_json"]);
+export const importModeSchema = z.enum(["demo", "real"]);
+export const importTreeOptionSchema = z.object({ id: z.string().uuid(), name: z.string().min(1).max(300) }).strict();
+export const importInputSchema = z.object({
+  treeId: z.string().uuid(),
+  assetId: z.string().uuid(),
+  format: importFormatSchema,
+  sourceNamespace: z.string().trim().min(1).max(200),
+  mappingVersion: z.string().trim().min(1).max(100),
+  mode: importModeSchema,
+}).strict();
+export const importJobStatusSchema = z.enum(["queued", "parsing", "needs_review", "ready", "applying", "partially_applied", "completed", "failed", "cancelled"]);
+export const importJobSchema = z.object({
+  id: z.string().uuid(),
+  version: z.number().int().positive(),
+  kind: z.literal("import"),
+  status: importJobStatusSchema,
+  counters: z.object({ processed: z.number().int().nonnegative(), succeeded: z.number().int().nonnegative(), failed: z.number().int().nonnegative(), skipped: z.number().int().nonnegative() }).strict(),
+  warnings: z.array(z.string().max(1000)),
+  errorCode: z.string().max(200).nullable(),
+  expiresAt: z.string().datetime({ offset: true }).nullable(),
+  treeId: z.string().uuid(),
+  sourceAssetId: z.string().uuid(),
+  fileSha256: z.string().regex(/^[a-f0-9]{64}$/),
+  format: importFormatSchema,
+  sourceNamespace: z.string().min(1),
+  mappingVersion: z.string().min(1),
+  classification: z.enum(["structured", "gedcom", "canonical"]),
+}).strict();
+export const importPreviewSchema = z.object({
+  jobId: z.string().uuid(),
+  version: z.number().int().positive(),
+  snapshotHash: z.string().regex(/^[a-f0-9]{64}$/),
+  valid: z.number().int().nonnegative(),
+  invalid: z.number().int().nonnegative(),
+  possibleDuplicates: z.number().int().nonnegative(),
+  warnings: z.array(z.string().max(1000)),
+  sampleRows: z.array(z.object({ rowNumber: z.number().int().positive(), externalId: z.string().max(300), displayName: z.string().max(300), status: z.enum(["valid", "invalid", "review"]), errors: z.array(z.string().max(1000)) }).strict()).max(50),
+}).strict();
 export const jobStatusSchema = z.enum(["queued", "processed", "succeeded", "failed", "skipped"]);
 export const jobCountersSchema = z.object({
   queued: z.number().int().nonnegative(),

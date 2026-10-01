@@ -1373,8 +1373,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Original checksum và classification; parser staging chưa ghi canonical; counts/warnings/source links đúng.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": ["2026-10-02 PASS local pnpm test:m16:import on Supabase Docker synthetic transaction: import-only JSON MIME validation, source checksum/classification, ordinary-member denial before grant, owner/admin AAL2 imports.manage grant/idempotent replay, granted source-context access, non-admin/AAL1 grant denial, demo-only real-mode denial, three staged states/counters and canonical person count unchanged. Authenticated user-scoped storage BFF and SCR-32 intake UI implemented. PASS contracts 60/60, domain 88/88, web 6/6, typecheck/build/verify/OpenAPI parse, lint (2 existing warnings), Playwright 57/57 desktop/Pixel5/320. Authenticated upload-to-import HTTP integration, persistent preview read/row review, full a11y/real-device remain NOT_RUN."]
     },
     {
       "id": "TC-M16-02",

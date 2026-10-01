@@ -190,6 +190,17 @@ test("membership administration exposes restricted state without a session", asy
   await expect(page.locator(".admin-restricted")).toBeVisible();
 });
 
+test("import intake keeps demo-only safeguards and remains mobile-sized without capability", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 844 });
+  await page.goto("/quan-tri/nhap-lieu");
+  await expect(page.locator(".import-page h1")).toBeVisible();
+  await expect(page.getByLabel("Cây gia phả được cấp quyền")).toBeDisabled();
+  await expect(page.getByLabel("Tệp JSON · tối đa 10 MiB")).toBeVisible();
+  await expect(page.getByText(/Dữ liệu thật đang bị khóa/)).toBeVisible();
+  await expect(page.locator(".import-form [role=alert]")).toContainText("imports.manage");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
 test("password recovery keeps enumeration-safe and reset states usable on mobile", async ({ page }) => {
   await page.goto("/quen-mat-khau");
   await expect(page.locator("#recovery-email")).toBeVisible();

@@ -19,14 +19,16 @@ export async function POST(request: Request, context: RouteContext) {
   const client = await createRequestSupabaseClient();
   if (!(await getVerifiedUser(client))) return apiJson({ code: "AUTH_REQUIRED", message: "A verified session is required" }, 401);
 
-  const { data, error } = await client.schema("api").rpc("membership_grant_create", {
+  const rpc = input.capability === "imports.manage" ? "import_grant_create" : "membership_grant_create";
+  const parameters = {
     p_membership_id: parsedId.data,
-    p_capability: input.capability,
+    ...(input.capability === "imports.manage" ? {} : { p_capability: input.capability }),
     p_branch_id: input.branchId,
     p_expires_at: input.expiresAt,
     p_idempotency_key: idempotencyKey.data,
     p_request_hash: createRequestHash({ ...input, membershipId: parsedId.data })
-  });
+  };
+  const { data, error } = await client.schema("api").rpc(rpc, parameters);
   if (error) return apiJson({ code: "GRANT_CREATE_FAILED", message: "Capability grant was not accepted" }, rpcErrorStatus(error.code));
   const row = Array.isArray(data) ? data[0] : data;
   if (!row) return apiJson({ code: "GRANT_EMPTY_RESPONSE", message: "Grant response was empty" }, 502);

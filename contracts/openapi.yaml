@@ -7258,16 +7258,14 @@ paths:
                 properties:
                   data:
                     type: array
+                    maxItems: 100
                     items:
-                      $ref: '#/components/schemas/Job'
+                      $ref: '#/components/schemas/ImportTreeOption'
                   meta:
                     $ref: '#/components/schemas/Meta'
-                  page:
-                    $ref: '#/components/schemas/Page'
                 required:
                 - data
                 - meta
-                - page
         '400':
           description: Request sai
           content:
@@ -7330,8 +7328,7 @@ paths:
       tags:
       - ImportExport
       summary: /imports
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Parse source canonical JSON từ private storage, kiểm tra checksum/capability/idempotency rồi lưu dry-run vào private staging; chỉ mode demo khi chưa có H5.
       security:
       - sessionCookie: []
       responses:
@@ -7344,7 +7341,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/Job'
+                    $ref: '#/components/schemas/ImportJob'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -12695,7 +12692,9 @@ components:
           - rejected
           - failed
           - quarantined
-        mimeType: *id002
+        mimeType:
+          type: string
+          enum: [image/jpeg, image/png, image/webp, application/pdf, audio/mpeg, audio/mp4, video/mp4, application/json, text/csv]
         sizeBytes: *id008
         visibility:
           type: string
@@ -12719,7 +12718,9 @@ components:
         filename:
           type: string
           maxLength: 255
-        mimeType: *id002
+        mimeType:
+          type: string
+          enum: [image/jpeg, image/png, image/webp, application/pdf, audio/mpeg, audio/mp4, video/mp4, application/json, text/csv]
         sizeBytes:
           type: integer
           minimum: 1
@@ -12750,6 +12751,27 @@ components:
       - sha256
       - purpose
       - visibility
+      allOf:
+      - if:
+          properties:
+            purpose:
+              const: import
+        then:
+          properties:
+            mimeType:
+              enum: [application/json, text/csv, image/jpeg, image/png, image/webp, application/pdf, audio/mpeg, audio/mp4, video/mp4]
+            sizeBytes:
+              maximum: 10485760
+      - if:
+          properties:
+            purpose:
+              not:
+                const: import
+        then:
+          properties:
+            mimeType:
+              not:
+                enum: [application/json, text/csv]
     UploadIntent:
       type: object
       additionalProperties: false
@@ -13548,10 +13570,21 @@ components:
       - warnings
       - errorCode
       - expiresAt
+    ImportTreeOption:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id001
+        name:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required: [id, name]
     ImportInput:
       type: object
       additionalProperties: false
       properties:
+        treeId: *id001
         assetId: *id001
         format:
           type: string
@@ -13568,11 +13601,54 @@ components:
           - demo
           - real
       required:
+      - treeId
       - assetId
       - format
       - sourceNamespace
       - mappingVersion
       - mode
+    ImportJob:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id001
+        version: *id008
+        kind:
+          type: string
+          const: import
+        status:
+          type: string
+          enum: [queued, parsing, needs_review, ready, applying, partially_applied, completed, failed, cancelled]
+        counters:
+          type: object
+          additionalProperties: false
+          properties:
+            processed: *id008
+            succeeded: *id008
+            failed: *id008
+            skipped: *id008
+          required: [processed, succeeded, failed, skipped]
+        warnings:
+          type: array
+          items: *id002
+        errorCode:
+          anyOf: [*id002, { type: 'null' }]
+        expiresAt:
+          anyOf: [*id006, { type: 'null' }]
+        treeId: *id001
+        sourceAssetId: *id001
+        fileSha256:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+        format:
+          type: string
+          enum: [csv, gedcom_551, gedcom_7, canonical_json]
+        sourceNamespace: *id002
+        mappingVersion: *id002
+        classification:
+          type: string
+          enum: [structured, gedcom, canonical]
+      required: [id, version, kind, status, counters, warnings, errorCode, expiresAt, treeId, sourceAssetId, fileSha256, format, sourceNamespace, mappingVersion, classification]
     MappingInput:
       type: object
       additionalProperties: false
