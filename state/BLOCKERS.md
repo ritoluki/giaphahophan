@@ -92,3 +92,5 @@ Agent ghi blocker thực theo mẫu: bằng chứng, nguyên nhân giả thuyế
 
 
 | M15-04 | Staging/remote CI, axe/manual accessibility, real-device validation, authenticated cloud wiring and production approval remain NOT_RUN; no real scholarship, donor, child or financial data used | M15-04 release/accessibility/cloud gates | Local synthetic report DB/API/BFF/domain/contract/UI evidence PASS; continue M16-01 without owner action |
+
+| M16-01 | Authenticated browser upload→import against the local user session/storage path and full manual/automated accessibility audit remain NOT_RUN; local SQL security fixture and unauthenticated preview/error E2E pass | M16-01 final acceptance | Continue M16-02 contract/parser work and local integration coverage with synthetic data; no owner action yet. Real family data remains gated by H5; cloud/staging/production remain gated by H2/H4. |
