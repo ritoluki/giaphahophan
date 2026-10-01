@@ -18,12 +18,17 @@ insert into auth.users(instance_id,id,aud,role,email,encrypted_password,email_co
 values ('00000000-0000-0000-0000-000000000000','b1600000-0000-4000-8000-000000000001','authenticated','authenticated','m16-owner@example.test','',clock_timestamp(),clock_timestamp(),clock_timestamp(),'{}','{}'),
        ('00000000-0000-0000-0000-000000000000','b1600000-0000-4000-8000-000000000002','authenticated','authenticated','m16-member@example.test','',clock_timestamp(),clock_timestamp(),clock_timestamp(),'{}','{}');
 insert into private.trees(id,created_by,slug,name,data_mode)
-values('b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001','m16-import-test','Synthetic M16 Import','demo');
+values('b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001','m16-import-test','Synthetic M16 Import','demo'),
+      ('b1610000-0000-4000-8000-000000000002','b1600000-0000-4000-8000-000000000001','m16-import-real-test','Synthetic M16 Real-Mode Guard','real');
 insert into private.memberships(id,tree_id,created_by,auth_user_id,role,status,approved_by)
 values ('b1620000-0000-4000-8000-000000000001','b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001','owner','active','b1600000-0000-4000-8000-000000000001'),
-       ('b1620000-0000-4000-8000-000000000002','b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000002','member','active','b1600000-0000-4000-8000-000000000001');
+       ('b1620000-0000-4000-8000-000000000002','b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000002','member','active','b1600000-0000-4000-8000-000000000001'),
+       ('b1620000-0000-4000-8000-000000000003','b1610000-0000-4000-8000-000000000002','b1600000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001','owner','active','b1600000-0000-4000-8000-000000000001');
+insert into private.capability_grants(tree_id,created_by,membership_id,capability)
+values('b1610000-0000-4000-8000-000000000002','b1600000-0000-4000-8000-000000000001','b1620000-0000-4000-8000-000000000003','imports.manage');
 insert into private.media_assets(id,tree_id,created_by,filename,declared_mime,mime_type,size_bytes,actual_size_bytes,expected_sha256,actual_sha256,purpose,visibility,state,object_path)
-values('b1630000-0000-4000-8000-000000000001','b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001','synthetic.json','application/json','application/json',128,128,repeat('a',64),repeat('a',64),'import','restricted','ready','synthetic/m16/intake.json');
+values('b1630000-0000-4000-8000-000000000001','b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001','synthetic.json','application/json','application/json',128,128,repeat('a',64),repeat('a',64),'import','restricted','ready','synthetic/m16/intake.json'),
+      ('b1630000-0000-4000-8000-000000000002','b1610000-0000-4000-8000-000000000002','b1600000-0000-4000-8000-000000000001','synthetic-real.json','application/json','application/json',128,128,repeat('b',64),repeat('b',64),'import','restricted','ready','synthetic/m16/real-intake.json');
 select count(*) as person_count from private.persons where tree_id='b1610000-0000-4000-8000-000000000001' \gset before_
 
 select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000001',true);
@@ -34,6 +39,38 @@ select count(*)=1 as authorized_tree_list from api.import_tree_list() \gset tree
 \else
   \quit 1
 \endif
+select (not private.import_storage_select_allowed('synthetic/m16/real-intake.json')
+  and private.import_storage_select_allowed('synthetic/m16/intake.json')) as storage_mode_isolated \gset storage_guard_
+\if :storage_guard_storage_mode_isolated
+\else
+  \quit 1
+\endif
+do $$ begin
+  begin
+    perform * from api.import_create('b1610000-0000-4000-8000-000000000002','b1630000-0000-4000-8000-000000000002','canonical_json','synthetic-real','v1','demo','b1640000-0000-4000-8000-000000000099',repeat('9',64));
+    raise exception 'demo import was accepted for a real-mode tree with imports.manage';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform * from api.import_source_context('b1630000-0000-4000-8000-000000000002');
+    raise exception 'real-mode source context was accepted';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+reset role;
+select (select count(*)=0 from private.import_jobs where tree_id='b1610000-0000-4000-8000-000000000002') as real_tree_has_no_import_jobs \gset real_guard_
+\if :real_guard_real_tree_has_no_import_jobs
+\else
+  \quit 1
+\endif
+do $$ begin
+  begin
+    insert into private.import_jobs(tree_id,created_by,source_asset_id,file_sha256,format,source_namespace,mapping_version,parser_version,classification,manifest)
+    values('b1610000-0000-4000-8000-000000000002','b1600000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000002',repeat('b',64),'canonical_json','synthetic-real','v1','fixture/1','canonical','{"mode":"demo"}'::jsonb);
+    raise exception 'import table trigger accepted a real-mode tree';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
 select * from api.import_source_context('b1630000-0000-4000-8000-000000000001') \gset source_
 select case when :'source_tree_id'='b1610000-0000-4000-8000-000000000001' and :'source_sha256'=repeat('a',64) then 1 else 1/0 end;
 select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-v1','v1','demo','b1640000-0000-4000-8000-000000000001',repeat('c',64)) \gset job_

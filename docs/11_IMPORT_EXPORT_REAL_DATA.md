@@ -43,6 +43,10 @@ Agent tạo fixture từ nguồn chuẩn và từ hai phần mềm nguồn mở 
 7. **Apply:** xác thực lại quyền, base snapshot/version, idempotency; ghi theo manifest; outbox cho indexing/projection, không email hàng loạt mặc định.
 8. **Reconcile:** kiểm tra counts, số cạnh, roots, người chưa nối, sampled citations và kiểm tra riêng tư; xuất report. Chỉ hoàn thành khi mismatch được giải thích.
 
+### Gate dữ liệu demo/thật đang áp dụng
+
+Import hiện chỉ chạy trên cây có `trees.data_mode='demo'`; client gửi `mode='demo'` không thể biến cây `real` thành đích demo. Gate được kiểm tra trong API trước cả replay, ở trigger DB cho `import_jobs`/`import_rows`, khi đọc source/preview/mapping và khi cấp danh sách cây; policy Storage cũng chỉ cho đọc nguồn import của cây demo. Migration `0057_m16_demo_tree_guard.sql` đã được kiểm thử trên Supabase local với cây synthetic `real` có `imports.manage`. Import cây thật vẫn khóa đến khi có H5; chưa có API để bật gate này và không được hiểu lần kiểm thử local là approval dữ liệu thật.
+
 ## Idempotency và batch lớn
 
 Khóa import = tree + source file SHA-256 + mapping version + import mode. Mỗi source row có external_id_map unique theo tree/namespace/external ID/entity kind, không gán lại UUID mỗi lần retry. M16-04 hiện reserve map private trong lúc staging; đây chưa phải canonical apply. Apply lần hai cùng input phải không nhân đôi dữ liệu.

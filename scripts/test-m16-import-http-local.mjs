@@ -130,6 +130,8 @@ try {
   assert(stableMapAfter.status === 0 && stableMapAfter.stdout.trim() === stableMapBefore.stdout.trim(), "content-key replay changed the stable canonical UUID reservations");
   const gedcomProof = runPsql(`select (j.classification='gedcom' and j.format='gedcom_551' and r.normalized #>> '{birthDate,precision}'='about' and r.raw_payload->'gedcom' is not null) from private.import_jobs j join private.import_rows r on r.job_id=j.id where j.id=${sqlString(gedcomJob.jobId)} and r.row_number=1;`, true);
   assert(gedcomProof.status === 0 && gedcomProof.stdout.trim() === "t", "GEDCOM format, date precision, or raw source preservation did not persist");
+  const relationshipReviewProof = runPsql(`select (count(*)=2 and bool_and(r.status='review' and r.errors @> '["relationship_mapping_requires_review"]'::jsonb)) from private.import_rows r where r.job_id=${sqlString(gedcomJob.jobId)};`, true);
+  assert(relationshipReviewProof.status === 0 && relationshipReviewProof.stdout.trim() === "t", "GEDCOM relationship source and target records were not both persisted as review-only");
   const gedcom7Bytes = Buffer.from("0 HEAD\n1 SOUR FamilySearch\n1 GEDC\n2 VERS 7.0.16\n1 CHAR UTF-8\n0 @I7@ INDI\n1 NAME Fictional Seven /Nguyen/\n1 BIRT\n2 DATE @#DJULIAN@ 3 MAR 1900\n1 _PHAN_LUNAR_DATE 12/03/Canh Ty\n0 TRLR\n", "utf8");
   const gedcom7Job = await uploadAndImport({
     filename: "synthetic-family-v7.ged", mimeType: "text/plain", bytes: gedcom7Bytes, format: "gedcom_7",
@@ -196,7 +198,7 @@ try {
     assert(proof.status === 0 && proof.stdout.trim() === "t", "persisted date precision or mapping snapshot did not match the dry-run");
   }
 
-  console.log("PASS local M16 authenticated browser/HTTP: synthetic BFF login, private JSON/CSV/GEDCOM 5.5.1/7 upload/finalize, checksum-verified dry-run, stable external UUID mapping/content-key replay, GEDCOM conformance/date/raw preservation and capability-scoped persisted preview");
+  console.log("PASS local M16 authenticated browser/HTTP: synthetic BFF login, private JSON/CSV/GEDCOM 5.5.1/7 upload/finalize, checksum-verified dry-run, stable external UUID mapping/content-key replay, GEDCOM relationship endpoints persisted as review, conformance/date/raw preservation and capability-scoped persisted preview");
 } finally {
   if (treeId) {
     for (const assetId of assetIds) {

@@ -12,4 +12,4 @@ if (result.status !== 0) {
   process.stderr.write(result.stderr || "local M16 import staging fixture failed\n");
   process.exit(result.status ?? 1);
 }
-console.log("PASS local M16-01/02/04: private import-only MIME, capability grant/idempotency, immutable mapping snapshot, persisted redacted preview, stable external-ID UUID reservation/replay, dry-run counts and canonical projection unchanged; real-data mode denied");
+console.log("PASS local M16-01/02/04: private import-only MIME, capability grant/idempotency, immutable mapping snapshot, persisted redacted preview, stable external-ID UUID reservation/replay, dry-run counts and canonical projection unchanged; real mode denied by API and DB tree guards");
