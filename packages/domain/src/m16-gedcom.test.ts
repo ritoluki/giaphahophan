@@ -6,9 +6,12 @@ const fixture = (version: "5.5.1" | "7.0", date = "ABT 1901") => `0 HEAD\n1 SOUR
 describe("M16 bounded GEDCOM 5.5.1/7 subset import", () => {
   it.each(["5.5.1", "7.0"] as const)("recognizes version %s and stages linked records without inferring spouse gender", (version) => {
     const result = dryRunGedcomImport(fixture(version));
-    expect(result).toMatchObject({ version, parserVersion: "gedcom-subset/1", valid: 3, invalid: 0 });
+    expect(result).toMatchObject({ version, parserVersion: "gedcom-subset/1", valid: 0, invalid: 0 });
     expect(result?.records[0]?.normalized).toMatchObject({ displayName: "An Nguyen", sex: "U", birthDate: { precision: "about", year: 1901 }, familyChildRefs: [{ xref: "F1" }] });
     expect(result?.records[2]?.normalized).toMatchObject({ partnerRefs: [{ sourceTag: "HUSB", xref: "I1" }], childRefs: ["I2"] });
+    expect(result?.rows.slice(0, 3).map((row) => row.status)).toEqual(["review", "review", "review"]);
+    expect(result?.rows[0]?.errors).toContain("relationship_mapping_requires_review");
+    expect(result?.warnings).toContain("relationship_mapping_requires_review");
     expect(result?.records[0]?.raw).toContain("1 _PHAN_LUNAR_DATE 12/03/Canh Ty");
     expect(result?.records[3]?.raw).toContain("0 @N1@ NOTE Standalone private note");
     expect(result?.rows[3]).toMatchObject({ status: "review", errors: ["record_type_preserved_for_review"] });
@@ -40,7 +43,7 @@ describe("M16 bounded GEDCOM 5.5.1/7 subset import", () => {
 
   it("puts unresolved relationship pointers into review instead of dropping the edge", () => {
     const result = dryRunGedcomImport("0 HEAD\n1 GEDC\n2 VERS 5.5.1\n0 @I1@ INDI\n1 NAME An /Nguyen/\n1 FAMC @MISSING@\n0 TRLR");
-    expect(result?.rows[0]).toMatchObject({ status: "review", errors: ["unresolved_relationship_reference"] });
+    expect(result?.rows[0]).toMatchObject({ status: "review", errors: ["relationship_mapping_requires_review", "unresolved_relationship_reference"] });
     expect(result?.records[0]?.normalized.familyChildRefs).toEqual([{ xref: "MISSING", pedigree: null, status: null }]);
   });
 });

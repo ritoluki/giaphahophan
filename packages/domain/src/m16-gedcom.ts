@@ -142,9 +142,14 @@ export function dryRunGedcomImport(input: string): GedcomDryRun | null {
   }
   const idSet = new Set(records.map((record) => record.xref));
   const brokenRefs = new Map<string, string[]>();
+  const relationshipReviewIds = new Set<string>();
   for (const record of records) for (const line of record.raw) {
     const match = /^\d+ (?:FAMC|FAMS|HUSB|WIFE|CHIL) @([^@]+)@/.exec(line);
-    if (match && !idSet.has(match[1]!)) brokenRefs.set(record.xref, [...(brokenRefs.get(record.xref) ?? []), "unresolved_relationship_reference"]);
+    if (match) {
+      relationshipReviewIds.add(record.xref);
+      if (idSet.has(match[1]!)) relationshipReviewIds.add(match[1]!);
+      else brokenRefs.set(record.xref, [...(brokenRefs.get(record.xref) ?? []), "unresolved_relationship_reference"]);
+    }
   }
   const conformance = {
     supported: [...supported].sort().slice(0, MAX_REPORTED_TAGS),
@@ -157,14 +162,15 @@ export function dryRunGedcomImport(input: string): GedcomDryRun | null {
     ...(unsupported.size ? ["known_but_unmapped_structures_preserved_for_review"] : []),
     ...(reportTruncated ? ["gedcom_conformance_tag_list_truncated_to_200"] : []),
     ...(brokenRefs.size ? ["unresolved_relationship_references_require_review"] : []),
+    ...(relationshipReviewIds.size ? ["relationship_mapping_requires_review"] : []),
     ...(records.some((record) => record.raw.some((line) => /\s_PHAN_LUNAR_DATE(?:\s|$)/.test(line))) ? [] : ["lunar_calendar_sidecar_not_present"]),
     "privacy_defaults_to_restricted; no GEDCOM note or media path is published",
   ];
   const rows = records.map((record, index) => ({
     rowNumber: index + 1, externalId: record.xref,
     displayName: typeof record.normalized.displayName === "string" && record.normalized.displayName ? record.normalized.displayName : `(Bản ghi ${record.xref})`,
-    status: record.tag !== "INDI" && record.tag !== "FAM" || record.tag === "INDI" && !record.normalized.displayName || brokenRefs.has(record.xref) ? "review" as const : "valid" as const,
-    errors: [...(record.tag === "INDI" && !record.normalized.displayName ? ["name_missing_review_required"] : []), ...(record.tag !== "INDI" && record.tag !== "FAM" ? ["record_type_preserved_for_review"] : []), ...(brokenRefs.get(record.xref) ?? [])],
+    status: record.tag !== "INDI" && record.tag !== "FAM" || record.tag === "INDI" && !record.normalized.displayName || brokenRefs.has(record.xref) || relationshipReviewIds.has(record.xref) ? "review" as const : "valid" as const,
+    errors: [...(record.tag === "INDI" && !record.normalized.displayName ? ["name_missing_review_required"] : []), ...(record.tag !== "INDI" && record.tag !== "FAM" ? ["record_type_preserved_for_review"] : []), ...(relationshipReviewIds.has(record.xref) ? ["relationship_mapping_requires_review"] : []), ...(brokenRefs.get(record.xref) ?? [])],
     rawPayload: { gedcom: record.raw }, normalized: record.normalized,
   }));
   return {
