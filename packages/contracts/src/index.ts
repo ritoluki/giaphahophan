@@ -262,7 +262,7 @@ export const mediaStateSchema = z.enum([
 
 export const mediaMimeTypeSchema = z.enum([
   "image/jpeg", "image/png", "image/webp", "application/pdf",
-  "audio/mpeg", "audio/mp4", "video/mp4", "application/json", "text/csv"
+  "audio/mpeg", "audio/mp4", "video/mp4", "application/json", "text/csv", "text/plain"
 ]);
 
 export const mediaPurposeSchema = z.enum(["portrait", "source", "album", "import", "receipt", "scholarship"]);
@@ -287,7 +287,7 @@ export const mediaUploadInputSchema = z.object({
   purpose: mediaPurposeSchema,
   visibility: mediaVisibilitySchema
 }).strict().superRefine((value, context) => {
-  if ((value.mimeType === "application/json" || value.mimeType === "text/csv") && value.purpose !== "import") {
+  if ((value.mimeType === "application/json" || value.mimeType === "text/csv" || value.mimeType === "text/plain") && value.purpose !== "import") {
     context.addIssue({ code: "custom", path: ["purpose"], message: "Structured source MIME types are reserved for imports" });
   }
 });

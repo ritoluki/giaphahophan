@@ -29,7 +29,7 @@ export function ImportIntake() {
   const [loadingTrees, setLoadingTrees] = useState(true);
   const [sourceNamespace, setSourceNamespace] = useState("family-records");
   const [file, setFile] = useState<File | null>(null);
-  const [format, setFormat] = useState<"canonical_json" | "structured_json" | "csv">("canonical_json");
+  const [format, setFormat] = useState<"canonical_json" | "structured_json" | "csv" | "gedcom_551" | "gedcom_7">("canonical_json");
   const [externalIdColumn, setExternalIdColumn] = useState("externalId");
   const [displayNameColumn, setDisplayNameColumn] = useState("displayName");
   const [birthDateColumn, setBirthDateColumn] = useState("birthDate");
@@ -68,12 +68,12 @@ export function ImportIntake() {
     try {
       const tree = treeId.trim();
       if (!trees.some((item) => item.id === tree)) throw new Error("Vui lòng chọn cây gia phả có quyền nhập liệu.");
-      if (file.size < 1 || file.size > 10 * 1024 * 1024) throw new Error("Tệp JSON phải nhỏ hơn hoặc bằng 10 MiB.");
+      if (file.size < 1 || file.size > 10 * 1024 * 1024) throw new Error("Tệp nguồn phải nhỏ hơn hoặc bằng 10 MiB.");
       if (format === "csv" && (!externalIdColumn.trim() || !displayNameColumn.trim() || externalIdColumn.trim() === displayNameColumn.trim())) throw new Error("Mapping cá»™t mÃ£ nguá»“n vÃ  há» tÃªn pháº£i riÃªng biá»‡t.");
       const bytes = await file.arrayBuffer();
       const digest = await crypto.subtle.digest("SHA-256", bytes);
       const sha256 = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-      const mimeType = format === "csv" ? "text/csv" : "application/json";
+      const mimeType = format === "csv" ? "text/csv" : format.startsWith("gedcom") ? "text/plain" : "application/json";
       const intentResponse = await fetch("/api/v1/media/uploads", {
         method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({ treeId: tree, filename: file.name, mimeType, sizeBytes: file.size, sha256, purpose: "import", visibility: "restricted" })
@@ -85,14 +85,14 @@ export function ImportIntake() {
         method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }
       });
       await responseData<unknown>(finalizeResponse);
-      const mappingVersion = format === "csv" ? "structured-csv/1" : format === "structured_json" ? "structured-json/1" : "canonical-json/1";
-      const mapping = format !== "canonical_json" ? {
+      const mappingVersion = format === "csv" ? "structured-csv/1" : format === "structured_json" ? "structured-json/1" : format.startsWith("gedcom") ? "gedcom-subset/1" : "canonical-json/1";
+      const mapping = format === "csv" || format === "structured_json" ? {
         mappingVersion: format === "csv" ? "structured-csv/1" : "structured-json/1", sourceNamespace: sourceNamespace.trim(), dateInterpretation,
         columns: { [externalIdColumn.trim()]: "externalId", [displayNameColumn.trim()]: "displayName", ...(birthDateColumn.trim() ? { [birthDateColumn.trim()]: "birthDate" } : {}) },
       } : undefined;
       const importResponse = await fetch("/api/v1/imports", {
         method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
-        body: JSON.stringify({ treeId: tree, assetId: intent.assetId, format: format === "csv" ? "csv" : "canonical_json", sourceNamespace: sourceNamespace.trim(), mappingVersion, ...(mapping ? { mapping } : {}), mode: "demo" })
+        body: JSON.stringify({ treeId: tree, assetId: intent.assetId, format: format === "csv" ? "csv" : format === "gedcom_551" || format === "gedcom_7" ? format : "canonical_json", sourceNamespace: sourceNamespace.trim(), mappingVersion, ...(mapping ? { mapping } : {}), mode: "demo" })
       });
       const job = await responseData<ImportJob>(importResponse);
       const savedPreview = await fetch(`/api/v1/imports/${job.id}/preview`, { cache: "no-store" });
@@ -111,7 +111,8 @@ export function ImportIntake() {
       </div>
       <form className="card import-form" onSubmit={submit}>
         <label htmlFor="import-format">Định dạng</label>
-        <select id="import-format" value={format} onChange={(event) => { setFormat(event.target.value as typeof format); setFile(null); }}><option value="canonical_json">JSON canonical</option><option value="structured_json">JSON có mapping</option><option value="csv">CSV có mapping</option></select>
+        <select id="import-format" value={format} onChange={(event) => { setFormat(event.target.value as typeof format); setFile(null); }}><option value="canonical_json">JSON canonical</option><option value="structured_json">JSON có mapping</option><option value="csv">CSV có mapping</option><option value="gedcom_551">GEDCOM 5.5.1 (subset)</option><option value="gedcom_7">GEDCOM 7 (subset)</option></select>
+        {format.startsWith("gedcom") && <p className="muted">Profile GEDCOM hiện nhận UTF-8 và subset được công bố; tag/lịch không hỗ trợ sẽ được giữ nguyên để rà soát, không tự diễn giải.</p>}
         <h2 id="import-step-title">Bản nhập demo</h2>
         <p className="muted">Nhận JSON canonical, JSON có mapping hoặc CSV có mapping. Tệp được giữ trong bucket private; bản gốc không xuất hiện trong phản hồi. Ngày mơ hồ được giữ để rà soát, không tự ép thành ngày chính xác.</p>
         <label htmlFor="import-tree">Cây gia phả được cấp quyền</label>
@@ -122,9 +123,9 @@ export function ImportIntake() {
         </select>
         <label htmlFor="import-source">Không gian nguồn</label>
         <input id="import-source" required maxLength={200} value={sourceNamespace} onChange={(event) => setSourceNamespace(event.target.value)} />
-        <label htmlFor="import-file">Tệp {format === "csv" ? "CSV" : "JSON"} · tối đa 10 MiB</label>
-        <input id="import-file" type="file" accept={format === "csv" ? "text/csv,.csv" : "application/json,.json"} required onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
-        {format !== "canonical_json" && <fieldset className="import-mapping-fields"><legend>Mapping {format === "csv" ? "structured-csv/1" : "structured-json/1"}</legend>
+        <label htmlFor="import-file">Tệp {format === "csv" ? "CSV" : format.startsWith("gedcom") ? "GEDCOM" : "JSON"} · tối đa 10 MiB</label>
+        <input id="import-file" type="file" accept={format === "csv" ? "text/csv,.csv" : format.startsWith("gedcom") ? ".ged,.gedcom,text/plain" : "application/json,.json"} required onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
+        {(format === "csv" || format === "structured_json") && <fieldset className="import-mapping-fields"><legend>Mapping {format === "csv" ? "structured-csv/1" : "structured-json/1"}</legend>
           <label htmlFor="mapping-external-id">Tiêu đề cột mã nguồn</label><input id="mapping-external-id" required maxLength={100} value={externalIdColumn} onChange={(event) => setExternalIdColumn(event.target.value)} />
           <label htmlFor="mapping-display-name">Tiêu đề cột họ tên</label><input id="mapping-display-name" required maxLength={100} value={displayNameColumn} onChange={(event) => setDisplayNameColumn(event.target.value)} />
           <label htmlFor="mapping-birth-date">Tiêu đề cột ngày sinh (không bắt buộc)</label><input id="mapping-birth-date" maxLength={100} value={birthDateColumn} onChange={(event) => setBirthDateColumn(event.target.value)} />

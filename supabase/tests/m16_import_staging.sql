@@ -1,10 +1,16 @@
 -- Synthetic-only M16-01 integration. Transaction is rolled back.
 begin;
 select private.media_validate_upload('application/json',12,'demo.json',repeat('a',64),'import','restricted');
+select private.media_validate_upload('text/plain',12,'demo.ged',repeat('a',64),'import','restricted');
 do $$ begin
   begin
     perform private.media_validate_upload('application/json',12,'demo.json',repeat('a',64),'album','restricted');
     raise exception 'JSON MIME was accepted outside import purpose';
+  exception when sqlstate '22023' then null;
+  end;
+  begin
+    perform private.media_validate_upload('text/plain',12,'demo.ged',repeat('a',64),'source','restricted');
+    raise exception 'GEDCOM MIME was accepted outside import purpose';
   exception when sqlstate '22023' then null;
   end;
 end $$;

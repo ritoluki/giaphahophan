@@ -62,7 +62,9 @@ describe("CORE-01 contracts", () => {
     expect(mediaDownloadSchema.parse({ url: "https://signed.example.test/path", expiresAt: "2026-09-27T12:00:00.000Z", mode: "signed" }).mode).toBe("signed");
     expect(() => mediaUploadInputSchema.parse({ ...input, sha256: "not-a-hash" })).toThrow();
     expect(mediaUploadInputSchema.parse({ ...input, filename: "demo.json", mimeType: "application/json", purpose: "import" }).mimeType).toBe("application/json");
+    expect(mediaUploadInputSchema.parse({ ...input, filename: "demo.ged", mimeType: "text/plain", purpose: "import" }).mimeType).toBe("text/plain");
     expect(() => mediaUploadInputSchema.parse({ ...input, mimeType: "application/json", purpose: "album" })).toThrow();
+    expect(() => mediaUploadInputSchema.parse({ ...input, mimeType: "text/plain", purpose: "source" })).toThrow();
   });
 
   it("keeps recovery and password update payloads bounded and secret-free", () => {

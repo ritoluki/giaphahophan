@@ -95,8 +95,8 @@ try {
     jobIds.push(jobId);
     const preview = await request(`${webUrl}/api/v1/imports/${jobId}/preview`, { headers: { Cookie: cookie } });
     assert(preview.response.ok && preview.body?.data?.jobId === jobId, `${format} durable preview failed (${preview.response.status})`);
-    assert(preview.body.data.fileSha256 === sha256(bytes) && preview.body.data.sampleRows.length === 1, `${format} preview checksum/sample did not match`);
-    assert(preview.body.data.classification === "structured", `${format} classification was not structured`);
+    assert(preview.body.data.fileSha256 === sha256(bytes) && preview.body.data.sampleRows.length >= 1, `${format} preview checksum/sample did not match`);
+    assert(preview.body.data.classification === (format.startsWith("gedcom") ? "gedcom" : "structured"), `${format} classification did not match`);
     return { assetId, jobId };
   }
 
@@ -112,6 +112,20 @@ try {
     sourceNamespace: "synthetic-m16", mappingVersion: "structured-csv/1",
     mapping: { mappingVersion: "structured-csv/1", sourceNamespace: "synthetic-m16", dateInterpretation: "explicit_only", columns: { id: "externalId", name: "displayName", birth: "birthDate" } },
   });
+  const gedcomBytes = Buffer.from("0 HEAD\n1 SOUR SyntheticFixture\n1 GEDC\n2 VERS 5.5.1\n1 CHAR UTF-8\n0 @I1@ INDI\n1 NAME Fictional An /Nguyen/\n1 BIRT\n2 DATE ABT 1940\n0 @F1@ FAM\n1 CHIL @I1@\n1 _PHAN_LUNAR_DATE 12/03/Canh Ty\n0 TRLR\n", "utf8");
+  const gedcomJob = await uploadAndImport({
+    filename: "synthetic-family.ged", mimeType: "text/plain", bytes: gedcomBytes, format: "gedcom_551",
+    sourceNamespace: "synthetic-m16", mappingVersion: "gedcom-subset/1",
+  });
+  const gedcomProof = runPsql(`select (j.classification='gedcom' and j.format='gedcom_551' and r.normalized #>> '{birthDate,precision}'='about' and r.raw_payload->'gedcom' is not null) from private.import_jobs j join private.import_rows r on r.job_id=j.id where j.id=${sqlString(gedcomJob.jobId)} and r.row_number=1;`, true);
+  assert(gedcomProof.status === 0 && gedcomProof.stdout.trim() === "t", "GEDCOM format, date precision, or raw source preservation did not persist");
+  const gedcom7Bytes = Buffer.from("0 HEAD\n1 SOUR FamilySearch\n1 GEDC\n2 VERS 7.0.16\n1 CHAR UTF-8\n0 @I7@ INDI\n1 NAME Fictional Seven /Nguyen/\n1 BIRT\n2 DATE @#DJULIAN@ 3 MAR 1900\n1 _PHAN_LUNAR_DATE 12/03/Canh Ty\n0 TRLR\n", "utf8");
+  const gedcom7Job = await uploadAndImport({
+    filename: "synthetic-family-v7.ged", mimeType: "text/plain", bytes: gedcom7Bytes, format: "gedcom_7",
+    sourceNamespace: "synthetic-m16", mappingVersion: "gedcom-subset/1",
+  });
+  const gedcom7Proof = runPsql(`select (j.classification='gedcom' and j.format='gedcom_7' and r.normalized #>> '{birthDate,calendar}'='julian' and r.normalized->'appSidecar' is not null) from private.import_jobs j join private.import_rows r on r.job_id=j.id where j.id=${sqlString(gedcom7Job.jobId)} and r.row_number=1;`, true);
+  assert(gedcom7Proof.status === 0 && gedcom7Proof.stdout.trim() === "t", "GEDCOM 7 classification, Julian date, or app sidecar did not persist");
 
   const browser = await chromium.launch({ headless: true });
   try {
@@ -149,6 +163,18 @@ try {
     if (typeof browserJob?.data?.id === "string") jobIds.push(browserJob.data.id);
     await page.getByRole("heading", { name: "Kết quả dry-run" }).waitFor({ state: "visible", timeout: 15_000 });
     assert((await page.locator(".import-result").innerText()).includes("Fictional Gia đình"), "browser did not render the persisted mapped preview row");
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.getByLabel("Định dạng").selectOption("gedcom_551");
+    const browserGedcom = Buffer.from("0 HEAD\n1 SOUR SyntheticFixture\n1 GEDC\n2 VERS 5.5.1\n1 CHAR UTF-8\n0 @I1@ INDI\n1 NAME Fictional Browser /Nguyen/\n0 TRLR\n", "utf8");
+    await page.locator("#import-file").setInputFiles({ name: "synthetic-browser.ged", mimeType: "text/plain", buffer: browserGedcom });
+    const gedcomImportPromise = page.waitForResponse((response) => response.url().endsWith("/api/v1/imports") && response.request().method() === "POST");
+    await page.getByRole("button", { name: "Tải lên và chạy dry-run" }).click();
+    const browserGedcomImport = await gedcomImportPromise;
+    assert(browserGedcomImport.status() === 202, `authenticated browser GEDCOM import failed (${browserGedcomImport.status()})`);
+    const browserGedcomJob = await browserGedcomImport.json();
+    if (typeof browserGedcomJob?.data?.id === "string") jobIds.push(browserGedcomJob.data.id);
+    await page.getByRole("heading", { name: "Kết quả dry-run" }).waitFor({ state: "visible", timeout: 15_000 });
+    assert((await page.locator(".import-result").innerText()).includes("Fictional Browser Nguyen"), "browser did not render the GEDCOM staged preview row");
     await context.close();
   } finally {
     await browser.close();
@@ -159,7 +185,7 @@ try {
     assert(proof.status === 0 && proof.stdout.trim() === "t", "persisted date precision or mapping snapshot did not match the dry-run");
   }
 
-  console.log("PASS local M16 authenticated browser/HTTP: synthetic BFF login, private JSON+CSV upload/finalize, checksum-verified mapped dry-run, immutable mapping snapshot, date precision and capability-scoped persisted preview");
+  console.log("PASS local M16 authenticated browser/HTTP: synthetic BFF login, private JSON/CSV/GEDCOM 5.5.1/7 upload/finalize, checksum-verified dry-run, immutable mapping snapshot, GEDCOM conformance/date/raw preservation and capability-scoped persisted preview");
 } finally {
   if (treeId) {
     for (const assetId of assetIds) {

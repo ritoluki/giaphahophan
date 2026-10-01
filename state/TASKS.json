@@ -2410,9 +2410,9 @@
       "testIds": [
         "TC-M16-03"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": ["2026-10-02 local synthetic M16-03: bounded GEDCOM 5.5.1/7 line parser and conformance tags; stages INDI/FAM while retaining all raw source structures/unknown extensions; approximate/ambiguous/non-Gregorian date precision is conservative; unresolved pointers become review rows, no inferred sex/relationship roles, app sidecar preserved and privacy defaults restricted. PASS GEDCOM domain tests 5, workspace tests (contracts 62, domain 95, worker 18, lunar 4, web 6), domain/web typecheck, local migration 0055 + SQL MIME security fixture, and authenticated local Chromium/BFF private upload→parse→stored preview with synthetic GEDCOM 5.5.1 at 390px; GEDCOM 7 BFF/DB classification, Julian date and sidecar also PASS. Manual a11y, export semantics, real-device/staging/cloud/production remain NOT_RUN."]
     },
     {
       "id": "M16-04",

@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { idempotencyKeySchema, importInputSchema, importJobSchema, importTreeOptionSchema } from "@phan/contracts";
-import { dryRunCanonicalImport, dryRunStructuredImport } from "@phan/domain";
+import { dryRunCanonicalImport, dryRunGedcomImport, dryRunStructuredImport } from "@phan/domain";
 import { apiJson, createRequestHash, createRequestSupabaseClient, getVerifiedUser, rpcErrorStatus } from "@/lib/server/supabase-api";
 
 const MAX_IMPORT_BYTES = 10 * 1024 * 1024;
@@ -55,7 +55,6 @@ export async function POST(request: Request) {
   const idempotency = idempotencyKeySchema.safeParse(request.headers.get("Idempotency-Key"));
   if (!idempotency.success) return apiJson({ code: "IDEMPOTENCY_KEY_REQUIRED", message: "A valid idempotency key is required" }, 428);
   if (input.mode !== "demo") return apiJson({ code: "REAL_IMPORT_REQUIRES_H5", message: "Real-data imports require an approved H5 scope" }, 403);
-  if (input.format !== "canonical_json" && input.format !== "csv") return apiJson({ code: "IMPORT_FORMAT_NOT_READY", message: "This import format is not available in this phase" }, 422);
 
   const client = await createRequestSupabaseClient();
   if (!(await getVerifiedUser(client))) return apiJson({ code: "AUTH_REQUIRED", message: "A verified session is required" }, 401);
@@ -70,7 +69,8 @@ export async function POST(request: Request) {
     return apiJson({ code: "IMPORT_SOURCE_INVALID", message: "The import source is not eligible" }, 422);
   }
   const mimeType = typeof source.mime_type === "string" ? source.mime_type.split(";")[0]?.trim().toLowerCase() : "";
-  if (input.format === "csv" ? mimeType !== "text/csv" : mimeType !== "application/json") {
+  const expectedMime = input.format === "csv" ? "text/csv" : input.format.startsWith("gedcom") ? "text/plain" : "application/json";
+  if (mimeType !== expectedMime) {
     return apiJson({ code: "IMPORT_SOURCE_FORMAT_MISMATCH", message: "The source media type does not match the selected format" }, 422);
   }
 
@@ -84,16 +84,26 @@ export async function POST(request: Request) {
 
   let sourceDocument: unknown;
   let csvText: string | null = null;
+  let gedcomText: string | null = null;
   try {
     const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes).replace(/^\uFEFF/, "");
     if (input.format === "csv") csvText = text;
+    else if (input.format.startsWith("gedcom")) gedcomText = text;
     else sourceDocument = JSON.parse(text);
   } catch {
-    return apiJson({ code: input.format === "csv" ? "IMPORT_CSV_ENCODING_INVALID" : "IMPORT_JSON_INVALID", message: "The source is not valid UTF-8 structured data" }, 422);
+    return apiJson({ code: input.format === "csv" ? "IMPORT_CSV_ENCODING_INVALID" : input.format.startsWith("gedcom") ? "IMPORT_GEDCOM_ENCODING_INVALID" : "IMPORT_JSON_INVALID", message: "The source is not valid UTF-8 structured data" }, 422);
   }
-  const preview = input.mapping
+  const gedcomPreview = gedcomText === null ? null : dryRunGedcomImport(gedcomText);
+  if (input.format.startsWith("gedcom") && (!gedcomPreview || (input.format === "gedcom_551" ? gedcomPreview.version !== "5.5.1" : gedcomPreview.version !== "7.0"))) {
+    return apiJson({ code: "IMPORT_GEDCOM_INVALID", message: "The GEDCOM source is invalid or its detected version does not match the selected profile" }, 422);
+  }
+  const structuredPreview = input.mapping
     ? dryRunStructuredImport(input.format === "csv" ? csvText : sourceDocument, input.mapping, input.format === "csv" ? "csv" : "json")
     : dryRunCanonicalImport(sourceDocument, input.mappingVersion);
+  const preview = gedcomPreview ? {
+    ...gedcomPreview,
+    warnings: [...gedcomPreview.warnings, `gedcom_conformance_supported:${gedcomPreview.conformance.supported.join(",")}`, `gedcom_conformance_unsupported:${gedcomPreview.conformance.unsupported.join(",")}`, `gedcom_conformance_unknown:${gedcomPreview.conformance.unknownTags.join(",")}`]
+  } : structuredPreview;
   if (!preview) return apiJson({ code: "IMPORT_SCHEMA_INVALID", message: "The canonical JSON envelope is invalid" }, 422);
 
   const { data: jobData, error: jobError } = await client.schema("api").rpc("import_create", {

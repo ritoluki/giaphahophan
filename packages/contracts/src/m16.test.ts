@@ -9,6 +9,10 @@ describe("M16 import contracts", () => {
     expect(importPreviewSchema.safeParse({ jobId: "a6100000-0000-4000-8000-000000000003", version: 1, snapshotHash: "b".repeat(64), fileSha256: "c".repeat(64), classification: "canonical", valid: 0, invalid: 0, possibleDuplicates: 0, warnings: [], sampleRows: [{ rowNumber: 1, externalId: "synthetic", displayName: "Fictional", status: "valid", errors: [], rawPayload: { secret: "must-not-leak" } }] }).success).toBe(false);
   });
 
+  it("allows GEDCOM profiles without pretending the file is JSON or CSV", () => {
+    expect(importInputSchema.parse({ treeId: "a6100000-0000-4000-8000-000000000001", assetId: "a6100000-0000-4000-8000-000000000002", format: "gedcom_551", sourceNamespace: "synthetic-v1", mappingVersion: "gedcom-subset/1", mode: "demo" }).format).toBe("gedcom_551");
+  });
+
   it("requires versioned CSV mappings and matching mapping versions", () => {
     const mapping = { mappingVersion: "structured-csv/1", columns: { id: "externalId", name: "displayName" }, dateInterpretation: "explicit_only", sourceNamespace: "synthetic-v1" };
     expect(importMappingSchema.safeParse(mapping).success).toBe(true);

@@ -1409,8 +1409,8 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "5.5.1/7 supported tags có report; unknown raw preserved; lunar/privacy sidecar không mất âm thầm.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": ["2026-10-02 local synthetic: `pnpm.cmd --filter @phan/domain exec vitest run src/m16-gedcom.test.ts` PASS 5 tests for 5.5.1/7 headers, nested records, date precision, unknown/private/lunar raw preservation, malformed/duplicate refs, and unresolved relationship review. `pnpm.cmd test:m16:http` PASS authenticated private upload→parse→persisted preview in BFF + Chromium mobile-width UI for GEDCOM 5.5.1 and authenticated BFF/database flow for GEDCOM 7; verified classification, raw payload, about-date, Julian date and app sidecar. Manual accessibility, real-device and export semantics remain NOT_RUN; task remains IN_PROGRESS."]
     },
     {
       "id": "TC-M16-04",
