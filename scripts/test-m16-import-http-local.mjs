@@ -117,6 +117,8 @@ try {
     filename: "synthetic-family.ged", mimeType: "text/plain", bytes: gedcomBytes, format: "gedcom_551",
     sourceNamespace: "synthetic-m16", mappingVersion: "gedcom-subset/1",
   });
+  const stableMapBefore = runPsql(`select string_agg(external_id||':'||entity_kind||':'||canonical_id::text,',' order by external_id) from private.external_id_map where tree_id=${sqlString(treeId)} and source_namespace='synthetic-m16' and external_id in ('I1','F1') and entity_kind in ('person','family');`, true);
+  assert(stableMapBefore.status === 0 && stableMapBefore.stdout.trim().split(",").length === 2, `GEDCOM person/family external IDs did not receive distinct stable UUID reservations (${stableMapBefore.stdout.trim() || "no map rows"})`);
   const gedcomReplay = await request(`${webUrl}/api/v1/imports`, {
     method: "POST", headers: { Cookie: cookie, "Content-Type": "application/json", "Idempotency-Key": randomUUID() },
     body: JSON.stringify({ treeId, assetId: gedcomJob.assetId, format: "gedcom_551", sourceNamespace: "synthetic-m16", mappingVersion: "gedcom-subset/1", mode: "demo" }),
@@ -124,6 +126,8 @@ try {
   assert(gedcomReplay.response.status === 202 && gedcomReplay.body?.data?.id === gedcomJob.jobId, "same source/tree/mapping with a new idempotency key did not reuse its staging job");
   const replayProof = runPsql(`select ((select count(*) from private.import_jobs where tree_id=${sqlString(treeId)} and file_sha256=${sqlString(sha256(gedcomBytes))} and mapping_version='gedcom-subset/1')=1 and (select count(*) from private.import_rows where job_id=${sqlString(gedcomJob.jobId)})=2 and (select count(*) from private.audit_events where tree_id=${sqlString(treeId)} and action='import.created' and resource_id=${sqlString(gedcomJob.jobId)})=1);`, true);
   assert(replayProof.status === 0 && replayProof.stdout.trim() === "t", "content-key replay duplicated jobs, rows, or create audit events");
+  const stableMapAfter = runPsql(`select string_agg(external_id||':'||entity_kind||':'||canonical_id::text,',' order by external_id) from private.external_id_map where tree_id=${sqlString(treeId)} and source_namespace='synthetic-m16' and external_id in ('I1','F1') and entity_kind in ('person','family');`, true);
+  assert(stableMapAfter.status === 0 && stableMapAfter.stdout.trim() === stableMapBefore.stdout.trim(), "content-key replay changed the stable canonical UUID reservations");
   const gedcomProof = runPsql(`select (j.classification='gedcom' and j.format='gedcom_551' and r.normalized #>> '{birthDate,precision}'='about' and r.raw_payload->'gedcom' is not null) from private.import_jobs j join private.import_rows r on r.job_id=j.id where j.id=${sqlString(gedcomJob.jobId)} and r.row_number=1;`, true);
   assert(gedcomProof.status === 0 && gedcomProof.stdout.trim() === "t", "GEDCOM format, date precision, or raw source preservation did not persist");
   const gedcom7Bytes = Buffer.from("0 HEAD\n1 SOUR FamilySearch\n1 GEDC\n2 VERS 7.0.16\n1 CHAR UTF-8\n0 @I7@ INDI\n1 NAME Fictional Seven /Nguyen/\n1 BIRT\n2 DATE @#DJULIAN@ 3 MAR 1900\n1 _PHAN_LUNAR_DATE 12/03/Canh Ty\n0 TRLR\n", "utf8");
@@ -192,7 +196,7 @@ try {
     assert(proof.status === 0 && proof.stdout.trim() === "t", "persisted date precision or mapping snapshot did not match the dry-run");
   }
 
-  console.log("PASS local M16 authenticated browser/HTTP: synthetic BFF login, private JSON/CSV/GEDCOM 5.5.1/7 upload/finalize, checksum-verified dry-run, immutable mapping snapshot, GEDCOM conformance/date/raw preservation and capability-scoped persisted preview");
+  console.log("PASS local M16 authenticated browser/HTTP: synthetic BFF login, private JSON/CSV/GEDCOM 5.5.1/7 upload/finalize, checksum-verified dry-run, stable external UUID mapping/content-key replay, GEDCOM conformance/date/raw preservation and capability-scoped persisted preview");
 } finally {
   if (treeId) {
     for (const assetId of assetIds) {

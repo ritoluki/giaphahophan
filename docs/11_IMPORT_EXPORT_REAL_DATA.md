@@ -45,7 +45,7 @@ Agent tạo fixture từ nguồn chuẩn và từ hai phần mềm nguồn mở 
 
 ## Idempotency và batch lớn
 
-Khóa import = tree + source file SHA-256 + mapping version + import mode. Mỗi source row có external_id_map unique, không gán lại UUID mỗi lần retry. Apply lần hai cùng input phải không nhân đôi dữ liệu.
+Khóa import = tree + source file SHA-256 + mapping version + import mode. Mỗi source row có external_id_map unique theo tree/namespace/external ID/entity kind, không gán lại UUID mỗi lần retry. M16-04 hiện reserve map private trong lúc staging; đây chưa phải canonical apply. Apply lần hai cùng input phải không nhân đôi dữ liệu.
 
 Batch nhỏ (mặc định ≤2.000 entities) có thể commit atomic sau test kích thước. Batch lớn dùng chunk có manifest và trạng thái `partially_applied`; tuyệt đối không báo rolled_back nếu đã commit chunk. Mỗi chunk kiểm tra quyền/versions và ancestry lock khi thay cấu trúc. Cancel dừng chunk tiếp theo; report chỉ rõ phần đã áp dụng. Undo import là compensating operation theo manifest, không delete bừa người đã có người khác sửa.
 

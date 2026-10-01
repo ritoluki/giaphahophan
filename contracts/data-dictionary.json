@@ -4536,13 +4536,13 @@
     },
     {
       "name": "external_id_map",
-      "description": "Map chống nhập trùng",
+      "description": "Private stable UUID reservations for external IDs; does not create canonical people/edges",
       "treeScoped": true,
       "fields": [
         {
           "name": "id",
           "sqlType": "uuid",
-          "description": "Canonical UUID",
+          "description": "Map row UUID",
           "nullable": false,
           "references": null,
           "default": "gen_random_uuid()",
@@ -4558,27 +4558,9 @@
           "enum": null
         },
         {
-          "name": "version",
-          "sqlType": "bigint",
-          "description": "Optimistic locking",
-          "nullable": false,
-          "references": null,
-          "default": "1",
-          "enum": null
-        },
-        {
           "name": "created_at",
           "sqlType": "timestamptz",
           "description": "Thời điểm ghi UTC",
-          "nullable": false,
-          "references": null,
-          "default": "now()",
-          "enum": null
-        },
-        {
-          "name": "updated_at",
-          "sqlType": "timestamptz",
-          "description": "Thời điểm cập nhật UTC",
           "nullable": false,
           "references": null,
           "default": "now()",
@@ -4623,10 +4605,10 @@
         {
           "name": "canonical_id",
           "sqlType": "uuid",
-          "description": "Canonical mapping",
+          "description": "Stable reserved canonical UUID; apply remains a separate capability-gated operation",
           "nullable": false,
           "references": null,
-          "default": null,
+          "default": "gen_random_uuid()",
           "enum": null
         }
       ],
@@ -4638,8 +4620,12 @@
           "entity_kind"
         ]
       ],
-      "checks": [],
-      "rls": "ENABLED; grants fail-closed; policies and authorized RPC required in implementation"
+      "checks": [
+        "source_namespace length 1..200",
+        "external_id length 1..300",
+        "entity_kind in (person,family)"
+      ],
+      "rls": "RLS + FORCE; no direct client grants; private staging trigger inserts only after authorized import staging"
     },
     {
       "name": "merge_operations",

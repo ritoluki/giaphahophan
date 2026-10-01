@@ -2439,7 +2439,7 @@
       ],
       "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": ["2026-10-02 local synthetic M16-04: existing checksum+tree+mapping uniqueness and stable source external IDs are now verified independently of request idempotency key. SQL fixture and authenticated BFF re-import with a fresh key return the same job/version; row/job/create-audit counts do not grow; canonical person count remains unchanged in demo mode. PASS on local Supabase; stable canonical apply/edge mapping, accessibility, real-device/staging/cloud/production remain NOT_RUN."]
+      "evidence": ["2026-10-02 local synthetic M16-04: migration 0056 adds a private tree/namespace/external-ID/entity-kind map reserving one stable canonical UUID during authorized staging; re-staging preserves it and distinguishes GEDCOM INDI/FAM. SQL fixture and authenticated BFF re-import with a fresh key return the same job/version; row/job/create-audit counts do not grow; canonical person count remains unchanged in demo mode. PASS on local Supabase; canonical apply/edge mapping, accessibility, real-device/staging/cloud/production remain NOT_RUN."]
     },
     {
       "id": "M16-05",

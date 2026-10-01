@@ -70,10 +70,20 @@ select * from api.import_stage_rows(:'job_id'::uuid,
   '[{"rowNumber":1,"externalId":"synthetic-1","rawPayload":{"birthDate":"circa 1940"},"normalized":{"externalId":"synthetic-1","displayName":"Fictional Person"},"status":"valid","errors":[]},{"rowNumber":2,"externalId":"synthetic-1","rawPayload":{"name":"duplicate"},"normalized":null,"status":"review","errors":["duplicate_external_id_in_source"]},{"rowNumber":3,"externalId":"row-3","rawPayload":{"displayName":""},"normalized":null,"status":"invalid","errors":["displayName"]}]'::jsonb,
   '["duplicate_external_ids_require_review"]'::jsonb) \gset preview_
 select case when :'preview_status'='needs_review' and :'preview_valid'='1' and :'preview_invalid'='1' and :'preview_possible_duplicates'='1' and length(:'preview_snapshot_hash')=64 then 1 else 1/0 end;
+reset role;
+select canonical_id as canonical_id from private.external_id_map where tree_id='b1610000-0000-4000-8000-000000000001' and source_namespace='synthetic-v1' and external_id='synthetic-1' and entity_kind='person' \gset stable_id_
+set local role authenticated;
 select * from api.import_stage_rows(:'job_id'::uuid,
   '[{"rowNumber":1,"externalId":"synthetic-1","rawPayload":{"birthDate":"circa 1940"},"normalized":{"externalId":"synthetic-1","displayName":"Fictional Person"},"status":"valid","errors":[]},{"rowNumber":2,"externalId":"synthetic-1","rawPayload":{"name":"duplicate"},"normalized":null,"status":"review","errors":["duplicate_external_id_in_source"]},{"rowNumber":3,"externalId":"row-3","rawPayload":{"displayName":""},"normalized":null,"status":"invalid","errors":["displayName"]}]'::jsonb,
   '["duplicate_external_ids_require_review"]'::jsonb) \gset stage_replay_
 select case when :'stage_replay_version'=:'preview_version' and :'stage_replay_snapshot_hash'=:'preview_snapshot_hash' then 1 else 1/0 end;
+reset role;
+select (canonical_id=:'stable_id_canonical_id'::uuid and (select count(*) from private.external_id_map where tree_id='b1610000-0000-4000-8000-000000000001' and source_namespace='synthetic-v1' and external_id='synthetic-1' and entity_kind='person')=1) as external_map_stable from private.external_id_map where tree_id='b1610000-0000-4000-8000-000000000001' and source_namespace='synthetic-v1' and external_id='synthetic-1' and entity_kind='person' \gset stable_check_
+\if :stable_check_external_map_stable
+\else
+  \quit 1
+\endif
+set local role authenticated;
 select ((preview->>'valid')='1' and jsonb_array_length(preview->'sampleRows')=3
   and preview->>'fileSha256'=repeat('a',64) and not ((preview->'sampleRows'->0) ? 'rawPayload')) as preview_safe
 from (select api.import_preview(:'job_id'::uuid) as preview) result \gset preview_
