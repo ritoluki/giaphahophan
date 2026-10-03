@@ -1080,6 +1080,21 @@ export const importRowDecisionSchema = z.object({
   excluded: z.boolean(),
   reason: z.string().trim().min(1).max(1000),
 }).strict();
+const importExternalRefSchema = z.string().trim().min(1).max(300);
+export const importRelationshipMappingSchema = z.object({
+  baseVersion: z.number().int().positive(),
+  snapshotHash: z.string().regex(/^[a-f0-9]{64}$/),
+  familyExternalId: importExternalRefSchema,
+  partnerExternalIds: z.array(importExternalRefSchema).min(1).max(100),
+  childExternalIds: z.array(importExternalRefSchema).max(1000),
+  parentLinks: z.array(z.object({
+    parentExternalId: importExternalRefSchema, childExternalId: importExternalRefSchema,
+    kind: z.enum(["biological", "adoptive", "guardian", "step"]),
+    status: z.enum(["confirmed", "disputed"]),
+  }).strict()).max(2000),
+  reason: z.string().trim().min(1).max(1000),
+}).strict();
+export type ImportRelationshipMapping = z.infer<typeof importRelationshipMappingSchema>;
 export const importReviewInputSchema = z.object({
   baseVersion: z.number().int().positive(),
   snapshotHash: z.string().regex(/^[a-f0-9]{64}$/),

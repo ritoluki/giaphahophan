@@ -1,5 +1,7 @@
 # Báo cáo kiểm thử ứng dụng
 
+2026-10-04 — Relationship preflight PASS domain103 tests (7new), workspace typecheck/lint0errors/2existing warnings. No new DB/API/UI apply surface; those remain NOT_RUN for this slice. [Evidence](../reports/M16_RELATIONSHIP_PREFLIGHT.md). Preflight is not full family coverage or canonical apply acceptance.
+
 2026-10-04 — Full-row inspector PASS SQL2000-row pages, authenticated320px51-row browser navigation/selection/exclusion/reload, no raw marker and stale-version409. Contracts65, typecheck/lint/build/verify/parse PASS. Evidence: [M16_ROW_INSPECTION](../reports/M16_ROW_INSPECTION.md). Full normalized edit/relationship mapping/manual a11y/staging remain unfinished; no production claim.
 
 2026-10-04 — Row-decision SQL + authenticated Chromium320px PASS after reruns: exclude/restore, reload, MFA denial, exact/changed retries, approval revocation, skipped counts and original preservation. Build/typecheck/lint/verify/tests64/96/18/4/6 and parse PASS. Initial SQL assertion and browser CSRF-race failures fixed, not counted as PASS. See [evidence](../reports/M16_ROW_DECISIONS.md); full manual a11y/real-device/staging NOT_RUN.

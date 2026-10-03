@@ -13848,6 +13848,37 @@ components:
       - possibleDuplicates
       - warnings
       - sampleRows
+    ImportRelationshipMapping:
+      type: object
+      additionalProperties: false
+      description: Private explicit preflight command; persistence/apply endpoint not implemented yet. Union partners/children alone never create parent links.
+      required: [baseVersion, snapshotHash, familyExternalId, partnerExternalIds, childExternalIds, parentLinks, reason]
+      properties:
+        baseVersion: { type: integer, minimum: 1 }
+        snapshotHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        familyExternalId: { type: string, minLength: 1, maxLength: 300 }
+        partnerExternalIds:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items: { type: string, minLength: 1, maxLength: 300 }
+        childExternalIds:
+          type: array
+          maxItems: 1000
+          items: { type: string, minLength: 1, maxLength: 300 }
+        parentLinks:
+          type: array
+          maxItems: 2000
+          items:
+            type: object
+            additionalProperties: false
+            required: [parentExternalId, childExternalId, kind, status]
+            properties:
+              parentExternalId: { type: string, minLength: 1, maxLength: 300 }
+              childExternalId: { type: string, minLength: 1, maxLength: 300 }
+              kind: { type: string, enum: [biological, adoptive, guardian, step] }
+              status: { type: string, enum: [confirmed, disputed] }
+        reason: { type: string, minLength: 1, maxLength: 1000 }
     ImportRowsPage:
       type: object
       additionalProperties: false

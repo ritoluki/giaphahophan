@@ -107,3 +107,4 @@ export * from './m15';
 
 export * from "./m16";
 export * from "./m16-gedcom";
+export * from "./m16-relationships";
