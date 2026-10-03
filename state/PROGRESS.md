@@ -1,5 +1,9 @@
 # Tiến độ
 
+2026-10-04 — Migration0063 thêm private whole-job coverage predicate: fixture xác nhận false khi FAM/INDI relationship chưa được map và true sau mapping đủ; không cấp execute cho client và chưa nối vào review/commit. PASS local Supabase SQL fixture, transaction rollback. Đây là validator chưa phải enforcement; approval/apply gate và merged canonical graph check vẫn NOT_RUN, giữ fail-closed.
+
+2026-10-04 — Migration0063 thêm private whole-job coverage predicate: fixture xác nhận false khi FAM/INDI relationship chưa được map và true sau mapping đủ; không cấp execute cho client và chưa nối vào review/commit. PASS local Supabase SQL fixture, transaction rollback. Đây là validator chưa phải enforcement; approval/apply gate và merged canonical graph check vẫn NOT_RUN, giữ fail-closed.
+
 2026-10-04 — Migration0062 thêm DB trigger kiểm tra mapping FAM phải chứa đủ participant còn included và GEDCOM FAM↔INDI phải có reciprocal spouse/child pointer; SQL fixture chứng minh mapping lược người included bị từ chối. PASS migration apply/reapply idempotent + `pnpm.cmd test:m16:import` trên Supabase local synthetic (transaction rollback, không ghi canonical relations). Chưa kiểm tra toàn bộ batch hoặc merged graph khi apply; M16-04 vẫn IN_PROGRESS/fail-closed.
 
 2026-10-04 — Thắt chặt preflight quan hệ trong `planImportRelationships`: mỗi mapping phải bao phủ participant còn được include; đối chiếu FAM→INDI và INDI→FAM cho partner/child refs; thêm fixture pointer một chiều và mapping thiếu. `pnpm.cmd --filter @phan/domain test` PASS 104/104; typecheck PASS. Đây chỉ là preflight thuần domain, không phải DB authorization hay bằng chứng apply. M16-04 vẫn IN_PROGRESS/fail-closed; tiếp theo xây coverage validator và atomic apply/recheck canonical graph tại DB.

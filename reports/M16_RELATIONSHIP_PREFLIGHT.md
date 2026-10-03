@@ -6,6 +6,8 @@
 
 Migration0062 adds a DB trigger at private mapping persistence with equivalent per-family inclusion and GEDCOM reciprocal-pointer checks. PASS: applied twice locally (repeatable DDL), then `pnpm.cmd test:m16:import`; fixture saves a complete 2-partner/1-child family and confirms omitting one still-included partner raises SQLSTATE22023 without changing the saved mapping. Synthetic transaction rollback asserted. This does not prove all included FAM rows have a saved mapping, review authorization, merged existing graph validation or canonical apply; these remain NOT_RUN/fail-closed.
 
+Migration0063 adds private predicate `private.import_relationship_batch_complete(job_id)` for whole-job row/error/identity/mapping/pointer coverage. PASS SQL fixture: false before mapping, true after full mapping. It is revoked from API roles and deliberately not wired into review or commit until canonical atomic apply is ready. Therefore whole-job authorization gate, merged-graph validation and relationship apply remain NOT_RUN/fail-closed.
+
 ## Persistence and editor verification
 
 The local slice now includes the private decision table and GET/POST `/api/v1/imports/{id}/relationships`, plus an editor that distinguishes selected union members from explicit parent links. Relationship-only review rows are selectable only when their sole parser issue is `relationship_mapping_requires_review`; missing, excluded, invalid, duplicate or other-error source people remain blocked. The GET response is a bounded allowlist (family/person external IDs, display labels, parser status, exclusion flag and saved choices); raw payload and private reason are omitted.

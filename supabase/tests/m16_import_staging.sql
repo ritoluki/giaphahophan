@@ -343,6 +343,8 @@ select * from api.import_stage_rows(:'relationship_job_id'::uuid,
     {"rowNumber":3,"externalId":"I2","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"I2","displayName":"Hư cấu người B","familyChildRefs":[{"xref":"F1","pedigree":null,"status":null}]},"status":"review","errors":["relationship_mapping_requires_review"]},
     {"rowNumber":4,"externalId":"I3","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"I3","displayName":"Hư cấu người C","familySpouseRefs":["F1"]},"status":"review","errors":["relationship_mapping_requires_review"]}]'::jsonb,'[]'::jsonb) \gset relationship_stage_
 reset role;
+select not private.import_relationship_batch_complete(:'relationship_job_id'::uuid) as incomplete \gset relationship_gate_
+select case when :'relationship_gate_incomplete'='t' then 1 else 1/0 end;
 select count(*) as n from private.parent_links where tree_id='b1610000-0000-4000-8000-000000000001' \gset before_relationship_
 set local role authenticated;
 select result->>'version' as version,result->>'snapshotHash' as hash,result->>'mappingCount' as count
@@ -358,6 +360,11 @@ select :'relationship_saved_count'='1' as count_ok, :'relationship_saved_hash'<>
   (select count(*)=:'before_relationship_n'::bigint from private.parent_links where tree_id='b1610000-0000-4000-8000-000000000001') as links_ok \gset relassert_
 \echo relassert :relassert_count_ok :relassert_hash_ok :relassert_mapping_ok :relassert_links_ok
 select case when :'relassert_count_ok'='t' and :'relassert_hash_ok'='t' and :'relassert_mapping_ok'='t' and :'relassert_links_ok'='t' then 1 else 1/0 end;
+select private.import_relationship_batch_complete(:'relationship_job_id'::uuid) as complete \gset relationship_gate_
+select case when :'relationship_gate_complete'='t' then 1 else 1/0 end;
+select not has_function_privilege('anon','private.import_relationship_batch_complete(uuid)','execute')
+  and not has_function_privilege('authenticated','private.import_relationship_batch_complete(uuid)','execute') as private_only \gset relationship_gate_
+select case when :'relationship_gate_private_only'='t' then 1 else 1/0 end;
 set local role authenticated;
 select result->>'version' as version from (select api.import_relationship_mapping_save(:'relationship_job_id'::uuid,:'relationship_stage_version'::bigint,:'relationship_stage_snapshot_hash',
     jsonb_build_object('baseVersion',:'relationship_stage_version'::bigint,'snapshotHash',:'relationship_stage_snapshot_hash',

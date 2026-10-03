@@ -4,6 +4,10 @@
 
 Migration0062 adds PASS save-time DB coverage for each mapped family, including missing-member rejection; whole-job review/apply coverage and existing graph checks are still NOT_RUN.
 
+Migration0063 whole-job predicate is PASS as an internal SQL helper only; review/commit does not call it yet. Do not count as approval enforcement. Existing graph/cycle/cap checks and atomic relationship apply remain NOT_RUN.
+
+Migration0063 whole-job predicate is PASS as an internal SQL helper only; review/commit does not call it yet. Do not count as approval enforcement. Existing graph/cycle/cap checks and atomic relationship apply remain NOT_RUN.
+
 Migration0062 adds PASS save-time DB coverage for each mapped family, including missing-member rejection; whole-job review/apply coverage and existing graph checks are still NOT_RUN.
 
 | M03-05 | Concurrent edit response does not yet include a field-level diff; full mobile visual/a11y and real-device API evidence are NOT_RUN | M03-05 final acceptance | Versioned GET, If-Match PATCH proposal boundary, idempotency and stale conflict mechanics PASS locally; continue M03-06 without owner action |
