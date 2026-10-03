@@ -2,6 +2,10 @@
 
 2026-10-04 M16-04 update: domain reciprocal-pointer preflight is PASS 104/104 but is not an authorization gate. DB-enforced whole-batch FAM/INDI coverage, merged-graph checks under migration0008 tree advisory lock, and atomic union/parent/citation apply remain NOT_RUN; family apply stays fail-closed. No owner action; no hosted/real data.
 
+Migration0062 adds PASS save-time DB coverage for each mapped family, including missing-member rejection; whole-job review/apply coverage and existing graph checks are still NOT_RUN.
+
+Migration0062 adds PASS save-time DB coverage for each mapped family, including missing-member rejection; whole-job review/apply coverage and existing graph checks are still NOT_RUN.
+
 | M03-05 | Concurrent edit response does not yet include a field-level diff; full mobile visual/a11y and real-device API evidence are NOT_RUN | M03-05 final acceptance | Versioned GET, If-Match PATCH proposal boundary, idempotency and stale conflict mechanics PASS locally; continue M03-06 without owner action |
 
 | M03-06 | Axe/manual and real-device evidence are NOT_RUN; erasure/purge is intentionally a separate privacy workflow | M03-06 final acceptance and privacy workflow | Impact preview, DELETE If-Match proposal, independent approval, atomic soft-delete, projection filtering and retained facts/sources PASS locally; continue M04/M06 work without owner action |
