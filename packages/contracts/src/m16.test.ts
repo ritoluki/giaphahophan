@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema } from "./index";
+import { importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importReviewInputSchema } from "./index";
 
 describe("M16 import contracts", () => {
+  it("binds review and commit to versions and approved snapshots without partial writes", () => {
+    const reviewed = { baseVersion: 2, snapshotHash: "a".repeat(64) };
+    expect(importReviewInputSchema.safeParse(reviewed).success).toBe(true);
+    expect(importReviewInputSchema.safeParse({ ...reviewed, baseVersion: 0 }).success).toBe(false);
+    const commit = { baseVersion: 3, approvedSnapshotHash: reviewed.snapshotHash, approvalId: "a6100000-0000-4000-8000-000000000003", allowPartial: false };
+    expect(importCommitSchema.safeParse(commit).success).toBe(true);
+    expect(importCommitSchema.safeParse({ ...commit, allowPartial: true }).success).toBe(false);
+    expect(importCommitSchema.safeParse({ ...commit, approvalId: null }).success).toBe(false);
+    expect(importCommitSchema.safeParse({ ...commit, approvedSnapshotHash: "stale" }).success).toBe(false);
+  });
   it("keeps intake source identity and staging preview typed", () => {
     expect(importInputSchema.parse({ treeId: "a6100000-0000-4000-8000-000000000001", assetId: "a6100000-0000-4000-8000-000000000002", format: "canonical_json", sourceNamespace: "legacy-demo", mappingVersion: "v1", mode: "demo" }).mode).toBe("demo");
     expect(importJobSchema.parse({ id: "a6100000-0000-4000-8000-000000000003", version: 1, kind: "import", status: "needs_review", counters: { processed: 2, succeeded: 1, failed: 1, skipped: 0 }, warnings: ["unknown date"], errorCode: null, expiresAt: null, treeId: "a6100000-0000-4000-8000-000000000001", sourceAssetId: "a6100000-0000-4000-8000-000000000002", fileSha256: "a".repeat(64), format: "canonical_json", sourceNamespace: "legacy-demo", mappingVersion: "v1", classification: "canonical" }).classification).toBe("canonical");

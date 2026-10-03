@@ -1,7 +1,7 @@
 /* Design DTOs. UUID/date/money strings require runtime Zod validation; never trust TypeScript alone. */
 export type UUID = string;
 export type MoneyVND = string;
-export type Meta = { requestId: string; version?: number };
+export type Meta = { requestId: string; version?: number; csrfToken?: string };
 export type Page = { nextCursor: string | null; hasMore: boolean };
 export type Error = { error: { code: string; message: string; fieldErrors?: Record<string, Array<string>>; requestId: string; retryable: boolean } };
 export type GenealogyDate = { calendar: "gregorian" | "vietnamese_lunar" | "julian" | "unknown"; precision: "exact" | "month" | "month_day" | "year" | "about" | "before" | "after" | "range" | "text" | "unknown"; year?: number; month?: number; day?: number; isLeapMonth?: boolean; originalText: string; rangeEnd?: { year: number; month?: number; day?: number }; timezone?: "Asia/Ho_Chi_Minh" };

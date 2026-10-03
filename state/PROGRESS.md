@@ -1,5 +1,9 @@
 # Tiến độ
 
+2026-10-04 — Continued M16-04 with plan unchanged. Source-media integrity is locked during atomic apply; malformed CSRF cookie is rejected before constant-time comparison. Fresh SQL fixture, typecheck/lint, isolated production build and authenticated synthetic browser regression PASS; see reports/M16_REVIEW_APPLY.md. Next: explicit reversible row exclusion and approval invalidation, then relationship mapping. No owner action needed.
+
+2026-10-03 — M16-04 resumed from the failed replay test. Migration 0058 adds independent MFA review, opaque approval identity, rechecked staging/source snapshots, restricted atomic person/fact/source/citation apply, private applied-entity manifest, audit/outbox and authorization-bound completed replay. Connected job state/approve/commit BFF and refreshable mobile UI with Origin/double-submit CSRF, bounded metadata and stable retry keys. Fixed 320px intrinsic-grid overflow and translated intake warnings. PASS local SQL including 2,000-person atomic batch, authenticated two-user TOTP browser review/apply/reload/re-import, full workspace tests (63/96/18/4/6), typecheck/build/verify/lint and OpenAPI parse. Evidence: [M16_REVIEW_APPLY](../reports/M16_REVIEW_APPLY.md). M16-04 stays IN_PROGRESS for relationship/row-decision mapping; M16-05 and full accessibility/remote release gates remain pending. Dev server available at http://localhost:3100; no real data or production deployment.
+
 Ngày khởi tạo bộ hồ sơ: 26/09/2026.
 
 ## Hiện trạng

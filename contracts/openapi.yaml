@@ -7416,8 +7416,7 @@ paths:
       tags:
       - ImportExport
       summary: /imports/{id}
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Authorized demo import job state, approval identity and action flags. Returns an HTTP-only CSRF cookie with matching meta.csrfToken; never returns reviewer IDs or private manifest.
       security:
       - sessionCookie: []
       responses:
@@ -7430,7 +7429,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/Job'
+                    $ref: '#/components/schemas/ImportReviewState'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -7760,14 +7759,55 @@ paths:
         in: path
         required: true
         schema: *id001
+  /api/v1/imports/{id}/approve:
+    post:
+      operationId: post_imports_id_approve
+      tags: [ImportExport]
+      summary: Independently review a persisted demo import snapshot
+      description: Requires imports.manage, AAL2, reviewer different from creator, exact version/snapshot, Origin and double-submit CSRF. Supported atomic person batches contain 1–2000 valid rows. Does not approve real data/H5.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/CSRF'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportReviewInput'
+      responses:
+        '200':
+          description: Approved snapshot or exact idempotent replay
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [data, meta]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ImportReviewState'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '400': { description: Invalid input }
+        '401': { description: Authentication required }
+        '403': { description: Capability, MFA, reviewer separation or CSRF denied }
+        '409': { description: Stale snapshot/version or idempotency conflict }
+        '413': { description: Request metadata exceeds 4096 bytes }
+        '422': { description: Batch needs row/relationship review or chunking }
+        '428': { description: Idempotency key required }
   /api/v1/imports/{id}/commit:
     post:
       operationId: post_imports_id_commit
       tags:
       - ImportExport
       summary: /imports/{id}/commit
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Atomic person-only demo apply with independent approval, AAL2, exact version/snapshot/approvalId, idempotency and Origin/double-submit CSRF. Completed retry returns stored results after current authorization checks. Source citations and private manifest persist in the same transaction.
       security:
       - sessionCookie: []
       responses:
@@ -7780,7 +7820,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/Job'
+                    $ref: '#/components/schemas/ImportJob'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -11620,6 +11660,10 @@ components:
       additionalProperties: false
       properties:
         requestId: *id002
+        csrfToken:
+          type: string
+          pattern: '^[a-f0-9]{64}$'
+          description: Import mutation token returned only by authorized import state GET; paired with an HTTP-only cookie.
         version: &id008
           type: integer
       required:
@@ -13732,6 +13776,30 @@ components:
       - possibleDuplicates
       - warnings
       - sampleRows
+    ImportReviewInput:
+      type: object
+      additionalProperties: false
+      required: [baseVersion, snapshotHash]
+      properties:
+        baseVersion: { type: integer, minimum: 1 }
+        snapshotHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+    ImportReviewState:
+      type: object
+      additionalProperties: false
+      required: [job, approvalId, approvedSnapshotHash, canReview, canApply, appliedPeople]
+      properties:
+        job: { $ref: '#/components/schemas/ImportJob' }
+        approvalId:
+          anyOf:
+          - *id001
+          - { type: 'null' }
+        approvedSnapshotHash:
+          anyOf:
+          - { type: string, pattern: '^[a-f0-9]{64}$' }
+          - { type: 'null' }
+        canReview: *id007
+        canApply: *id007
+        appliedPeople: { type: integer, minimum: 0 }
     ImportCommit:
       type: object
       additionalProperties: false

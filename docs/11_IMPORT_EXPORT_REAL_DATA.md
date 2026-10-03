@@ -49,7 +49,7 @@ Import hiện chỉ chạy trên cây có `trees.data_mode='demo'`; client gửi
 
 ## Idempotency và batch lớn
 
-Khóa import = tree + source file SHA-256 + mapping version + import mode. Mỗi source row có external_id_map unique theo tree/namespace/external ID/entity kind, không gán lại UUID mỗi lần retry. M16-04 hiện reserve map private trong lúc staging; đây chưa phải canonical apply. Apply lần hai cùng input phải không nhân đôi dữ liệu.
+Khóa import = tree + source file SHA-256 + mapping version + import mode. Mỗi source row có external_id_map unique theo tree/namespace/external ID/entity kind, không gán lại UUID mỗi lần retry. M16-04 reserve map private trong staging; migration 0058 dùng UUID này khi áp dụng batch người hợp lệ vào cây demo. Người tạo không tự duyệt; duyệt và áp dụng đều cần imports.manage + MFA, người áp dụng khác người duyệt. ApprovalId, version, snapshot nguồn và staging được kiểm tra lại tại DB. Hồ sơ/facts/citations mặc định restricted, notes vẫn ở nguồn riêng tư, manifest tác động/audit/outbox ghi cùng transaction. Retry completed có kiểm tra quyền và request ban đầu; re-import cùng file/mapping trả job đã lưu. Đây không phải H5 cho dữ liệu thật. Family/relationship và các dòng cần quyết định vẫn bị chặn đến khi có mapping được duyệt; phạm vi sản phẩm đầy đủ không bị bỏ.
 
 Batch nhỏ (mặc định ≤2.000 entities) có thể commit atomic sau test kích thước. Batch lớn dùng chunk có manifest và trạng thái `partially_applied`; tuyệt đối không báo rolled_back nếu đã commit chunk. Mỗi chunk kiểm tra quyền/versions và ancestry lock khi thay cấu trúc. Cancel dừng chunk tiếp theo; report chỉ rõ phần đã áp dụng. Undo import là compensating operation theo manifest, không delete bừa người đã có người khác sửa.
 

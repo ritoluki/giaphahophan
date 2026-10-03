@@ -167,6 +167,90 @@ select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002'
 select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal1"}',true);
 select * from api.import_source_context('b1630000-0000-4000-8000-000000000001') \gset granted_source_
 select case when :'granted_source_tree_id'='b1610000-0000-4000-8000-000000000001' then 1 else 1/0 end;
+-- Independent MFA review and atomic person/source/citation apply in demo mode.
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000001',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-v1','synthetic-apply/1','demo','b1640000-0000-4000-8000-000000000010',repeat('7',64)) \gset apply_job_
+select * from api.import_stage_rows(:'apply_job_id'::uuid,
+  '[{"rowNumber":1,"externalId":"synthetic-apply-person","rawPayload":{"displayName":"Hư cấu Nguyễn An","birthDate":{"calendar":"gregorian","precision":"year","year":1901,"originalText":"1901"}},"normalized":{"externalId":"synthetic-apply-person","displayName":"Hư cấu Nguyễn An","birthDate":{"calendar":"gregorian","precision":"year","year":1901,"originalText":"1901"},"notes":"Ghi chú tổng hợp","gender":"U"},"status":"valid","errors":[]}]'::jsonb,'[]'::jsonb) \gset apply_stage_
+select format('do $body$ begin begin perform api.import_approve(%L::uuid,%L::bigint,%L,%L::uuid,%L); raise exception ''creator self-review accepted''; exception when insufficient_privilege then null; end; end $body$;',
+  :'apply_job_id',:'apply_stage_version',:'apply_stage_snapshot_hash','b1640000-0000-4000-8000-000000000012',repeat('1',64)) \gexec
+reset role;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal1"}',true);
+set local role authenticated;
+select format('do $body$ begin begin perform api.import_approve(%L::uuid,%L::bigint,%L,%L::uuid,%L); raise exception ''AAL1 review accepted''; exception when insufficient_privilege then null; end; end $body$;',
+  :'apply_job_id',:'apply_stage_version',:'apply_stage_snapshot_hash','b1640000-0000-4000-8000-000000000012',repeat('1',64)) \gexec
+reset role;
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select format('do $body$ begin begin perform api.import_approve(%L::uuid,%L::bigint,%L,%L::uuid,%L); raise exception ''stale preview accepted''; exception when serialization_failure then null; end; end $body$;',
+  :'apply_job_id',:'apply_stage_version',repeat('0',64),'b1640000-0000-4000-8000-000000000012',repeat('1',64)) \gexec
+select result->'job'->>'version' as version,result->'job'->>'status' as status,result->>'approvalId' as approval_id
+  from (select api.import_approve(:'apply_job_id'::uuid,:'apply_stage_version'::bigint,:'apply_stage_snapshot_hash',
+    'b1640000-0000-4000-8000-000000000012',repeat('1',64)) as result) r \gset approval_
+select case when :'approval_status'='ready' and length(:'approval_approval_id')=36 then 1 else 1/0 end;
+select api.import_approve(:'apply_job_id'::uuid,:'apply_stage_version'::bigint,:'apply_stage_snapshot_hash',
+    'b1640000-0000-4000-8000-000000000012',repeat('1',64))->>'approvalId'=:'approval_approval_id' as stable_approval \gset approval_replay_
+\if :approval_replay_stable_approval
+\else
+  \quit 1
+\endif
+reset role;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000001',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+select format('do $body$ begin begin update private.import_rows set raw_payload=''{}''::jsonb where job_id=%L::uuid; perform api.import_commit(%L::uuid,%L::bigint,%L,%L::uuid,%L::uuid,%L); raise exception ''changed staging applied''; exception when serialization_failure then null; end; end $body$;',
+  :'apply_job_id',:'apply_job_id',:'approval_version',:'apply_stage_snapshot_hash',:'approval_approval_id','b1640000-0000-4000-8000-000000000011',repeat('8',64)) \gexec
+set local role authenticated;
+select result->>'status' as status,result->'counters'->>'succeeded' as applied_people
+  from (select api.import_commit(:'apply_job_id'::uuid,:'approval_version'::bigint,:'apply_stage_snapshot_hash',:'approval_approval_id'::uuid,
+  'b1640000-0000-4000-8000-000000000011',repeat('8',64)) as result) r \gset applied_
+select case when :'applied_status'='completed' and :'applied_applied_people'='1' then 1 else 1/0 end;
+reset role;
+select (select count(*)=1 from private.persons where tree_id='b1610000-0000-4000-8000-000000000001' and display_name='Hư cấu Nguyễn An')
+  and (select count(*)=1 from private.citations where tree_id='b1610000-0000-4000-8000-000000000001' and person_id=(select id from private.persons where tree_id='b1610000-0000-4000-8000-000000000001' and display_name='Hư cấu Nguyễn An'))
+  and (select count(*)=1 from private.person_facts where tree_id='b1610000-0000-4000-8000-000000000001' and kind='birth' and value_date='{"calendar":"gregorian","precision":"year","year":1901,"originalText":"1901"}'::jsonb)
+  as import_apply_preserves_provenance_and_date \gset applied_check_
+\if :applied_check_import_apply_preserves_provenance_and_date
+\else
+  \quit 1
+\endif
+set local role authenticated;
+select result->>'status' as status,result->'counters'->>'succeeded' as applied_people
+  from (select api.import_commit(:'apply_job_id'::uuid,:'approval_version'::bigint,:'apply_stage_snapshot_hash',:'approval_approval_id'::uuid,
+  'b1640000-0000-4000-8000-000000000011',repeat('8',64)) as result) r \gset applied_replay_
+select case when :'applied_replay_status'='completed' and :'applied_replay_applied_people'='1' then 1 else 1/0 end;
+select format('do $body$ begin begin perform api.import_commit(%L::uuid,%L::bigint,%L,%L::uuid,%L::uuid,%L); raise exception ''changed retry request accepted''; exception when sqlstate ''P0008'' then null; end; end $body$;',
+  :'apply_job_id',:'approval_version',:'apply_stage_snapshot_hash',:'approval_approval_id','b1640000-0000-4000-8000-000000000011',repeat('9',64)) \gexec
+-- Exercise the documented atomic capacity rather than assuming 2000-row safety.
+select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-load','capacity/1','demo',
+  'b1640000-0000-4000-8000-000000000020',repeat('2',64)) \gset capacity_job_
+select * from api.import_stage_rows(:'capacity_job_id'::uuid,
+  (select jsonb_agg(jsonb_build_object('rowNumber',n,'externalId','load-'||n,'rawPayload',jsonb_build_object('displayName','Hư cấu capacity '||n),
+    'normalized',jsonb_build_object('externalId','load-'||n,'displayName','Hư cấu capacity '||n),'status','valid','errors','[]'::jsonb) order by n)
+    from generate_series(1,2000) n),'[]'::jsonb) \gset capacity_stage_
+reset role;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select result->'job'->>'version' as version,result->>'approvalId' as approval_id
+  from (select api.import_approve(:'capacity_job_id'::uuid,:'capacity_stage_version'::bigint,:'capacity_stage_snapshot_hash',
+    'b1640000-0000-4000-8000-000000000021',repeat('3',64)) as result) r \gset capacity_approval_
+reset role;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000001',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select result->>'status'='completed' and result->'counters'->>'succeeded'='2000' as complete
+  from (select api.import_commit(:'capacity_job_id'::uuid,:'capacity_approval_version'::bigint,:'capacity_stage_snapshot_hash',:'capacity_approval_approval_id'::uuid,
+    'b1640000-0000-4000-8000-000000000022',repeat('4',64)) as result) r \gset capacity_apply_
+\if :capacity_apply_complete
+\else
+  \quit 1
+\endif
+reset role;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal1"}',true);
 do $$ begin
   begin
     perform * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-v1','v1','real','b1640000-0000-4000-8000-000000000003',repeat('e',64));

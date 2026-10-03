@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, createHmac, randomUUID } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { chromium } from "@playwright/test";
 
@@ -31,6 +31,38 @@ async function request(url, init = {}) {
 }
 function assert(condition, message) { if (!condition) throw new Error(message); }
 function sha256(bytes) { return createHash("sha256").update(bytes).digest("hex"); }
+function totpCode(secret) {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  let bits = 0, value = 0;
+  const bytes = [];
+  for (const character of secret.toUpperCase().replaceAll("=", "")) {
+    const index = alphabet.indexOf(character);
+    assert(index >= 0, "synthetic MFA secret encoding invalid");
+    value = (value << 5) | index; bits += 5;
+    if (bits >= 8) { bits -= 8; bytes.push((value >> bits) & 255); }
+  }
+  const counter = Buffer.alloc(8);
+  counter.writeBigUInt64BE(BigInt(Math.floor(Date.now() / 30000)));
+  const digest = createHmac("sha1", Buffer.from(bytes)).update(counter).digest();
+  return String((digest.readUInt32BE(digest[digest.length - 1] & 15) & 0x7fffffff) % 1000000).padStart(6, "0");
+}
+async function browserRequest(page, path, body, headers = {}) {
+  return page.evaluate(async ({ path, body, headers }) => {
+    const response = await fetch(path, { method: body === undefined ? "GET" : "POST",
+      headers: { "Content-Type": "application/json", ...headers }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
+    return { status: response.status, body: await response.json() };
+  }, { path, body, headers });
+}
+async function browserMfa(page) {
+  const enrolled = await browserRequest(page, "/api/v1/auth/mfa/enroll", {});
+  assert(enrolled.status === 200 && enrolled.body?.data?.secret, "synthetic browser MFA enrollment failed");
+  const challenge = await browserRequest(page, "/api/v1/auth/mfa/challenge", { factorId: enrolled.body.data.factorId });
+  assert(challenge.status === 200, "synthetic browser MFA challenge failed");
+  const verified = await browserRequest(page, "/api/v1/auth/mfa/verify", {
+    factorId: enrolled.body.data.factorId, challengeId: challenge.body.data.challengeId, code: totpCode(enrolled.body.data.secret),
+  });
+  assert(verified.status === 200 && verified.body?.data?.aal === "aal2", "synthetic browser MFA verification failed");
+}
 
 const env = localEnv();
 const treeId = randomUUID();
@@ -38,6 +70,7 @@ const membershipId = randomUUID();
 const userEmail = `m16-${randomUUID()}@synthetic.test`;
 const password = `Synthetic!${randomUUID()}`;
 let userId;
+let reviewerId;
 const assetIds = [];
 const jobIds = [];
 
@@ -179,7 +212,7 @@ try {
     const browserJob = browserImportBody;
     if (typeof browserJob?.data?.id === "string") jobIds.push(browserJob.data.id);
     await page.getByRole("heading", { name: "Kết quả dry-run" }).waitFor({ state: "visible", timeout: 15_000 });
-    assert((await page.locator(".import-result").innerText()).includes("Fictional Gia đình"), "browser did not render the persisted mapped preview row");
+    assert((await page.getByRole("region", { name: "Kết quả dry-run" }).innerText()).includes("Fictional Gia đình"), "browser did not render the persisted mapped preview row");
     await page.setViewportSize({ width: 390, height: 844 });
     await page.getByLabel("Định dạng").selectOption("gedcom_551");
     const browserGedcom = Buffer.from("0 HEAD\n1 SOUR SyntheticFixture\n1 GEDC\n2 VERS 5.5.1\n1 CHAR UTF-8\n0 @I1@ INDI\n1 NAME Fictional Browser /Nguyen/\n0 TRLR\n", "utf8");
@@ -191,7 +224,84 @@ try {
     const browserGedcomJob = await browserGedcomImport.json();
     if (typeof browserGedcomJob?.data?.id === "string") jobIds.push(browserGedcomJob.data.id);
     await page.getByRole("heading", { name: "Kết quả dry-run" }).waitFor({ state: "visible", timeout: 15_000 });
-    assert((await page.locator(".import-result").innerText()).includes("Fictional Browser Nguyen"), "browser did not render the GEDCOM staged preview row");
+    assert((await page.getByRole("region", { name: "Kết quả dry-run" }).innerText()).includes("Fictional Browser Nguyen"), "browser did not render the GEDCOM staged preview row");
+
+    const applyJobId = browserGedcomJob.data.id;
+    const reviewerEmail = `m16-review-${randomUUID()}@synthetic.test`;
+    const reviewerPassword = `Synthetic!${randomUUID()}`;
+    const reviewer = await request(`${env.API_URL}/auth/v1/admin/users`, {
+      method: "POST", headers: { apikey: env.SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SERVICE_ROLE_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ email: reviewerEmail, password: reviewerPassword, email_confirm: true }),
+    });
+    assert(reviewer.response.ok && reviewer.body?.id, "synthetic reviewer creation failed");
+    reviewerId = reviewer.body.id;
+    const reviewerMembership = randomUUID();
+    const reviewerSeed = runPsql(`begin;
+      insert into private.memberships(id,tree_id,created_by,auth_user_id,role,status,approved_by) values(${sqlString(reviewerMembership)},${sqlString(treeId)},${sqlString(userId)},${sqlString(reviewerId)},'reviewer','active',${sqlString(userId)});
+      insert into private.capability_grants(tree_id,created_by,membership_id,capability) values(${sqlString(treeId)},${sqlString(userId)},${sqlString(reviewerMembership)},'imports.manage'); commit;`);
+    assert(reviewerSeed.status === 0, "synthetic reviewer capability seed failed");
+    const reviewerContext = await browser.newContext({ viewport: { width: 320, height: 844 } });
+    const reviewerPage = await reviewerContext.newPage();
+    await reviewerPage.goto(`${webUrl}/quan-tri/nhap-lieu`);
+    const reviewerLogin = await browserRequest(reviewerPage, "/api/v1/auth/login", { email: reviewerEmail, password: reviewerPassword });
+    assert(reviewerLogin.status === 200, "synthetic reviewer BFF login failed");
+    const beforeMfa = await browserRequest(reviewerPage, `/api/v1/imports/${applyJobId}`);
+    assert(beforeMfa.status === 200 && beforeMfa.body.data.canReview === false, "AAL1 reviewer must not be offered approve");
+    const preview = await browserRequest(reviewerPage, `/api/v1/imports/${applyJobId}/preview`);
+    const denied = await browserRequest(reviewerPage, `/api/v1/imports/${applyJobId}/approve`,
+      { baseVersion: beforeMfa.body.data.job.version, snapshotHash: preview.body.data.snapshotHash },
+      { "Idempotency-Key": randomUUID(), "X-CSRF-Token": beforeMfa.body.meta.csrfToken });
+    assert(denied.status === 403, "BFF must deny AAL1 reviewer mutation");
+    await browserMfa(reviewerPage);
+    await reviewerPage.goto(`${webUrl}/quan-tri/nhap-lieu?job=${applyJobId}`);
+    await reviewerPage.getByRole("heading", { name: "Kết quả dry-run" }).waitFor();
+    const approveButton = reviewerPage.getByRole("button", { name: "Duyệt bản nhập demo" });
+    await reviewerPage.waitForFunction(() => !Array.from(document.querySelectorAll("button")).find((item) => item.textContent === "Duyệt bản nhập demo")?.disabled);
+    const approvedResponse = reviewerPage.waitForResponse((response) => response.url().endsWith(`/imports/${applyJobId}/approve`));
+    await approveButton.click();
+    assert((await approvedResponse).status() === 200, "independent browser review failed");
+    await reviewerPage.getByRole("button", { name: "Áp dụng vào cây demo" }).waitFor();
+    assert(await reviewerPage.getByRole("button", { name: "Áp dụng vào cây demo" }).isDisabled(), "reviewer cannot apply own approval");
+    await browserMfa(page);
+    await page.reload();
+    const applyButton = page.getByRole("button", { name: "Áp dụng vào cây demo" });
+    await applyButton.waitFor();
+    await page.waitForFunction(() => !Array.from(document.querySelectorAll("button")).find((item) => item.textContent === "Áp dụng vào cây demo")?.disabled);
+    const appliedResponse = page.waitForResponse((response) => response.url().endsWith(`/imports/${applyJobId}/commit`));
+    await applyButton.click();
+    const applied = await appliedResponse;
+    assert(applied.status() === 202 && (await applied.json()).data.status === "completed", "browser commit did not persist canonical demo records");
+    await page.getByText("Đã lưu 1 hồ sơ vào cây demo cùng nguồn trích dẫn riêng tư.").waitFor();
+    const originalRequest = applied.request();
+    const replayState = await browserRequest(page, `/api/v1/imports/${applyJobId}`);
+    const replayHeaders = { "Idempotency-Key": originalRequest.headers()["idempotency-key"], "X-CSRF-Token": replayState.body.meta.csrfToken };
+    const replayed = await browserRequest(page, `/api/v1/imports/${applyJobId}/commit`, originalRequest.postDataJSON(), replayHeaders);
+    assert(replayed.status === 202 && replayed.body.data.status === "completed", "browser commit exact replay failed");
+    const changedReplay = await browserRequest(page, `/api/v1/imports/${applyJobId}/commit`,
+      { ...originalRequest.postDataJSON(), baseVersion: originalRequest.postDataJSON().baseVersion + 1 }, replayHeaders);
+    assert(changedReplay.status === 409, "changed browser commit replay must be rejected");
+    const csrfDenied = await browserRequest(page, `/api/v1/imports/${applyJobId}/commit`, originalRequest.postDataJSON(), { ...replayHeaders, "X-CSRF-Token": "0".repeat(64) });
+    assert(csrfDenied.status === 403, "invalid CSRF accepted");
+    await page.reload();
+    await page.getByText("Đã lưu 1 hồ sơ vào cây demo cùng nguồn trích dẫn riêng tư.").waitFor();
+    const appliedProof = runPsql(`select ((select count(*) from private.persons where tree_id=${sqlString(treeId)})=1
+      and (select count(*) from private.citations where tree_id=${sqlString(treeId)})=1
+      and (select count(*) from private.audit_events where tree_id=${sqlString(treeId)} and action='import.applied')=1);`, true);
+    assert(appliedProof.status === 0 && appliedProof.stdout.trim() === "t", "canonical apply/replay count or source citation mismatch");
+    const contentReplay = await uploadAndImport({ filename: "synthetic-applied-replay.ged", mimeType: "text/plain", bytes: browserGedcom,
+      format: "gedcom_551", sourceNamespace: "family-records", mappingVersion: "gedcom-subset/1" });
+    assert(contentReplay.jobId === applyJobId, "applied source replay created another import job");
+    const overflow = await reviewerPage.evaluate(() => {
+      const width = window.innerWidth;
+      const elements = Array.from(document.querySelectorAll("main *")).map((element) => ({ tag: element.tagName, className: element.className,
+        right: Math.round(element.getBoundingClientRect().right), width: Math.round(element.getBoundingClientRect().width) }))
+        .filter((item) => item.right > width + 1).slice(0, 12);
+      return { elements, styles: document.styleSheets.length, grid: getComputedStyle(document.querySelector(".import-workspace")).display,
+        bodyMargin: getComputedStyle(document.body).margin, cardPadding: getComputedStyle(document.querySelector("section.import-result")).padding };
+    });
+    assert((await reviewerPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)), `review UI overflows at 320px: ${JSON.stringify(overflow)}`);
+    await reviewerPage.screenshot({ path: "reports/m16-review-320.png", fullPage: true });
+    await reviewerContext.close();
     await context.close();
   } finally {
     await browser.close();
@@ -202,7 +312,7 @@ try {
     assert(proof.status === 0 && proof.stdout.trim() === "t", "persisted date precision or mapping snapshot did not match the dry-run");
   }
 
-  console.log("PASS local M16 authenticated browser/HTTP: synthetic BFF login, private JSON/CSV/GEDCOM 5.5.1/7 upload/finalize, checksum-verified dry-run, stable external UUID mapping/content-key replay, GEDCOM relationship endpoints persisted as review, conformance/date/raw preservation and capability-scoped persisted preview");
+  console.log("PASS local M16 authenticated browser/HTTP: private JSON/CSV/GEDCOM intake, stable IDs, real TOTP MFA, independent review at 320px, atomic canonical demo apply, reload persistence, exact replay, changed-request/CSRF/AAL1 denial and source citation counts");
 } finally {
   if (treeId) {
     for (const assetId of assetIds) {
@@ -217,13 +327,21 @@ try {
       `delete from private.outbox where tree_id=${sqlString(treeId)};`,
       `delete from private.audit_events where tree_id=${sqlString(treeId)};`,
       `delete from private.idempotency_records where tree_id=${sqlString(treeId)};`,
+      `delete from private.citations where tree_id=${sqlString(treeId)};`,
+      `delete from private.person_facts where tree_id=${sqlString(treeId)};`,
+      `delete from private.person_names where tree_id=${sqlString(treeId)};`,
+      `delete from private.persons where tree_id=${sqlString(treeId)};`,
+      `delete from private.sources where tree_id=${sqlString(treeId)};`,
       `delete from private.media_assets where tree_id=${sqlString(treeId)};`,
       `delete from private.capability_grants where tree_id=${sqlString(treeId)};`,
       `delete from private.memberships where tree_id=${sqlString(treeId)};`,
       `delete from private.trees where id=${sqlString(treeId)};`,
       "commit;",
     ].join("\n"));
-    if (cleanup.status !== 0) process.stderr.write("Synthetic M16 HTTP fixture cleanup failed\n");
+    assert(cleanup.status === 0, "Synthetic M16 HTTP fixture cleanup failed");
   }
-  if (userId) await fetch(`${env.API_URL}/auth/v1/admin/users/${userId}`, { method: "DELETE", headers: { apikey: env.SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SERVICE_ROLE_KEY}` } });
+  for (const syntheticId of [userId, reviewerId].filter(Boolean)) {
+    const removed = await fetch(`${env.API_URL}/auth/v1/admin/users/${syntheticId}`, { method: "DELETE", headers: { apikey: env.SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SERVICE_ROLE_KEY}` } });
+    assert(removed.ok, "Synthetic M16 user cleanup failed");
+  }
 }

@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { idempotencyKeySchema, importInputSchema, importJobSchema, importTreeOptionSchema } from "@phan/contracts";
+import { idempotencyKeySchema, importInputSchema, importJobSchema, importReviewStateSchema, importTreeOptionSchema } from "@phan/contracts";
 import { dryRunCanonicalImport, dryRunGedcomImport, dryRunStructuredImport } from "@phan/domain";
 import { apiJson, createRequestHash, createRequestSupabaseClient, getVerifiedUser, rpcErrorStatus } from "@/lib/server/supabase-api";
 
@@ -120,6 +120,15 @@ export async function POST(request: Request) {
       p_job_id: job.id, p_mapping: input.mapping
     });
     if (mappingError) return apiJson({ code: "IMPORT_MAPPING_FAILED", message: "The versioned mapping could not be saved" }, rpcErrorStatus(mappingError.code));
+  }
+
+  // Approved/applied content-key replays keep their persisted state; never stage
+  // rows again after independent review. Mapping equality was checked above.
+  if (job.status !== "queued" && job.status !== "parsing" && job.status !== "needs_review") {
+    const { data, error } = await client.schema("api").rpc("import_job_state", { p_job_id: job.id });
+    if (error) return apiJson({ code: "IMPORT_REPLAY_UNAVAILABLE", message: "The saved import could not be read" }, rpcErrorStatus(error.code));
+    const saved = importReviewStateSchema.safeParse(data);
+    return saved.success ? apiJson(saved.data.job, 202) : apiJson({ code: "IMPORT_RESPONSE_INVALID", message: "The saved import response was invalid" }, 502);
   }
 
   const { data: stagedData, error: stagedError } = await client.schema("api").rpc("import_stage_rows", {

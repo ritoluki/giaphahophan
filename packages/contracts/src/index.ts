@@ -1059,6 +1059,25 @@ export const importPreviewSchema = z.object({
   warnings: z.array(z.string().max(1000)),
   sampleRows: z.array(z.object({ rowNumber: z.number().int().positive(), externalId: z.string().max(300), displayName: z.string().max(300), status: z.enum(["valid", "invalid", "review"]), errors: z.array(z.string().max(1000)) }).strict()).max(50),
 }).strict();
+export const importReviewInputSchema = z.object({
+  baseVersion: z.number().int().positive(),
+  snapshotHash: z.string().regex(/^[a-f0-9]{64}$/),
+}).strict();
+export const importCommitSchema = z.object({
+  baseVersion: z.number().int().positive(),
+  approvedSnapshotHash: z.string().regex(/^[a-f0-9]{64}$/),
+  approvalId: z.string().uuid(),
+  allowPartial: z.literal(false).optional(),
+}).strict();
+export const importReviewStateSchema = z.object({
+  job: importJobSchema,
+  approvalId: z.string().uuid().nullable(),
+  approvedSnapshotHash: z.string().regex(/^[a-f0-9]{64}$/).nullable(),
+  canReview: z.boolean(),
+  canApply: z.boolean(),
+  appliedPeople: z.number().int().nonnegative(),
+}).strict();
+export type ImportReviewState = z.infer<typeof importReviewStateSchema>;
 export const jobStatusSchema = z.enum(["queued", "processed", "succeeded", "failed", "skipped"]);
 export const jobCountersSchema = z.object({
   queued: z.number().int().nonnegative(),

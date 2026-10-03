@@ -13,6 +13,8 @@ Duyệt bản home, hồ sơ, gia phả mobile, lịch, quản trị. Xem chữ/
 ## H2 — Tài khoản và chi phí
 Chủ dự án tạo/đứng tên repository, cloud, domain, email và bật MFA. Duyệt vùng lưu trữ, budget/quota, người giữ recovery/backup keys. Nhập secret qua secret manager, không dán chat. Agent phải đưa từng URL/chỉ dẫn đúng provider đã chọn khi đến bước này.
 
+2026-10-03: Không cần hành động owner cho M16-04 local demo continuation. Không cần thêm env/secret để làm relationship mapping hoặc M16-05 local. Các gate H2–H5 dưới đây chỉ cần xử lý khi công việc thực sự tới phạm vi tương ứng; không đánh dấu approved từ test synthetic.
+
 ## H3 — Quản trị dữ liệu
 Chỉ định ít nhất người nhập và người duyệt độc lập; chốt người được xem dữ liệu sống/trẻ em, publication consent, lịch giỗ tháng nhuận, tài liệu có thể xử lý ở đâu. Hỏi chỉ những điểm tư liệu chưa có câu trả lời.
 

@@ -1,5 +1,9 @@
 # Bàn giao cho agent kế tiếp
 
+2026-10-04 recheck: Docker core services healthy; dev3100 HTTP200. Fresh isolated build/browser at3126 and SQL fixture PASS after source locking and CSRF cookie validation. Continue row-decision workflow; do not mark all M16-04 DONE. Disposable test servers3123/3124/3126 are stopped after evidence; dev3100 stays available.
+
+Latest 2026-10-03: M16-04 scalar review/apply implemented in migration 0058 and job state/approve/commit routes. Local SQL, 2,000-person capacity, authenticated two-user TOTP browser review/commit/reload/replay and 320px checks PASS; see reports/M16_REVIEW_APPLY.md. M16-04 remains IN_PROGRESS: next read SCR-32 + import contracts and implement explicit relationship/row-decision mapping, preserving source provenance, reviewer separation and stable IDs; M16-05 chunk/cancel/compensation follows. No owner action needed now. Preserve the 13 pre-existing dirty reports/design-review PNGs; do not stage them. Dev server is on localhost:3100 using the user's existing .env.local and a process-only app URL override; test artifacts use local Supabase only. Normal migration CLI chain still has historical 0037 drift; no applied migration was rewritten. No real data/cloud/production mutation.
+
 ## Đọc trước
 AGENTS.md → START_HERE.md → PROGRESS.md → TASKS.json → BLOCKERS.md/HUMAN_ACTIONS.md → TEST_REPORT.md.
 

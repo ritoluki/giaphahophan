@@ -162,12 +162,16 @@ button, a, input, select { min-height: 44px; }
 .admin-card > strong { color: var(--brand); font-family: "Noto Serif", Georgia, serif; font-size: 1.2rem; }
 .admin-principles { margin-top: 1rem; }
 .admin-principles ul { margin: .75rem 0 0; padding-left: 1.25rem; color: var(--ink-muted); }
-.import-workspace { display: grid; gap: 1rem; margin-top: 1.5rem; }
+.import-workspace { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; margin-top: 1.5rem; }
 .import-stepper { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
 .import-stepper span { display: flex; align-items: center; gap: .45rem; min-height: 44px; padding: .5rem; border-bottom: 2px solid var(--border); color: var(--ink-muted); font-size: .82rem; }
 .import-stepper span[aria-current="step"] { border-color: var(--brand); color: var(--brand); font-weight: 700; }
 .import-stepper b { display: grid; flex: 0 0 auto; place-items: center; width: 1.65rem; height: 1.65rem; border: 1px solid currentColor; border-radius: 50%; }
-.import-form, .import-result { display: grid; gap: .8rem; }
+.import-form, .import-result { display: grid; grid-template-columns: minmax(0, 1fr); gap: .8rem; min-width: 0; }
+.import-result { overflow-wrap: anywhere; }
+.import-form input, .import-form select { min-width: 0; max-width: 100%; }
+.import-result button { min-height: 44px; white-space: normal; }
+.import-result button:disabled { opacity: .55; cursor: not-allowed; }
 .import-form h2, .import-result h2 { margin: 0; color: var(--brand); font-family: "Noto Serif", Georgia, serif; }
 .import-form label { color: var(--ink-muted); font-size: .9rem; font-weight: 700; }
 .import-form input:not([type="file"]) { width: 100%; min-height: 48px; padding: .65rem .8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }

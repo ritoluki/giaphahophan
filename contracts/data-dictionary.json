@@ -4366,7 +4366,16 @@
         {
           "name": "approval_hash",
           "sqlType": "text",
-          "description": "H5/scope hash",
+          "description": "Independent demo batch review digest; does not grant H5 real-data approval",
+          "nullable": true,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "approval_id",
+          "sqlType": "uuid",
+          "description": "Opaque identity of the reviewed snapshot; binds ImportCommit approvalId",
           "nullable": true,
           "references": null,
           "default": null,

@@ -590,6 +590,7 @@ CREATE TABLE private.import_jobs (
   parser_version text NOT NULL,
   status text NOT NULL DEFAULT 'queued' CHECK (status IN ('queued', 'parsing', 'needs_review', 'ready', 'applying', 'partially_applied', 'completed', 'failed', 'cancelled')),
   approval_hash text,
+  approval_id uuid,
   counters jsonb NOT NULL DEFAULT '{}'::jsonb,
   manifest jsonb NOT NULL DEFAULT '{}'::jsonb,
   UNIQUE (tree_id, id),

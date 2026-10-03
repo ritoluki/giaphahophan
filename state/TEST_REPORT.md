@@ -1,5 +1,9 @@
 # Báo cáo kiểm thử ứng dụng
 
+2026-10-04 — M16-04 continuation PASS local SQL synthetic rollback, typecheck/lint (0 errors, 2 existing warnings), isolated build `.next-m16-review-check` and authenticated Chromium/API regression at localhost:3126; source locking and malformed-CSRF-cookie guard included. Evidence: reports/M16_REVIEW_APPLY.md. Remaining full a11y, real-device, relationship decisions and remote release gates are not passed by this run.
+
+2026-10-03 — M16-04 atomic person apply: local SQL and authenticated browser integration PASS, including 2,000 synthetic people, independent TOTP MFA review, snapshot/source checks, date precision/citations, persisted reload, exact replay, fresh-key completed re-import and CSRF/AAL1/stale/changed-request denial. Latest isolated production artifact and 320px reviewer path PASS after fixing intrinsic-grid overflow. Workspace tests PASS (contracts 63, domain 96, worker 18, lunar 4, web 6), typecheck/build/verify/lint PASS (2 existing warnings), OpenAPI/dictionary parse PASS. Detailed environment/commands/limits: [evidence](../reports/M16_REVIEW_APPLY.md). Earlier failures from missing test env and mobile overflow were corrected and rerun; they were not treated as PASS. Relationship mapping, manual a11y, real-device and staging/production remain NOT_RUN.
+
 Application status: FOUNDATION_P1_P2_LOCAL_EXECUTED; product acceptance remains NOT_RUN. Không dùng PACKAGE_VALIDATION.json để đổi trạng thái ứng dụng.
 
 | Nhóm | Trạng thái | Evidence |
