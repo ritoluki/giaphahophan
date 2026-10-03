@@ -1,7 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importReviewInputSchema, importRowDecisionSchema } from "./index";
+import { importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importReviewInputSchema, importRowDecisionSchema, importRowsPageSchema, importRowsQuerySchema } from "./index";
 
 describe("M16 import contracts", () => {
+  it("bounds row inspection cursors and rejects raw payloads in pages", () => {
+    expect(importRowsQuerySchema.parse({ baseVersion: "2" }).after).toBe(0);
+    expect(importRowsQuerySchema.safeParse({ baseVersion: 0, after: 0 }).success).toBe(false);
+    expect(importRowsQuerySchema.safeParse({ baseVersion: 2, after: 10001 }).success).toBe(false);
+    const row = { rowNumber: 51, externalId: "synthetic-51", displayName: "Hư cấu", status: "valid", excluded: false, errors: [] };
+    const page = { jobId: "a6100000-0000-4000-8000-000000000003", version: 2, rows: [row], nextCursor: null };
+    expect(importRowsPageSchema.safeParse(page).success).toBe(true);
+    expect(importRowsPageSchema.safeParse({ ...page, rows: Array.from({ length: 51 }, () => row) }).success).toBe(false);
+    expect(importRowsPageSchema.safeParse({ ...page, rows: [{ ...row, rawPayload: { secret: "private" } }] }).success).toBe(false);
+  });
   it("requires a bounded row decision, source snapshot and nonblank reason", () => {
     const decision = { baseVersion: 2, snapshotHash: "a".repeat(64), rowNumber: 1, excluded: true, reason: "Hư cấu: thiếu bằng chứng" };
     expect(importRowDecisionSchema.safeParse(decision).success).toBe(true);

@@ -1,5 +1,7 @@
 # Báo cáo kiểm thử ứng dụng
 
+2026-10-04 — Full-row inspector PASS SQL2000-row pages, authenticated320px51-row browser navigation/selection/exclusion/reload, no raw marker and stale-version409. Contracts65, typecheck/lint/build/verify/parse PASS. Evidence: [M16_ROW_INSPECTION](../reports/M16_ROW_INSPECTION.md). Full normalized edit/relationship mapping/manual a11y/staging remain unfinished; no production claim.
+
 2026-10-04 — Row-decision SQL + authenticated Chromium320px PASS after reruns: exclude/restore, reload, MFA denial, exact/changed retries, approval revocation, skipped counts and original preservation. Build/typecheck/lint/verify/tests64/96/18/4/6 and parse PASS. Initial SQL assertion and browser CSRF-race failures fixed, not counted as PASS. See [evidence](../reports/M16_ROW_DECISIONS.md); full manual a11y/real-device/staging NOT_RUN.
 
 2026-10-04 — M16-04 continuation PASS local SQL synthetic rollback, typecheck/lint (0 errors, 2 existing warnings), isolated build `.next-m16-review-check` and authenticated Chromium/API regression at localhost:3126; source locking and malformed-CSRF-cookie guard included. Evidence: reports/M16_REVIEW_APPLY.md. Remaining full a11y, real-device, relationship decisions and remote release gates are not passed by this run.

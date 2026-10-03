@@ -1,5 +1,7 @@
 # Tiến độ
 
+2026-10-04 — Continued after pushes fb5cc29/369c991: M16-04 full-row inspector now pages all source rows (max50/page) with authorization, demo gate and exact-version cursors; no raw/reason projection. SQL2000-row paging and authenticated320px row51 select/exclude/reload/privacy/stale-cursor checks PASS. Contracts65/typecheck/lint/build/verify/parse PASS; [evidence](../reports/M16_ROW_INSPECTION.md). Continue normalized correction and explicit relationship mapping; no owner action needed.
+
 2026-10-04 — M16-04 reversible row decisions implemented: private reason/actor snapshot, version+MFA+capability checks, idempotency, approval invalidation, preserved raw/parser and accurate skipped/apply manifest. BFF/mobile form connected. SQL and authenticated320px exclude/restore/reload/review/apply PASS; tests64/96/18/4/6, typecheck/lint/build/verify/parse PASS. Evidence: [M16_ROW_DECISIONS](../reports/M16_ROW_DECISIONS.md). Scalar slice pushed fb5cc29; continue full row/relationship inspection and mapping; not M16 DONE. No owner action needed; no real data/production.
 
 2026-10-04 — Continued M16-04 with plan unchanged. Source-media integrity is locked during atomic apply; malformed CSRF cookie is rejected before constant-time comparison. Fresh SQL fixture, typecheck/lint, isolated production build and authenticated synthetic browser regression PASS; see reports/M16_REVIEW_APPLY.md. Next: explicit reversible row exclusion and approval invalidation, then relationship mapping. No owner action needed.

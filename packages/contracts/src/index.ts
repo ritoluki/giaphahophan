@@ -1047,6 +1047,19 @@ export const importJobSchema = z.object({
   mappingVersion: z.string().min(1),
   classification: z.enum(["structured", "gedcom", "canonical"]),
 }).strict();
+export const importPreviewRowSchema = z.object({
+  rowNumber: z.number().int().positive(), externalId: z.string().max(300), displayName: z.string().max(300),
+  status: z.enum(["valid", "invalid", "review"]), excluded: z.boolean().default(false), errors: z.array(z.string().max(1000)),
+}).strict();
+export const importRowsPageSchema = z.object({
+  jobId: z.string().uuid(), version: z.number().int().positive(),
+  rows: z.array(importPreviewRowSchema).max(50),
+  nextCursor: z.number().int().min(1).max(10000).nullable(),
+}).strict();
+export const importRowsQuerySchema = z.object({
+  baseVersion: z.coerce.number().int().positive(),
+  after: z.coerce.number().int().min(0).max(10000).default(0),
+}).strict();
 export const importPreviewSchema = z.object({
   jobId: z.string().uuid(),
   version: z.number().int().positive(),
@@ -1058,7 +1071,7 @@ export const importPreviewSchema = z.object({
   possibleDuplicates: z.number().int().nonnegative(),
   excluded: z.number().int().nonnegative().default(0),
   warnings: z.array(z.string().max(1000)),
-  sampleRows: z.array(z.object({ rowNumber: z.number().int().positive(), externalId: z.string().max(300), displayName: z.string().max(300), status: z.enum(["valid", "invalid", "review"]), excluded: z.boolean().default(false), errors: z.array(z.string().max(1000)) }).strict()).max(50),
+  sampleRows: z.array(importPreviewRowSchema).max(50),
 }).strict();
 export const importRowDecisionSchema = z.object({
   baseVersion: z.number().int().positive(),

@@ -1,6 +1,20 @@
-import { importPreviewSchema, importRowDecisionSchema } from "@phan/contracts";
+import { importPreviewSchema, importRowDecisionSchema, importRowsPageSchema, importRowsQuerySchema, membershipSchema } from "@phan/contracts";
 import { readImportMutation } from "@/lib/server/import-mutations";
-import { apiJson, createRequestHash, rpcErrorStatus } from "@/lib/server/supabase-api";
+import { apiJson, createRequestHash, rpcErrorStatus, createRequestSupabaseClient, getVerifiedUser } from "@/lib/server/supabase-api";
+
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
+  const id = membershipSchema.shape.id.safeParse((await context.params).id);
+  const params = new URL(request.url).searchParams;
+  const query = importRowsQuerySchema.safeParse({ baseVersion: params.get("baseVersion"), after: params.get("after") ?? 0 });
+  if (!id.success || !query.success || Array.from(params.keys()).some((key) => !["baseVersion", "after"].includes(key))
+      || params.getAll("baseVersion").length !== 1 || params.getAll("after").length > 1) return apiJson({ code: "IMPORT_ROWS_INVALID", message: "Cần phiên bản và vị trí dòng hợp lệ." }, 400);
+  const client = await createRequestSupabaseClient();
+  if (!(await getVerifiedUser(client))) return apiJson({ code: "AUTH_REQUIRED", message: "Cần đăng nhập." }, 401);
+  const { data, error } = await client.schema("api").rpc("import_rows_page", { p_job_id: id.data, p_base_version: query.data.baseVersion, p_after: query.data.after });
+  if (error) return apiJson({ code: "IMPORT_ROWS_DENIED", message: "Không tải được dòng. Kiểm tra quyền và tải lại bản xem trước nếu phiên bản đã đổi." }, rpcErrorStatus(error.code));
+  const result = importRowsPageSchema.safeParse(data);
+  return result.success ? apiJson(result.data) : apiJson({ code: "IMPORT_RESPONSE_INVALID", message: "Phản hồi dòng không hợp lệ." }, 502);
+}
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const mutation = await readImportMutation(request, (await context.params).id);

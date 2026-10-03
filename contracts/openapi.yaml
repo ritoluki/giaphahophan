@@ -7760,6 +7760,36 @@ paths:
         required: true
         schema: *id001
   /api/v1/imports/{id}/rows:
+    get:
+      tags: [m16]
+      summary: Inspect every staged row in bounded version-bound pages
+      description: User-scoped imports.manage/demo gate; 50 rows maximum ordered by source row number. Only summary fields, never raw payload or private decision reason. Changed job version returns409; no authenticated cache.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - name: baseVersion
+        in: query
+        required: true
+        schema: { type: integer, minimum: 1 }
+      - name: after
+        in: query
+        schema: { type: integer, minimum: 0, maximum: 10000, default: 0 }
+      responses:
+        '200':
+          description: Authorized private summary page
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ImportRowsPage' }
+                  meta: { $ref: '#/components/schemas/Meta' }
+        '400': { description: Invalid cursor or query }
+        '401': { description: Authentication required }
+        '403': { description: Imports capability or demo gate denied }
+        '409': { description: Import version changed }
     post:
       tags: [m16]
       summary: Exclude or restore one staged row without deleting original data
@@ -13818,6 +13848,31 @@ components:
       - possibleDuplicates
       - warnings
       - sampleRows
+    ImportRowsPage:
+      type: object
+      additionalProperties: false
+      required: [jobId, version, rows, nextCursor]
+      properties:
+        jobId: *id001
+        version: { type: integer, minimum: 1 }
+        nextCursor:
+          anyOf:
+          - { type: integer, minimum: 1, maximum: 10000 }
+          - { type: 'null' }
+        rows:
+          type: array
+          maxItems: 50
+          items:
+            type: object
+            additionalProperties: false
+            required: [rowNumber, externalId, displayName, status, excluded, errors]
+            properties:
+              rowNumber: { type: integer, minimum: 1 }
+              externalId: { type: string, maxLength: 300 }
+              displayName: { type: string, maxLength: 300 }
+              status: { type: string, enum: [valid, invalid, review] }
+              excluded: { type: boolean }
+              errors: { type: array, items: { type: string, maxLength: 1000 } }
     ImportRowDecision:
       type: object
       additionalProperties: false

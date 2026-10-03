@@ -1,5 +1,7 @@
 # Bàn giao cho agent kế tiếp
 
+Latest2026-10-04: 0060 + GET imports/{id}/rows provides max50 summary keyset pages at exact job version. ImportRowInspector mobile selects any displayed row into exclude/restore form. SQL2000 pages and authenticated320px row51/reload/stale/private-marker checks PASS; reports/M16_ROW_INSPECTION.md. Next explicit normalized corrections/relationship mapping (review FAM/INDI external refs, never infer parents from union); M16-04 remains IN_PROGRESS. Commits fb5cc29/369c991 already pushed. Dev3100 stays available; isolated3129 stopped after tests. Preserve13 dirty design-review PNGs.
+
 Latest2026-10-04: 0059 + POST imports/{id}/rows and mobile form support reasoned exclude/restore; approval invalidated, parser/raw preserved, skipped/applied manifest correct. SQL and authenticated320px PASS; reports/M16_ROW_DECISIONS.md. Next full row inspection/correction and explicit relationship mapping; keep M16-04 IN_PROGRESS, then M16-05. Scalar slice pushed fb5cc29. Dev3100 running; test3127 disposable/stopped after evidence. Preserve13 dirty design-review PNGs. No owner action needed; no real/cloud data mutation.
 
 2026-10-04 recheck: Docker core services healthy; dev3100 HTTP200. Fresh isolated build/browser at3126 and SQL fixture PASS after source locking and CSRF cookie validation. Continue row-decision workflow; do not mark all M16-04 DONE. Disposable test servers3123/3124/3126 are stopped after evidence; dev3100 stays available.

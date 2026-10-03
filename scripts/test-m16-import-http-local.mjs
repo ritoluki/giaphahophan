@@ -145,6 +145,11 @@ try {
     sourceNamespace: "synthetic-m16", mappingVersion: "structured-csv/1",
     mapping: { mappingVersion: "structured-csv/1", sourceNamespace: "synthetic-m16", dateInterpretation: "explicit_only", columns: { id: "externalId", name: "displayName", birth: "birthDate" } },
   });
+  const inspectionJob = await uploadAndImport({
+    filename: "synthetic-inspection.json", mimeType: "application/json", format: "canonical_json", sourceNamespace: "synthetic-inspection", mappingVersion: "structured-json/1",
+    bytes: Buffer.from(JSON.stringify(Array.from({ length: 51 }, (_, index) => ({ id: `inspection-${index + 1}`, name: `Hư cấu dòng ${index + 1}`, note: "private-inspection-marker" }))), "utf8"),
+    mapping: { mappingVersion: "structured-json/1", sourceNamespace: "synthetic-inspection", dateInterpretation: "explicit_only", columns: { id: "externalId", name: "displayName" } },
+  });
   const gedcomBytes = Buffer.from("0 HEAD\n1 SOUR SyntheticFixture\n1 GEDC\n2 VERS 5.5.1\n1 CHAR UTF-8\n0 @I1@ INDI\n1 NAME Fictional An /Nguyen/\n1 BIRT\n2 DATE ABT 1940\n0 @F1@ FAM\n1 CHIL @I1@\n1 _PHAN_LUNAR_DATE 12/03/Canh Ty\n0 TRLR\n", "utf8");
   const gedcomJob = await uploadAndImport({
     filename: "synthetic-family.ged", mimeType: "text/plain", bytes: gedcomBytes, format: "gedcom_551",
@@ -327,6 +332,33 @@ try {
     });
     assert((await reviewerPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)), `review UI overflows at 320px: ${JSON.stringify(overflow)}`);
     await reviewerPage.screenshot({ path: "reports/m16-review-320.png", fullPage: true });
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.goto(`${webUrl}/quan-tri/nhap-lieu?job=${inspectionJob.jobId}`);
+    const inspector = page.locator(".import-row-inspector");
+    await inspector.locator(".import-row-card").first().waitFor();
+    assert(await inspector.locator(".import-row-card").count() === 50, "inspection page must be bounded to50");
+    await inspector.getByRole("button", { name: "Trang dòng tiếp" }).click();
+    await inspector.getByRole("button", { name: "Chọn dòng 51" }).waitFor();
+    assert(await inspector.locator(".import-row-card").count() === 1, "second inspection page must contain only row51");
+    await inspector.getByRole("button", { name: "Chọn dòng 51" }).click();
+    assert(await page.getByLabel("Số dòng nguồn").inputValue() === "51", "select row51 did not populate decision form");
+    const inspectionPreview = await browserRequest(page, `/api/v1/imports/${inspectionJob.jobId}/preview`);
+    const inspectionVersion = inspectionPreview.body.data.version;
+    const inspectionState = await browserRequest(page, `/api/v1/imports/${inspectionJob.jobId}/rows?baseVersion=${inspectionVersion}&after=50`);
+    assert(inspectionState.status === 200 && !JSON.stringify(inspectionState.body).includes("private-inspection-marker"), "inspection leaked private source or version changed unexpectedly");
+    await page.getByLabel("Lý do (bắt buộc)").fill("Hư cấu: loại trừ dòng 51 sau đối chiếu");
+    const selectedResponse = page.waitForResponse((response) => response.url().endsWith(`/imports/${inspectionJob.jobId}/rows`) && response.request().method() === "POST");
+    await page.getByRole("button", { name: "Lưu quyết định dòng" }).click();
+    assert((await selectedResponse).status() === 200, "row51 decision not saved");
+    await page.waitForFunction(() => document.querySelector("#import-decision-reason")?.value === "");
+    const stalePage = await browserRequest(page, `/api/v1/imports/${inspectionJob.jobId}/rows?baseVersion=${inspectionVersion}&after=50`);
+    assert(stalePage.status === 409, "stale inspection cursor accepted after decision");
+    await page.reload();
+    await inspector.getByRole("button", { name: "Trang dòng tiếp" }).waitFor();
+    await inspector.getByRole("button", { name: "Trang dòng tiếp" }).click();
+    await inspector.getByText("Đã loại trừ", { exact: true }).waitFor();
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "row inspector overflow at320px");
+    await page.screenshot({ path: "reports/m16-inspection-320.png", fullPage: true });
     await reviewerContext.close();
     await context.close();
   } finally {
@@ -338,7 +370,7 @@ try {
     assert(proof.status === 0 && proof.stdout.trim() === "t", "persisted date precision or mapping snapshot did not match the dry-run");
   }
 
-  console.log("PASS local M16 authenticated browser/HTTP: private intake, stable IDs, real TOTP MFA, 320px exclude/restore/reload with exact row replay and AAL1 denial, independent review, atomic canonical demo apply, commit persistence/replay, CSRF/stale/changed-request denial and source citations; fixture cleanup asserted");
+  console.log("PASS local M16 authenticated browser/HTTP: private intake, stable IDs, MFA, 320px exclude/restore/reload, row51 keyset inspection/selection, stale cursor/privacy denial, independent review/apply, exact replay and CSRF/AAL1/changed-request denial; cleanup asserted");
 } finally {
   if (treeId) {
     for (const assetId of assetIds) {

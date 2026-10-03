@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { importPreviewSchema, importReviewStateSchema, type ImportPreviewRecord, type ImportReviewState } from "@phan/contracts";
+import { ImportRowInspector } from "./import-row-inspector";
 
 type Envelope<T> = { data?: T; meta?: { requestId?: string; csrfToken?: string } };
 type UploadIntent = { assetId: string; uploadUrl: string; requiredHeaders: Record<string, string> };
@@ -252,6 +253,11 @@ export function ImportIntake() {
         <p>Phân loại: {preview.classification}. Checksum SHA-256: <code className="import-hash">{preview.fileSha256}</code></p>
         {preview.warnings.length > 0 && <div><h3>Lưu ý</h3><ul>{preview.warnings.map((warning, index) => <li key={`${index}-${warning}`}>{warningText(warning)}</li>)}</ul></div>}
         <div><h3>Dòng mẫu · tối đa 50</h3>{preview.sampleRows.length === 0 ? <p className="muted">Chưa có dòng để xem trước.</p> : <ul className="import-row-list">{preview.sampleRows.map((row) => <li className="import-row-card" key={row.rowNumber}><div className="import-row-heading"><strong>Dòng {row.rowNumber}: {row.displayName}</strong><span className="tag">{row.excluded ? "Đã loại trừ" : row.status === "valid" ? "Hợp lệ" : row.status === "review" ? "Cần rà soát" : "Cần sửa"}</span></div><p>Mã nguồn: <code>{row.externalId}</code></p>{row.errors.length > 0 && <ul>{row.errors.map((issue, index) => <li key={`${index}-${issue}`}>{issue}</li>)}</ul>}</li>)}</ul>}</div>
+        {reviewState && <ImportRowInspector key={`${preview.jobId}:${reviewState.job.version}`} jobId={preview.jobId} version={reviewState.job.version}
+          editable={["needs_review", "ready"].includes(reviewState.job.status) && reviewAction === null} onSelect={(rowNumber, excluded) => {
+            setDecisionRow(String(rowNumber)); setDecisionExcluded(!excluded); setDecisionReason("");
+            document.getElementById("import-decision-reason")?.focus();
+          }} />}
         {reviewState && ["needs_review", "ready"].includes(reviewState.job.status) && <form className="import-row-decision" onSubmit={decideRow}>
           <h3>Quyết định từng dòng</h3>
           <p className="muted">Loại trừ không xóa tư liệu gốc và có thể khôi phục. Mỗi thay đổi thu hồi bản duyệt trước; cần MFA và quyền nhập liệu. Không dùng loại trừ để tự xác nhận quan hệ chưa rõ.</p>

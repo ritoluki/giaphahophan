@@ -295,6 +295,28 @@ select * from api.import_stage_rows(:'capacity_job_id'::uuid,
   (select jsonb_agg(jsonb_build_object('rowNumber',n,'externalId','load-'||n,'rawPayload',jsonb_build_object('displayName','Hư cấu capacity '||n),
     'normalized',jsonb_build_object('externalId','load-'||n,'displayName','Hư cấu capacity '||n),'status','valid','errors','[]'::jsonb) order by n)
     from generate_series(1,2000) n),'[]'::jsonb) \gset capacity_stage_
+select api.import_rows_page(:'capacity_job_id'::uuid,:'capacity_stage_version'::bigint,0) as value \gset inspection_first_
+select jsonb_array_length(:'inspection_first_value'::jsonb->'rows')=50
+  and :'inspection_first_value'::jsonb->>'nextCursor'='50'
+  and not (:'inspection_first_value'::jsonb->'rows'->0 ? 'rawPayload') as safe \gset inspection_check_
+\if :inspection_check_safe
+\else
+  \quit 1
+\endif
+select api.import_rows_page(:'capacity_job_id'::uuid,:'capacity_stage_version'::bigint,50) as value \gset inspection_second_
+select :'inspection_second_value'::jsonb->'rows'->0->>'rowNumber'='51' and :'inspection_second_value'::jsonb->>'nextCursor'='100' as safe \gset inspection_check_
+\if :inspection_check_safe
+\else
+  \quit 1
+\endif
+select api.import_rows_page(:'capacity_job_id'::uuid,:'capacity_stage_version'::bigint,1950) as value \gset inspection_last_
+select jsonb_array_length(:'inspection_last_value'::jsonb->'rows')=50 and :'inspection_last_value'::jsonb->>'nextCursor' is null as safe \gset inspection_check_
+\if :inspection_check_safe
+\else
+  \quit 1
+\endif
+select format('do $body$ begin begin perform api.import_rows_page(%L::uuid,%L::bigint,0); raise exception ''stale inspection accepted''; exception when sqlstate ''40001'' then null; end; end $body$;',
+  :'capacity_job_id',(:'capacity_stage_version'::bigint+1)::text) \gexec
 reset role;
 select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002',true);
 select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}',true);
