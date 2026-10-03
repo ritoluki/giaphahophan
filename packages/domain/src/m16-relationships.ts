@@ -10,6 +10,8 @@ const sourceSchema = z.object({
       recordType: z.string().min(1).max(40),
       partnerRefs: z.array(z.object({ xref: ref, sourceTag: z.enum(["HUSB", "WIFE"]) })).max(100).optional(),
       childRefs: z.array(ref).max(1000).optional(),
+      familySpouseRefs: z.array(ref).max(1000).optional(),
+      familyChildRefs: z.array(z.object({ xref: ref }).passthrough()).max(1000).optional(),
     }),
   })).max(10000),
   excludedExternalIds: z.array(ref).max(10000),
@@ -44,6 +46,7 @@ export function planImportRelationships(sourceInput: unknown, decisionsInput: un
   if (records.size !== source.data.records.length) issues.add("DUPLICATE_EXTERNAL_ID");
   const excluded = new Set(source.data.excludedExternalIds);
   const families = new Set<string>();
+  const decidedParticipants = new Map<string, { partners: Set<string>; children: Set<string> }>();
   const edges = new Set<string>();
   const biological = new Map<string, Set<string>>();
   const adjacency = new Map<string, Set<string>>();
@@ -60,6 +63,25 @@ export function planImportRelationships(sourceInput: unknown, decisionsInput: un
     if (partners.size !== mapping.partnerExternalIds.length || children.size !== mapping.childExternalIds.length) issues.add("DUPLICATE_PARTICIPANT");
     const sourcePartners = new Set(family.normalized.partnerRefs?.map((item) => item.xref) ?? []);
     const sourceChildren = new Set(family.normalized.childRefs ?? []);
+    const expectedPartners = new Set([...sourcePartners].filter((id) => !excluded.has(id)));
+    const expectedChildren = new Set([...sourceChildren].filter((id) => !excluded.has(id)));
+    if (expectedPartners.size !== partners.size || [...expectedPartners].some((id) => !partners.has(id))
+      || expectedChildren.size !== children.size || [...expectedChildren].some((id) => !children.has(id))) {
+      issues.add("REFERENCE_NOT_IN_SOURCE");
+    }
+    for (const id of expectedPartners) {
+      const participant = records.get(id);
+      if (participant?.normalized.recordType === "INDI" && !(participant.normalized.familySpouseRefs ?? []).includes(mapping.familyExternalId)) {
+        issues.add("REFERENCE_NOT_IN_SOURCE");
+      }
+    }
+    for (const id of expectedChildren) {
+      const participant = records.get(id);
+      if (participant?.normalized.recordType === "INDI" && !(participant.normalized.familyChildRefs ?? []).some((reference) => reference.xref === mapping.familyExternalId)) {
+        issues.add("REFERENCE_NOT_IN_SOURCE");
+      }
+    }
+    decidedParticipants.set(mapping.familyExternalId, { partners, children });
     for (const [selected, available] of [[partners, sourcePartners], [children, sourceChildren]] as const) {
       for (const person of selected) {
         if (!available.has(person)) issues.add("REFERENCE_NOT_IN_SOURCE");
@@ -86,6 +108,19 @@ export function planImportRelationships(sourceInput: unknown, decisionsInput: un
       const descendants = adjacency.get(parent) ?? new Set<string>();
       if (!descendants.has(child)) { descendants.add(child); indegrees.set(child, (indegrees.get(child) ?? 0) + 1); }
       adjacency.set(parent, descendants);
+    }
+  }
+  // GEDCOM has forward (FAM) and reverse (INDI) pointers. Reconcile both
+  // directions so no included pointer can silently disappear at apply time.
+  for (const record of source.data.records) {
+    if (record.normalized.recordType !== "INDI" || excluded.has(record.xref)) continue;
+    for (const familyId of record.normalized.familySpouseRefs ?? []) {
+      const participants = decidedParticipants.get(familyId);
+      if (!participants?.partners.has(record.xref)) issues.add("REFERENCE_NOT_IN_SOURCE");
+    }
+    for (const reference of record.normalized.familyChildRefs ?? []) {
+      const participants = decidedParticipants.get(reference.xref);
+      if (!participants?.children.has(record.xref)) issues.add("REFERENCE_NOT_IN_SOURCE");
     }
   }
   const queue = [...indegrees].filter(([, degree]) => degree === 0).map(([person]) => person);

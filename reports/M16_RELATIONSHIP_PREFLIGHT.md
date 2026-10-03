@@ -1,5 +1,9 @@
 # M16-04 relationship preflight — 2026-10-04
 
+## Coverage hardening continuation
+
+`planImportRelationships` now requires mapping membership to exactly cover each included FAM partner/child reference and reconciles GEDCOM forward (`HUSB`/`WIFE`/`CHIL`) against reverse `FAMS`/`FAMC` pointers. Missing reciprocal pointers and unselected included participants are rejected; explicitly excluded participants are not silently introduced. `pnpm.cmd --filter @phan/domain test`: PASS 104/104; domain typecheck PASS. This pure planner is defense-in-depth only and is not trusted for authorization or apply. Database coverage, merged canonical graph checks and atomic apply remain NOT_RUN; canonical relationship apply remains closed.
+
 ## Persistence and editor verification
 
 The local slice now includes the private decision table and GET/POST `/api/v1/imports/{id}/relationships`, plus an editor that distinguishes selected union members from explicit parent links. Relationship-only review rows are selectable only when their sole parser issue is `relationship_mapping_requires_review`; missing, excluded, invalid, duplicate or other-error source people remain blocked. The GET response is a bounded allowlist (family/person external IDs, display labels, parser status, exclusion flag and saved choices); raw payload and private reason are omitted.
