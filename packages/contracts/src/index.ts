@@ -1095,6 +1095,29 @@ export const importRelationshipMappingSchema = z.object({
   reason: z.string().trim().min(1).max(1000),
 }).strict();
 export type ImportRelationshipMapping = z.infer<typeof importRelationshipMappingSchema>;
+export const importRelationshipMappingResultSchema = z.object({
+  jobId: z.string().uuid(), version: z.number().int().positive(),
+  snapshotHash: z.string().regex(/^[a-f0-9]{64}$/), mappingCount: z.number().int().nonnegative(),
+}).strict();
+const importRelationshipParticipantSchema = z.object({
+  externalId: z.string().max(300), displayName: z.string().max(300),
+  status: z.enum(["valid", "invalid", "review"]), excluded: z.boolean(), relationshipOnlyReview: z.boolean(),
+}).strict();
+const importRelationshipSavedMappingSchema = z.object({
+  partnerExternalIds: z.array(importExternalRefSchema), childExternalIds: z.array(importExternalRefSchema),
+  parentLinks: z.array(z.object({ parentExternalId: importExternalRefSchema, childExternalId: importExternalRefSchema,
+    kind: z.enum(["biological", "adoptive", "guardian", "step"]), status: z.enum(["confirmed", "disputed"]) }).strict()),
+}).strict();
+export const importRelationshipRowsPageSchema = z.object({
+  jobId: z.string().uuid(), version: z.number().int().positive(),
+  families: z.array(z.object({ rowNumber: z.number().int().positive(), familyExternalId: z.string().max(300),
+    partners: z.array(importRelationshipParticipantSchema).max(100), children: z.array(importRelationshipParticipantSchema).max(1000),
+    savedMapping: importRelationshipSavedMappingSchema.nullable() }).strict()).max(50),
+  nextCursor: z.number().int().min(1).max(10000).nullable(),
+}).strict();
+export const importRelationshipRowsQuerySchema = z.object({
+  baseVersion: z.coerce.number().int().positive(), after: z.coerce.number().int().min(0).max(10000).default(0),
+}).strict();
 export const importReviewInputSchema = z.object({
   baseVersion: z.number().int().positive(),
   snapshotHash: z.string().regex(/^[a-f0-9]{64}$/),

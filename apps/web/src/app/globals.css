@@ -198,6 +198,18 @@ button, a, input, select { min-height: 44px; }
 .import-row-card ul { margin: .2rem 0 0; padding-left: 1.25rem; color: var(--danger); font-size: .88rem; }
 .import-row-heading { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: .5rem; }
 .import-row-heading strong { min-width: 0; overflow-wrap: anywhere; }
+.import-relationship-card { gap: .75rem; }
+.import-relationship-form { display: grid; gap: .75rem; min-width: 0; }
+.import-relationship-form fieldset { display: grid; gap: .55rem; min-width: 0; margin: 0; padding: .8rem; border: 1px solid var(--border); border-radius: 10px; }
+.import-relationship-form legend { padding-inline: .35rem; color: var(--brand); font-weight: 700; }
+.import-relationship-form label:not(.import-check) { display: grid; gap: .3rem; color: var(--ink-muted); font-size: .9rem; font-weight: 700; }
+.import-relationship-form :is(select, textarea) { width: 100%; min-width: 0; min-height: 48px; padding: .65rem .8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; }
+.import-relationship-form textarea { min-height: 88px; resize: vertical; }
+.import-check { display: flex; align-items: flex-start; gap: .55rem; min-width: 0; color: var(--ink); font-size: .92rem; }
+.import-check input { flex: 0 0 auto; width: 1.15rem; height: 1.15rem; margin-top: .18rem; accent-color: var(--brand); }
+.import-check span { min-width: 0; overflow-wrap: anywhere; }
+.import-relationship-form button { min-height: 44px; width: fit-content; max-width: 100%; }
+.import-relationship-form .button-primary { width: 100%; }
 @media (min-width: 768px) { .import-workspace { grid-template-columns: minmax(280px, .8fr) minmax(0, 1.2fr); align-items: start; } .import-stepper { grid-column: 1 / -1; } .import-form button { width: fit-content; } .import-counts { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 
 .deletion-impact-card { border-color: color-mix(in srgb, var(--danger) 32%, var(--border)); }

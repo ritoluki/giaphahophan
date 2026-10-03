@@ -1,7 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importReviewInputSchema, importRowDecisionSchema, importRowsPageSchema, importRowsQuerySchema } from "./index";
+import { importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importRelationshipMappingSchema, importRelationshipRowsPageSchema, importReviewInputSchema, importRowDecisionSchema, importRowsPageSchema, importRowsQuerySchema } from "./index";
 
 describe("M16 import contracts", () => {
+  it("requires explicit mapping decisions and keeps family pages allowlisted and bounded", () => {
+    const mapping = { baseVersion: 2, snapshotHash: "a".repeat(64), familyExternalId: "F1", partnerExternalIds: ["I1"],
+      childExternalIds: ["I2"], parentLinks: [{ parentExternalId: "I1", childExternalId: "I2", kind: "biological", status: "disputed" }], reason: "Hư cấu: đối chiếu nguồn" };
+    expect(importRelationshipMappingSchema.safeParse(mapping).success).toBe(true);
+    expect(importRelationshipMappingSchema.safeParse({ ...mapping, parentLinks: [{ ...mapping.parentLinks[0], inferredFromUnion: true }] }).success).toBe(false);
+    const family = { rowNumber: 4, familyExternalId: "F1", partners: [{ externalId: "I1", displayName: "Fictional A", status: "review", excluded: false, relationshipOnlyReview: true }],
+      children: [], savedMapping: null };
+    const page = { jobId: "a6100000-0000-4000-8000-000000000003", version: 2, families: [family], nextCursor: null };
+    expect(importRelationshipRowsPageSchema.safeParse(page).success).toBe(true);
+    expect(importRelationshipRowsPageSchema.safeParse({ ...page, families: Array.from({ length: 51 }, () => family) }).success).toBe(false);
+    expect(importRelationshipRowsPageSchema.safeParse({ ...page, families: [{ ...family, rawPayload: { secret: "private" } }] }).success).toBe(false);
+  });
   it("bounds row inspection cursors and rejects raw payloads in pages", () => {
     expect(importRowsQuerySchema.parse({ baseVersion: "2" }).after).toBe(0);
     expect(importRowsQuerySchema.safeParse({ baseVersion: 0, after: 0 }).success).toBe(false);

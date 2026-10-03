@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { importPreviewSchema, importReviewStateSchema, type ImportPreviewRecord, type ImportReviewState } from "@phan/contracts";
 import { ImportRowInspector } from "./import-row-inspector";
+import { ImportRelationshipEditor } from "./import-relationship-editor";
 
 type Envelope<T> = { data?: T; meta?: { requestId?: string; csrfToken?: string } };
 type UploadIntent = { assetId: string; uploadUrl: string; requiredHeaders: Record<string, string> };
@@ -258,6 +259,10 @@ export function ImportIntake() {
             setDecisionRow(String(rowNumber)); setDecisionExcluded(!excluded); setDecisionReason("");
             document.getElementById("import-decision-reason")?.focus();
           }} />}
+        {reviewState && <ImportRelationshipEditor key={`relationships:${preview.jobId}:${reviewState.job.version}`} jobId={preview.jobId}
+          version={reviewState.job.version} snapshotHash={preview.snapshotHash} csrfToken={csrfToken}
+          editable={["needs_review", "ready"].includes(reviewState.job.status) && reviewAction === null}
+          onSaved={async () => { await refreshReview(preview.jobId); }} />}
         {reviewState && ["needs_review", "ready"].includes(reviewState.job.status) && <form className="import-row-decision" onSubmit={decideRow}>
           <h3>Quyết định từng dòng</h3>
           <p className="muted">Loại trừ không xóa tư liệu gốc và có thể khôi phục. Mỗi thay đổi thu hồi bản duyệt trước; cần MFA và quyền nhập liệu. Không dùng loại trừ để tự xác nhận quan hệ chưa rõ.</p>

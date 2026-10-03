@@ -150,7 +150,7 @@ try {
     bytes: Buffer.from(JSON.stringify(Array.from({ length: 51 }, (_, index) => ({ id: `inspection-${index + 1}`, name: `Hư cấu dòng ${index + 1}`, note: "private-inspection-marker" }))), "utf8"),
     mapping: { mappingVersion: "structured-json/1", sourceNamespace: "synthetic-inspection", dateInterpretation: "explicit_only", columns: { id: "externalId", name: "displayName" } },
   });
-  const gedcomBytes = Buffer.from("0 HEAD\n1 SOUR SyntheticFixture\n1 GEDC\n2 VERS 5.5.1\n1 CHAR UTF-8\n0 @I1@ INDI\n1 NAME Fictional An /Nguyen/\n1 BIRT\n2 DATE ABT 1940\n0 @F1@ FAM\n1 CHIL @I1@\n1 _PHAN_LUNAR_DATE 12/03/Canh Ty\n0 TRLR\n", "utf8");
+  const gedcomBytes = Buffer.from("0 HEAD\n1 SOUR SyntheticFixture\n1 GEDC\n2 VERS 5.5.1\n1 CHAR UTF-8\n0 @I1@ INDI\n1 NAME Fictional An /Nguyen/\n1 FAMS @F1@\n1 BIRT\n2 DATE ABT 1940\n0 @I2@ INDI\n1 NAME Fictional Binh /Nguyen/\n1 FAMS @F1@\n0 @I3@ INDI\n1 NAME Fictional Chi /Nguyen/\n1 FAMC @F1@\n0 @F1@ FAM\n1 HUSB @I1@\n1 WIFE @I2@\n1 CHIL @I3@\n1 _PHAN_LUNAR_DATE 12/03/Canh Ty\n0 TRLR\n", "utf8");
   const gedcomJob = await uploadAndImport({
     filename: "synthetic-family.ged", mimeType: "text/plain", bytes: gedcomBytes, format: "gedcom_551",
     sourceNamespace: "synthetic-m16", mappingVersion: "gedcom-subset/1",
@@ -162,14 +162,20 @@ try {
     body: JSON.stringify({ treeId, assetId: gedcomJob.assetId, format: "gedcom_551", sourceNamespace: "synthetic-m16", mappingVersion: "gedcom-subset/1", mode: "demo" }),
   });
   assert(gedcomReplay.response.status === 202 && gedcomReplay.body?.data?.id === gedcomJob.jobId, "same source/tree/mapping with a new idempotency key did not reuse its staging job");
-  const replayProof = runPsql(`select ((select count(*) from private.import_jobs where tree_id=${sqlString(treeId)} and file_sha256=${sqlString(sha256(gedcomBytes))} and mapping_version='gedcom-subset/1')=1 and (select count(*) from private.import_rows where job_id=${sqlString(gedcomJob.jobId)})=2 and (select count(*) from private.audit_events where tree_id=${sqlString(treeId)} and action='import.created' and resource_id=${sqlString(gedcomJob.jobId)})=1);`, true);
+  const replayProof = runPsql(`select ((select count(*) from private.import_jobs where tree_id=${sqlString(treeId)} and file_sha256=${sqlString(sha256(gedcomBytes))} and mapping_version='gedcom-subset/1')=1 and (select count(*) from private.import_rows where job_id=${sqlString(gedcomJob.jobId)})=4 and (select count(*) from private.audit_events where tree_id=${sqlString(treeId)} and action='import.created' and resource_id=${sqlString(gedcomJob.jobId)})=1);`, true);
   assert(replayProof.status === 0 && replayProof.stdout.trim() === "t", "content-key replay duplicated jobs, rows, or create audit events");
   const stableMapAfter = runPsql(`select string_agg(external_id||':'||entity_kind||':'||canonical_id::text,',' order by external_id) from private.external_id_map where tree_id=${sqlString(treeId)} and source_namespace='synthetic-m16' and external_id in ('I1','F1') and entity_kind in ('person','family');`, true);
   assert(stableMapAfter.status === 0 && stableMapAfter.stdout.trim() === stableMapBefore.stdout.trim(), "content-key replay changed the stable canonical UUID reservations");
   const gedcomProof = runPsql(`select (j.classification='gedcom' and j.format='gedcom_551' and r.normalized #>> '{birthDate,precision}'='about' and r.raw_payload->'gedcom' is not null) from private.import_jobs j join private.import_rows r on r.job_id=j.id where j.id=${sqlString(gedcomJob.jobId)} and r.row_number=1;`, true);
   assert(gedcomProof.status === 0 && gedcomProof.stdout.trim() === "t", "GEDCOM format, date precision, or raw source preservation did not persist");
-  const relationshipReviewProof = runPsql(`select (count(*)=2 and bool_and(r.status='review' and r.errors @> '["relationship_mapping_requires_review"]'::jsonb)) from private.import_rows r where r.job_id=${sqlString(gedcomJob.jobId)};`, true);
-  assert(relationshipReviewProof.status === 0 && relationshipReviewProof.stdout.trim() === "t", "GEDCOM relationship source and target records were not both persisted as review-only");
+  const relationshipReviewProof = runPsql(`select (count(*)=4 and bool_and(r.status='review' and r.errors @> '["relationship_mapping_requires_review"]'::jsonb)) from private.import_rows r where r.job_id=${sqlString(gedcomJob.jobId)};`, true);
+  assert(relationshipReviewProof.status === 0 && relationshipReviewProof.stdout.trim() === "t", "GEDCOM relationship family and all referenced people were not persisted as review-only");
+  const relationshipPreview = await request(`${webUrl}/api/v1/imports/${gedcomJob.jobId}/preview`, { headers: { Cookie: cookie } });
+  const relationshipState = await request(`${webUrl}/api/v1/imports/${gedcomJob.jobId}/relationships?baseVersion=${relationshipPreview.body.data.version}&after=0`, { headers: { Cookie: cookie } });
+  assert(relationshipState.response.status === 200 && relationshipState.body.data.families.length === 1 &&
+    relationshipState.body.data.families[0].partners.every((item) => item.relationshipOnlyReview) &&
+    !JSON.stringify(relationshipState.body).includes("Fictional An /Nguyen/") && !JSON.stringify(relationshipState.body).includes("rawPayload"),
+    "relationship projection must allowlist family references without exposing raw payload");
   const gedcom7Bytes = Buffer.from("0 HEAD\n1 SOUR FamilySearch\n1 GEDC\n2 VERS 7.0.16\n1 CHAR UTF-8\n0 @I7@ INDI\n1 NAME Fictional Seven /Nguyen/\n1 BIRT\n2 DATE @#DJULIAN@ 3 MAR 1900\n1 _PHAN_LUNAR_DATE 12/03/Canh Ty\n0 TRLR\n", "utf8");
   const gedcom7Job = await uploadAndImport({
     filename: "synthetic-family-v7.ged", mimeType: "text/plain", bytes: gedcom7Bytes, format: "gedcom_7",
@@ -261,7 +267,46 @@ try {
       { baseVersion: beforeMfa.body.data.job.version, snapshotHash: preview.body.data.snapshotHash, rowNumber: 1, excluded: true, reason: "Hư cấu kiểm tra quyền" },
       { "Idempotency-Key": randomUUID(), "X-CSRF-Token": beforeMfa.body.meta.csrfToken });
     assert(rowDenied.status === 403, "BFF must deny AAL1 row decision");
+    const relationshipAal1Denied = await browserRequest(reviewerPage, `/api/v1/imports/${gedcomJob.jobId}/relationships`, {
+      baseVersion: relationshipPreview.body.data.version, snapshotHash: relationshipPreview.body.data.snapshotHash,
+      familyExternalId: "F1", partnerExternalIds: ["I1", "I2"], childExternalIds: ["I3"],
+      parentLinks: [{ parentExternalId: "I1", childExternalId: "I3", kind: "biological", status: "disputed" }], reason: "Hư cấu: AAL1 phải bị từ chối",
+    }, { "Idempotency-Key": randomUUID(), "X-CSRF-Token": beforeMfa.body.meta.csrfToken });
+    assert(relationshipAal1Denied.status === 403, "BFF must deny AAL1 relationship mapping mutation");
     await browserMfa(reviewerPage);
+    const relationshipPageAal1 = await browserRequest(reviewerPage, `/api/v1/imports/${gedcomJob.jobId}/relationships?baseVersion=${relationshipPreview.body.data.version}&after=0`);
+    assert(relationshipPageAal1.status === 200 && relationshipPageAal1.body.data.families.length === 1, "authorized reviewer could not inspect source family references");
+    await reviewerPage.goto(`${webUrl}/quan-tri/nhap-lieu?job=${gedcomJob.jobId}`);
+    const familyCard = reviewerPage.locator(".import-relationship-card").first();
+    await familyCard.waitFor();
+    const participantChecks = familyCard.locator(".import-check input");
+    assert(await participantChecks.count() === 3, "family editor did not show two partners and one child");
+    await participantChecks.nth(0).check(); await participantChecks.nth(1).check(); await participantChecks.nth(2).check();
+    const relationshipSelects = familyCard.locator("select");
+    await relationshipSelects.nth(0).selectOption("I1"); await relationshipSelects.nth(1).selectOption("I3");
+    await relationshipSelects.nth(2).selectOption("biological"); await relationshipSelects.nth(3).selectOption("disputed");
+    await familyCard.getByRole("button", { name: "Thêm quan hệ tường minh" }).click();
+    await familyCard.locator("textarea").fill("Hư cấu: đối chiếu từng dòng nguồn; quan hệ còn tranh nghị.");
+    const relationshipSaveResponse = reviewerPage.waitForResponse((response) => response.url().endsWith(`/imports/${gedcomJob.jobId}/relationships`) && response.request().method() === "POST");
+    await familyCard.getByRole("button", { name: "Lưu quyết định riêng tư" }).click();
+    const relationshipSaved = await relationshipSaveResponse;
+    const relationshipSavedBody = await relationshipSaved.json();
+    assert(relationshipSaved.status() === 200 && relationshipSavedBody.data.mappingCount === 1, "authenticated relationship mapping save failed");
+    await reviewerPage.waitForFunction(() => document.querySelector(".import-relationship-card")?.querySelectorAll(".import-check input:checked").length === 3);
+    const relationshipStateAfter = await browserRequest(reviewerPage, `/api/v1/imports/${gedcomJob.jobId}`);
+    const relationshipReplayHeaders = { "Idempotency-Key": relationshipSaved.request().headers()["idempotency-key"], "X-CSRF-Token": relationshipStateAfter.body.meta.csrfToken };
+    const relationshipReplay = await browserRequest(reviewerPage, `/api/v1/imports/${gedcomJob.jobId}/relationships`, relationshipSaved.request().postDataJSON(), relationshipReplayHeaders);
+    assert(relationshipReplay.status === 200 && relationshipReplay.body.data.version === relationshipSavedBody.data.version, "relationship exact retry changed the job version");
+    const relationshipChangedState = await browserRequest(reviewerPage, `/api/v1/imports/${gedcomJob.jobId}`);
+    const changedRelationshipReplay = await browserRequest(reviewerPage, `/api/v1/imports/${gedcomJob.jobId}/relationships`,
+      { ...relationshipSaved.request().postDataJSON(), reason: "Hư cấu: nội dung đổi nhưng khóa cũ" },
+      { ...relationshipReplayHeaders, "X-CSRF-Token": relationshipChangedState.body.meta.csrfToken });
+    assert(changedRelationshipReplay.status === 409, `changed relationship retry should conflict, received HTTP ${changedRelationshipReplay.status} (${changedRelationshipReplay.body?.data?.code ?? "no code"})`);
+    const staleRelationshipPage = await browserRequest(reviewerPage, `/api/v1/imports/${gedcomJob.jobId}/relationships?baseVersion=${relationshipPreview.body.data.version}&after=0`);
+    assert(staleRelationshipPage.status === 409, "stale family relationship cursor was accepted after mapping change");
+    const relationshipCanonicalProof = runPsql(`select ((select count(*) from private.import_relationship_mappings where job_id=${sqlString(gedcomJob.jobId)})=1 and (select count(*) from private.unions where tree_id=${sqlString(treeId)})=0 and (select count(*) from private.parent_links where tree_id=${sqlString(treeId)})=0);`, true);
+    assert(relationshipCanonicalProof.status === 0 && relationshipCanonicalProof.stdout.trim() === "t", "saving a mapping changed canonical relationship tables");
+    await reviewerPage.screenshot({ path: "reports/m16-relationships-320.png", fullPage: true });
     await reviewerPage.goto(`${webUrl}/quan-tri/nhap-lieu?job=${applyJobId}`);
     await reviewerPage.getByLabel("Lý do (bắt buộc)").fill("Hư cấu: cần đối chiếu nguồn");
     const excludeResponse = reviewerPage.waitForResponse((response) => response.url().endsWith(`/imports/${applyJobId}/rows`) && response.request().method() === "POST");
@@ -370,7 +415,7 @@ try {
     assert(proof.status === 0 && proof.stdout.trim() === "t", "persisted date precision or mapping snapshot did not match the dry-run");
   }
 
-  console.log("PASS local M16 authenticated browser/HTTP: private intake, stable IDs, MFA, 320px exclude/restore/reload, row51 keyset inspection/selection, stale cursor/privacy denial, independent review/apply, exact replay and CSRF/AAL1/changed-request denial; cleanup asserted");
+  console.log("PASS local M16 authenticated browser/HTTP: private intake, stable IDs, MFA, 320px exclude/restore/reload, row51 keyset inspection/selection, allowlisted GEDCOM family projection, explicit relationship mapping editor/save/exact replay/stale cursor, unchanged canonical relationship tables, independent review/apply and CSRF/AAL1 denial; cleanup asserted");
 } finally {
   if (treeId) {
     for (const assetId of assetIds) {

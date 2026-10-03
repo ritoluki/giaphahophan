@@ -335,6 +335,47 @@ select result->>'status'='completed' and result->'counters'->>'succeeded'='2000'
 \else
   \quit 1
 \endif
+select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','gedcom_551','synthetic-relationships','relationship/1','demo',
+  'b1640000-0000-4000-8000-000000000023',repeat('f',64)) \gset relationship_job_
+select * from api.import_stage_rows(:'relationship_job_id'::uuid,
+  '[{"rowNumber":1,"externalId":"F1","rawPayload":{"recordType":"FAM"},"normalized":{"recordType":"FAM","externalId":"F1","partnerRefs":[{"xref":"I1","sourceTag":"HUSB"}],"childRefs":["I2"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":2,"externalId":"I1","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"I1","displayName":"Hư cấu người A"},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":3,"externalId":"I2","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"I2","displayName":"Hư cấu người B"},"status":"review","errors":["relationship_mapping_requires_review"]}]'::jsonb,'[]'::jsonb) \gset relationship_stage_
+reset role;
+select count(*) as n from private.parent_links where tree_id='b1610000-0000-4000-8000-000000000001' \gset before_relationship_
+set local role authenticated;
+select result->>'version' as version,result->>'snapshotHash' as hash,result->>'mappingCount' as count
+  from (select api.import_relationship_mapping_save(:'relationship_job_id'::uuid,:'relationship_stage_version'::bigint,:'relationship_stage_snapshot_hash',
+    jsonb_build_object('baseVersion',:'relationship_stage_version'::bigint,'snapshotHash',:'relationship_stage_snapshot_hash',
+      'familyExternalId','F1','partnerExternalIds',jsonb_build_array('I1'),'childExternalIds',jsonb_build_array('I2'),
+      'parentLinks',jsonb_build_array(jsonb_build_object('parentExternalId','I1','childExternalId','I2','kind','biological','status','disputed')),
+      'reason','Hư cấu: đối chiếu nguồn GEDCOM'),
+    'b1640000-0000-4000-8000-000000000024',repeat('5',64)) as result) r \gset relationship_saved_
+reset role;
+select :'relationship_saved_count'='1' as count_ok, :'relationship_saved_hash'<>:'relationship_stage_snapshot_hash' as hash_ok,
+  (select count(*)=1 from private.import_relationship_mappings where job_id=:'relationship_job_id'::uuid) as mapping_ok,
+  (select count(*)=:'before_relationship_n'::bigint from private.parent_links where tree_id='b1610000-0000-4000-8000-000000000001') as links_ok \gset relassert_
+\echo relassert :relassert_count_ok :relassert_hash_ok :relassert_mapping_ok :relassert_links_ok
+select case when :'relassert_count_ok'='t' and :'relassert_hash_ok'='t' and :'relassert_mapping_ok'='t' and :'relassert_links_ok'='t' then 1 else 1/0 end;
+set local role authenticated;
+select result->>'version' as version from (select api.import_relationship_mapping_save(:'relationship_job_id'::uuid,:'relationship_stage_version'::bigint,:'relationship_stage_snapshot_hash',
+    jsonb_build_object('baseVersion',:'relationship_stage_version'::bigint,'snapshotHash',:'relationship_stage_snapshot_hash',
+      'familyExternalId','F1','partnerExternalIds',jsonb_build_array('I1'),'childExternalIds',jsonb_build_array('I2'),
+      'parentLinks',jsonb_build_array(jsonb_build_object('parentExternalId','I1','childExternalId','I2','kind','biological','status','disputed')),
+      'reason','Hư cấu: đối chiếu nguồn GEDCOM'),
+    'b1640000-0000-4000-8000-000000000024',repeat('5',64)) as result) r \gset relationship_replay_
+select case when :'relationship_replay_version'=:'relationship_saved_version' then 1 else 1/0 end;
+select api.import_relationship_rows(:'relationship_job_id'::uuid,:'relationship_saved_version'::bigint,0) as value \gset relationship_page_
+select case when jsonb_array_length(:'relationship_page_value'::jsonb->'families')=1
+  and :'relationship_page_value'::jsonb->'families'->0->'partners'->0->>'relationshipOnlyReview'='true'
+  and :'relationship_page_value'::jsonb->'families'->0->'savedMapping'->'parentLinks'->0->>'status'='disputed'
+  and not (:'relationship_page_value'::jsonb->'families'->0 ? 'rawPayload')
+  and not (:'relationship_page_value'::jsonb->'families'->0 ? 'reason') then 1 else 1/0 end;
+select format('do $body$ begin begin perform api.import_relationship_mapping_save(%L::uuid,%L::bigint,%L,%L::jsonb,%L::uuid,%L); raise exception ''stale relationship snapshot accepted''; exception when sqlstate ''40001'' then null; end; end $body$;',
+  :'relationship_job_id',:'relationship_stage_version',:'relationship_stage_snapshot_hash',
+  jsonb_build_object('baseVersion',:'relationship_stage_version'::bigint,'snapshotHash',:'relationship_stage_snapshot_hash',
+    'familyExternalId','F1','partnerExternalIds',jsonb_build_array('I1'),'childExternalIds',jsonb_build_array('I2'),'parentLinks','[]'::jsonb,'reason','Hư cấu retry')::text,
+  'b1640000-0000-4000-8000-000000000025',repeat('6',64)) \gexec
 reset role;
 select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002',true);
 select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal1"}',true);
