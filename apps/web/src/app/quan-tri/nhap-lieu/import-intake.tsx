@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useRef, useState } from "react";
-import { importReviewStateSchema, type ImportPreviewRecord, type ImportReviewState } from "@phan/contracts";
+import { importPreviewSchema, importReviewStateSchema, type ImportPreviewRecord, type ImportReviewState } from "@phan/contracts";
 
 type Envelope<T> = { data?: T; meta?: { requestId?: string; csrfToken?: string } };
 type UploadIntent = { assetId: string; uploadUrl: string; requiredHeaders: Record<string, string> };
@@ -67,15 +67,38 @@ export function ImportIntake() {
   const [error, setError] = useState("");
   const [reviewState, setReviewState] = useState<ImportReviewState | null>(null);
   const [csrfToken, setCsrfToken] = useState("");
-  const [reviewAction, setReviewAction] = useState<"approve" | "commit" | null>(null);
+  const [reviewAction, setReviewAction] = useState<"approve" | "commit" | "rows" | null>(null);
+  const [decisionRow, setDecisionRow] = useState("1");
+  const [decisionExcluded, setDecisionExcluded] = useState(true);
+  const [decisionReason, setDecisionReason] = useState("");
   const reviewRequest = useRef<{ signature: string; key: string } | null>(null);
 
   async function refreshReview(jobId: string) {
+    const previewResponse = await fetch(`/api/v1/imports/${jobId}/preview`, { cache: "no-store" });
+    setPreview(importPreviewSchema.parse(await responseData<ImportPreviewRecord>(previewResponse)));
     const response = await fetch(`/api/v1/imports/${jobId}`, { cache: "no-store" });
     const envelope = await response.clone().json() as Envelope<ImportReviewState>;
     const result = importReviewStateSchema.parse(await responseData<ImportReviewState>(response));
     setReviewState(result);
     setCsrfToken(envelope.meta?.csrfToken ?? "");
+  }
+
+  async function decideRow(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!preview || !reviewState) return;
+    const body = { baseVersion: reviewState.job.version, snapshotHash: preview.snapshotHash, rowNumber: Number(decisionRow), excluded: decisionExcluded, reason: decisionReason.trim() };
+    const signature = JSON.stringify({ jobId: preview.jobId, action: "rows", body });
+    if (reviewRequest.current?.signature !== signature) reviewRequest.current = { signature, key: crypto.randomUUID() };
+    setReviewAction("rows"); setError("");
+    try {
+      const response = await fetch(`/api/v1/imports/${preview.jobId}/rows`, {
+        method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": reviewRequest.current.key, "X-CSRF-Token": csrfToken }, body: JSON.stringify(body),
+      });
+      setPreview(importPreviewSchema.parse(await responseData<ImportPreviewRecord>(response)));
+      await refreshReview(preview.jobId);
+      setDecisionReason("");
+    } catch (cause: unknown) { setError(cause instanceof Error ? cause.message : "Chưa cập nhật được dòng. Bạn có thể thử lại an toàn."); }
+    finally { setReviewAction(null); }
   }
 
   async function actOnReview(action: "approve" | "commit") {
@@ -225,10 +248,18 @@ export function ImportIntake() {
       {preview && <section className="card import-result" aria-live="polite" aria-labelledby="import-result-title">
         <span className="status-label">{reviewState?.job.status === "completed" ? "Đã áp dụng" : reviewState?.job.status === "ready" ? "Đã duyệt" : "Cần rà soát"}</span>
         <h2 id="import-result-title">Kết quả dry-run</h2>
-        <dl className="import-counts"><div><dt>Tổng dòng</dt><dd>{preview.valid + preview.invalid + preview.possibleDuplicates}</dd></div><div><dt>Hợp lệ</dt><dd>{preview.valid}</dd></div><div><dt>Cần sửa</dt><dd>{preview.invalid}</dd></div><div><dt>Cần rà soát</dt><dd>{preview.possibleDuplicates}</dd></div></dl>
+        <dl className="import-counts"><div><dt>Tổng dòng</dt><dd>{preview.valid + preview.invalid + preview.possibleDuplicates + preview.excluded}</dd></div><div><dt>Hợp lệ</dt><dd>{preview.valid}</dd></div><div><dt>Cần sửa</dt><dd>{preview.invalid}</dd></div><div><dt>Cần rà soát</dt><dd>{preview.possibleDuplicates}</dd></div><div><dt>Đã loại trừ</dt><dd>{preview.excluded}</dd></div></dl>
         <p>Phân loại: {preview.classification}. Checksum SHA-256: <code className="import-hash">{preview.fileSha256}</code></p>
         {preview.warnings.length > 0 && <div><h3>Lưu ý</h3><ul>{preview.warnings.map((warning, index) => <li key={`${index}-${warning}`}>{warningText(warning)}</li>)}</ul></div>}
-        <div><h3>Dòng mẫu · tối đa 50</h3>{preview.sampleRows.length === 0 ? <p className="muted">Chưa có dòng để xem trước.</p> : <ul className="import-row-list">{preview.sampleRows.map((row) => <li className="import-row-card" key={row.rowNumber}><div className="import-row-heading"><strong>Dòng {row.rowNumber}: {row.displayName}</strong><span className="tag">{row.status === "valid" ? "Hợp lệ" : row.status === "review" ? "Cần rà soát" : "Cần sửa"}</span></div><p>Mã nguồn: <code>{row.externalId}</code></p>{row.errors.length > 0 && <ul>{row.errors.map((issue, index) => <li key={`${index}-${issue}`}>{issue}</li>)}</ul>}</li>)}</ul>}</div>
+        <div><h3>Dòng mẫu · tối đa 50</h3>{preview.sampleRows.length === 0 ? <p className="muted">Chưa có dòng để xem trước.</p> : <ul className="import-row-list">{preview.sampleRows.map((row) => <li className="import-row-card" key={row.rowNumber}><div className="import-row-heading"><strong>Dòng {row.rowNumber}: {row.displayName}</strong><span className="tag">{row.excluded ? "Đã loại trừ" : row.status === "valid" ? "Hợp lệ" : row.status === "review" ? "Cần rà soát" : "Cần sửa"}</span></div><p>Mã nguồn: <code>{row.externalId}</code></p>{row.errors.length > 0 && <ul>{row.errors.map((issue, index) => <li key={`${index}-${issue}`}>{issue}</li>)}</ul>}</li>)}</ul>}</div>
+        {reviewState && ["needs_review", "ready"].includes(reviewState.job.status) && <form className="import-row-decision" onSubmit={decideRow}>
+          <h3>Quyết định từng dòng</h3>
+          <p className="muted">Loại trừ không xóa tư liệu gốc và có thể khôi phục. Mỗi thay đổi thu hồi bản duyệt trước; cần MFA và quyền nhập liệu. Không dùng loại trừ để tự xác nhận quan hệ chưa rõ.</p>
+          <label htmlFor="import-decision-row">Số dòng nguồn</label><input id="import-decision-row" type="number" min="1" max="10000" required value={decisionRow} onChange={(event) => setDecisionRow(event.target.value)} />
+          <label htmlFor="import-decision-action">Quyết định</label><select id="import-decision-action" value={decisionExcluded ? "exclude" : "restore"} onChange={(event) => setDecisionExcluded(event.target.value === "exclude")}><option value="exclude">Loại trừ khỏi bản áp dụng</option><option value="restore">Khôi phục vào bản rà soát</option></select>
+          <label htmlFor="import-decision-reason">Lý do (bắt buộc)</label><textarea id="import-decision-reason" required maxLength={1000} value={decisionReason} onChange={(event) => setDecisionReason(event.target.value)} />
+          <button className="button-secondary" type="submit" disabled={reviewAction !== null || !decisionReason.trim()}>{reviewAction === "rows" ? "Đang lưu quyết định…" : "Lưu quyết định dòng"}</button>
+        </form>}
         {reviewState?.job.status === "completed" ? <p className="import-safety-note" role="status">Đã lưu {reviewState.appliedPeople} hồ sơ vào cây demo cùng nguồn trích dẫn riêng tư.</p> : <>
           <p className="import-safety-note">Chưa ghi hồ sơ. Batch có lỗi, dòng cần rà soát, quan hệ gia đình hoặc hơn 2.000 người cần được xử lý trước bước áp dụng. Gửi đường dẫn trang này cho người duyệt có quyền nhập liệu.</p>
           {reviewState?.job.status === "needs_review" && <button className="button-primary" type="button"

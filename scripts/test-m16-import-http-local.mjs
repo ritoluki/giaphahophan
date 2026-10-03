@@ -252,8 +252,34 @@ try {
       { baseVersion: beforeMfa.body.data.job.version, snapshotHash: preview.body.data.snapshotHash },
       { "Idempotency-Key": randomUUID(), "X-CSRF-Token": beforeMfa.body.meta.csrfToken });
     assert(denied.status === 403, "BFF must deny AAL1 reviewer mutation");
+    const rowDenied = await browserRequest(reviewerPage, `/api/v1/imports/${applyJobId}/rows`,
+      { baseVersion: beforeMfa.body.data.job.version, snapshotHash: preview.body.data.snapshotHash, rowNumber: 1, excluded: true, reason: "Hư cấu kiểm tra quyền" },
+      { "Idempotency-Key": randomUUID(), "X-CSRF-Token": beforeMfa.body.meta.csrfToken });
+    assert(rowDenied.status === 403, "BFF must deny AAL1 row decision");
     await browserMfa(reviewerPage);
     await reviewerPage.goto(`${webUrl}/quan-tri/nhap-lieu?job=${applyJobId}`);
+    await reviewerPage.getByLabel("Lý do (bắt buộc)").fill("Hư cấu: cần đối chiếu nguồn");
+    const excludeResponse = reviewerPage.waitForResponse((response) => response.url().endsWith(`/imports/${applyJobId}/rows`) && response.request().method() === "POST");
+    await reviewerPage.getByRole("button", { name: "Lưu quyết định dòng" }).click();
+    const excluded = await excludeResponse;
+    assert(excluded.status() === 200 && (await excluded.json()).data.excluded === 1, "320px row exclusion was not persisted");
+    await reviewerPage.waitForFunction(() => document.querySelector(".import-row-heading .tag")?.textContent === "Đã loại trừ");
+    await reviewerPage.waitForFunction(() => Array.from(document.querySelectorAll("button")).find((item) => item.textContent === "Duyệt bản nhập demo")?.disabled);
+    await reviewerPage.waitForFunction(() => document.querySelector("#import-decision-reason")?.value === "");
+    const excludedState = await browserRequest(reviewerPage, `/api/v1/imports/${applyJobId}`);
+    const rowReplayHeaders = { "Idempotency-Key": excluded.request().headers()["idempotency-key"], "X-CSRF-Token": excludedState.body.meta.csrfToken };
+    const rowReplay = await browserRequest(reviewerPage, `/api/v1/imports/${applyJobId}/rows`, excluded.request().postDataJSON(), rowReplayHeaders);
+    assert(rowReplay.status === 200 && rowReplay.body.data.version === excludedState.body.data.job.version, "row decision exact retry changed version");
+    const rowChanged = await browserRequest(reviewerPage, `/api/v1/imports/${applyJobId}/rows`, { ...excluded.request().postDataJSON(), excluded: false }, rowReplayHeaders);
+    assert(rowChanged.status === 409, `changed row retry returned unexpected HTTP ${rowChanged.status}`);
+    await reviewerPage.reload();
+    await reviewerPage.getByText("Đã loại trừ", { exact: true }).first().waitFor();
+    await reviewerPage.getByLabel("Quyết định", { exact: true }).selectOption("restore");
+    await reviewerPage.getByLabel("Lý do (bắt buộc)").fill("Hư cấu: đã đối chiếu, khôi phục");
+    const restoreResponse = reviewerPage.waitForResponse((response) => response.url().endsWith(`/imports/${applyJobId}/rows`) && response.request().method() === "POST");
+    await reviewerPage.getByRole("button", { name: "Lưu quyết định dòng" }).click();
+    const restored = await restoreResponse;
+    assert(restored.status() === 200 && (await restored.json()).data.excluded === 0, "row restore failed");
     await reviewerPage.getByRole("heading", { name: "Kết quả dry-run" }).waitFor();
     const approveButton = reviewerPage.getByRole("button", { name: "Duyệt bản nhập demo" });
     await reviewerPage.waitForFunction(() => !Array.from(document.querySelectorAll("button")).find((item) => item.textContent === "Duyệt bản nhập demo")?.disabled);
@@ -312,7 +338,7 @@ try {
     assert(proof.status === 0 && proof.stdout.trim() === "t", "persisted date precision or mapping snapshot did not match the dry-run");
   }
 
-  console.log("PASS local M16 authenticated browser/HTTP: private JSON/CSV/GEDCOM intake, stable IDs, real TOTP MFA, independent review at 320px, atomic canonical demo apply, reload persistence, exact replay, changed-request/CSRF/AAL1 denial and source citation counts");
+  console.log("PASS local M16 authenticated browser/HTTP: private intake, stable IDs, real TOTP MFA, 320px exclude/restore/reload with exact row replay and AAL1 denial, independent review, atomic canonical demo apply, commit persistence/replay, CSRF/stale/changed-request denial and source citations; fixture cleanup asserted");
 } finally {
   if (treeId) {
     for (const assetId of assetIds) {

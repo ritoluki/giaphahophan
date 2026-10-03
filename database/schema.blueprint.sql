@@ -615,6 +615,21 @@ CREATE TABLE private.import_rows (
   UNIQUE (tree_id, job_id, row_number)
 );
 
+CREATE TABLE private.import_row_decisions (
+  tree_id uuid NOT NULL,
+  job_id uuid NOT NULL,
+  row_number integer NOT NULL,
+  excluded boolean NOT NULL,
+  reason text NOT NULL CHECK (length(btrim(reason)) BETWEEN 1 AND 1000),
+  decided_by uuid NOT NULL REFERENCES auth.users(id),
+  decided_at timestamptz NOT NULL DEFAULT clock_timestamp(),
+  PRIMARY KEY (tree_id, job_id, row_number),
+  FOREIGN KEY (tree_id, job_id, row_number) REFERENCES private.import_rows(tree_id, job_id, row_number) ON DELETE CASCADE
+);
+ALTER TABLE private.import_row_decisions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE private.import_row_decisions FORCE ROW LEVEL SECURITY;
+REVOKE ALL ON private.import_row_decisions FROM PUBLIC, anon, authenticated;
+
 CREATE TABLE private.external_id_map (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   tree_id uuid NOT NULL,

@@ -1,5 +1,7 @@
 # Các bước chủ dự án thực sự cần tham gia
 
+2026-10-04: no owner action/env needed for local M16-04 continuation. Scalar apply and reversible row decisions verified with synthetic Docker fixtures; agent continues full-row inspection/relationship mapping. H2/H4/H5 remain separate gates; no real data or production deployment authorized by these tests.
+
 Chưa có hành động nào được đánh dấu đã duyệt. Agent không được tự ghi APPROVED.
 
 ## Môi trường hiện tại (không phải approval sản phẩm)

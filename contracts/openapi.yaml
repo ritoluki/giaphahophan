@@ -7759,6 +7759,46 @@ paths:
         in: path
         required: true
         schema: *id001
+  /api/v1/imports/{id}/rows:
+    post:
+      tags: [m16]
+      summary: Exclude or restore one staged row without deleting original data
+      description: Requires imports.manage, MFA, same-origin CSRF and idempotency. Checks baseVersion/snapshotHash, revokes any existing review, preserves raw/parser status, and records a private reason. Applied batches cannot be changed here.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: *id001
+      - name: X-CSRF-Token
+        in: header
+        required: true
+        schema: { type: string, pattern: '^[a-f0-9]{64}$' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ImportRowDecision' }
+      responses:
+        '200':
+          description: Persisted revised private dry-run
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ImportPreview' }
+                  meta: { $ref: '#/components/schemas/Meta' }
+        '400': { description: Invalid row or missing reason }
+        '401': { description: Authentication required }
+        '403': { description: Capability, MFA, demo or CSRF denied }
+        '404': { description: Staged row unavailable }
+        '409': { description: Stale snapshot, applied batch or changed replay }
+        '413': { description: Metadata exceeds bound }
+        '428': { description: Idempotency key required }
   /api/v1/imports/{id}/approve:
     post:
       operationId: post_imports_id_approve
@@ -13738,6 +13778,7 @@ components:
         valid: *id008
         invalid: *id008
         possibleDuplicates: *id008
+        excluded: { type: integer, minimum: 0, default: 0 }
         warnings:
           type: array
           items: *id002
@@ -13750,6 +13791,7 @@ components:
               rowNumber: *id008
               externalId: *id002
               displayName: *id002
+              excluded: { type: boolean, default: false }
               status:
                 type: string
                 enum:
@@ -13776,6 +13818,16 @@ components:
       - possibleDuplicates
       - warnings
       - sampleRows
+    ImportRowDecision:
+      type: object
+      additionalProperties: false
+      required: [baseVersion, snapshotHash, rowNumber, excluded, reason]
+      properties:
+        baseVersion: { type: integer, minimum: 1 }
+        snapshotHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        rowNumber: { type: integer, minimum: 1, maximum: 10000 }
+        excluded: { type: boolean }
+        reason: { type: string, minLength: 1, maxLength: 1000 }
     ImportReviewInput:
       type: object
       additionalProperties: false

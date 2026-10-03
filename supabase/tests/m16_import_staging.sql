@@ -224,6 +224,71 @@ select case when :'applied_replay_status'='completed' and :'applied_replay_appli
 select format('do $body$ begin begin perform api.import_commit(%L::uuid,%L::bigint,%L,%L::uuid,%L::uuid,%L); raise exception ''changed retry request accepted''; exception when sqlstate ''P0008'' then null; end; end $body$;',
   :'apply_job_id',:'approval_version',:'apply_stage_snapshot_hash',:'approval_approval_id','b1640000-0000-4000-8000-000000000011',repeat('9',64)) \gexec
 -- Exercise the documented atomic capacity rather than assuming 2000-row safety.
+-- Reversible row decisions preserve parser/raw data and invalidate review.
+select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-row-decisions','decisions/1','demo',
+  'b1640000-0000-4000-8000-000000000030',repeat('5',64)) \gset decision_job_
+select * from api.import_stage_rows(:'decision_job_id'::uuid,
+  '[{"rowNumber":1,"externalId":"decision-1","rawPayload":{"note":"Private original unchanged"},"normalized":{"externalId":"decision-1","displayName":"Hư cấu quyết định dòng"},"status":"valid","errors":[]},{"rowNumber":2,"externalId":"decision-2","rawPayload":{"original":"Missing name"},"normalized":null,"status":"invalid","errors":["displayName"]}]'::jsonb,'[]'::jsonb) \gset decision_stage_
+select result->>'version' as version,result->>'snapshotHash' as hash,result->>'invalid' as invalid,result->>'excluded' as excluded
+  from (select api.import_row_decide(:'decision_job_id'::uuid,:'decision_stage_version'::bigint,:'decision_stage_snapshot_hash',2,true,'Hư cấu: thiếu tên nguồn',
+    'b1640000-0000-4000-8000-000000000031',repeat('6',64)) as result) r \gset decision_exclude_
+select case when :'decision_exclude_invalid'='0' and :'decision_exclude_excluded'='1' and :'decision_exclude_hash'<>:'decision_stage_snapshot_hash' then 1 else 1/0 end;
+select result->>'version' as version from (select api.import_row_decide(:'decision_job_id'::uuid,:'decision_stage_version'::bigint,:'decision_stage_snapshot_hash',2,true,'Hư cấu: thiếu tên nguồn',
+    'b1640000-0000-4000-8000-000000000031',repeat('6',64)) as result) r \gset decision_replay_
+select case when :'decision_replay_version'=:'decision_exclude_version' then 1 else 1/0 end;
+select format('do $body$ begin begin perform api.import_row_decide(%L::uuid,%L::bigint,%L,2,false,%L,%L::uuid,%L); raise exception ''changed row retry accepted''; exception when sqlstate ''P0008'' then null; end; end $body$;',
+  :'decision_job_id',:'decision_stage_version',:'decision_stage_snapshot_hash','Hư cấu: thiếu tên nguồn','b1640000-0000-4000-8000-000000000031',repeat('6',64)) \gexec
+reset role;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select result->'job'->>'version' as version,result->>'approvalId' as approval_id
+  from (select api.import_approve(:'decision_job_id'::uuid,:'decision_exclude_version'::bigint,:'decision_exclude_hash',
+    'b1640000-0000-4000-8000-000000000032',repeat('7',64)) as result) r \gset decision_approval_
+reset role;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000001',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select result->>'version' as version,result->>'snapshotHash' as hash,result->>'invalid' as invalid,result->>'excluded' as excluded
+  from (select api.import_row_decide(:'decision_job_id'::uuid,:'decision_approval_version'::bigint,:'decision_exclude_hash',2,false,'Hư cấu: khôi phục để đối chiếu',
+    'b1640000-0000-4000-8000-000000000033',repeat('8',64)) as result) r \gset decision_restore_
+select case when :'decision_restore_invalid'='1' and :'decision_restore_excluded'='0' then 1 else 1/0 end;
+select (api.import_job_state(:'decision_job_id'::uuid)->>'approvalId' is null) as revoked \gset decision_state_
+\if :decision_state_revoked
+\else
+  \quit 1
+\endif
+select format('do $body$ begin begin perform api.import_commit(%L::uuid,%L::bigint,%L,%L::uuid,%L::uuid,%L); raise exception ''stale approval accepted after row restore''; exception when sqlstate ''40001'' then null; end; end $body$;',
+  :'decision_job_id',:'decision_approval_version',:'decision_exclude_hash',:'decision_approval_approval_id','b1640000-0000-4000-8000-000000000034',repeat('9',64)) \gexec
+select result->>'version' as version,result->>'snapshotHash' as hash
+  from (select api.import_row_decide(:'decision_job_id'::uuid,:'decision_restore_version'::bigint,:'decision_restore_hash',2,true,'Hư cấu: loại dòng chưa đủ nguồn',
+    'b1640000-0000-4000-8000-000000000035',repeat('a',64)) as result) r \gset decision_final_
+reset role;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select result->'job'->>'version' as version,result->>'approvalId' as approval_id
+  from (select api.import_approve(:'decision_job_id'::uuid,:'decision_final_version'::bigint,:'decision_final_hash',
+    'b1640000-0000-4000-8000-000000000036',repeat('b',64)) as result) r \gset decision_final_approval_
+reset role;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000001',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select result->>'status'='completed' and result->'counters'->>'succeeded'='1' and result->'counters'->>'skipped'='1' as complete
+  from (select api.import_commit(:'decision_job_id'::uuid,:'decision_final_approval_version'::bigint,:'decision_final_hash',:'decision_final_approval_approval_id'::uuid,
+    'b1640000-0000-4000-8000-000000000037',repeat('c',64)) as result) r \gset decision_apply_
+\if :decision_apply_complete
+\else
+  \quit 1
+\endif
+reset role;
+select (select count(*) from private.import_rows where job_id=:'decision_job_id'::uuid and status='invalid' and raw_payload->>'original'='Missing name')=1
+  and (select jsonb_array_length(manifest->'appliedEntities') from private.import_jobs where id=:'decision_job_id'::uuid)=1 as original_and_manifest \gset decision_integrity_
+\if :decision_integrity_original_and_manifest
+\else
+  \quit 1
+\endif
+set local role authenticated;
 select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001','canonical_json','synthetic-load','capacity/1','demo',
   'b1640000-0000-4000-8000-000000000020',repeat('2',64)) \gset capacity_job_
 select * from api.import_stage_rows(:'capacity_job_id'::uuid,

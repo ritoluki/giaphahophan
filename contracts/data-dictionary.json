@@ -3,6 +3,76 @@
   "status": "BLUEPRINT_NOT_IMPLEMENTED",
   "tables": [
     {
+      "name": "import_row_decisions",
+      "description": "Private reversible decisions; parser status/raw unchanged; composite FK and actor-bound snapshot/audit",
+      "treeScoped": true,
+      "fields": [
+        {
+          "name": "tree_id",
+          "sqlType": "uuid",
+          "description": "Demo tree scope",
+          "nullable": false,
+          "references": "private.trees.id",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "job_id",
+          "sqlType": "uuid",
+          "description": "Private staging batch",
+          "nullable": false,
+          "references": "private.import_jobs.id",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "row_number",
+          "sqlType": "integer",
+          "description": "Source row, composite FK to import_rows",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "excluded",
+          "sqlType": "boolean",
+          "description": "Explicit reversible apply exclusion",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "reason",
+          "sqlType": "text",
+          "description": "Private reason; trimmed 1–1000 chars",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "decided_by",
+          "sqlType": "uuid",
+          "description": "Authenticated MFA decision actor",
+          "nullable": false,
+          "references": "auth.users.id",
+          "default": null,
+          "enum": null
+        },
+        {
+          "name": "decided_at",
+          "sqlType": "timestamptz",
+          "description": "Latest private row decision time",
+          "nullable": false,
+          "references": null,
+          "default": "clock_timestamp()",
+          "enum": null
+        }
+      ]
+    },
+    {
       "name": "trees",
       "description": "Dòng họ/miền dữ liệu",
       "treeScoped": false,

@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importReviewInputSchema } from "./index";
+import { importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importReviewInputSchema, importRowDecisionSchema } from "./index";
 
 describe("M16 import contracts", () => {
+  it("requires a bounded row decision, source snapshot and nonblank reason", () => {
+    const decision = { baseVersion: 2, snapshotHash: "a".repeat(64), rowNumber: 1, excluded: true, reason: "Hư cấu: thiếu bằng chứng" };
+    expect(importRowDecisionSchema.safeParse(decision).success).toBe(true);
+    expect(importRowDecisionSchema.safeParse({ ...decision, excluded: false }).success).toBe(true);
+    for (const invalid of [{ reason: " " }, { rowNumber: 0 }, { rowNumber: 10001 }, { baseVersion: 0 }, { snapshotHash: "stale" }, { normalized: {} }]) {
+      expect(importRowDecisionSchema.safeParse({ ...decision, ...invalid }).success).toBe(false);
+    }
+  });
   it("binds review and commit to versions and approved snapshots without partial writes", () => {
     const reviewed = { baseVersion: 2, snapshotHash: "a".repeat(64) };
     expect(importReviewInputSchema.safeParse(reviewed).success).toBe(true);

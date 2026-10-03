@@ -172,6 +172,9 @@ button, a, input, select { min-height: 44px; }
 .import-form input, .import-form select { min-width: 0; max-width: 100%; }
 .import-result button { min-height: 44px; white-space: normal; }
 .import-result button:disabled { opacity: .55; cursor: not-allowed; }
+.import-row-decision { display: grid; grid-template-columns: minmax(0, 1fr); gap: .65rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+.import-row-decision :is(input, select, textarea) { width: 100%; min-width: 0; min-height: 48px; padding: .65rem .8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; }
+.import-row-decision textarea { min-height: 96px; resize: vertical; }
 .import-form h2, .import-result h2 { margin: 0; color: var(--brand); font-family: "Noto Serif", Georgia, serif; }
 .import-form label { color: var(--ink-muted); font-size: .9rem; font-weight: 700; }
 .import-form input:not([type="file"]) { width: 100%; min-height: 48px; padding: .65rem .8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }

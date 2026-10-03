@@ -1056,8 +1056,16 @@ export const importPreviewSchema = z.object({
   valid: z.number().int().nonnegative(),
   invalid: z.number().int().nonnegative(),
   possibleDuplicates: z.number().int().nonnegative(),
+  excluded: z.number().int().nonnegative().default(0),
   warnings: z.array(z.string().max(1000)),
-  sampleRows: z.array(z.object({ rowNumber: z.number().int().positive(), externalId: z.string().max(300), displayName: z.string().max(300), status: z.enum(["valid", "invalid", "review"]), errors: z.array(z.string().max(1000)) }).strict()).max(50),
+  sampleRows: z.array(z.object({ rowNumber: z.number().int().positive(), externalId: z.string().max(300), displayName: z.string().max(300), status: z.enum(["valid", "invalid", "review"]), excluded: z.boolean().default(false), errors: z.array(z.string().max(1000)) }).strict()).max(50),
+}).strict();
+export const importRowDecisionSchema = z.object({
+  baseVersion: z.number().int().positive(),
+  snapshotHash: z.string().regex(/^[a-f0-9]{64}$/),
+  rowNumber: z.number().int().min(1).max(10_000),
+  excluded: z.boolean(),
+  reason: z.string().trim().min(1).max(1000),
 }).strict();
 export const importReviewInputSchema = z.object({
   baseVersion: z.number().int().positive(),
