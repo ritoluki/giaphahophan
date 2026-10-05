@@ -8393,7 +8393,41 @@ paths:
         in: path
         required: true
         schema: *id001
+  /api/v1/exports/{id}/preview:
+    get:
+      operationId: get_export_redaction_preview
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: {type: string, format: uuid}
+      description: Demo-only live DB projection; requester, scope, MFA, expiry and policy rechecked. Public rows fail closed until person publication workflow is integrated.
+      responses:
+        '200':
+          description: Authorized projection only, not a completed artifact.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ExportProjection'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required: [data, meta]
+        '401':
+          description: Verified session required.
+        '403':
+          description: Scope/expiry/policy denied; no private data returned.
+        '422':
+          description: Projection capacity exceeded; never truncated.
+        '502':
+          description: Invalid upstream projection; no artifact generated.
   /api/v1/exports/{id}/download:
+    description: Planned private artifact download; NOT implemented by the metadata/projection slice. Requires fresh authorization and current-policy recheck.
     post:
       operationId: post_exports_id_download
       tags:
@@ -14322,6 +14356,110 @@ components:
           maxItems: 200
           items: {type: string, maxLength: 200}
       required: [id, treeId, version, format, scope, policyVersion, audience, includeMedia, status, expiresAt, warnings]
+    ExportProjection:
+      type: object
+      additionalProperties: false
+      properties:
+        schemaVersion: {const: phan-export/1}
+        treeId: *id001
+        policyVersion: {type: integer, minimum: 1}
+        generatedAt: {type: string, format: date-time}
+        isDemo: {type: boolean}
+        scope:
+          $ref: '#/components/schemas/ExportScope'
+        people:
+          type: array
+          maxItems: 10000
+          items:
+            $ref: '#/components/schemas/ExportPerson'
+        parentLinks:
+          type: array
+          maxItems: 20000
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id: *id001
+              parentId: *id001
+              childId: *id001
+              kind: {type: string, enum: [biological, adoptive, guardian, step, unknown]}
+              status: {type: string, enum: [confirmed, disputed, unknown]}
+            required: [id, parentId, childId, kind, status]
+        unions:
+          type: array
+          maxItems: 10000
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id: *id001
+              kind: {type: string, enum: [marriage, partnership, unknown]}
+              status: {type: string, enum: [active, separated, divorced, widowed, unknown]}
+              partnerIds: {type: array, maxItems: 100, items: {type: string, format: uuid}}
+              childIds: {type: array, maxItems: 1000, items: {type: string, format: uuid}}
+            required: [id, kind, status, partnerIds, childIds]
+        sources:
+          type: array
+          maxItems: 10000
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id: *id001
+              title: {type: string, minLength: 1, maxLength: 1000}
+            required: [id, title]
+        citations:
+          type: array
+          maxItems: 50000
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id: *id001
+              sourceId: *id001
+              targetKind: {type: string, enum: [person, fact, parent_link, union]}
+              targetId: *id001
+              locator: {type: [string, 'null'], maxLength: 2000}
+            required: [id, sourceId, targetKind, targetId, locator]
+      required: [schemaVersion, treeId, policyVersion, generatedAt, isDemo, scope, people, parentLinks, unions, sources, citations]
+      description: Live DB-filtered fields only; endpoints/union participants and citation source/target must all belong to this projection. No hidden counts, contact, raw payload or private source paths.
+    ExportPerson:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id001
+        version: {type: integer, minimum: 1}
+        code: {type: string, minLength: 1, maxLength: 100}
+        displayName: {type: string, minLength: 1, maxLength: 1000}
+        names:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              name: {type: string, minLength: 1, maxLength: 1000}
+              kind: {type: string, enum: [birth, preferred, alias, religious, other]}
+            required: [name, kind]
+        recordedSex: {type: [string, 'null'], enum: [M, F, X, U, null]}
+        lifeStatus: {type: [string, 'null'], enum: [living, deceased, unknown, null]}
+        facts:
+          type: array
+          maxItems: 1000
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              id: *id001
+              kind: {type: string, enum: [birth, death, burial, occupation, other]}
+              valueDate:
+                anyOf:
+                - $ref: '#/components/schemas/GenealogyDate'
+                - type: 'null'
+              valueText: {type: [string, 'null'], maxLength: 10000}
+              confidence: {type: string, enum: [unverified, supported, verified, disputed]}
+            required: [id, kind, valueDate, valueText, confidence]
+      required: [id, version, code, displayName, names, recordedSex, lifeStatus, facts]
     QualityIssue:
       type: object
       additionalProperties: false

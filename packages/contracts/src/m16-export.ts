@@ -37,9 +37,13 @@ const exportParentLinkSchema = z.object({
   status: z.enum(["confirmed", "disputed", "unknown"]),
 }).strict();
 const exportSourceSchema = z.object({ id: z.string().uuid(), title: z.string().min(1).max(1000) }).strict();
+const exportUnionSchema = z.object({
+  id: z.string().uuid(), kind: z.enum(["marriage", "partnership", "unknown"]), status: z.enum(["active", "separated", "divorced", "widowed", "unknown"]),
+  partnerIds: z.array(z.string().uuid()).max(100), childIds: z.array(z.string().uuid()).max(1000),
+}).strict();
 const exportCitationSchema = z.object({
   id: z.string().uuid(), sourceId: z.string().uuid(),
-  targetKind: z.enum(["person", "fact", "parent_link"]), targetId: z.string().uuid(),
+  targetKind: z.enum(["person", "fact", "parent_link", "union"]), targetId: z.string().uuid(),
   locator: z.string().max(2000).nullable(),
 }).strict();
 export const exportProjectionSchema = z.object({
@@ -47,13 +51,15 @@ export const exportProjectionSchema = z.object({
   policyVersion: z.number().int().positive(), generatedAt: z.string().datetime({ offset: true }),
   isDemo: z.boolean(), scope: exportScopeSchema,
   people: z.array(exportPersonSchema).max(10000), parentLinks: z.array(exportParentLinkSchema).max(20000),
+  unions: z.array(exportUnionSchema).max(10000),
   sources: z.array(exportSourceSchema).max(10000), citations: z.array(exportCitationSchema).max(50000),
 }).strict().superRefine((value, context) => {
   const people = new Set(value.people.map((person) => person.id));
   const facts = new Set(value.people.flatMap((person) => person.facts.map((fact) => fact.id)));
   const links = new Set(value.parentLinks.map((link) => link.id));
   const sources = new Set(value.sources.map((source) => source.id));
-  for (const [key, rows] of Object.entries({ people: value.people, parentLinks: value.parentLinks, sources: value.sources, citations: value.citations })) {
+  const unions = new Set(value.unions.map((union) => union.id));
+  for (const [key, rows] of Object.entries({ people: value.people, parentLinks: value.parentLinks, unions: value.unions, sources: value.sources, citations: value.citations })) {
     if (new Set(rows.map((row) => row.id)).size !== rows.length) context.addIssue({ code: "custom", path: [key], message: "Duplicate projected ID" });
   }
   if (facts.size !== value.people.reduce((sum, person) => sum + person.facts.length, 0)) context.addIssue({ code: "custom", path: ["people"], message: "Duplicate projected fact ID" });
@@ -61,8 +67,14 @@ export const exportProjectionSchema = z.object({
     if (!people.has(link.parentId) || !people.has(link.childId) || link.parentId === link.childId) context.addIssue({ code: "custom", path: ["parentLinks", index], message: "Relationship endpoint is outside authorized projection" });
   });
   value.citations.forEach((citation, index) => {
-    const targets = citation.targetKind === "person" ? people : citation.targetKind === "fact" ? facts : links;
+    const targets = citation.targetKind === "person" ? people : citation.targetKind === "fact" ? facts : citation.targetKind === "union" ? unions : links;
     if (!sources.has(citation.sourceId) || !targets.has(citation.targetId)) context.addIssue({ code: "custom", path: ["citations", index], message: "Citation target/source is outside authorized projection" });
+  });
+  value.unions.forEach((union, index) => {
+    if ([...union.partnerIds, ...union.childIds].some((id) => !people.has(id))
+      || new Set(union.partnerIds).size !== union.partnerIds.length || new Set(union.childIds).size !== union.childIds.length) {
+      context.addIssue({ code: "custom", path: ["unions", index], message: "Union contains duplicate or unauthorized participants" });
+    }
   });
   if (value.scope.kind === "personal" && (value.people.length !== 1 || !people.has(value.scope.personId))) context.addIssue({ code: "custom", path: ["scope"], message: "Personal scope must contain exactly its approved person" });
 });

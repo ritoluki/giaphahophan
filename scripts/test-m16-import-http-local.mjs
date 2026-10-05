@@ -559,6 +559,27 @@ try {
     const exportId = queuedExport.body.data.id;
     const exportState = await browserRequest(page, `/api/v1/exports/${exportId}`);
     assert(exportState.status === 200 && exportState.body.data.id === exportId && !exportState.body.data.resultAssetId, "export state fabricated output");
+    const redactionPreview = await browserRequest(page, `/api/v1/exports/${exportId}/preview`);
+    assert(redactionPreview.status === 200 && redactionPreview.body.data.schemaVersion === "phan-export/1"
+      && redactionPreview.body.data.people.length === 0 && redactionPreview.body.data.parentLinks.length === 0
+      && redactionPreview.body.data.unions.length === 0, "restricted imported rows leaked through export preview");
+    assert((await browserRequest(reviewerPage, `/api/v1/exports/${exportId}/preview`)).status === 403, "different actor read export projection");
+    const visiblePersonId = randomUUID(), visibleFactId = randomUUID(), visibleSourceId = randomUUID();
+    const projectionSeed = runPsql([
+      "begin;",
+      `insert into private.persons(id,tree_id,created_by,code,display_name,name_search,life_status,visibility) values (${sqlString(visiblePersonId)},${sqlString(treeId)},${sqlString(userId)},'DEMO-EXPORT-PREVIEW','Synthetic Export Preview','synthetic export preview','deceased','members');`,
+      `insert into private.person_facts(id,tree_id,person_id,kind,value_date,visibility) values (${sqlString(visibleFactId)},${sqlString(treeId)},${sqlString(visiblePersonId)},'birth','{"calendar":"gregorian","precision":"year","year":1940,"originalText":"1940"}','members');`,
+      `insert into private.sources(id,tree_id,title,kind,provenance,visibility) values (${sqlString(visibleSourceId)},${sqlString(treeId)},'Synthetic Allowed Export Source','document','HIDDEN_EXPORT_RAW_SOURCE','members');`,
+      `insert into private.citations(tree_id,source_id,fact_id,locator,quoted_text) values (${sqlString(treeId)},${sqlString(visibleSourceId)},${sqlString(visibleFactId)},'Page1','HIDDEN_EXPORT_RAW_QUOTE');`,
+      "commit;",
+    ].join("\n"));
+    assert(projectionSeed.status === 0, "synthetic export projection seed failed");
+    const liveProjection = await browserRequest(page, `/api/v1/exports/${exportId}/preview`);
+    assert(liveProjection.status === 200 && liveProjection.body.data.people.length === 1
+      && liveProjection.body.data.people[0].id === visiblePersonId && liveProjection.body.data.citations.length === 1
+      && liveProjection.body.data.sources.length === 1 && !JSON.stringify(liveProjection.body).includes("HIDDEN_EXPORT"), "live authorized export projection invalid/leaked source payload");
+    assert(liveProjection.body.data.people[0].facts[0].valueDate.precision === "year"
+      && liveProjection.body.data.people[0].facts[0].valueDate.month === undefined, "export preview manufactured exact date");
     const exportReplay = await browserRequest(page, "/api/v1/exports", exportInput, exportHeaders);
     assert(exportReplay.status === 202 && exportReplay.body.data.id === exportId, "export replay duplicated job");
     const exportChanged = await browserRequest(page, "/api/v1/exports", { ...exportInput, format: "csv" }, exportHeaders);
@@ -581,10 +602,11 @@ try {
     assert(exportProof.status === 0 && exportProof.stdout.trim() === "t", "queued export DB count/status mismatch");
     const exportExpire = runPsql(`update private.export_jobs set expires_at=clock_timestamp()-interval '1 second' where id=${sqlString(exportId)} and tree_id=${sqlString(treeId)};`);
     assert(exportExpire.status === 0 && (await browserRequest(page, `/api/v1/exports/${exportId}`)).status === 403, "expired export metadata available");
+    assert((await browserRequest(page, `/api/v1/exports/${exportId}/preview`)).status === 403, "expired export projection available");
     const revokeExport = runPsql(`update private.memberships set status='revoked' where id=${sqlString(membershipId)} and tree_id=${sqlString(treeId)};`);
     assert(revokeExport.status === 0 && (await browserRequest(page, "/api/v1/exports", exportInput, exportHeaders)).status === 403, "revoked export actor replay accepted");
     assert(runPsql(`update private.memberships set status='active' where id=${sqlString(membershipId)} and tree_id=${sqlString(treeId)};`).status === 0, "synthetic membership restore failed");
-    console.log("PASS local M16-06 authenticated HTTP metadata: queued DB/reload/exact replay,changed409,CSRF403,override400,cross-actor403,quota429,expiry/revocation403; rendering/download NOT_RUN");
+    console.log("PASS local M16-06 authenticated HTTP: queued DB/reload/replay,format/audience/media persisted,changed409,CSRF403,override400,cross-actor403,quota429,expiry/revoke403;live preview omits restricted imports and private source/quotes,retains authorized person/year-only fact/citation/source; preview cross-actor/expiry403. Rendering/download NOT_RUN");
     await reviewerContext.close();
     await context.close();
   } finally {

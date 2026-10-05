@@ -7,7 +7,7 @@ const baseline = readFileSync(resolve(root, "supabase/tests/m16_import_staging.s
 const chunks = readFileSync(resolve(root, "supabase/tests/m16_chunk_transactions.sql"), "utf8");
 const compensation = readFileSync(resolve(root, "supabase/tests/m16_compensation.sql"), "utf8");
 if (!/rollback;\s*$/i.test(baseline)) throw new Error("Synthetic fixture must end with rollback");
-const sql = baseline.replace(/rollback;\s*$/i, `${chunks}\n${compensation}\nrollback;`);
+const sql = baseline.replace(/rollback;\s*$/i, () => `${chunks}\n${compensation}\nrollback;`);
 const result = spawnSync("docker.exe", [
   "exec", "-i", "supabase_db_phan-gia-pha-local", "psql", "-U", "postgres", "-d", "postgres",
   "-v", "ON_ERROR_STOP=1", "-f", "-"

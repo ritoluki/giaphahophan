@@ -8,7 +8,7 @@ const projection = (): ExportProjection => ({
   schemaVersion: "phan-export/1", treeId: "a6600000-0000-4000-8000-000000000002", policyVersion: 1,
   generatedAt: "2026-01-01T00:00:00Z", isDemo: true, scope: { kind: "personal", personId },
   people: [{ id: personId, version: 1, code: "DEMO-1", displayName: "Tên hư cấu, có dấu", names: [], recordedSex: null, lifeStatus: null, facts: [] }],
-  parentLinks: [], sources: [], citations: [],
+  parentLinks: [], unions: [], sources: [], citations: [],
 });
 
 describe("M16-06 authorized projection serialization", () => {
@@ -60,5 +60,12 @@ describe("M16-06 authorized projection serialization", () => {
     const input = projection(); input.scope = { kind: "tree" }; input.people = [];
     const rows = Papa.parse(serializeExportCsv(input).content, { header: true, skipEmptyLines: true });
     expect(rows.data).toEqual([]); expect(rows.meta.fields).toContain("display_name");
+  });
+  it("retains authorized union structure in JSON without inferring sex or parentage", () => {
+    const input = projection(); input.scope = { kind: "tree" };
+    input.unions = [{ id: "a6600000-0000-4000-8000-000000000007", kind: "unknown", status: "unknown", partnerIds: [personId], childIds: [] }];
+    expect(JSON.parse(serializeExportJson(input).content).unions).toEqual(input.unions);
+    expect(JSON.parse(serializeExportJson(input).content).parentLinks).toEqual([]);
+    input.unions[0]!.childIds = [input.treeId]; expect(() => serializeExportJson(input)).toThrow();
   });
 });
