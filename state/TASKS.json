@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-10-06T01:10:00+07:00",
+  "updatedAt": "2026-10-06T01:22:00+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -2592,9 +2592,11 @@
       "testIds": [
         "TC-M16-05"
       ],
-      "status": "TODO",
+      "status": "IN_PROGRESS",
       "approvalRequired": [],
-      "evidence": []
+      "evidence": [
+        "2026-10-06 first M16-05 slice PASS: migration0067 + POST /api/v1/imports/{id}/cancel enables authorized AAL2 cancellation of needs_review/ready demo jobs only before canonical writes. Job row lock serializes cancel against apply; version, imports.manage, demo-tree, reason, idempotency and CSRF are required; the reason is represented only by a digest in the private manifest. Authenticated 320px browser/API test cancels a synthetic import, exact retry returns cancelled, changed replay conflicts, completed imports cannot cancel, canCancel turns false, and cleanup succeeds. Chunk manifests, partial continuation/cancel, and guarded compensation remain NOT_RUN; M16-05 remains IN_PROGRESS."
+      ]
     },
     {
       "id": "M16-06",

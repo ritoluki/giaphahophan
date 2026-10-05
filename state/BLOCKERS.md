@@ -1,5 +1,7 @@
 # Blockers
 
+2026-10-06 M16-05: 0067 safely cancels only unapplied reviewed demo jobs; authenticated MFA browser exact-replay/cleanup PASS. Still NOT_RUN: chunk manifest/continuation, cancel after partial progress, safe compensating undo, and unchanged/newly referenced edit protection. No owner action needed; synthetic local only.
+
 2026-10-06 M16-04: 0065/0066 enforce whole-job coverage and shared-lock graph validation at review/apply. Local synthetic SQL PASS covers cycle/cap denial, atomic relationship writes, exact replay, graph revision and rollback on union-ID conflict. Authenticated browser PASS commits GEDCOM (3 people, 1 family, 1 parent link), verifies reload/replay/citations and cleans fixture. Full tests/typecheck/lint/build/verify PASS (lint 0 errors/2 existing warnings). Remaining NOT_RUN: clean install/staging, accessibility/device and production gates. No owner action currently.
 
 2026-10-04 M16-04 update: domain reciprocal-pointer preflight is PASS 104/104 but is not an authorization gate. DB-enforced whole-batch FAM/INDI coverage, merged-graph checks under migration0008 tree advisory lock, and atomic union/parent/citation apply remain NOT_RUN; family apply stays fail-closed. No owner action; no hosted/real data.

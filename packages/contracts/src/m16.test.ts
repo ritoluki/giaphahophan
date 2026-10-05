@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importRelationshipMappingSchema, importRelationshipRowsPageSchema, importReviewInputSchema, importRowDecisionSchema, importRowsPageSchema, importRowsQuerySchema } from "./index";
+import { importCancelSchema, importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importRelationshipMappingSchema, importRelationshipRowsPageSchema, importReviewInputSchema, importRowDecisionSchema, importRowsPageSchema, importRowsQuerySchema } from "./index";
 
 describe("M16 import contracts", () => {
+  it("requires a current version and meaningful reason for pre-apply cancellation", () => {
+    expect(importCancelSchema.safeParse({ baseVersion: 3, reason: "Source owner withdrew permission" }).success).toBe(true);
+    expect(importCancelSchema.safeParse({ baseVersion: 0, reason: "valid reason" }).success).toBe(false);
+    expect(importCancelSchema.safeParse({ baseVersion: 3, reason: "no" }).success).toBe(false);
+    expect(importCancelSchema.safeParse({ baseVersion: 3, reason: "valid reason", force: true }).success).toBe(false);
+  });
   it("requires explicit mapping decisions and keeps family pages allowlisted and bounded", () => {
     const mapping = { baseVersion: 2, snapshotHash: "a".repeat(64), familyExternalId: "F1", partnerExternalIds: ["I1"],
       childExternalIds: ["I2"], parentLinks: [{ parentExternalId: "I1", childExternalId: "I2", kind: "biological", status: "disputed" }], reason: "Hư cấu: đối chiếu nguồn" };

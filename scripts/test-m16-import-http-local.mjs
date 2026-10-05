@@ -257,7 +257,7 @@ try {
     const reviewerLogin = await browserRequest(reviewerPage, "/api/v1/auth/login", { email: reviewerEmail, password: reviewerPassword });
     assert(reviewerLogin.status === 200, "synthetic reviewer BFF login failed");
     const beforeMfa = await browserRequest(reviewerPage, `/api/v1/imports/${applyJobId}`);
-    assert(beforeMfa.status === 200 && beforeMfa.body.data.canReview === false, "AAL1 reviewer must not be offered approve");
+    assert(beforeMfa.status === 200 && beforeMfa.body.data.canReview === false, `AAL1 reviewer must not be offered approve (${beforeMfa.status}, canReview=${beforeMfa.body?.data?.canReview}, canCancel=${beforeMfa.body?.data?.canCancel})`);
     const preview = await browserRequest(reviewerPage, `/api/v1/imports/${applyJobId}/preview`);
     const denied = await browserRequest(reviewerPage, `/api/v1/imports/${applyJobId}/approve`,
       { baseVersion: beforeMfa.body.data.job.version, snapshotHash: preview.body.data.snapshotHash },
@@ -335,7 +335,8 @@ try {
     await reviewerPage.waitForFunction(() => !Array.from(document.querySelectorAll("button")).find((item) => item.textContent === "Duyệt bản nhập demo")?.disabled);
     const approvedResponse = reviewerPage.waitForResponse((response) => response.url().endsWith(`/imports/${applyJobId}/approve`));
     await approveButton.click();
-    assert((await approvedResponse).status() === 200, "independent browser review failed");
+    const approvalResponse = await approvedResponse;
+    assert(approvalResponse.status() === 200, `independent browser review failed (${approvalResponse.status()}, ${(await approvalResponse.text()).slice(0, 300)})`);
     await reviewerPage.getByRole("button", { name: "Áp dụng vào cây demo" }).waitFor();
     assert(await reviewerPage.getByRole("button", { name: "Áp dụng vào cây demo" }).isDisabled(), "reviewer cannot apply own approval");
     await browserMfa(page);
@@ -385,7 +386,7 @@ try {
       relationshipApplied.body.data.counters.succeeded === 3, "authenticated browser relationship commit failed");
     const relationshipCommittedState = await browserRequest(page, `/api/v1/imports/${gedcomJob.jobId}`);
     assert(relationshipCommittedState.body.data.appliedPeople === 3 && relationshipCommittedState.body.data.appliedUnions === 1 &&
-      relationshipCommittedState.body.data.appliedParentLinks === 1, "relationship apply projection counts did not reload");
+      relationshipCommittedState.body.data.appliedParentLinks === 1 && relationshipCommittedState.body.data.canCancel === false, "relationship apply projection counts or cancellation boundary did not reload");
     const relationshipCommitReplay = await browserRequest(page, `/api/v1/imports/${gedcomJob.jobId}/commit`, relationshipCommitRequest,
       { ...relationshipCommitHeaders, "X-CSRF-Token": relationshipCommittedState.body.meta.csrfToken });
     assert(relationshipCommitReplay.status === 202 && relationshipCommitReplay.body.data.status === "completed", "relationship commit replay failed");
@@ -430,6 +431,25 @@ try {
     await inspector.getByText("Đã loại trừ", { exact: true }).waitFor();
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "row inspector overflow at320px");
     await page.screenshot({ path: "reports/m16-inspection-320.png", fullPage: true });
+    const cancelState = await browserRequest(page, `/api/v1/imports/${inspectionJob.jobId}`);
+    assert(cancelState.body.data.canCancel === true, "unapplied import did not expose authorized cancellation capability");
+    await page.goto(`${webUrl}/quan-tri/nhap-lieu?job=${inspectionJob.jobId}`);
+    await page.getByLabel("Lý do hủy").fill("Synthetic fixture no longer required");
+    const cancelledResponse = page.waitForResponse((response) => response.url().endsWith(`/imports/${inspectionJob.jobId}/cancel`) && response.request().method() === "POST");
+    await page.getByRole("button", { name: "Hủy bản nhập" }).click();
+    const cancelled = await cancelledResponse;
+    const cancelledBody = await cancelled.json();
+    assert(cancelled.status() === 200 && cancelledBody.data?.job?.status === "cancelled", `authorized pre-apply cancellation did not persist (${cancelled.status()}, ${JSON.stringify(cancelledBody).slice(0, 300)})`);
+    const originalCancelRequest = cancelled.request();
+    const cancelHeaders = { "Idempotency-Key": originalCancelRequest.headers()["idempotency-key"], "X-CSRF-Token": originalCancelRequest.headers()["x-csrf-token"] };
+    const originalCancelBody = originalCancelRequest.postDataJSON();
+    const cancellationReplay = await browserRequest(page, `/api/v1/imports/${inspectionJob.jobId}/cancel`, originalCancelBody, cancelHeaders);
+    assert(cancellationReplay.status === 200 && cancellationReplay.body.data.job.status === "cancelled", "exact cancellation replay failed");
+    const changedCancellationReplay = await browserRequest(page, `/api/v1/imports/${inspectionJob.jobId}/cancel`,
+      { ...originalCancelBody, reason: "Different cancellation reason" }, cancelHeaders);
+    assert(changedCancellationReplay.status === 409, "changed cancellation replay must conflict");
+    const cancelledState = await browserRequest(page, `/api/v1/imports/${inspectionJob.jobId}`);
+    assert(cancelledState.body.data.canCancel === false, "cancelled import remained cancellable");
     await reviewerContext.close();
     await context.close();
   } finally {
@@ -441,7 +461,7 @@ try {
     assert(proof.status === 0 && proof.stdout.trim() === "t", "persisted date precision or mapping snapshot did not match the dry-run");
   }
 
-  console.log("PASS local M16 authenticated browser/HTTP: private intake, stable IDs, MFA, 320px exclude/restore/reload, row51 keyset inspection/selection, GEDCOM relationship editor/save, independent MFA review and actual relationship commit, exact commit replay, state reload/counts, CSRF/AAL1 denial and cleanup");
+  console.log("PASS local M16 authenticated browser/HTTP: private intake, stable IDs, MFA, 320px exclude/restore/reload, row51 keyset inspection/selection, pre-apply cancellation and exact replay, GEDCOM relationship editor/save, independent MFA review and actual relationship commit, exact commit replay, state reload/counts, CSRF/AAL1 denial and cleanup");
 } finally {
   if (treeId) {
     for (const assetId of assetIds) {

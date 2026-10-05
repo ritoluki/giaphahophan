@@ -1128,12 +1128,17 @@ export const importCommitSchema = z.object({
   approvalId: z.string().uuid(),
   allowPartial: z.literal(false).optional(),
 }).strict();
+export const importCancelSchema = z.object({
+  baseVersion: z.number().int().positive(),
+  reason: z.string().trim().min(5).max(1000),
+}).strict();
 export const importReviewStateSchema = z.object({
   job: importJobSchema,
   approvalId: z.string().uuid().nullable(),
   approvedSnapshotHash: z.string().regex(/^[a-f0-9]{64}$/).nullable(),
   canReview: z.boolean(),
   canApply: z.boolean(),
+  canCancel: z.boolean(),
   appliedPeople: z.number().int().nonnegative(),
   appliedUnions: z.number().int().nonnegative(),
   appliedParentLinks: z.number().int().nonnegative(),

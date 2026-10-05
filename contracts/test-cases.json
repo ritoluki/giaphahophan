@@ -1445,8 +1445,10 @@
         "Kiểm tra response, DB, audit/outbox và UI mobile khi có giao diện."
       ],
       "expected": "Chunks có manifest; partial không báo rolled_back; cancel/compensate không xóa edits mới.",
-      "status": "NOT_RUN",
-      "evidence": []
+      "status": "IN_PROGRESS",
+      "evidence": [
+        "2026-10-06 PASS first vertical slice on local Supabase: authenticated MFA browser cancelled an unapplied synthetic job with reason digest, exact retry, changed-key conflict, refusal after completed apply and canCancel revocation; request uses current version/CSRF and cleanup succeeded. Chunk manifest/partial continuation and compensating undo remain NOT_RUN."
+      ]
     },
     {
       "id": "TC-M16-06",

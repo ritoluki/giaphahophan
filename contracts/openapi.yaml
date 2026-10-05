@@ -14,8 +14,7 @@ paths:
       tags:
       - Auth
       summary: /session
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Cancel a reviewed demo import only before canonical writes. Requires imports.manage, AAL2, exact job version, idempotency and Origin/double-submit CSRF. The reason is retained only as a digest.
       security: []
       responses:
         '200':
@@ -8042,7 +8041,7 @@ paths:
       security:
       - sessionCookie: []
       responses:
-        '202':
+        '200':
           description: Thành công; DTO đã lọc theo quyền hiện thời.
           content:
             application/json:
@@ -8051,7 +8050,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/Job'
+                    $ref: '#/components/schemas/ImportReviewState'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -8123,7 +8122,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReasonCommand'
+              $ref: '#/components/schemas/ImportCancel'
   /api/v1/exports:
     post:
       operationId: post_exports
@@ -14043,10 +14042,17 @@ components:
       properties:
         baseVersion: { type: integer, minimum: 1 }
         snapshotHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+    ImportCancel:
+      type: object
+      additionalProperties: false
+      required: [baseVersion, reason]
+      properties:
+        baseVersion: { type: integer, minimum: 1 }
+        reason: { type: string, minLength: 5, maxLength: 1000 }
     ImportReviewState:
       type: object
       additionalProperties: false
-      required: [job, approvalId, approvedSnapshotHash, canReview, canApply, appliedPeople]
+      required: [job, approvalId, approvedSnapshotHash, canReview, canApply, canCancel, appliedPeople, appliedUnions, appliedParentLinks]
       properties:
         job: { $ref: '#/components/schemas/ImportJob' }
         approvalId:
@@ -14059,7 +14065,10 @@ components:
           - { type: 'null' }
         canReview: *id007
         canApply: *id007
+        canCancel: *id007
         appliedPeople: { type: integer, minimum: 0 }
+        appliedUnions: { type: integer, minimum: 0 }
+        appliedParentLinks: { type: integer, minimum: 0 }
     ImportCommit:
       type: object
       additionalProperties: false

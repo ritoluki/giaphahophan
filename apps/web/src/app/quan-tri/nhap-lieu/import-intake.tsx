@@ -69,10 +69,11 @@ export function ImportIntake() {
   const [error, setError] = useState("");
   const [reviewState, setReviewState] = useState<ImportReviewState | null>(null);
   const [csrfToken, setCsrfToken] = useState("");
-  const [reviewAction, setReviewAction] = useState<"approve" | "commit" | "rows" | null>(null);
+  const [reviewAction, setReviewAction] = useState<"approve" | "commit" | "rows" | "cancel" | null>(null);
   const [decisionRow, setDecisionRow] = useState("1");
   const [decisionExcluded, setDecisionExcluded] = useState(true);
   const [decisionReason, setDecisionReason] = useState("");
+  const [cancelReason, setCancelReason] = useState("");
   const reviewRequest = useRef<{ signature: string; key: string } | null>(null);
 
   async function refreshReview(jobId: string) {
@@ -121,6 +122,25 @@ export function ImportIntake() {
     } catch (cause: unknown) {
       setError(cause instanceof Error ? cause.message : "Thao tác chưa hoàn tất. Bạn có thể thử lại bằng cùng mã thao tác.");
     } finally { setReviewAction(null); }
+  }
+
+  async function cancelImport(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!preview || !reviewState) return;
+    const body = { baseVersion: reviewState.job.version, reason: cancelReason.trim() };
+    const signature = JSON.stringify({ jobId: preview.jobId, action: "cancel", body });
+    if (reviewRequest.current?.signature !== signature) reviewRequest.current = { signature, key: crypto.randomUUID() };
+    setReviewAction("cancel"); setError("");
+    try {
+      const response = await fetch(`/api/v1/imports/${preview.jobId}/cancel`, {
+        method: "POST", headers: { "Content-Type": "application/json", "Idempotency-Key": reviewRequest.current.key, "X-CSRF-Token": csrfToken },
+        body: JSON.stringify(body),
+      });
+      await responseData<unknown>(response);
+      await refreshReview(preview.jobId);
+      setCancelReason("");
+    } catch (cause: unknown) { setError(cause instanceof Error ? cause.message : "Chưa thể hủy bản nhập; trạng thái được giữ nguyên để thử lại an toàn."); }
+    finally { setReviewAction(null); }
   }
 
   useEffect(() => {
@@ -248,7 +268,7 @@ export function ImportIntake() {
       </form>
       {(pending || loadingPreview) && <div className="card import-result" role="status" aria-live="polite"><span className="skeleton-line" /><span className="skeleton-line skeleton-line-short" /><p>{loadingPreview ? "Đang tải bản dry-run đã lưu…" : "Đang xác minh tệp trong kho riêng. Không đóng trang cho đến khi hoàn tất."}</p></div>}
       {preview && <section className="card import-result" aria-live="polite" aria-labelledby="import-result-title">
-        <span className="status-label">{reviewState?.job.status === "completed" ? "Đã áp dụng" : reviewState?.job.status === "ready" ? "Đã duyệt" : "Cần rà soát"}</span>
+        <span className="status-label">{reviewState?.job.status === "completed" ? "Đã áp dụng" : reviewState?.job.status === "cancelled" ? "Đã hủy · chưa ghi hồ sơ" : reviewState?.job.status === "ready" ? "Đã duyệt" : "Cần rà soát"}</span>
         <h2 id="import-result-title">Kết quả dry-run</h2>
         <dl className="import-counts"><div><dt>Tổng dòng</dt><dd>{preview.valid + preview.invalid + preview.possibleDuplicates + preview.excluded}</dd></div><div><dt>Hợp lệ</dt><dd>{preview.valid}</dd></div><div><dt>Cần sửa</dt><dd>{preview.invalid}</dd></div><div><dt>Cần rà soát</dt><dd>{preview.possibleDuplicates}</dd></div><div><dt>Đã loại trừ</dt><dd>{preview.excluded}</dd></div></dl>
         <p>Phân loại: {preview.classification}. Checksum SHA-256: <code className="import-hash">{preview.fileSha256}</code></p>
@@ -270,6 +290,12 @@ export function ImportIntake() {
           <label htmlFor="import-decision-action">Quyết định</label><select id="import-decision-action" value={decisionExcluded ? "exclude" : "restore"} onChange={(event) => setDecisionExcluded(event.target.value === "exclude")}><option value="exclude">Loại trừ khỏi bản áp dụng</option><option value="restore">Khôi phục vào bản rà soát</option></select>
           <label htmlFor="import-decision-reason">Lý do (bắt buộc)</label><textarea id="import-decision-reason" required maxLength={1000} value={decisionReason} onChange={(event) => setDecisionReason(event.target.value)} />
           <button className="button-secondary" type="submit" disabled={reviewAction !== null || !decisionReason.trim()}>{reviewAction === "rows" ? "Đang lưu quyết định…" : "Lưu quyết định dòng"}</button>
+        </form>}
+        {reviewState?.canCancel && <form className="import-row-decision" onSubmit={cancelImport}>
+          <h3>Hủy bản nhập chưa áp dụng</h3>
+          <p className="muted">Chỉ hủy khi chưa có hồ sơ hay quan hệ nào được ghi vào cây. Nếu một thao tác áp dụng đang chạy, máy chủ tuần tự hóa và sẽ từ chối hủy sau khi đã ghi dữ liệu.</p>
+          <label htmlFor="import-cancel-reason">Lý do hủy</label><textarea id="import-cancel-reason" required minLength={5} maxLength={1000} value={cancelReason} onChange={(event) => setCancelReason(event.target.value)} />
+          <button className="button-secondary" type="submit" disabled={reviewAction !== null || cancelReason.trim().length < 5}>{reviewAction === "cancel" ? "Đang hủy…" : "Hủy bản nhập"}</button>
         </form>}
         {reviewState?.job.status === "completed" ? <p className="import-safety-note" role="status">Đã lưu {reviewState.appliedPeople} hồ sơ, {reviewState.appliedUnions} gia đình và {reviewState.appliedParentLinks} quan hệ cha mẹ vào cây demo cùng nguồn trích dẫn riêng tư.</p> : <>
           <p className="import-safety-note">Chưa ghi hồ sơ. Batch có lỗi, dòng cần rà soát, quan hệ gia đình hoặc hơn 2.000 người cần được xử lý trước bước áp dụng. Gửi đường dẫn trang này cho người duyệt có quyền nhập liệu.</p>
