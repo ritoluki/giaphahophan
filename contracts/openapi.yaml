@@ -8030,6 +8030,42 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/ImportCommit'
+  /api/v1/imports/{id}/chunks:
+    post:
+      operationId: post_imports_id_chunks
+      tags: [ImportExport]
+      summary: Apply the next bounded import chunk
+      description: Requires current MFA/capability, independent approval, unchanged source/staging and exact job version. Server owns the immutable people-first plan. Exact replay is durable; earlier committed chunks survive subsequent failure or cancellation.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/CSRF'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ImportChunkApply' }
+      responses:
+        '202':
+          description: Chunk committed atomically; previous chunks retained.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [data, meta]
+                properties:
+                  data: { $ref: '#/components/schemas/ImportReviewState' }
+                  meta: { $ref: '#/components/schemas/Meta' }
+        '400': { description: Invalid chunk input }
+        '403': { description: Missing capability, MFA or independent actor }
+        '409': { description: Changed version, source, snapshot, graph, prior edits, sequence or replay }
+        '428': { description: Idempotency key required }
   /api/v1/imports/{id}/cancel:
     post:
       operationId: post_imports_id_cancel
@@ -14052,7 +14088,7 @@ components:
     ImportReviewState:
       type: object
       additionalProperties: false
-      required: [job, approvalId, approvedSnapshotHash, canReview, canApply, canCancel, appliedPeople, appliedUnions, appliedParentLinks]
+      required: [job, approvalId, approvedSnapshotHash, canReview, canApply, canCancel, canApplyChunk, chunkProgress, appliedPeople, appliedUnions, appliedParentLinks]
       properties:
         job: { $ref: '#/components/schemas/ImportJob' }
         approvalId:
@@ -14066,9 +14102,32 @@ components:
         canReview: *id007
         canApply: *id007
         canCancel: *id007
+        canApplyChunk: *id007
+        chunkProgress:
+          anyOf:
+          - type: object
+            additionalProperties: false
+            required: [total, committed, nextSequence]
+            properties:
+              total: { type: integer, minimum: 1 }
+              committed: { type: integer, minimum: 0 }
+              nextSequence:
+                anyOf:
+                - { type: integer, minimum: 1 }
+                - { type: 'null' }
+          - { type: 'null' }
         appliedPeople: { type: integer, minimum: 0 }
         appliedUnions: { type: integer, minimum: 0 }
         appliedParentLinks: { type: integer, minimum: 0 }
+    ImportChunkApply:
+      type: object
+      additionalProperties: false
+      required: [baseVersion, approvedSnapshotHash, approvalId, sequence]
+      properties:
+        baseVersion: { type: integer, minimum: 1 }
+        approvedSnapshotHash: { type: string, pattern: '^[a-f0-9]{64}$' }
+        approvalId: { type: string, format: uuid }
+        sequence: { type: integer, minimum: 1, maximum: 10020 }
     ImportCommit:
       type: object
       additionalProperties: false

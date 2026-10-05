@@ -145,6 +145,13 @@ try {
     sourceNamespace: "synthetic-m16", mappingVersion: "structured-csv/1",
     mapping: { mappingVersion: "structured-csv/1", sourceNamespace: "synthetic-m16", dateInterpretation: "explicit_only", columns: { id: "externalId", name: "displayName", birth: "birthDate" } },
   });
+  const chunkJob = await uploadAndImport({
+    filename: "synthetic-chunks.json", mimeType: "application/json", format: "canonical_json",
+    sourceNamespace: "synthetic-browser-chunks", mappingVersion: "structured-json/1",
+    bytes: Buffer.from(JSON.stringify(Array.from({ length: 2501 }, (_, index) => ({ id: `chunk-${index + 1}`, name: `Hư cấu browser chunk ${index + 1}` }))), "utf8"),
+    mapping: { mappingVersion: "structured-json/1", sourceNamespace: "synthetic-browser-chunks", dateInterpretation: "explicit_only",
+      columns: { id: "externalId", name: "displayName" } },
+  });
   const inspectionJob = await uploadAndImport({
     filename: "synthetic-inspection.json", mimeType: "application/json", format: "canonical_json", sourceNamespace: "synthetic-inspection", mappingVersion: "structured-json/1",
     bytes: Buffer.from(JSON.stringify(Array.from({ length: 51 }, (_, index) => ({ id: `inspection-${index + 1}`, name: `Hư cấu dòng ${index + 1}`, note: "private-inspection-marker" }))), "utf8"),
@@ -450,6 +457,58 @@ try {
     assert(changedCancellationReplay.status === 409, "changed cancellation replay must conflict");
     const cancelledState = await browserRequest(page, `/api/v1/imports/${inspectionJob.jobId}`);
     assert(cancelledState.body.data.canCancel === false, "cancelled import remained cancellable");
+    await reviewerPage.goto(`${webUrl}/quan-tri/nhap-lieu?job=${chunkJob.jobId}`);
+    const chunkApprovalResponse = reviewerPage.waitForResponse((response) => response.url().endsWith(`/imports/${chunkJob.jobId}/approve`) && response.request().method() === "POST");
+    await reviewerPage.getByRole("button", { name: "Duyệt bản nhập demo" }).click();
+    const chunkApproval = await chunkApprovalResponse;
+    assert(chunkApproval.status() === 200, "independent UI review of2501 people was blocked");
+    await page.goto(`${webUrl}/quan-tri/nhap-lieu?job=${chunkJob.jobId}`);
+    const startChunk = page.getByRole("button", { name: "Bắt đầu nhập theo lượt" });
+    await startChunk.waitFor();
+    assert(await page.getByRole("button", { name: "Áp dụng vào cây demo" }).count() === 0, "large batch exposed atomic commit UI");
+    const chunkFirstResponse = page.waitForResponse((response) => response.url().endsWith(`/imports/${chunkJob.jobId}/chunks`) && response.request().method() === "POST");
+    await startChunk.click();
+    const chunkFirst = await chunkFirstResponse;
+    const chunkFirstBody = await chunkFirst.json();
+    assert(chunkFirst.status() === 202 && chunkFirstBody.data?.job?.status === "partially_applied" &&
+      chunkFirstBody.data.appliedPeople === 500 && chunkFirstBody.data.chunkProgress.total === 6, "first browser chunk did not persist");
+    await page.getByText("Đã lưu 1/6 lượt nhập.", { exact: true }).waitFor();
+    await page.reload();
+    await page.getByText("Đã áp dụng một phần", { exact: true }).waitFor();
+    const nextChunkResponse = page.waitForResponse((response) => response.url().endsWith(`/imports/${chunkJob.jobId}/chunks`) && response.request().method() === "POST");
+    await page.getByRole("button", { name: "Lưu lượt nhập tiếp theo" }).click();
+    const chunkNext = await nextChunkResponse;
+    const chunkNextBody = await chunkNext.json();
+    assert(chunkNext.status() === 202 && chunkNextBody.data.appliedPeople === 1000 && chunkNextBody.data.chunkProgress.committed === 2, "next chunk did not resume after reload");
+    await page.getByText("Đã lưu 2/6 lượt nhập.", { exact: true }).waitFor();
+    const chunkState = await browserRequest(page, `/api/v1/imports/${chunkJob.jobId}`);
+    const chunkRetryHeaders = { "Idempotency-Key": chunkFirst.request().headers()["idempotency-key"], "X-CSRF-Token": chunkState.body.meta.csrfToken };
+    const chunkReplay = await browserRequest(page, `/api/v1/imports/${chunkJob.jobId}/chunks`, chunkFirst.request().postDataJSON(), chunkRetryHeaders);
+    assert(chunkReplay.status === 202 && chunkReplay.body.data.appliedPeople === 500, "durable chunk replay failed");
+    const changedChunkReplay = await browserRequest(page, `/api/v1/imports/${chunkJob.jobId}/chunks`,
+      { ...chunkFirst.request().postDataJSON(), baseVersion: chunkState.body.data.job.version }, chunkRetryHeaders);
+    assert(changedChunkReplay.status === 409, "changed chunk replay accepted");
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "partial import UI overflows320px");
+    await page.screenshot({ path: "reports/m16-chunks-320.png", fullPage: true });
+    await page.getByLabel("Lý do hủy").fill("Hư cấu: dừng sau hai lượt, giữ hồ sơ đã nhập");
+    const partialCancelResponse = page.waitForResponse((response) => response.url().endsWith(`/imports/${chunkJob.jobId}/cancel`) && response.request().method() === "POST");
+    await page.getByRole("button", { name: "Hủy bản nhập" }).click();
+    const partialCancel = await partialCancelResponse;
+    const partialCancelBody = await partialCancel.json();
+    assert(partialCancel.status() === 200 && partialCancelBody.data.appliedPeople === 1000 &&
+      partialCancelBody.data.chunkProgress.committed === 2 && !partialCancelBody.data.canApplyChunk,
+      `partial cancellation failed (${partialCancel.status()}, ${JSON.stringify(partialCancelBody).slice(0, 300)})`);
+    await page.getByText("Đã hủy · giữ phần đã lưu", { exact: true }).waitFor();
+    const stoppedState = await browserRequest(page, `/api/v1/imports/${chunkJob.jobId}`);
+    const stoppedRequest = await browserRequest(page, `/api/v1/imports/${chunkJob.jobId}/chunks`, {
+      baseVersion: stoppedState.body.data.job.version, approvalId: chunkFirst.request().postDataJSON().approvalId,
+      approvedSnapshotHash: chunkFirst.request().postDataJSON().approvedSnapshotHash, sequence: 3,
+    }, { "Idempotency-Key": randomUUID(), "X-CSRF-Token": stoppedState.body.meta.csrfToken });
+    assert(stoppedRequest.status === 409, "cancelled chunk job could continue");
+    const chunkProof = runPsql(`select (select count(*) from private.persons p join private.external_id_map m on m.tree_id=p.tree_id and m.canonical_id=p.id
+      where p.tree_id=${sqlString(treeId)} and m.source_namespace='synthetic-browser-chunks')=1000
+      and (select count(*) from private.import_chunks where job_id=${sqlString(chunkJob.jobId)} and status='completed')=2;`, true);
+    assert(chunkProof.status === 0 && chunkProof.stdout.trim() === "t", "chunk retry/cancel DB counts mismatch");
     await reviewerContext.close();
     await context.close();
   } finally {
@@ -461,7 +520,7 @@ try {
     assert(proof.status === 0 && proof.stdout.trim() === "t", "persisted date precision or mapping snapshot did not match the dry-run");
   }
 
-  console.log("PASS local M16 authenticated browser/HTTP: private intake, stable IDs, MFA, 320px exclude/restore/reload, row51 keyset inspection/selection, pre-apply cancellation and exact replay, GEDCOM relationship editor/save, independent MFA review and actual relationship commit, exact commit replay, state reload/counts, CSRF/AAL1 denial and cleanup");
+  console.log("PASS local M16 authenticated browser/HTTP: intake/atomic/relationship regressions;2501-person independent UI approval,320px bounded chunk apply/reload/continue,durable exact replay and changed-replay409,partial cancel retains1000 people and2/6 chunks,continuation denied,CSRF refresh stability and cleanup");
 } finally {
   if (treeId) {
     for (const assetId of assetIds) {

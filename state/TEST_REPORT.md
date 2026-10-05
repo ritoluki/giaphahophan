@@ -1,5 +1,7 @@
 # Báo cáo kiểm thử ứng dụng
 
+2026-10-06 — M16-05 chunks PASS local SQL2501-person/6chunk completion/replay/stale/AAL1/actor/order denial, prior edit refusal and failed-chunk rollback,500-person partial cancel and two-family graph continuation; authenticated Chromium320px2501-person UI review,500→1000 persisted people across reload, exact/changed retries and cancellation2/6chunks with DB proof and cleanup. Workspace68/104/18/4/6, typecheck, lint0errors/2known warnings, isolated production build, verify/OpenAPI parse PASS. [Evidence](../reports/M16_PARTIAL_CANCEL_UNDO.md). Simultaneous race/compensation/clean-install/staging/manual-a11y/real-device gates NOT_RUN.
+
 2026-10-04 — Relationship preflight PASS domain103 tests (7new), workspace typecheck/lint0errors/2existing warnings. No new DB/API/UI apply surface; those remain NOT_RUN for this slice. [Evidence](../reports/M16_RELATIONSHIP_PREFLIGHT.md). Preflight is not full family coverage or canonical apply acceptance.
 
 2026-10-04 — Full-row inspector PASS SQL2000-row pages, authenticated320px51-row browser navigation/selection/exclusion/reload, no raw marker and stale-version409. Contracts65, typecheck/lint/build/verify/parse PASS. Evidence: [M16_ROW_INSPECTION](../reports/M16_ROW_INSPECTION.md). Full normalized edit/relationship mapping/manual a11y/staging remain unfinished; no production claim.

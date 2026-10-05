@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-10-06T01:22:00+07:00",
+  "updatedAt": "2026-10-06T01:50:00+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -2596,7 +2596,8 @@
       "approvalRequired": [],
       "evidence": [
         "2026-10-06 first M16-05 slice PASS: migration0067 + POST /api/v1/imports/{id}/cancel enables authorized AAL2 cancellation of needs_review/ready demo jobs only before canonical writes. Job row lock serializes cancel against apply; version, imports.manage, demo-tree, reason, idempotency and CSRF are required; the reason is represented only by a digest in the private manifest. Authenticated 320px browser/API test cancels a synthetic import, exact retry returns cancelled, changed replay conflicts, completed imports cannot cancel, canCancel turns false, and cleanup succeeds. Chunk manifests, partial continuation/cancel, and guarded compensation remain NOT_RUN; M16-05 remains IN_PROGRESS.",
-        "2026-10-06 current-session test:m16:import is BLOCKED before execution: Docker CLI permission denied connecting to npipe:////./pipe/docker_engine. No new code or DB mutation occurred. Resume fresh SQL verification after engine access is restored; earlier PASS evidence is historical."
+        "2026-10-06 current-session test:m16:import was BLOCKED by sandbox Docker access; resolved by authorized execution outside sandbox. Fresh local SQL and authenticated browser tests PASS.",
+        "2026-10-06 migration0068 and POST chunks PASS:2501-person6chunk completion and durable exact replay, stale/changed/order/AAL1/reviewer denial, changed earlier canonical row refusal, failed chunk rollback preserving prior500people, partial cancel retains source and canonical progress, and people-first two-family graph continuation. Authenticated320px UI reviews2501people, applies500 then reloads/continues1000, exact/changed replay, cancels2/6chunks and denies further apply; DB counts/cleanup PASS. Workspace68/104/18/4/6,typecheck,lint0errors/2known warnings,isolated production build,verify/OpenAPI parse PASS. reports/M16_PARTIAL_CANCEL_UNDO.md; concurrency and separate two-person compensation remain NOT_RUN."
       ]
     },
     {

@@ -69,7 +69,7 @@ export function ImportIntake() {
   const [error, setError] = useState("");
   const [reviewState, setReviewState] = useState<ImportReviewState | null>(null);
   const [csrfToken, setCsrfToken] = useState("");
-  const [reviewAction, setReviewAction] = useState<"approve" | "commit" | "rows" | "cancel" | null>(null);
+  const [reviewAction, setReviewAction] = useState<"approve" | "commit" | "chunks" | "rows" | "cancel" | null>(null);
   const [decisionRow, setDecisionRow] = useState("1");
   const [decisionExcluded, setDecisionExcluded] = useState(true);
   const [decisionReason, setDecisionReason] = useState("");
@@ -104,11 +104,12 @@ export function ImportIntake() {
     finally { setReviewAction(null); }
   }
 
-  async function actOnReview(action: "approve" | "commit") {
+  async function actOnReview(action: "approve" | "commit" | "chunks") {
     if (!preview || !reviewState) return;
     const body = action === "approve"
       ? { baseVersion: reviewState.job.version, snapshotHash: preview.snapshotHash }
-      : { baseVersion: reviewState.job.version, approvedSnapshotHash: reviewState.approvedSnapshotHash, approvalId: reviewState.approvalId, allowPartial: false };
+      : { baseVersion: reviewState.job.version, approvedSnapshotHash: reviewState.approvedSnapshotHash, approvalId: reviewState.approvalId,
+        ...(action === "chunks" ? { sequence: reviewState.chunkProgress?.nextSequence ?? 1 } : { allowPartial: false }) };
     const signature = JSON.stringify({ jobId: preview.jobId, action, body });
     if (reviewRequest.current?.signature !== signature) reviewRequest.current = { signature, key: crypto.randomUUID() };
     setReviewAction(action); setError("");
@@ -268,7 +269,7 @@ export function ImportIntake() {
       </form>
       {(pending || loadingPreview) && <div className="card import-result" role="status" aria-live="polite"><span className="skeleton-line" /><span className="skeleton-line skeleton-line-short" /><p>{loadingPreview ? "Đang tải bản dry-run đã lưu…" : "Đang xác minh tệp trong kho riêng. Không đóng trang cho đến khi hoàn tất."}</p></div>}
       {preview && <section className="card import-result" aria-live="polite" aria-labelledby="import-result-title">
-        <span className="status-label">{reviewState?.job.status === "completed" ? "Đã áp dụng" : reviewState?.job.status === "cancelled" ? "Đã hủy · chưa ghi hồ sơ" : reviewState?.job.status === "ready" ? "Đã duyệt" : "Cần rà soát"}</span>
+        <span className="status-label">{reviewState?.job.status === "completed" ? "Đã áp dụng" : reviewState?.job.status === "cancelled" ? (reviewState.appliedPeople > 0 ? "Đã hủy · giữ phần đã lưu" : "Đã hủy · chưa ghi hồ sơ") : reviewState?.job.status === "partially_applied" ? "Đã áp dụng một phần" : reviewState?.job.status === "ready" ? "Đã duyệt" : "Cần rà soát"}</span>
         <h2 id="import-result-title">Kết quả dry-run</h2>
         <dl className="import-counts"><div><dt>Tổng dòng</dt><dd>{preview.valid + preview.invalid + preview.possibleDuplicates + preview.excluded}</dd></div><div><dt>Hợp lệ</dt><dd>{preview.valid}</dd></div><div><dt>Cần sửa</dt><dd>{preview.invalid}</dd></div><div><dt>Cần rà soát</dt><dd>{preview.possibleDuplicates}</dd></div><div><dt>Đã loại trừ</dt><dd>{preview.excluded}</dd></div></dl>
         <p>Phân loại: {preview.classification}. Checksum SHA-256: <code className="import-hash">{preview.fileSha256}</code></p>
@@ -292,19 +293,23 @@ export function ImportIntake() {
           <button className="button-secondary" type="submit" disabled={reviewAction !== null || !decisionReason.trim()}>{reviewAction === "rows" ? "Đang lưu quyết định…" : "Lưu quyết định dòng"}</button>
         </form>}
         {reviewState?.canCancel && <form className="import-row-decision" onSubmit={cancelImport}>
-          <h3>Hủy bản nhập chưa áp dụng</h3>
-          <p className="muted">Chỉ hủy khi chưa có hồ sơ hay quan hệ nào được ghi vào cây. Nếu một thao tác áp dụng đang chạy, máy chủ tuần tự hóa và sẽ từ chối hủy sau khi đã ghi dữ liệu.</p>
+          <h3>{reviewState.appliedPeople > 0 ? "Dừng các lượt nhập còn lại" : "Hủy bản nhập chưa áp dụng"}</h3>
+          <p className="muted">{reviewState.appliedPeople > 0 ? "Hủy sẽ ngăn các lượt tiếp theo. Hồ sơ, quan hệ và trích dẫn đã lưu vẫn được giữ trong cây." : "Hủy bản nhập trước khi áp dụng. Nếu một thao tác áp dụng đang chạy, máy chủ kiểm tra trạng thái sau khi thao tác đó kết thúc."}</p>
           <label htmlFor="import-cancel-reason">Lý do hủy</label><textarea id="import-cancel-reason" required minLength={5} maxLength={1000} value={cancelReason} onChange={(event) => setCancelReason(event.target.value)} />
           <button className="button-secondary" type="submit" disabled={reviewAction !== null || cancelReason.trim().length < 5}>{reviewAction === "cancel" ? "Đang hủy…" : "Hủy bản nhập"}</button>
         </form>}
-        {reviewState?.job.status === "completed" ? <p className="import-safety-note" role="status">Đã lưu {reviewState.appliedPeople} hồ sơ, {reviewState.appliedUnions} gia đình và {reviewState.appliedParentLinks} quan hệ cha mẹ vào cây demo cùng nguồn trích dẫn riêng tư.</p> : <>
-          <p className="import-safety-note">Chưa ghi hồ sơ. Batch có lỗi, dòng cần rà soát, quan hệ gia đình hoặc hơn 2.000 người cần được xử lý trước bước áp dụng. Gửi đường dẫn trang này cho người duyệt có quyền nhập liệu.</p>
+        {reviewState?.chunkProgress && <p role="status">Đã lưu {reviewState.chunkProgress.committed}/{reviewState.chunkProgress.total} lượt nhập.</p>}
+        {reviewState && reviewState.appliedPeople > 0 && <p className="import-safety-note" role="status">Đã lưu {reviewState.appliedPeople} hồ sơ, {reviewState.appliedUnions} gia đình và {reviewState.appliedParentLinks} quan hệ cha mẹ vào cây demo cùng nguồn trích dẫn riêng tư.</p>}
+        {reviewState && ["needs_review", "ready", "partially_applied"].includes(reviewState.job.status) && <>
+          <p className="import-safety-note">{reviewState.job.status === "partially_applied" ? "Phần đã lưu vẫn tồn tại sau khi tải lại trang hoặc khi lượt sau gặp lỗi. Tiếp tục từ lượt kế tiếp, hoặc hủy để dừng phần còn lại." : "Dòng lỗi và quan hệ chưa đối chiếu cần được xử lý trước khi duyệt. Bản nhập lớn được lưu theo lượt: hồ sơ trước, gia đình và quan hệ sau. Gửi đường dẫn trang này cho người duyệt có quyền nhập liệu."}</p>
           {reviewState?.job.status === "needs_review" && <button className="button-primary" type="button"
-            disabled={!reviewState.canReview || preview.invalid > 0 || preview.possibleDuplicates > 0 || preview.valid < 1 || preview.valid > 2000 || reviewAction !== null}
+            disabled={!reviewState.canReview || preview.invalid > 0 || preview.possibleDuplicates > 0 || preview.valid < 1 || preview.valid > 10000 || reviewAction !== null}
             onClick={() => void actOnReview("approve")}>{reviewAction === "approve" ? "Đang duyệt…" : "Duyệt bản nhập demo"}</button>}
-          {reviewState?.job.status === "ready" && <button className="button-primary" type="button" disabled={!reviewState.canApply || reviewAction !== null}
+          {reviewState.job.status === "ready" && (reviewState.canApply || preview.valid <= 2000) && <button className="button-primary" type="button" disabled={!reviewState.canApply || reviewAction !== null}
             onClick={() => void actOnReview("commit")}>{reviewAction === "commit" ? "Đang lưu hồ sơ…" : "Áp dụng vào cây demo"}</button>}
-          {reviewState && !reviewState.canReview && !reviewState.canApply && <p className="muted">Cần xác thực hai bước; người tạo không tự duyệt và người duyệt không tự áp dụng bản đã duyệt.</p>}
+          {reviewState.canApplyChunk && <button className="button-secondary" type="button" disabled={reviewAction !== null}
+            onClick={() => void actOnReview("chunks")}>{reviewAction === "chunks" ? "Đang lưu lượt nhập…" : reviewState.chunkProgress ? "Lưu lượt nhập tiếp theo" : "Bắt đầu nhập theo lượt"}</button>}
+          {!reviewState.canReview && !reviewState.canApply && !reviewState.canApplyChunk && <p className="muted">Cần xác thực hai bước; người tạo không tự duyệt và người duyệt không tự áp dụng bản đã duyệt.</p>}
         </>}
         <button className="button-secondary" type="button" disabled={reviewAction !== null} onClick={() => {
           setError(""); void refreshReview(preview.jobId).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : "Không tải được trạng thái."));

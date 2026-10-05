@@ -1,5 +1,7 @@
 # Blockers
 
+2026-10-06 current: Docker access is restored through authorized execution outside the sandbox; the earlier owner-action request is superseded. Migration0068 chunk apply/continuation/replay, failed-chunk rollback, ownership edit guard and cancellation after progress are PASS on synthetic local SQL and authenticated320px browser. No owner action needed. Still open: simultaneous cancellation/apply race evidence and separate two-person compensation with later-reference protection; M16-05 IN_PROGRESS. Clean install/staging/accessibility/device/production remain NOT_RUN.
+
 2026-10-06 current-session check: `pnpm.cmd test:m16:import` is BLOCKED before test execution because Docker CLI receives permission denied on `npipe:////./pipe/docker_engine`; Windows listener inspection is denied as well. No migration/code work should claim fresh SQL PASS until Docker access is available. Existing prior local PASS logs remain historical evidence only. Owner action needed: restore Docker Desktop engine access to this Codex process/session, then tell me to resume; meanwhile no service/account/production approval is needed.
 
 2026-10-06 M16-05: 0067 safely cancels only unapplied reviewed demo jobs; authenticated MFA browser exact-replay/cleanup PASS. Still NOT_RUN: chunk manifest/continuation, cancel after partial progress, safe compensating undo, and unchanged/newly referenced edit protection. No owner action needed; synthetic local only.

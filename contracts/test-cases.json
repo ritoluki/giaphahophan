@@ -1447,7 +1447,8 @@
       "expected": "Chunks có manifest; partial không báo rolled_back; cancel/compensate không xóa edits mới.",
       "status": "IN_PROGRESS",
       "evidence": [
-        "2026-10-06 PASS first vertical slice on local Supabase: authenticated MFA browser cancelled an unapplied synthetic job with reason digest, exact retry, changed-key conflict, refusal after completed apply and canCancel revocation; request uses current version/CSRF and cleanup succeeded. Chunk manifest/partial continuation and compensating undo remain NOT_RUN."
+        "2026-10-06 PASS first vertical slice on local Supabase: authenticated MFA browser cancelled an unapplied synthetic job with reason digest, exact retry, changed-key conflict, refusal after completed apply and canCancel revocation; request uses current version/CSRF and cleanup succeeded.",
+        "2026-10-06 PASS migration0068 synthetic local SQL:2501-person6chunk completion/replay, stale/order/AAL1/reviewer/changed-row denial, failed-chunk rollback,partial cancel retains500people/source and multi-family graph continuation. Authenticated Chromium320px UI reviews2501people, persists500 then1000 across reload/retry, cancels2/6chunks retaining canonical records, denies continuation and cleans fixtures. Evidence reports/M16_PARTIAL_CANCEL_UNDO.md and reports/m16-chunks-320.png. Simultaneous race and separate two-person compensation remain NOT_RUN."
       ]
     },
     {

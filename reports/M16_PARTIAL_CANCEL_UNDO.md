@@ -16,4 +16,18 @@ The responsive import screen exposes the cancellation form only when the authori
 
 PASS: local Supabase migration apply/reapply and authenticated `pnpm.cmd test:m16:http` at a 320px viewport. The synthetic owner cancels an unapplied import with a valid reason; job status persists as `cancelled`, exact request replay returns the same state, changed payload on the same key returns409, `canCancel` becomes false, completed imports expose no cancellation capability, and fixture cleanup passes. Review-state contract/OpenAPI and cancel-input contract test updated.
 
-NOT_RUN: chunk planning/application, `partially_applied` continuation, cancellation after committed chunks, compensating undo, and conflict protection for later person edits/new references. M16-05 remains IN_PROGRESS. No real genealogy data or hosted DB used; no production deployment.
+The preceding NOT_RUN list describes the first cancellation-only slice; the new chunk evidence below supersedes it.
+
+## Chunk transactions — 2026-10-06
+
+Migration0068 adds FORCE-RLS private immutable chunk plans and a durable per-chunk result/replay ledger, plus exact ownership snapshots of import-created canonical rows. It shares the existing canonical-write helper with atomic apply, keeping the 2,000-person atomic boundary and permitting independently reviewed batches up to the existing 10,000-record intake limit. A chunk creates up to500 people; subsequent family chunks create one whole family and its explicitly reviewed edges after all people exist. Every request locks the job, rechecks active capability/AAL2/demo mode, independent reviewer, version, immutable source/staging and merged graph under the canonical tree lock. Changed earlier canonical rows prevent further apply. A failed chunk transaction rolls back its own writes while retaining all prior chunks.
+
+Cancellation serializes on the same job row, invalidates approval and stops future chunks. Its projection retains exact committed counts and private source/staging/ownership evidence. It does not delete canonical rows. GET state retains an existing valid CSRF token so refreshing another tab does not silently invalidate an open form.
+
+PASS local Supabase `pnpm.cmd test:m16:import`: existing atomic regressions,2501 people in6 chunks, durable exact replay after completion, changed/stale/out-of-order/AAL1/reviewer denial, changed prior person denial, injected midway person collision with rollback of only the failed chunk, cancellation after500 persisted people, and people-first two-family graph continuation. Synthetic transaction rolled back. Fixture: `supabase/tests/m16_chunk_transactions.sql`.
+
+PASS local authenticated Chromium `pnpm.cmd test:m16:http` at320px: independent UI review of2501 people, first500-person chunk, page reload, second chunk, durable retry without duplication, changed replay409, cancellation retains1000 people and2/6 chunks, further apply409, no horizontal overflow, DB count assertions and fixture cleanup. Screenshot: [partial import](m16-chunks-320.png). Earlier atomic/GEDCOM/MFA/CSRF tests also PASS. Initial browser runs failed on a missing disabled reviewer control and CSRF rotation; both were corrected before this PASS.
+
+PASS workspace tests: contracts68/domain104/worker18/lunar4/web6; config/UI have no test files. Typecheck, lint (0errors/2existing warnings), isolated production build `.next-m16-chunks`, foundation verify and OpenAPI YAML parse PASS. Build is local only; preview served atlocalhost:3100. No real/hosted data or production deployment.
+
+Remaining NOT_RUN: simultaneous cancel/apply race tests, independent two-person compensating undo, refusal when new references appear, clean install/staging, accessibility beyond overflow checks, real devices and production gates. M16-05 remains IN_PROGRESS. Compensation must have a separate two-person approval per docs10; initial import approval does not authorize undo.

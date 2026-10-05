@@ -13,7 +13,10 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
   if (error) return apiJson({ code: "IMPORT_STATE_UNAVAILABLE", message: "Không thể đọc bản nhập được cấp quyền." }, rpcErrorStatus(error.code));
   const result = importReviewStateSchema.safeParse(data);
   if (!result.success) return apiJson({ code: "IMPORT_RESPONSE_INVALID", message: "Phản hồi bản nhập không hợp lệ." }, 502);
-  const csrfToken = randomBytes(32).toString("hex");
-  (await cookies()).set(IMPORT_CSRF_COOKIE, csrfToken, { httpOnly: true, sameSite: "strict", secure: new URL(request.url).protocol === "https:", path: "/api/v1/imports", maxAge: 1800 });
+  const cookieStore = await cookies();
+  const existingToken = cookieStore.get(IMPORT_CSRF_COOKIE)?.value;
+  // A state refresh or another import tab must not invalidate a form already open.
+  const csrfToken = existingToken && /^[a-f0-9]{64}$/.test(existingToken) ? existingToken : randomBytes(32).toString("hex");
+  cookieStore.set(IMPORT_CSRF_COOKIE, csrfToken, { httpOnly: true, sameSite: "strict", secure: new URL(request.url).protocol === "https:", path: "/api/v1/imports", maxAge: 1800 });
   return apiJson(result.data, 200, { meta: { requestId: crypto.randomUUID(), csrfToken } });
 }

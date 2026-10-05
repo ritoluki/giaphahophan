@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { importCancelSchema, importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importRelationshipMappingSchema, importRelationshipRowsPageSchema, importReviewInputSchema, importRowDecisionSchema, importRowsPageSchema, importRowsQuerySchema } from "./index";
+import { importCancelSchema, importChunkApplySchema, importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importRelationshipMappingSchema, importRelationshipRowsPageSchema, importReviewInputSchema, importRowDecisionSchema, importRowsPageSchema, importRowsQuerySchema } from "./index";
 
 describe("M16 import contracts", () => {
+  it("binds one chunk to its approval, version and positive sequence without accepting client row IDs", () => {
+    const input = { baseVersion: 3, approvedSnapshotHash: "a".repeat(64), approvalId: "a6100000-0000-4000-8000-000000000001", sequence: 1 };
+    expect(importChunkApplySchema.safeParse(input).success).toBe(true);
+    expect(importChunkApplySchema.safeParse({ ...input, sequence: 0 }).success).toBe(false);
+    expect(importChunkApplySchema.safeParse({ ...input, rows: [1, 2] }).success).toBe(false);
+  });
   it("requires a current version and meaningful reason for pre-apply cancellation", () => {
     expect(importCancelSchema.safeParse({ baseVersion: 3, reason: "Source owner withdrew permission" }).success).toBe(true);
     expect(importCancelSchema.safeParse({ baseVersion: 0, reason: "valid reason" }).success).toBe(false);

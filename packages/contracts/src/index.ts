@@ -1132,6 +1132,12 @@ export const importCancelSchema = z.object({
   baseVersion: z.number().int().positive(),
   reason: z.string().trim().min(5).max(1000),
 }).strict();
+export const importChunkApplySchema = z.object({
+  baseVersion: z.number().int().positive(),
+  approvedSnapshotHash: z.string().regex(/^[a-f0-9]{64}$/),
+  approvalId: z.string().uuid(),
+  sequence: z.number().int().min(1).max(10020),
+}).strict();
 export const importReviewStateSchema = z.object({
   job: importJobSchema,
   approvalId: z.string().uuid().nullable(),
@@ -1139,6 +1145,12 @@ export const importReviewStateSchema = z.object({
   canReview: z.boolean(),
   canApply: z.boolean(),
   canCancel: z.boolean(),
+  canApplyChunk: z.boolean(),
+  chunkProgress: z.object({
+    total: z.number().int().positive(),
+    committed: z.number().int().nonnegative(),
+    nextSequence: z.number().int().positive().nullable(),
+  }).strict().refine((progress) => progress.committed <= progress.total).nullable(),
   appliedPeople: z.number().int().nonnegative(),
   appliedUnions: z.number().int().nonnegative(),
   appliedParentLinks: z.number().int().nonnegative(),
