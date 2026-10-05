@@ -589,24 +589,46 @@ try {
     const exportOverride = await browserRequest(page, "/api/v1/exports", { ...exportInput, includePrivate: true }, { ...exportHeaders, "Idempotency-Key": randomUUID() });
     assert(exportOverride.status === 400, "export raw override accepted");
     assert((await browserRequest(reviewerPage, `/api/v1/exports/${exportId}`)).status === 403, "different actor read export job");
+    let cancelledExportId;
+    let cancelExportHeaders;
+    const cancelExportInput = { baseVersion: 1, reason: "Cancel synthetic export request" };
     for (const format of ["csv", "book_pdf"]) {
       const audience = format === "book_pdf" ? "public" : "members";
       const includeMedia = format === "book_pdf";
       const nextExport = await browserRequest(page, "/api/v1/exports", { ...exportInput, format, audience, includeMedia }, { ...exportHeaders, "Idempotency-Key": randomUUID() });
       assert(nextExport.status === 202 && nextExport.body.data.format === format && nextExport.body.data.audience === audience
         && nextExport.body.data.includeMedia === includeMedia, "export format/audience/media choice did not persist");
+      if (format === "csv") {
+        cancelledExportId = nextExport.body.data.id;
+        cancelExportHeaders = { ...exportHeaders, "Idempotency-Key": randomUUID() };
+        const cancelPath = `/api/v1/exports/${cancelledExportId}/cancel`;
+        assert((await browserRequest(page, cancelPath, { ...cancelExportInput, baseVersion: 2 }, cancelExportHeaders)).status === 409, "stale export cancel accepted");
+        assert((await browserRequest(page, cancelPath, cancelExportInput, { ...cancelExportHeaders, "X-CSRF-Token": "0".repeat(64) })).status === 403, "export cancellation missing CSRF guard");
+        assert((await browserRequest(page, cancelPath, { ...cancelExportInput, actorId: userId }, cancelExportHeaders)).status === 400, "export cancel actor override accepted");
+        const otherExportContext = await browserRequest(reviewerPage, "/api/v1/exports");
+        assert((await browserRequest(reviewerPage, cancelPath, cancelExportInput, { "Idempotency-Key": randomUUID(), "X-CSRF-Token": otherExportContext.body.data.csrfToken })).status === 403, "different actor cancelled export");
+        const cancelledExport = await browserRequest(page, cancelPath, cancelExportInput, cancelExportHeaders);
+        assert(cancelledExport.status === 200 && cancelledExport.body.data.status === "cancelled" && cancelledExport.body.data.version === 2, "export cancellation not persisted");
+        const cancelReplay = await browserRequest(page, cancelPath, cancelExportInput, cancelExportHeaders);
+        assert(cancelReplay.status === 200 && JSON.stringify(cancelReplay.body.data) === JSON.stringify(cancelledExport.body.data), "export cancel retry not exact");
+        assert((await browserRequest(page, cancelPath, { ...cancelExportInput, reason: "Changed synthetic cancellation" }, cancelExportHeaders)).status === 409, "changed export cancel retry accepted");
+        assert((await browserRequest(page, `/api/v1/exports/${cancelledExportId}`)).body.data.status === "cancelled", "export cancellation lost after reload");
+        assert((await browserRequest(page, `/api/v1/exports/${cancelledExportId}/preview`)).status === 403, "cancelled preview still available");
+      }
     }
     const exportQuota = await browserRequest(page, "/api/v1/exports", exportInput, { ...exportHeaders, "Idempotency-Key": randomUUID() });
     assert(exportQuota.status === 429, "fourth export exceeded daily quota");
-    const exportProof = runPsql(`select count(*)=3 and bool_and(status='queued' and result_asset_id is null) from private.export_jobs where tree_id=${sqlString(treeId)};`, true);
-    assert(exportProof.status === 0 && exportProof.stdout.trim() === "t", "queued export DB count/status mismatch");
+    const exportProof = runPsql(`select count(*)=3 and count(*) filter(where status='queued')=2 and count(*) filter(where status='cancelled')=1 and bool_and(result_asset_id is null) from private.export_jobs where tree_id=${sqlString(treeId)};`, true);
+    assert(exportProof.status === 0 && exportProof.stdout.trim() === "t", "export DB count/status mismatch");
     const exportExpire = runPsql(`update private.export_jobs set expires_at=clock_timestamp()-interval '1 second' where id=${sqlString(exportId)} and tree_id=${sqlString(treeId)};`);
     assert(exportExpire.status === 0 && (await browserRequest(page, `/api/v1/exports/${exportId}`)).status === 403, "expired export metadata available");
     assert((await browserRequest(page, `/api/v1/exports/${exportId}/preview`)).status === 403, "expired export projection available");
+    assert((await browserRequest(page, `/api/v1/exports/${exportId}/cancel`, cancelExportInput, { ...exportHeaders, "Idempotency-Key": randomUUID() })).status === 403, "expired export cancellation accepted");
     const revokeExport = runPsql(`update private.memberships set status='revoked' where id=${sqlString(membershipId)} and tree_id=${sqlString(treeId)};`);
     assert(revokeExport.status === 0 && (await browserRequest(page, "/api/v1/exports", exportInput, exportHeaders)).status === 403, "revoked export actor replay accepted");
+    assert((await browserRequest(page, `/api/v1/exports/${cancelledExportId}/cancel`, cancelExportInput, cancelExportHeaders)).status === 403, "revoked export cancellation retry accepted");
     assert(runPsql(`update private.memberships set status='active' where id=${sqlString(membershipId)} and tree_id=${sqlString(treeId)};`).status === 0, "synthetic membership restore failed");
-    console.log("PASS local M16-06 authenticated HTTP: queued DB/reload/replay,format/audience/media persisted,changed409,CSRF403,override400,cross-actor403,quota429,expiry/revoke403;live preview omits restricted imports and private source/quotes,retains authorized person/year-only fact/citation/source; preview cross-actor/expiry403. Rendering/download NOT_RUN");
+    console.log("PASS local M16-06 authenticated HTTP: queued DB/reload/replay,format/audience/media persisted,changed409,CSRF403,override400,cross-actor403,quota429,expiry/revoke403; live preview omits restricted/private quotes,retains authorized year-only facts/citations/sources; cancellation persists/reloads/retries exactly,stale/changed409,CSRF/cross-actor/revoke/expiry403,unknown actor400,preview disabled and quota retained. Rendering/download NOT_RUN");
     await reviewerContext.close();
     await context.close();
   } finally {

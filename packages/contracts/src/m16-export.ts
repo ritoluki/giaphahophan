@@ -81,6 +81,11 @@ export const exportProjectionSchema = z.object({
 export type ExportProjection = z.infer<typeof exportProjectionSchema>;
 export type ExportRequest = z.infer<typeof exportRequestSchema>;
 
+export const exportCancelSchema = z.object({
+  baseVersion: z.number().int().positive().max(Number.MAX_SAFE_INTEGER),
+  reason: z.string().trim().min(5).max(1000),
+}).strict();
+
 export const exportJobSchema = z.object({
   id: z.string().uuid(), treeId: z.string().uuid(), version: z.number().int().positive(),
   format: exportFormatSchema, scope: exportScopeSchema, policyVersion: z.number().int().positive(),

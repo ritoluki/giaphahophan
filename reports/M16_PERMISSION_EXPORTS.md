@@ -8,6 +8,16 @@
 4. Connect BFF guards and verify local authenticated HTTP; keep queued/artifact states truthful.
 5. Next: policy-filtered projection, worker/private Storage, rechecked download/cancel, GEDCOM conformance+sidecar, PDF/SVG templates and mobile SCR-33. No item5 PASS inferred from metadata/serializer tests.
 
+Cancellation slice plan: add strict baseVersion/reason contract and guarded BFF; serialize queued/running cancellation on the job row, bind retry to actor/job/version/reason digest independent of a caller-supplied hash, preserve canonical data and quota, invalidate preview, and test stale/terminal/permission/expiry/replay cases locally. Worker completion must honor the same row lock/status; cancellation is not deletion of source media or revocation of a previously completed download.
+
+## Cancellation continuation — 2026-10-06
+
+PASS local migration0073 + test:m16:export: queued/running cancellation persists with version increment, exact retry is actor/job/version/reason-digest-bound even when a caller reuses a counterfeit hash. Stale/terminal/AAL1/cross-actor/expired/revoked cases rejected; cancelled preview denied, rolling quota retained, audit not duplicated and canonical data retained. Cancellation-vs-worker concurrency remains NOT_RUN because worker completion is not implemented.
+
+PASS test:m16:http on standalone .next-m16-export-cancel at localhost3100 + synthetic local Supabase: cancel/reload/exact retry, stale/changed409, CSRF/cross-actor/revoked/expired403, unknown actor400, preview invalidation and unchanged3-job quota. Existing import/family/chunk/1000-person two-person compensation regression PASS; cleanup verified. PASS workspace73/124/18/4/6,typecheck,lint0errors/2known warnings,verify/OpenAPI/state parse,diff check and isolated build.
+
+M16-06 still IN_PROGRESS: SCR-33, worker/private artifact/download/render, GEDCOM/PDF/SVG/media packaging, public/representative/consent workflows and full accessibility/device/load/clean-install/staging/production remain open. Cancellation completes only the queued/running API/DB slice.
+
 ## Local evidence — 2026-10-06
 
 PASS `pnpm.cmd test:m16:export`: migrations0070/0071 and synthetic PostgreSQL transaction verify durable queued/exact replay, changed body including counterfeit-hash/media choice refusal, bulk AAL1/member denial, personal scope requiring independent claim review, cross-tree/actor denial,3/day quota,24-hour expiry, policy change and membership revocation. No result asset/status complete manufactured; fixture rolls back. FORCE RLS, raw/anonymous grants closed; old incomplete create RPC revoked.

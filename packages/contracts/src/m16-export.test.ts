@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { exportJobSchema, exportRequestSchema } from "./index";
+import { exportCancelSchema, exportJobSchema, exportRequestSchema } from "./index";
 const treeId = "a6700000-0000-4000-8000-000000000001";
 describe("M16-06 export contracts", () => {
+  it("requires a bounded cancellation version and reason without actor overrides", () => {
+    expect(exportCancelSchema.parse({ baseVersion: 1, reason: "  Synthetic cancellation  " })).toEqual({ baseVersion: 1, reason: "Synthetic cancellation" });
+    for (const input of [{ baseVersion: 0, reason: "Valid reason" }, { baseVersion: 1.5, reason: "Valid reason" }, { baseVersion: 1, reason: "no" }, { baseVersion: 1, reason: "Valid reason", actorId: treeId }]) {
+      expect(exportCancelSchema.safeParse(input).success).toBe(false);
+    }
+  });
   it("keeps approved external format names and explicit audience/media/scope", () => {
     for (const format of ["canonical_json", "csv", "gedcom_551", "gedcom_7", "book_pdf", "svg"]) {
       expect(exportRequestSchema.safeParse({ treeId, format, reason: "Synthetic bulk", scope: { kind: "tree" }, audience: "members", includeMedia: false }).success).toBe(true);

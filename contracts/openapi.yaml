@@ -8426,6 +8426,48 @@ paths:
           description: Projection capacity exceeded; never truncated.
         '502':
           description: Invalid upstream projection; no artifact generated.
+  /api/v1/exports/{id}/cancel:
+    post:
+      operationId: post_export_cancel
+      tags: [ImportExport]
+      description: Queued/running jobs only. Live requester/scope/MFA/expiry/policy, optimistic version and actor-bound payload retry checked at DB; canonical data/media and rolling quota retained.
+      security:
+      - sessionCookie: []
+      parameters:
+      - {name: id, in: path, required: true, schema: {type: string, format: uuid}}
+      - {name: Idempotency-Key, in: header, required: true, schema: {type: string, format: uuid}}
+      - {name: X-CSRF-Token, in: header, required: true, schema: {type: string, pattern: '^[a-f0-9]{64}$'}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [baseVersion, reason]
+              properties:
+                baseVersion: {type: integer, minimum: 1, maximum: 9007199254740991}
+                reason: {type: string, minLength: 5, maxLength: 1000}
+      responses:
+        '200':
+          description: Persisted cancelled job or exact retry after live reauthorization.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [data, meta]
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ExportJob'
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+        '400': {description: Invalid or unknown input fields.}
+        '401': {description: Verified session required.}
+        '403': {description: CSRF or live permission/expiry/policy denied.}
+        '409': {description: Stale version, terminal state or changed retry payload.}
+        '428': {description: Idempotency key required.}
+        '503': {description: Transient database lock or timeout; retry same key.}
   /api/v1/exports/{id}/download:
     description: Planned private artifact download; NOT implemented by the metadata/projection slice. Requires fresh authorization and current-policy recheck.
     post:

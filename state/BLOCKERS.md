@@ -1,5 +1,7 @@
 # Blockers
 
+2026-10-06 M16-06 cancellation API/DB now PASS locally; no environment/owner blocker for next local SCR-33 slice. Worker-completion race tests remain NOT_RUN until worker exists. Public/representative/consent management, private artifact/render/download and full clean-install/staging/a11y/device/production gates remain open; reports/M16_PERMISSION_EXPORTS.md.
+
 2026-10-06 superseding M16-06 status: permission-filtered projection now PASS locally, including field consent/proof revocation and hidden union participants; see reports/M16_PERMISSION_EXPORTS.md. Public-person publication and representative/consent management remain open dependencies; public export fails closed. Worker/private artifact/render/download/cancel/SCR-33, clean-install/staging/load/a11y/device/release gates remain NOT_RUN. No owner action needed to continue local implementation.
 
 2026-10-06 export continuation: M16-06 metadata/JSON-CSV serialization and local SQL/standalone HTTP gates PASS. No owner action needed for remaining local projection/worker/artifacts/download/render/SCR-33 work. Staging-project designation question remains non-blocking; no cloud mutations. Manual device/accessibility/load, clean-install/staging and production approvals remain open; never treat queued metadata as a completed export.
