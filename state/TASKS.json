@@ -2595,7 +2595,8 @@
       "status": "IN_PROGRESS",
       "approvalRequired": [],
       "evidence": [
-        "2026-10-06 first M16-05 slice PASS: migration0067 + POST /api/v1/imports/{id}/cancel enables authorized AAL2 cancellation of needs_review/ready demo jobs only before canonical writes. Job row lock serializes cancel against apply; version, imports.manage, demo-tree, reason, idempotency and CSRF are required; the reason is represented only by a digest in the private manifest. Authenticated 320px browser/API test cancels a synthetic import, exact retry returns cancelled, changed replay conflicts, completed imports cannot cancel, canCancel turns false, and cleanup succeeds. Chunk manifests, partial continuation/cancel, and guarded compensation remain NOT_RUN; M16-05 remains IN_PROGRESS."
+        "2026-10-06 first M16-05 slice PASS: migration0067 + POST /api/v1/imports/{id}/cancel enables authorized AAL2 cancellation of needs_review/ready demo jobs only before canonical writes. Job row lock serializes cancel against apply; version, imports.manage, demo-tree, reason, idempotency and CSRF are required; the reason is represented only by a digest in the private manifest. Authenticated 320px browser/API test cancels a synthetic import, exact retry returns cancelled, changed replay conflicts, completed imports cannot cancel, canCancel turns false, and cleanup succeeds. Chunk manifests, partial continuation/cancel, and guarded compensation remain NOT_RUN; M16-05 remains IN_PROGRESS.",
+        "2026-10-06 current-session test:m16:import is BLOCKED before execution: Docker CLI permission denied connecting to npipe:////./pipe/docker_engine. No new code or DB mutation occurred. Resume fresh SQL verification after engine access is restored; earlier PASS evidence is historical."
       ]
     },
     {

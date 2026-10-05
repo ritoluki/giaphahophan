@@ -1,5 +1,7 @@
 # Backlog triển khai
 
+2026-10-06 M16-05 resume gate: latest `pnpm.cmd test:m16:import` is BLOCKED before execution (Docker named pipe permission denied); Windows port inspection likewise denied. No chunk implementation/test asserted in this session. Resume M16-05 once local Docker engine is accessible to the agent; then implement snapshot-bound dependency-safe chunks and per-chunk idempotent transactions, followed by stop-after-progress cancellation and guarded compensation. Preserve M16-05 IN_PROGRESS.
+
 M16-04 continuation plan (2026-10-03): review/apply scalar batch → SQL authority/snapshot/idempotency/capacity tests → typed BFF and mobile UI → authenticated browser evidence → relationship and row-decision mapping → M16-05 compensation/chunks. Scalar slice verified; next work is relationship/row-decision mapping. Full scope remains unchanged.
 
 2026-10-04 continuation: tightened pure-domain GEDCOM coverage preflight to require complete included FAM participants and reciprocal FAM↔INDI spouse/child pointers. Domain suite PASS 104/104 + typecheck. This is not an authorization gate; SQL whole-batch coverage, existing-graph validation under tree advisory lock, and atomic canonical apply remain open and fail-closed. M16-04 remains IN_PROGRESS.

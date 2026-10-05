@@ -1,5 +1,7 @@
 # Blockers
 
+2026-10-06 current-session check: `pnpm.cmd test:m16:import` is BLOCKED before test execution because Docker CLI receives permission denied on `npipe:////./pipe/docker_engine`; Windows listener inspection is denied as well. No migration/code work should claim fresh SQL PASS until Docker access is available. Existing prior local PASS logs remain historical evidence only. Owner action needed: restore Docker Desktop engine access to this Codex process/session, then tell me to resume; meanwhile no service/account/production approval is needed.
+
 2026-10-06 M16-05: 0067 safely cancels only unapplied reviewed demo jobs; authenticated MFA browser exact-replay/cleanup PASS. Still NOT_RUN: chunk manifest/continuation, cancel after partial progress, safe compensating undo, and unchanged/newly referenced edit protection. No owner action needed; synthetic local only.
 
 2026-10-06 M16-04: 0065/0066 enforce whole-job coverage and shared-lock graph validation at review/apply. Local synthetic SQL PASS covers cycle/cap denial, atomic relationship writes, exact replay, graph revision and rollback on union-ID conflict. Authenticated browser PASS commits GEDCOM (3 people, 1 family, 1 parent link), verifies reload/replay/citations and cleans fixture. Full tests/typecheck/lint/build/verify PASS (lint 0 errors/2 existing warnings). Remaining NOT_RUN: clean install/staging, accessibility/device and production gates. No owner action currently.
