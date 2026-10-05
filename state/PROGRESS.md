@@ -1,5 +1,7 @@
 # Tiến độ
 
+2026-10-05 — Migration0064 thêm graph checker riêng tư dùng tree advisory transaction lock chung với canonical parent-link apply; gộp cạnh proposed confirmed biological/adoptive với graph active hiện có, từ chối duplicate, cycle và >2 confirmed biological parents. `pnpm.cmd test:m16:import` PASS fixture với 2 FAM/cạnh confirmed ngược chiều; checker từ chối chu trình, không ghi quan hệ canonical. Đây vẫn chưa được nối vào review/commit, chưa test merged graph/capacity actual apply; M16-04 IN_PROGRESS/fail-closed.
+
 2026-10-04 — Migration0063 thêm private whole-job coverage predicate: fixture xác nhận false khi FAM/INDI relationship chưa được map và true sau mapping đủ; không cấp execute cho client và chưa nối vào review/commit. PASS local Supabase SQL fixture, transaction rollback. Đây là validator chưa phải enforcement; approval/apply gate và merged canonical graph check vẫn NOT_RUN, giữ fail-closed.
 
 2026-10-04 — Migration0063 thêm private whole-job coverage predicate: fixture xác nhận false khi FAM/INDI relationship chưa được map và true sau mapping đủ; không cấp execute cho client và chưa nối vào review/commit. PASS local Supabase SQL fixture, transaction rollback. Đây là validator chưa phải enforcement; approval/apply gate và merged canonical graph check vẫn NOT_RUN, giữ fail-closed.

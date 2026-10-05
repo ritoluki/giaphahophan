@@ -6,6 +6,8 @@ Migration0062 adds PASS save-time DB coverage for each mapped family, including 
 
 Migration0063 whole-job predicate is PASS as an internal SQL helper only; review/commit does not call it yet. Do not count as approval enforcement. Existing graph/cycle/cap checks and atomic relationship apply remain NOT_RUN.
 
+Migration0064 graph checker rejects a confirmed cycle in the combined mapped proposal under the shared transaction lock. Integration into commit/apply, existing persisted graph interaction test, biological-cap SQL case and atomic rollback/replay remain NOT_RUN.
+
 Migration0063 whole-job predicate is PASS as an internal SQL helper only; review/commit does not call it yet. Do not count as approval enforcement. Existing graph/cycle/cap checks and atomic relationship apply remain NOT_RUN.
 
 Migration0062 adds PASS save-time DB coverage for each mapped family, including missing-member rejection; whole-job review/apply coverage and existing graph checks are still NOT_RUN.

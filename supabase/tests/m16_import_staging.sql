@@ -339,9 +339,10 @@ select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000
   'b1640000-0000-4000-8000-000000000023',repeat('f',64)) \gset relationship_job_
 select * from api.import_stage_rows(:'relationship_job_id'::uuid,
   '[{"rowNumber":1,"externalId":"F1","rawPayload":{"recordType":"FAM"},"normalized":{"recordType":"FAM","externalId":"F1","partnerRefs":[{"xref":"I1","sourceTag":"HUSB"},{"xref":"I3","sourceTag":"WIFE"}],"childRefs":["I2"]},"status":"review","errors":["relationship_mapping_requires_review"]},
-    {"rowNumber":2,"externalId":"I1","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"I1","displayName":"Hư cấu người A","familySpouseRefs":["F1"]},"status":"review","errors":["relationship_mapping_requires_review"]},
-    {"rowNumber":3,"externalId":"I2","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"I2","displayName":"Hư cấu người B","familyChildRefs":[{"xref":"F1","pedigree":null,"status":null}]},"status":"review","errors":["relationship_mapping_requires_review"]},
-    {"rowNumber":4,"externalId":"I3","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"I3","displayName":"Hư cấu người C","familySpouseRefs":["F1"]},"status":"review","errors":["relationship_mapping_requires_review"]}]'::jsonb,'[]'::jsonb) \gset relationship_stage_
+    {"rowNumber":2,"externalId":"I1","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"I1","displayName":"Hư cấu người A","familySpouseRefs":["F1"],"familyChildRefs":[{"xref":"F2","pedigree":null,"status":null}]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":3,"externalId":"I2","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"I2","displayName":"Hư cấu người B","familyChildRefs":[{"xref":"F1","pedigree":null,"status":null}],"familySpouseRefs":["F2"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":4,"externalId":"F2","rawPayload":{"recordType":"FAM"},"normalized":{"recordType":"FAM","externalId":"F2","partnerRefs":[{"xref":"I2","sourceTag":"HUSB"}],"childRefs":["I1"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":5,"externalId":"I3","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"I3","displayName":"Hư cấu người C","familySpouseRefs":["F1"]},"status":"review","errors":["relationship_mapping_requires_review"]}]'::jsonb,'[]'::jsonb) \gset relationship_stage_
 reset role;
 select not private.import_relationship_batch_complete(:'relationship_job_id'::uuid) as incomplete \gset relationship_gate_
 select case when :'relationship_gate_incomplete'='t' then 1 else 1/0 end;
@@ -351,7 +352,7 @@ select result->>'version' as version,result->>'snapshotHash' as hash,result->>'m
   from (select api.import_relationship_mapping_save(:'relationship_job_id'::uuid,:'relationship_stage_version'::bigint,:'relationship_stage_snapshot_hash',
     jsonb_build_object('baseVersion',:'relationship_stage_version'::bigint,'snapshotHash',:'relationship_stage_snapshot_hash',
       'familyExternalId','F1','partnerExternalIds',jsonb_build_array('I1','I3'),'childExternalIds',jsonb_build_array('I2'),
-      'parentLinks',jsonb_build_array(jsonb_build_object('parentExternalId','I1','childExternalId','I2','kind','biological','status','disputed')),
+      'parentLinks',jsonb_build_array(jsonb_build_object('parentExternalId','I1','childExternalId','I2','kind','biological','status','confirmed')),
       'reason','Hư cấu: đối chiếu nguồn GEDCOM'),
     'b1640000-0000-4000-8000-000000000024',repeat('5',64)) as result) r \gset relationship_saved_
 reset role;
@@ -360,8 +361,8 @@ select :'relationship_saved_count'='1' as count_ok, :'relationship_saved_hash'<>
   (select count(*)=:'before_relationship_n'::bigint from private.parent_links where tree_id='b1610000-0000-4000-8000-000000000001') as links_ok \gset relassert_
 \echo relassert :relassert_count_ok :relassert_hash_ok :relassert_mapping_ok :relassert_links_ok
 select case when :'relassert_count_ok'='t' and :'relassert_hash_ok'='t' and :'relassert_mapping_ok'='t' and :'relassert_links_ok'='t' then 1 else 1/0 end;
-select private.import_relationship_batch_complete(:'relationship_job_id'::uuid) as complete \gset relationship_gate_
-select case when :'relationship_gate_complete'='t' then 1 else 1/0 end;
+select not private.import_relationship_batch_complete(:'relationship_job_id'::uuid) as still_incomplete \gset relationship_gate_
+select case when :'relationship_gate_still_incomplete'='t' then 1 else 1/0 end;
 select not has_function_privilege('anon','private.import_relationship_batch_complete(uuid)','execute')
   and not has_function_privilege('authenticated','private.import_relationship_batch_complete(uuid)','execute') as private_only \gset relationship_gate_
 select case when :'relationship_gate_private_only'='t' then 1 else 1/0 end;
@@ -369,7 +370,7 @@ set local role authenticated;
 select result->>'version' as version from (select api.import_relationship_mapping_save(:'relationship_job_id'::uuid,:'relationship_stage_version'::bigint,:'relationship_stage_snapshot_hash',
     jsonb_build_object('baseVersion',:'relationship_stage_version'::bigint,'snapshotHash',:'relationship_stage_snapshot_hash',
       'familyExternalId','F1','partnerExternalIds',jsonb_build_array('I1','I3'),'childExternalIds',jsonb_build_array('I2'),
-      'parentLinks',jsonb_build_array(jsonb_build_object('parentExternalId','I1','childExternalId','I2','kind','biological','status','disputed')),
+      'parentLinks',jsonb_build_array(jsonb_build_object('parentExternalId','I1','childExternalId','I2','kind','biological','status','confirmed')),
       'reason','Hư cấu: đối chiếu nguồn GEDCOM'),
     'b1640000-0000-4000-8000-000000000024',repeat('5',64)) as result) r \gset relationship_replay_
 select case when :'relationship_replay_version'=:'relationship_saved_version' then 1 else 1/0 end;
@@ -377,13 +378,25 @@ select format('do $body$ begin begin perform api.import_relationship_mapping_sav
   :'relationship_job_id',:'relationship_saved_version',:'relationship_saved_hash',
   jsonb_build_object('baseVersion',:'relationship_saved_version'::bigint,'snapshotHash',:'relationship_saved_hash',
     'familyExternalId','F1','partnerExternalIds',jsonb_build_array('I1'),'childExternalIds',jsonb_build_array('I2'),
-    'parentLinks',jsonb_build_array(jsonb_build_object('parentExternalId','I1','childExternalId','I2','kind','biological','status','disputed')),
+    'parentLinks',jsonb_build_array(jsonb_build_object('parentExternalId','I1','childExternalId','I2','kind','biological','status','confirmed')),
     'reason','Hư cấu: verify database mapping coverage guard')::text,
   'b1640000-0000-4000-8000-000000000026',repeat('7',64)) \gexec
-select api.import_relationship_rows(:'relationship_job_id'::uuid,:'relationship_saved_version'::bigint,0) as value \gset relationship_page_
-select case when jsonb_array_length(:'relationship_page_value'::jsonb->'families')=1
+select result->>'version' as version,result->>'snapshotHash' as hash,result->>'mappingCount' as count
+  from (select api.import_relationship_mapping_save(:'relationship_job_id'::uuid,:'relationship_saved_version'::bigint,:'relationship_saved_hash',
+    jsonb_build_object('baseVersion',:'relationship_saved_version'::bigint,'snapshotHash',:'relationship_saved_hash',
+      'familyExternalId','F2','partnerExternalIds',jsonb_build_array('I2'),'childExternalIds',jsonb_build_array('I1'),
+      'parentLinks',jsonb_build_array(jsonb_build_object('parentExternalId','I2','childExternalId','I1','kind','adoptive','status','confirmed')),
+      'reason','Hư cấu: đối chiếu quan hệ thứ hai'),
+    'b1640000-0000-4000-8000-000000000027',repeat('8',64)) as result) r \gset relationship_saved_second_
+reset role;
+select private.import_relationship_batch_complete(:'relationship_job_id'::uuid) as complete \gset relationship_gate_
+select not private.import_relationship_graph_is_safe(:'relationship_job_id'::uuid) as cycle_detected \gset relationship_gate_
+select case when :'relationship_gate_complete'='t' and :'relationship_gate_cycle_detected'='t' then 1 else 1/0 end;
+set local role authenticated;
+select api.import_relationship_rows(:'relationship_job_id'::uuid,:'relationship_saved_second_version'::bigint,0) as value \gset relationship_page_
+select case when jsonb_array_length(:'relationship_page_value'::jsonb->'families')=2
   and :'relationship_page_value'::jsonb->'families'->0->'partners'->0->>'relationshipOnlyReview'='true'
-  and :'relationship_page_value'::jsonb->'families'->0->'savedMapping'->'parentLinks'->0->>'status'='disputed'
+  and :'relationship_page_value'::jsonb->'families'->0->'savedMapping'->'parentLinks'->0->>'status'='confirmed'
   and not (:'relationship_page_value'::jsonb->'families'->0 ? 'rawPayload')
   and not (:'relationship_page_value'::jsonb->'families'->0 ? 'reason') then 1 else 1/0 end;
 select format('do $body$ begin begin perform api.import_relationship_mapping_save(%L::uuid,%L::bigint,%L,%L::jsonb,%L::uuid,%L); raise exception ''stale relationship snapshot accepted''; exception when sqlstate ''40001'' then null; end; end $body$;',
