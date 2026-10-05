@@ -29,3 +29,4 @@ Duyệt exact release manifest, launch mode demo/real, tên miền và rollback.
 Duyệt batch có hash, nguồn, danh sách ghi mới/sửa/không chắc, publication scope, backup và kế hoạch phục hồi. Duyệt từng batch hoặc chính sách batch rõ ràng, không dựa vào tên file giống nhau.
 
 Mẫu bằng chứng: ID; thời gian; người duyệt; phạm vi; hash/version; quyết định; hạn chế; evidence. H4/H5 không thay thế consent/authority cần thiết của chủ thể dữ liệu.
+2026-10-06 current: no owner repair/env needed for local work; compensation and concurrency checks PASS. Pending non-blocking decision before future cloud staging: is the existing Supabase project staging with demo data, or reserved for production? Local work continues while awaiting this answer. No cloud migration, real-data use, paid service or production deployment authorized by local tests.

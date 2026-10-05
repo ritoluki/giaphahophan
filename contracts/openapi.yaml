@@ -8066,6 +8066,43 @@ paths:
         '403': { description: Missing capability, MFA or independent actor }
         '409': { description: Changed version, source, snapshot, graph, prior edits, sequence or replay }
         '428': { description: Idempotency key required }
+  /api/v1/imports/{id}/compensation:
+    post:
+      operationId: post_imports_id_compensation
+      tags: [ImportExport]
+      summary: Request, independently review or apply import compensation
+      description: Each action requires current MFA/import capability and exact versions. Commit requires a separate approved scope, unchanged import-created rows and no new FK, polymorphic or JSON references. Original private source/staging and audit remain retained.
+      security:
+      - sessionCookie: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema: *id001
+      - $ref: '#/components/parameters/IdempotencyKey'
+      - $ref: '#/components/parameters/CSRF'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ImportCompensationInput' }
+      responses:
+        '200':
+          description: Persisted compensation workflow state.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [data, meta]
+                properties:
+                  data: { $ref: '#/components/schemas/ImportReviewState' }
+                  meta: { $ref: '#/components/schemas/Meta' }
+        '400': { description: Invalid input }
+        '403': { description: Missing capability/MFA or separate actor }
+        '409': { description: Changed scope/version, later edits/references or conflicting replay }
+        '428': { description: Idempotency required }
+        '503': { description: Lock or execution timeout; retry safely with the original key }
   /api/v1/imports/{id}/cancel:
     post:
       operationId: post_imports_id_cancel
@@ -14088,7 +14125,7 @@ components:
     ImportReviewState:
       type: object
       additionalProperties: false
-      required: [job, approvalId, approvedSnapshotHash, canReview, canApply, canCancel, canApplyChunk, chunkProgress, appliedPeople, appliedUnions, appliedParentLinks]
+      required: [job, approvalId, approvedSnapshotHash, canReview, canApply, canCancel, canApplyChunk, chunkProgress, appliedPeople, appliedUnions, appliedParentLinks, canRequestCompensation, compensation]
       properties:
         job: { $ref: '#/components/schemas/ImportJob' }
         approvalId:
@@ -14119,6 +14156,50 @@ components:
         appliedPeople: { type: integer, minimum: 0 }
         appliedUnions: { type: integer, minimum: 0 }
         appliedParentLinks: { type: integer, minimum: 0 }
+        canRequestCompensation: *id007
+        compensation:
+          anyOf:
+          - { $ref: '#/components/schemas/ImportCompensationReview' }
+          - { type: 'null' }
+    ImportCompensationInput:
+      oneOf:
+      - type: object
+        additionalProperties: false
+        required: [action, baseVersion, reason]
+        properties:
+          action: { const: request }
+          baseVersion: { type: integer, minimum: 1 }
+          reason: { type: string, minLength: 5, maxLength: 1000 }
+      - type: object
+        additionalProperties: false
+        required: [action, baseVersion, reviewId, reviewVersion]
+        properties:
+          action: { type: string, enum: [approve, commit] }
+          baseVersion: { type: integer, minimum: 1 }
+          reviewId: { type: string, format: uuid }
+          reviewVersion: { type: integer, minimum: 1 }
+    ImportCompensationReview:
+      type: object
+      additionalProperties: false
+      required: [id, version, status, baseJobVersion, reason, counts, canApprove, canCommit]
+      properties:
+        id: { type: string, format: uuid }
+        version: { type: integer, minimum: 1 }
+        status: { type: string, enum: [pending, approved, completed] }
+        baseJobVersion: { type: integer, minimum: 1 }
+        reason: { type: string, minLength: 5, maxLength: 1000 }
+        canApprove: *id007
+        canCommit: *id007
+        counts:
+          type: object
+          additionalProperties: false
+          required: [people, unions, parentLinks, facts, citations]
+          properties:
+            people: { type: integer, minimum: 0 }
+            unions: { type: integer, minimum: 0 }
+            parentLinks: { type: integer, minimum: 0 }
+            facts: { type: integer, minimum: 0 }
+            citations: { type: integer, minimum: 0 }
     ImportChunkApply:
       type: object
       additionalProperties: false

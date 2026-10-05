@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
+import { importCompensationInputSchema } from "./index";
 import { importCancelSchema, importChunkApplySchema, importCommitSchema, importInputSchema, importJobSchema, importMappingSchema, importPreviewSchema, importRelationshipMappingSchema, importRelationshipRowsPageSchema, importReviewInputSchema, importRowDecisionSchema, importRowsPageSchema, importRowsQuerySchema } from "./index";
 
 describe("M16 import contracts", () => {
+  it("requires a separate versioned compensation review and rejects forced deletion inputs", () => {
+    expect(importCompensationInputSchema.safeParse({ action: "request", baseVersion: 3, reason: "Synthetic correction" }).success).toBe(true);
+    expect(importCompensationInputSchema.safeParse({ action: "commit", baseVersion: 3 }).success).toBe(false);
+    const approved = { action: "commit", baseVersion: 3, reviewId: "a6100000-0000-4000-8000-000000000001", reviewVersion: 2 };
+    expect(importCompensationInputSchema.safeParse(approved).success).toBe(true);
+    expect(importCompensationInputSchema.safeParse({ ...approved, force: true }).success).toBe(false);
+  });
   it("binds one chunk to its approval, version and positive sequence without accepting client row IDs", () => {
     const input = { baseVersion: 3, approvedSnapshotHash: "a".repeat(64), approvalId: "a6100000-0000-4000-8000-000000000001", sequence: 1 };
     expect(importChunkApplySchema.safeParse(input).success).toBe(true);

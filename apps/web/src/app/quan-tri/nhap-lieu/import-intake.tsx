@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { importPreviewSchema, importReviewStateSchema, type ImportPreviewRecord, type ImportReviewState } from "@phan/contracts";
 import { ImportRowInspector } from "./import-row-inspector";
 import { ImportRelationshipEditor } from "./import-relationship-editor";
+import { ImportCompensation } from "./import-compensation";
 
 type Envelope<T> = { data?: T; meta?: { requestId?: string; csrfToken?: string } };
 type UploadIntent = { assetId: string; uploadUrl: string; requiredHeaders: Record<string, string> };
@@ -269,7 +270,7 @@ export function ImportIntake() {
       </form>
       {(pending || loadingPreview) && <div className="card import-result" role="status" aria-live="polite"><span className="skeleton-line" /><span className="skeleton-line skeleton-line-short" /><p>{loadingPreview ? "Đang tải bản dry-run đã lưu…" : "Đang xác minh tệp trong kho riêng. Không đóng trang cho đến khi hoàn tất."}</p></div>}
       {preview && <section className="card import-result" aria-live="polite" aria-labelledby="import-result-title">
-        <span className="status-label">{reviewState?.job.status === "completed" ? "Đã áp dụng" : reviewState?.job.status === "cancelled" ? (reviewState.appliedPeople > 0 ? "Đã hủy · giữ phần đã lưu" : "Đã hủy · chưa ghi hồ sơ") : reviewState?.job.status === "partially_applied" ? "Đã áp dụng một phần" : reviewState?.job.status === "ready" ? "Đã duyệt" : "Cần rà soát"}</span>
+        <span className="status-label">{reviewState?.compensation?.status === "completed" ? "Đã hoàn tác bản nhập" : reviewState?.job.status === "completed" ? "Đã áp dụng" : reviewState?.job.status === "cancelled" ? (reviewState.appliedPeople > 0 ? "Đã hủy · giữ phần đã lưu" : "Đã hủy · chưa ghi hồ sơ") : reviewState?.job.status === "partially_applied" ? "Đã áp dụng một phần" : reviewState?.job.status === "ready" ? "Đã duyệt" : "Cần rà soát"}</span>
         <h2 id="import-result-title">Kết quả dry-run</h2>
         <dl className="import-counts"><div><dt>Tổng dòng</dt><dd>{preview.valid + preview.invalid + preview.possibleDuplicates + preview.excluded}</dd></div><div><dt>Hợp lệ</dt><dd>{preview.valid}</dd></div><div><dt>Cần sửa</dt><dd>{preview.invalid}</dd></div><div><dt>Cần rà soát</dt><dd>{preview.possibleDuplicates}</dd></div><div><dt>Đã loại trừ</dt><dd>{preview.excluded}</dd></div></dl>
         <p>Phân loại: {preview.classification}. Checksum SHA-256: <code className="import-hash">{preview.fileSha256}</code></p>
@@ -311,6 +312,7 @@ export function ImportIntake() {
             onClick={() => void actOnReview("chunks")}>{reviewAction === "chunks" ? "Đang lưu lượt nhập…" : reviewState.chunkProgress ? "Lưu lượt nhập tiếp theo" : "Bắt đầu nhập theo lượt"}</button>}
           {!reviewState.canReview && !reviewState.canApply && !reviewState.canApplyChunk && <p className="muted">Cần xác thực hai bước; người tạo không tự duyệt và người duyệt không tự áp dụng bản đã duyệt.</p>}
         </>}
+        {reviewState && <ImportCompensation state={reviewState} csrfToken={csrfToken} onChanged={() => refreshReview(preview.jobId)} />}
         <button className="button-secondary" type="button" disabled={reviewAction !== null} onClick={() => {
           setError(""); void refreshReview(preview.jobId).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : "Không tải được trạng thái."));
         }}>Tải lại trạng thái</button>

@@ -509,6 +509,46 @@ try {
       where p.tree_id=${sqlString(treeId)} and m.source_namespace='synthetic-browser-chunks')=1000
       and (select count(*) from private.import_chunks where job_id=${sqlString(chunkJob.jobId)} and status='completed')=2;`, true);
     assert(chunkProof.status === 0 && chunkProof.stdout.trim() === "t", "chunk retry/cancel DB counts mismatch");
+    const compensationPanel = page.getByRole("region", { name: "Hoàn tác bản nhập" });
+    await compensationPanel.getByLabel("Lý do đề nghị hoàn tác").fill("Hư cấu: hoàn tác 1000 hồ sơ sau khi dừng nhập");
+    const compensationRequestResponse = page.waitForResponse((response) => response.url().endsWith(`/imports/${chunkJob.jobId}/compensation`) && response.request().method() === "POST");
+    await compensationPanel.getByRole("button", { name: "Gửi đề nghị hoàn tác" }).click();
+    const compensationRequested = await compensationRequestResponse;
+    const compensationRequestBody = await compensationRequested.json();
+    assert(compensationRequested.status() === 200 && compensationRequestBody.data.compensation.status === "pending",
+      `compensation request failed (${compensationRequested.status()}, ${JSON.stringify(compensationRequestBody).slice(0, 300)})`);
+    const pendingState = await browserRequest(page, `/api/v1/imports/${chunkJob.jobId}`);
+    const selfApprove = await browserRequest(page, `/api/v1/imports/${chunkJob.jobId}/compensation`, {
+      action: "approve", baseVersion: pendingState.body.data.job.version,
+      reviewId: pendingState.body.data.compensation.id, reviewVersion: pendingState.body.data.compensation.version,
+    }, { "Idempotency-Key": randomUUID(), "X-CSRF-Token": pendingState.body.meta.csrfToken });
+    assert(selfApprove.status === 403, "requester self-approved compensation");
+    await reviewerPage.goto(`${webUrl}/quan-tri/nhap-lieu?job=${chunkJob.jobId}`);
+    const compensationApproveResponse = reviewerPage.waitForResponse((response) => response.url().endsWith(`/imports/${chunkJob.jobId}/compensation`) && response.request().method() === "POST");
+    await reviewerPage.getByRole("button", { name: "Duyệt yêu cầu hoàn tác" }).click();
+    assert((await compensationApproveResponse).status() === 200, "separate reviewer could not approve compensation");
+    await page.reload();
+    const compensationCommitButton = page.getByRole("button", { name: "Thực hiện hoàn tác đã duyệt" });
+    await compensationCommitButton.waitFor();
+    const compensationCommitResponse = page.waitForResponse((response) => response.url().endsWith(`/imports/${chunkJob.jobId}/compensation`) && response.request().method() === "POST");
+    await compensationCommitButton.click();
+    const compensated = await compensationCommitResponse;
+    const compensatedBody = await compensated.json();
+    assert(compensated.status() === 200 && compensatedBody.data.compensation.status === "completed" && compensatedBody.data.appliedPeople === 0,
+      `compensation did not persist (${compensated.status()}, ${JSON.stringify(compensatedBody).slice(0, 300)})`);
+    await page.getByText("Đã hoàn tác bản nhập", { exact: true }).waitFor();
+    const compensatedState = await browserRequest(page, `/api/v1/imports/${chunkJob.jobId}`);
+    const compensationReplay = await browserRequest(page, `/api/v1/imports/${chunkJob.jobId}/compensation`, compensated.request().postDataJSON(),
+      { "Idempotency-Key": compensated.request().headers()["idempotency-key"], "X-CSRF-Token": compensatedState.body.meta.csrfToken });
+    assert(compensationReplay.status === 200 && compensationReplay.body.data.compensation.status === "completed", "compensation exact retry failed");
+    const compensationProof = runPsql(`select not exists(select 1 from private.persons p join private.external_id_map m on m.tree_id=p.tree_id
+      and m.canonical_id=p.id where p.tree_id=${sqlString(treeId)} and m.source_namespace='synthetic-browser-chunks')
+      and not exists(select 1 from private.sources where tree_id=${sqlString(treeId)} and provider_name='synthetic-browser-chunks')
+      and (select count(*) from private.import_rows where job_id=${sqlString(chunkJob.jobId)})=2501
+      and exists(select 1 from private.media_assets where id=${sqlString(chunkJob.assetId)});`, true);
+    assert(compensationProof.status === 0 && compensationProof.stdout.trim() === "t", "compensation lost original staging/source or left canonical rows");
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "compensation UI overflow320px");
+    await page.screenshot({ path: "reports/m16-compensation-320.png", fullPage: true });
     await reviewerContext.close();
     await context.close();
   } finally {
@@ -520,7 +560,7 @@ try {
     assert(proof.status === 0 && proof.stdout.trim() === "t", "persisted date precision or mapping snapshot did not match the dry-run");
   }
 
-  console.log("PASS local M16 authenticated browser/HTTP: intake/atomic/relationship regressions;2501-person independent UI approval,320px bounded chunk apply/reload/continue,durable exact replay and changed-replay409,partial cancel retains1000 people and2/6 chunks,continuation denied,CSRF refresh stability and cleanup");
+  console.log("PASS local M16 authenticated browser/HTTP: intake/atomic/relationship regressions;2501-person independent UI approval,320px chunk apply/reload/continue,replay409,partial cancel retains1000 people and2/6 chunks; separate two-person compensation removes1000 unchanged people, rejects self-approval, preserves2501 staged records/original asset, retries exactly; CSRF refresh stability and cleanup");
 } finally {
   if (treeId) {
     for (const assetId of assetIds) {

@@ -1138,6 +1138,15 @@ export const importChunkApplySchema = z.object({
   approvalId: z.string().uuid(),
   sequence: z.number().int().min(1).max(10020),
 }).strict();
+export const importCompensationInputSchema = z.discriminatedUnion("action", [
+  z.object({ action: z.literal("request"), baseVersion: z.number().int().positive(), reason: z.string().trim().min(5).max(1000) }).strict(),
+  z.object({ action: z.enum(["approve", "commit"]), baseVersion: z.number().int().positive(),
+    reviewId: z.string().uuid(), reviewVersion: z.number().int().positive() }).strict(),
+]);
+export const importCompensationCountsSchema = z.object({
+  people: z.number().int().nonnegative(), unions: z.number().int().nonnegative(), parentLinks: z.number().int().nonnegative(),
+  facts: z.number().int().nonnegative(), citations: z.number().int().nonnegative(),
+}).strict();
 export const importReviewStateSchema = z.object({
   job: importJobSchema,
   approvalId: z.string().uuid().nullable(),
@@ -1154,6 +1163,13 @@ export const importReviewStateSchema = z.object({
   appliedPeople: z.number().int().nonnegative(),
   appliedUnions: z.number().int().nonnegative(),
   appliedParentLinks: z.number().int().nonnegative(),
+  // Older immutable chunk replay responses predate compensation; GET state supplies current permissions.
+  canRequestCompensation: z.boolean().default(false),
+  compensation: z.object({
+    id: z.string().uuid(), version: z.number().int().positive(), status: z.enum(["pending", "approved", "completed"]),
+    baseJobVersion: z.number().int().positive(), reason: z.string().min(5).max(1000),
+    counts: importCompensationCountsSchema, canApprove: z.boolean(), canCommit: z.boolean(),
+  }).strict().nullable().default(null),
 }).strict();
 export type ImportReviewState = z.infer<typeof importReviewStateSchema>;
 export const jobStatusSchema = z.enum(["queued", "processed", "succeeded", "failed", "skipped"]);

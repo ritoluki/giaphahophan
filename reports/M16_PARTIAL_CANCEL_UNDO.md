@@ -30,4 +30,18 @@ PASS local authenticated Chromium `pnpm.cmd test:m16:http` at320px: independent 
 
 PASS workspace tests: contracts68/domain104/worker18/lunar4/web6; config/UI have no test files. Typecheck, lint (0errors/2existing warnings), isolated production build `.next-m16-chunks`, foundation verify and OpenAPI YAML parse PASS. Build is local only; preview served atlocalhost:3100. No real/hosted data or production deployment.
 
-Remaining NOT_RUN: simultaneous cancel/apply race tests, independent two-person compensating undo, refusal when new references appear, clean install/staging, accessibility beyond overflow checks, real devices and production gates. M16-05 remains IN_PROGRESS. Compensation must have a separate two-person approval per docs10; initial import approval does not authorize undo.
+The following evidence supersedes the earlier NOT_RUN compensation/concurrency items.
+
+## Independently reviewed compensation and races — 2026-10-06
+
+Migration0069 adds a FORCE-RLS private compensation review and `/api/v1/imports/{id}/compensation`. Request, independent AAL2 approval and requester commit are separate versioned/idempotent actions. Every action checks active imports.manage and demo-tree mode. Commit checks exact immutable ownership snapshots and refuses the entire undo if an imported row changed or gained an external reference, including polymorphic/JSON references. It deletes only unchanged import-created canonical rows; original private media, staging, stable identity reservations and audit evidence remain. This is compensation, not privacy erasure. Older imports without ownership snapshots cannot use this path.
+
+Commit takes transaction-scoped SHARE ROW EXCLUSIVE locks on private business tables before rechecking references and deleting. This conservative local implementation prevents a new reference slipping between validation and deletion; deadlock/timeout aborts atomically and returns a retryable typed error. Lock contention/load acceptance remains an explicit staging gate, not a production-ready claim.
+
+PASS local `pnpm.cmd test:m16:import`: separate review, self-review/unapproved/AAL1 rejection, changed-person conflict, new alias FK conflict, proposal-item polymorphic reference conflict, valid scoped undo, preserved original asset/staging/stable map, exact retry and changed retry refusal. SQL fixture `supabase/tests/m16_compensation.sql` rolls back.
+
+PASS local `pnpm.cmd test:m16:concurrency`: independent PostgreSQL sessions race identical chunk replay (500 created once), apply-first/stale-cancel and cancel-first/later-chunk (1000 retained), reference-writer-first/compensation refusal, and compensation-first/late FK writer refusal. Exact synthetic cleanup asserted. Harness: `scripts/test-m16-chunk-concurrency-local.mjs`.
+
+PASS local authenticated Chromium `pnpm.cmd test:m16:http`: at320px, requester creates compensation review, self-review403, second actor approves, requester reloads and undoes1000 people; DB proves canonical deletion while2501 staging rows and original asset persist. Exact retry and no horizontal overflow verified; cleanup succeeds. Screenshot: [compensation](m16-compensation-320.png). Initial runs exceeded the8-second statement timeout during reference scanning; typed UUID joins and materialized scope/candidate filtering fixed the scan before the final successful run.
+
+PASS workspace tests contracts69/domain104/worker18/lunar4/web6, typecheck, lint (0errors/2known warnings), isolated production build `.next-m16-compensation`, foundation verify and OpenAPI parse. All evidence is local synthetic only. Remaining NOT_RUN: clean install/staging, lock-contention load acceptance, full manual accessibility/real devices and production gates. M16-05 remains IN_PROGRESS; no production deployment or real-data approval inferred.
