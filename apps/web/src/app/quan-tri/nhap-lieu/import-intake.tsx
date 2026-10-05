@@ -271,7 +271,7 @@ export function ImportIntake() {
           <label htmlFor="import-decision-reason">Lý do (bắt buộc)</label><textarea id="import-decision-reason" required maxLength={1000} value={decisionReason} onChange={(event) => setDecisionReason(event.target.value)} />
           <button className="button-secondary" type="submit" disabled={reviewAction !== null || !decisionReason.trim()}>{reviewAction === "rows" ? "Đang lưu quyết định…" : "Lưu quyết định dòng"}</button>
         </form>}
-        {reviewState?.job.status === "completed" ? <p className="import-safety-note" role="status">Đã lưu {reviewState.appliedPeople} hồ sơ vào cây demo cùng nguồn trích dẫn riêng tư.</p> : <>
+        {reviewState?.job.status === "completed" ? <p className="import-safety-note" role="status">Đã lưu {reviewState.appliedPeople} hồ sơ, {reviewState.appliedUnions} gia đình và {reviewState.appliedParentLinks} quan hệ cha mẹ vào cây demo cùng nguồn trích dẫn riêng tư.</p> : <>
           <p className="import-safety-note">Chưa ghi hồ sơ. Batch có lỗi, dòng cần rà soát, quan hệ gia đình hoặc hơn 2.000 người cần được xử lý trước bước áp dụng. Gửi đường dẫn trang này cho người duyệt có quyền nhập liệu.</p>
           {reviewState?.job.status === "needs_review" && <button className="button-primary" type="button"
             disabled={!reviewState.canReview || preview.invalid > 0 || preview.possibleDuplicates > 0 || preview.valid < 1 || preview.valid > 2000 || reviewAction !== null}

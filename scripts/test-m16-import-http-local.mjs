@@ -347,7 +347,7 @@ try {
     await applyButton.click();
     const applied = await appliedResponse;
     assert(applied.status() === 202 && (await applied.json()).data.status === "completed", "browser commit did not persist canonical demo records");
-    await page.getByText("Đã lưu 1 hồ sơ vào cây demo cùng nguồn trích dẫn riêng tư.").waitFor();
+    await page.locator(".import-safety-note").filter({ hasText: /1 hồ sơ, 0 gia đình và 0 quan hệ cha mẹ/ }).waitFor();
     const originalRequest = applied.request();
     const replayState = await browserRequest(page, `/api/v1/imports/${applyJobId}`);
     const replayHeaders = { "Idempotency-Key": originalRequest.headers()["idempotency-key"], "X-CSRF-Token": replayState.body.meta.csrfToken };
@@ -359,7 +359,7 @@ try {
     const csrfDenied = await browserRequest(page, `/api/v1/imports/${applyJobId}/commit`, originalRequest.postDataJSON(), { ...replayHeaders, "X-CSRF-Token": "0".repeat(64) });
     assert(csrfDenied.status === 403, "invalid CSRF accepted");
     await page.reload();
-    await page.getByText("Đã lưu 1 hồ sơ vào cây demo cùng nguồn trích dẫn riêng tư.").waitFor();
+    await page.locator(".import-safety-note").filter({ hasText: /1 hồ sơ, 0 gia đình và 0 quan hệ cha mẹ/ }).waitFor();
     const appliedProof = runPsql(`select ((select count(*) from private.persons where tree_id=${sqlString(treeId)})=1
       and (select count(*) from private.citations where tree_id=${sqlString(treeId)})=1
       and (select count(*) from private.audit_events where tree_id=${sqlString(treeId)} and action='import.applied')=1);`, true);
@@ -367,6 +367,32 @@ try {
     const contentReplay = await uploadAndImport({ filename: "synthetic-applied-replay.ged", mimeType: "text/plain", bytes: browserGedcom,
       format: "gedcom_551", sourceNamespace: "family-records", mappingVersion: "gedcom-subset/1" });
     assert(contentReplay.jobId === applyJobId, "applied source replay created another import job");
+    const relationshipReviewState = await browserRequest(reviewerPage, `/api/v1/imports/${gedcomJob.jobId}`);
+    const relationshipReviewPreview = await browserRequest(reviewerPage, `/api/v1/imports/${gedcomJob.jobId}/preview`);
+    const relationshipApproved = await browserRequest(reviewerPage, `/api/v1/imports/${gedcomJob.jobId}/approve`, {
+      baseVersion: relationshipReviewState.body.data.job.version, snapshotHash: relationshipReviewPreview.body.data.snapshotHash,
+    }, { "Idempotency-Key": randomUUID(), "X-CSRF-Token": relationshipReviewState.body.meta.csrfToken });
+    assert(relationshipApproved.status === 200 && relationshipApproved.body.data.job.status === "ready", "independent reviewer could not approve complete GEDCOM relationships");
+    const relationshipReadyState = await browserRequest(page, `/api/v1/imports/${gedcomJob.jobId}`);
+    const relationshipCommitRequest = {
+      baseVersion: relationshipReadyState.body.data.job.version,
+      approvedSnapshotHash: relationshipReadyState.body.data.approvedSnapshotHash,
+      approvalId: relationshipReadyState.body.data.approvalId,
+    };
+    const relationshipCommitHeaders = { "Idempotency-Key": randomUUID(), "X-CSRF-Token": relationshipReadyState.body.meta.csrfToken };
+    const relationshipApplied = await browserRequest(page, `/api/v1/imports/${gedcomJob.jobId}/commit`, relationshipCommitRequest, relationshipCommitHeaders);
+    assert(relationshipApplied.status === 202 && relationshipApplied.body.data.status === "completed" &&
+      relationshipApplied.body.data.counters.succeeded === 3, "authenticated browser relationship commit failed");
+    const relationshipCommittedState = await browserRequest(page, `/api/v1/imports/${gedcomJob.jobId}`);
+    assert(relationshipCommittedState.body.data.appliedPeople === 3 && relationshipCommittedState.body.data.appliedUnions === 1 &&
+      relationshipCommittedState.body.data.appliedParentLinks === 1, "relationship apply projection counts did not reload");
+    const relationshipCommitReplay = await browserRequest(page, `/api/v1/imports/${gedcomJob.jobId}/commit`, relationshipCommitRequest,
+      { ...relationshipCommitHeaders, "X-CSRF-Token": relationshipCommittedState.body.meta.csrfToken });
+    assert(relationshipCommitReplay.status === 202 && relationshipCommitReplay.body.data.status === "completed", "relationship commit replay failed");
+    const relationshipCommitProof = runPsql(`select ((select count(*) from private.persons p join private.external_id_map m on m.tree_id=p.tree_id and m.canonical_id=p.id where p.tree_id=${sqlString(treeId)} and m.source_namespace='synthetic-m16' and m.entity_kind='person' and m.external_id in ('I1','I2','I3'))=3 and (select count(*) from private.unions u join private.external_id_map m on m.tree_id=u.tree_id and m.canonical_id=u.id where u.tree_id=${sqlString(treeId)} and m.source_namespace='synthetic-m16' and m.external_id='F1')=1 and (select count(*) from private.parent_links pl join private.sources s on s.tree_id=pl.tree_id and s.id=pl.source_id where pl.tree_id=${sqlString(treeId)} and s.provider_name='synthetic-m16')=1 and (select count(*) from private.citations c join private.sources s on s.tree_id=c.tree_id and s.id=c.source_id where c.tree_id=${sqlString(treeId)} and s.provider_name='synthetic-m16')=6);`, true);
+    assert(relationshipCommitProof.status === 0 && relationshipCommitProof.stdout.trim() === "t", "browser relationship commit did not persist canonical entities and citations exactly once");
+    await page.goto(`${webUrl}/quan-tri/nhap-lieu?job=${gedcomJob.jobId}`);
+    await page.locator(".import-safety-note").filter({ hasText: /3 hồ sơ, 1 gia đình và 1 quan hệ cha mẹ/ }).waitFor();
     const overflow = await reviewerPage.evaluate(() => {
       const width = window.innerWidth;
       const elements = Array.from(document.querySelectorAll("main *")).map((element) => ({ tag: element.tagName, className: element.className,
@@ -415,7 +441,7 @@ try {
     assert(proof.status === 0 && proof.stdout.trim() === "t", "persisted date precision or mapping snapshot did not match the dry-run");
   }
 
-  console.log("PASS local M16 authenticated browser/HTTP: private intake, stable IDs, MFA, 320px exclude/restore/reload, row51 keyset inspection/selection, allowlisted GEDCOM family projection, explicit relationship mapping editor/save/exact replay/stale cursor, unchanged canonical relationship tables, independent review/apply and CSRF/AAL1 denial; cleanup asserted");
+  console.log("PASS local M16 authenticated browser/HTTP: private intake, stable IDs, MFA, 320px exclude/restore/reload, row51 keyset inspection/selection, GEDCOM relationship editor/save, independent MFA review and actual relationship commit, exact commit replay, state reload/counts, CSRF/AAL1 denial and cleanup");
 } finally {
   if (treeId) {
     for (const assetId of assetIds) {
@@ -431,6 +457,11 @@ try {
       `delete from private.audit_events where tree_id=${sqlString(treeId)};`,
       `delete from private.idempotency_records where tree_id=${sqlString(treeId)};`,
       `delete from private.citations where tree_id=${sqlString(treeId)};`,
+      `delete from private.union_children where tree_id=${sqlString(treeId)};`,
+      `delete from private.union_partners where tree_id=${sqlString(treeId)};`,
+      `delete from private.parent_links where tree_id=${sqlString(treeId)};`,
+      `delete from private.external_id_map where tree_id=${sqlString(treeId)};`,
+      `delete from private.unions where tree_id=${sqlString(treeId)};`,
       `delete from private.person_facts where tree_id=${sqlString(treeId)};`,
       `delete from private.person_names where tree_id=${sqlString(treeId)};`,
       `delete from private.persons where tree_id=${sqlString(treeId)};`,
@@ -441,7 +472,7 @@ try {
       `delete from private.trees where id=${sqlString(treeId)};`,
       "commit;",
     ].join("\n"));
-    assert(cleanup.status === 0, "Synthetic M16 HTTP fixture cleanup failed");
+    assert(cleanup.status === 0, `Synthetic M16 HTTP fixture cleanup failed: ${cleanup.stderr || cleanup.stdout}`);
   }
   for (const syntheticId of [userId, reviewerId].filter(Boolean)) {
     const removed = await fetch(`${env.API_URL}/auth/v1/admin/users/${syntheticId}`, { method: "DELETE", headers: { apikey: env.SERVICE_ROLE_KEY, Authorization: `Bearer ${env.SERVICE_ROLE_KEY}` } });

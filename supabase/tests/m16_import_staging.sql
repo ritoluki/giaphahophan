@@ -392,7 +392,12 @@ reset role;
 select private.import_relationship_batch_complete(:'relationship_job_id'::uuid) as complete \gset relationship_gate_
 select not private.import_relationship_graph_is_safe(:'relationship_job_id'::uuid) as cycle_detected \gset relationship_gate_
 select case when :'relationship_gate_complete'='t' and :'relationship_gate_cycle_detected'='t' then 1 else 1/0 end;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}',true);
 set local role authenticated;
+select format('do $body$ begin begin perform api.import_approve(%L::uuid,%L::bigint,%L,%L::uuid,%L); raise exception ''review accepted a cyclic mapped relationship batch''; exception when invalid_parameter_value then null; end; end $body$;',
+  :'relationship_job_id',:'relationship_saved_second_version',:'relationship_saved_second_hash',
+  'b1640000-0000-4000-8000-000000000028',repeat('9',64)) \gexec
 select api.import_relationship_rows(:'relationship_job_id'::uuid,:'relationship_saved_second_version'::bigint,0) as value \gset relationship_page_
 select case when jsonb_array_length(:'relationship_page_value'::jsonb->'families')=2
   and :'relationship_page_value'::jsonb->'families'->0->'partners'->0->>'relationshipOnlyReview'='true'
@@ -425,4 +430,177 @@ do $$ begin
   exception when insufficient_privilege then null;
   end;
 end $$;
+reset role;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000001',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000001',
+  'gedcom_551','synthetic-relationship-apply','gedcom/5.5.1','demo','b1640000-0000-4000-8000-000000000040',repeat('c',64)) \gset relationship_apply_job_
+select * from api.import_stage_rows(:'relationship_apply_job_id'::uuid,
+  '[{"rowNumber":1,"externalId":"AF1","rawPayload":{"recordType":"FAM"},"normalized":{"recordType":"FAM","externalId":"AF1","partnerRefs":[{"xref":"AI1","sourceTag":"HUSB"}],"childRefs":["AI2"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":2,"externalId":"AI1","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"AI1","displayName":"Hư cấu cha","familySpouseRefs":["AF1"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":3,"externalId":"AI2","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"AI2","displayName":"Hư cấu con","familyChildRefs":[{"xref":"AF1","pedigree":"birth","status":"challenged"}]},"status":"review","errors":["relationship_mapping_requires_review"]}]'::jsonb,'[]'::jsonb)
+  \gset relationship_apply_stage_
+select result->>'version' as version,result->>'snapshotHash' as hash
+  from (select api.import_relationship_mapping_save(:'relationship_apply_job_id'::uuid,:'relationship_apply_stage_version'::bigint,
+    :'relationship_apply_stage_snapshot_hash',jsonb_build_object('baseVersion',:'relationship_apply_stage_version'::bigint,
+      'snapshotHash',:'relationship_apply_stage_snapshot_hash','familyExternalId','AF1','partnerExternalIds',jsonb_build_array('AI1'),
+      'childExternalIds',jsonb_build_array('AI2'),'parentLinks',jsonb_build_array(jsonb_build_object(
+        'parentExternalId','AI1','childExternalId','AI2','kind','biological','status','confirmed')),
+      'reason','Synthetic explicit biological link'),
+    'b1640000-0000-4000-8000-000000000041',repeat('d',64)) as result) saved \gset relationship_apply_saved_
+reset role;
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select result->'job'->>'version' as version,result->>'approvalId' as approval_id
+  from (select api.import_approve(:'relationship_apply_job_id'::uuid,:'relationship_apply_saved_version'::bigint,
+    :'relationship_apply_saved_hash','b1640000-0000-4000-8000-000000000042',repeat('e',64)) as result) approved
+  \gset relationship_apply_approval_
+reset role;
+select graph_revision as revision from private.trees where id='b1610000-0000-4000-8000-000000000001' \gset relationship_apply_before_
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000001',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select result->>'status' as status,result->'counters'->>'succeeded' as people
+  from (select api.import_commit(:'relationship_apply_job_id'::uuid,:'relationship_apply_approval_version'::bigint,
+    :'relationship_apply_saved_hash',:'relationship_apply_approval_approval_id'::uuid,
+    'b1640000-0000-4000-8000-000000000043',repeat('f',64)) as result) applied \gset relationship_apply_result_
+select case when :'relationship_apply_result_status'='completed' and :'relationship_apply_result_people'='2' then 1 else 1/0 end;
+select api.import_commit(:'relationship_apply_job_id'::uuid,:'relationship_apply_approval_version'::bigint,
+  :'relationship_apply_saved_hash',:'relationship_apply_approval_approval_id'::uuid,
+  'b1640000-0000-4000-8000-000000000043',repeat('f',64))->>'status'='completed' as replay_ok \gset relationship_apply_replay_
+reset role;
+select (select count(*)=1 from private.unions u join private.external_id_map m on m.tree_id=u.tree_id and m.canonical_id=u.id
+    where u.tree_id='b1610000-0000-4000-8000-000000000001' and m.source_namespace='synthetic-relationship-apply'
+      and m.external_id='AF1' and u.kind='unknown' and u.status='unknown')
+  and (select count(*)=1 from private.union_partners up join private.unions u on u.tree_id=up.tree_id and u.id=up.union_id
+    join private.external_id_map m on m.tree_id=u.tree_id and m.canonical_id=up.person_id
+    where u.tree_id='b1610000-0000-4000-8000-000000000001' and m.source_namespace='synthetic-relationship-apply' and m.external_id='AI1')
+  and (select count(*)=1 from private.union_children uc join private.unions u on u.tree_id=uc.tree_id and u.id=uc.union_id
+    join private.external_id_map m on m.tree_id=u.tree_id and m.canonical_id=uc.person_id
+    where u.tree_id='b1610000-0000-4000-8000-000000000001' and m.source_namespace='synthetic-relationship-apply' and m.external_id='AI2')
+  and (select count(*)=1 from private.parent_links pl join private.external_id_map p on p.tree_id=pl.tree_id and p.canonical_id=pl.parent_id
+    join private.external_id_map c on c.tree_id=pl.tree_id and c.canonical_id=pl.child_id
+    where pl.tree_id='b1610000-0000-4000-8000-000000000001' and p.source_namespace='synthetic-relationship-apply'
+      and p.external_id='AI1' and c.external_id='AI2' and pl.kind='biological' and pl.status='confirmed')
+  and (select count(*)=4 from private.citations c join private.sources s on s.tree_id=c.tree_id and s.id=c.source_id
+    where c.tree_id='b1610000-0000-4000-8000-000000000001' and s.provider_name='synthetic-relationship-apply')
+  and (private.import_job_state(:'relationship_apply_job_id'::uuid)->>'appliedPeople')::integer=2
+  and (private.import_job_state(:'relationship_apply_job_id'::uuid)->>'appliedUnions')::integer=1
+  and (private.import_job_state(:'relationship_apply_job_id'::uuid)->>'appliedParentLinks')::integer=1
+  and (select graph_revision=:'relationship_apply_before_revision'::bigint+1 from private.trees where id='b1610000-0000-4000-8000-000000000001')
+  and :'relationship_apply_replay_replay_ok'='t' as relationship_apply_persisted_once \gset relationship_apply_check_
+select case when :'relationship_apply_check_relationship_apply_persisted_once'='t' then 1 else 1/0 end;
+insert into private.media_assets(id,tree_id,created_by,filename,declared_mime,mime_type,size_bytes,actual_size_bytes,expected_sha256,actual_sha256,purpose,visibility,state,object_path)
+values('b1630000-0000-4000-8000-000000000003','b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001',
+  'synthetic-relationship-rollback.json','application/json','application/json',128,128,repeat('9',64),repeat('9',64),
+  'import','restricted','ready','synthetic/m16/relationship-rollback.json');
+select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000003',
+  'gedcom_551','synthetic-relationship-rollback','gedcom/5.5.1','demo','b1640000-0000-4000-8000-000000000050',repeat('9',64)) \gset relationship_rollback_job_
+select * from api.import_stage_rows(:'relationship_rollback_job_id'::uuid,
+  '[{"rowNumber":1,"externalId":"RF1","rawPayload":{"recordType":"FAM"},"normalized":{"recordType":"FAM","externalId":"RF1","partnerRefs":[{"xref":"RI1","sourceTag":"HUSB"}],"childRefs":["RI2"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":2,"externalId":"RI1","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"RI1","displayName":"Hư cấu rollback cha","familySpouseRefs":["RF1"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":3,"externalId":"RI2","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"RI2","displayName":"Hư cấu rollback con","familyChildRefs":[{"xref":"RF1","pedigree":null,"status":null}]},"status":"review","errors":["relationship_mapping_requires_review"]}]'::jsonb,'[]'::jsonb)
+  \gset relationship_rollback_stage_
+select result->>'version' as version,result->>'snapshotHash' as hash
+  from (select api.import_relationship_mapping_save(:'relationship_rollback_job_id'::uuid,:'relationship_rollback_stage_version'::bigint,
+    :'relationship_rollback_stage_snapshot_hash',jsonb_build_object('baseVersion',:'relationship_rollback_stage_version'::bigint,
+      'snapshotHash',:'relationship_rollback_stage_snapshot_hash','familyExternalId','RF1','partnerExternalIds',jsonb_build_array('RI1'),
+      'childExternalIds',jsonb_build_array('RI2'),'parentLinks','[]'::jsonb,'reason','Synthetic atomic rollback case'),
+    'b1640000-0000-4000-8000-000000000051',repeat('1',64)) as result) saved \gset relationship_rollback_saved_
+reset role;
+insert into private.unions(id,tree_id,created_by,kind,status)
+  select m.canonical_id,'b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001','unknown','unknown'
+  from private.external_id_map m where m.tree_id='b1610000-0000-4000-8000-000000000001'
+    and m.source_namespace='synthetic-relationship-rollback' and m.external_id='RF1' and m.entity_kind='family';
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000002',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select result->'job'->>'version' as version,result->>'approvalId' as approval_id
+  from (select api.import_approve(:'relationship_rollback_job_id'::uuid,:'relationship_rollback_saved_version'::bigint,
+    :'relationship_rollback_saved_hash','b1640000-0000-4000-8000-000000000052',repeat('2',64)) as result) approved
+  \gset relationship_rollback_approval_
+reset role;
+select graph_revision as revision from private.trees where id='b1610000-0000-4000-8000-000000000001' \gset relationship_rollback_before_
+select set_config('request.jwt.claim.sub','b1600000-0000-4000-8000-000000000001',true);
+select set_config('request.jwt.claims','{"sub":"b1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+set local role authenticated;
+select format('do $body$ begin begin perform api.import_commit(%L::uuid,%L::bigint,%L,%L::uuid,%L::uuid,%L); raise exception ''expected canonical union conflict''; exception when unique_violation then null; end; end $body$;',
+  :'relationship_rollback_job_id',:'relationship_rollback_approval_version',:'relationship_rollback_saved_hash',
+  :'relationship_rollback_approval_approval_id','b1640000-0000-4000-8000-000000000053',repeat('3',64)) \gexec
+reset role;
+select (select status='ready' from private.import_jobs where id=:'relationship_rollback_job_id'::uuid)
+  and not exists(select 1 from private.import_rows r join private.external_id_map m on m.tree_id=r.tree_id
+    and m.source_namespace='synthetic-relationship-rollback' and m.external_id=r.external_id and m.entity_kind='person'
+    join private.persons p on p.tree_id=m.tree_id and p.id=m.canonical_id where r.job_id=:'relationship_rollback_job_id'::uuid)
+  and not exists(select 1 from private.sources where tree_id='b1610000-0000-4000-8000-000000000001'
+    and provider_name='synthetic-relationship-rollback')
+  and (select graph_revision=:'relationship_rollback_before_revision'::bigint from private.trees where id='b1610000-0000-4000-8000-000000000001')
+  as relationship_apply_rolled_back \gset relationship_rollback_check_
+select case when :'relationship_rollback_check_relationship_apply_rolled_back'='t' then 1 else 1/0 end;
+insert into private.media_assets(id,tree_id,created_by,filename,declared_mime,mime_type,size_bytes,actual_size_bytes,expected_sha256,actual_sha256,purpose,visibility,state,object_path)
+values('b1630000-0000-4000-8000-000000000004','b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001',
+  'synthetic-relationship-cap.json','application/json','application/json',128,128,repeat('8',64),repeat('8',64),
+  'import','restricted','ready','synthetic/m16/relationship-cap.json'),
+      ('b1630000-0000-4000-8000-000000000005','b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001',
+  'synthetic-existing-edge.json','application/json','application/json',128,128,repeat('7',64),repeat('7',64),
+  'import','restricted','ready','synthetic/m16/existing-edge.json');
+select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000004',
+  'gedcom_551','synthetic-relationship-cap','gedcom/5.5.1','demo','b1640000-0000-4000-8000-000000000060',repeat('4',64)) \gset relationship_cap_job_
+select * from api.import_stage_rows(:'relationship_cap_job_id'::uuid,
+  '[{"rowNumber":1,"externalId":"CF1","rawPayload":{"recordType":"FAM"},"normalized":{"recordType":"FAM","externalId":"CF1","partnerRefs":[{"xref":"CP1","sourceTag":"HUSB"},{"xref":"CP2","sourceTag":"WIFE"},{"xref":"CP3","sourceTag":"WIFE"}],"childRefs":["CC1"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":2,"externalId":"CP1","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"CP1","displayName":"Hư cấu cha 1","familySpouseRefs":["CF1"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":3,"externalId":"CP2","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"CP2","displayName":"Hư cấu cha 2","familySpouseRefs":["CF1"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":4,"externalId":"CP3","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"CP3","displayName":"Hư cấu cha 3","familySpouseRefs":["CF1"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":5,"externalId":"CC1","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"CC1","displayName":"Hư cấu con","familyChildRefs":[{"xref":"CF1","pedigree":null,"status":null}]},"status":"review","errors":["relationship_mapping_requires_review"]}]'::jsonb,'[]'::jsonb)
+  \gset relationship_cap_stage_
+select result->>'version' as version,result->>'snapshotHash' as hash
+  from (select api.import_relationship_mapping_save(:'relationship_cap_job_id'::uuid,:'relationship_cap_stage_version'::bigint,
+    :'relationship_cap_stage_snapshot_hash',jsonb_build_object('baseVersion',:'relationship_cap_stage_version'::bigint,
+      'snapshotHash',:'relationship_cap_stage_snapshot_hash','familyExternalId','CF1','partnerExternalIds',jsonb_build_array('CP1','CP2','CP3'),
+      'childExternalIds',jsonb_build_array('CC1'),'parentLinks',jsonb_build_array(
+        jsonb_build_object('parentExternalId','CP1','childExternalId','CC1','kind','biological','status','confirmed'),
+        jsonb_build_object('parentExternalId','CP2','childExternalId','CC1','kind','biological','status','confirmed'),
+        jsonb_build_object('parentExternalId','CP3','childExternalId','CC1','kind','biological','status','confirmed')),
+      'reason','Synthetic three-parent safety case'),
+    'b1640000-0000-4000-8000-000000000061',repeat('5',64)) as result) saved \gset relationship_cap_saved_
+reset role;
+select private.import_relationship_batch_complete(:'relationship_cap_job_id'::uuid) as complete \gset relationship_cap_gate_
+select not private.import_relationship_graph_is_safe(:'relationship_cap_job_id'::uuid) as over_limit_denied \gset relationship_cap_gate_
+select case when :'relationship_cap_gate_complete'='t' and :'relationship_cap_gate_over_limit_denied'='t' then 1 else 1/0 end;
+select * from api.import_create('b1610000-0000-4000-8000-000000000001','b1630000-0000-4000-8000-000000000005',
+  'gedcom_551','synthetic-existing-edge','gedcom/5.5.1','demo','b1640000-0000-4000-8000-000000000062',repeat('6',64)) \gset existing_edge_job_
+select * from api.import_stage_rows(:'existing_edge_job_id'::uuid,
+  '[{"rowNumber":1,"externalId":"EF1","rawPayload":{"recordType":"FAM"},"normalized":{"recordType":"FAM","externalId":"EF1","partnerRefs":[{"xref":"EP1","sourceTag":"HUSB"}],"childRefs":["EC1"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":2,"externalId":"EP1","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"EP1","displayName":"Hư cấu người P","familySpouseRefs":["EF1"]},"status":"review","errors":["relationship_mapping_requires_review"]},
+    {"rowNumber":3,"externalId":"EC1","rawPayload":{"recordType":"INDI"},"normalized":{"recordType":"INDI","externalId":"EC1","displayName":"Hư cấu người C","familyChildRefs":[{"xref":"EF1","pedigree":null,"status":null}]},"status":"review","errors":["relationship_mapping_requires_review"]}]'::jsonb,'[]'::jsonb)
+  \gset existing_edge_stage_
+select result->>'version' as version,result->>'snapshotHash' as hash
+  from (select api.import_relationship_mapping_save(:'existing_edge_job_id'::uuid,:'existing_edge_stage_version'::bigint,
+    :'existing_edge_stage_snapshot_hash',jsonb_build_object('baseVersion',:'existing_edge_stage_version'::bigint,
+      'snapshotHash',:'existing_edge_stage_snapshot_hash','familyExternalId','EF1','partnerExternalIds',jsonb_build_array('EP1'),
+      'childExternalIds',jsonb_build_array('EC1'),'parentLinks',jsonb_build_array(jsonb_build_object(
+        'parentExternalId','EP1','childExternalId','EC1','kind','biological','status','confirmed')),
+      'reason','Synthetic edge that closes an existing cycle'),
+    'b1640000-0000-4000-8000-000000000063',repeat('7',64)) as result) saved \gset existing_edge_saved_
+reset role;
+insert into private.persons(id,tree_id,created_by,code,display_name,name_search,recorded_sex,life_status,visibility)
+  select m.canonical_id,m.tree_id,'b1600000-0000-4000-8000-000000000001',
+    'EXIST-'||upper(substr(replace(m.canonical_id::text,'-',''),1,12)),
+    case m.external_id when 'EP1' then 'Hư cấu người P' else 'Hư cấu người C' end,
+    private.normalize_name_search(case m.external_id when 'EP1' then 'Hư cấu người P' else 'Hư cấu người C' end),
+    'U','unknown','restricted'
+  from private.external_id_map m where m.tree_id='b1610000-0000-4000-8000-000000000001'
+    and m.source_namespace='synthetic-existing-edge' and m.external_id in ('EP1','EC1') and m.entity_kind='person';
+insert into private.parent_links(tree_id,created_by,parent_id,child_id,kind,status,source_id)
+  select 'b1610000-0000-4000-8000-000000000001','b1600000-0000-4000-8000-000000000001',child.canonical_id,parent.canonical_id,
+    'biological','confirmed',(select id from private.sources where tree_id='b1610000-0000-4000-8000-000000000001' order by id limit 1)
+  from private.external_id_map parent join private.external_id_map child on child.tree_id=parent.tree_id
+  where parent.tree_id='b1610000-0000-4000-8000-000000000001' and parent.source_namespace='synthetic-existing-edge'
+    and parent.external_id='EP1' and parent.entity_kind='person' and child.source_namespace='synthetic-existing-edge'
+    and child.external_id='EC1' and child.entity_kind='person';
+select private.import_relationship_batch_complete(:'existing_edge_job_id'::uuid) as complete \gset existing_edge_gate_
+select not private.import_relationship_graph_is_safe(:'existing_edge_job_id'::uuid) as cycle_denied \gset existing_edge_gate_
+select case when :'existing_edge_gate_complete'='t' and :'existing_edge_gate_cycle_denied'='t' then 1 else 1/0 end;
 rollback;

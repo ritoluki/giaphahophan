@@ -1135,6 +1135,8 @@ export const importReviewStateSchema = z.object({
   canReview: z.boolean(),
   canApply: z.boolean(),
   appliedPeople: z.number().int().nonnegative(),
+  appliedUnions: z.number().int().nonnegative(),
+  appliedParentLinks: z.number().int().nonnegative(),
 }).strict();
 export type ImportReviewState = z.infer<typeof importReviewStateSchema>;
 export const jobStatusSchema = z.enum(["queued", "processed", "succeeded", "failed", "skipped"]);
