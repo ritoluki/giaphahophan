@@ -549,6 +549,42 @@ try {
     assert(compensationProof.status === 0 && compensationProof.stdout.trim() === "t", "compensation lost original staging/source or left canonical rows");
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "compensation UI overflow320px");
     await page.screenshot({ path: "reports/m16-compensation-320.png", fullPage: true });
+    const exportContext = await browserRequest(page, "/api/v1/exports");
+    assert(exportContext.status === 200 && /^[a-f0-9]{64}$/.test(exportContext.body.data.csrfToken), "export CSRF context unavailable");
+    const exportInput = { treeId, format: "canonical_json", scope: { kind: "tree" }, reason: "Synthetic permission export", audience: "members", includeMedia: false };
+    const exportKey = randomUUID();
+    const exportHeaders = { "Idempotency-Key": exportKey, "X-CSRF-Token": exportContext.body.data.csrfToken };
+    const queuedExport = await browserRequest(page, "/api/v1/exports", exportInput, exportHeaders);
+    assert(queuedExport.status === 202 && queuedExport.body.data.status === "queued", "export job did not durably queue");
+    const exportId = queuedExport.body.data.id;
+    const exportState = await browserRequest(page, `/api/v1/exports/${exportId}`);
+    assert(exportState.status === 200 && exportState.body.data.id === exportId && !exportState.body.data.resultAssetId, "export state fabricated output");
+    const exportReplay = await browserRequest(page, "/api/v1/exports", exportInput, exportHeaders);
+    assert(exportReplay.status === 202 && exportReplay.body.data.id === exportId, "export replay duplicated job");
+    const exportChanged = await browserRequest(page, "/api/v1/exports", { ...exportInput, format: "csv" }, exportHeaders);
+    assert(exportChanged.status === 409, "changed export replay accepted");
+    const exportBadCsrf = await browserRequest(page, "/api/v1/exports", exportInput, { ...exportHeaders, "X-CSRF-Token": "0".repeat(64) });
+    assert(exportBadCsrf.status === 403, "export bad CSRF accepted");
+    const exportOverride = await browserRequest(page, "/api/v1/exports", { ...exportInput, includePrivate: true }, { ...exportHeaders, "Idempotency-Key": randomUUID() });
+    assert(exportOverride.status === 400, "export raw override accepted");
+    assert((await browserRequest(reviewerPage, `/api/v1/exports/${exportId}`)).status === 403, "different actor read export job");
+    for (const format of ["csv", "book_pdf"]) {
+      const audience = format === "book_pdf" ? "public" : "members";
+      const includeMedia = format === "book_pdf";
+      const nextExport = await browserRequest(page, "/api/v1/exports", { ...exportInput, format, audience, includeMedia }, { ...exportHeaders, "Idempotency-Key": randomUUID() });
+      assert(nextExport.status === 202 && nextExport.body.data.format === format && nextExport.body.data.audience === audience
+        && nextExport.body.data.includeMedia === includeMedia, "export format/audience/media choice did not persist");
+    }
+    const exportQuota = await browserRequest(page, "/api/v1/exports", exportInput, { ...exportHeaders, "Idempotency-Key": randomUUID() });
+    assert(exportQuota.status === 429, "fourth export exceeded daily quota");
+    const exportProof = runPsql(`select count(*)=3 and bool_and(status='queued' and result_asset_id is null) from private.export_jobs where tree_id=${sqlString(treeId)};`, true);
+    assert(exportProof.status === 0 && exportProof.stdout.trim() === "t", "queued export DB count/status mismatch");
+    const exportExpire = runPsql(`update private.export_jobs set expires_at=clock_timestamp()-interval '1 second' where id=${sqlString(exportId)} and tree_id=${sqlString(treeId)};`);
+    assert(exportExpire.status === 0 && (await browserRequest(page, `/api/v1/exports/${exportId}`)).status === 403, "expired export metadata available");
+    const revokeExport = runPsql(`update private.memberships set status='revoked' where id=${sqlString(membershipId)} and tree_id=${sqlString(treeId)};`);
+    assert(revokeExport.status === 0 && (await browserRequest(page, "/api/v1/exports", exportInput, exportHeaders)).status === 403, "revoked export actor replay accepted");
+    assert(runPsql(`update private.memberships set status='active' where id=${sqlString(membershipId)} and tree_id=${sqlString(treeId)};`).status === 0, "synthetic membership restore failed");
+    console.log("PASS local M16-06 authenticated HTTP metadata: queued DB/reload/exact replay,changed409,CSRF403,override400,cross-actor403,quota429,expiry/revocation403; rendering/download NOT_RUN");
     await reviewerContext.close();
     await context.close();
   } finally {
@@ -570,6 +606,7 @@ try {
     }
     const cleanup = runPsql([
       "begin;",
+      `delete from private.export_jobs where tree_id=${sqlString(treeId)};`,
       `delete from private.import_rows where job_id in (${jobIds.length ? jobIds.map(sqlString).join(",") : "null"});`,
       `delete from private.import_jobs where tree_id=${sqlString(treeId)};`,
       `delete from private.outbox where tree_id=${sqlString(treeId)};`,

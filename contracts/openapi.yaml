@@ -8197,13 +8197,37 @@ paths:
             schema:
               $ref: '#/components/schemas/ImportCancel'
   /api/v1/exports:
+    get:
+      operationId: get_export_csrf_context
+      security:
+      - sessionCookie: []
+      description: Verified session only; no-store. Reuses a valid HttpOnly export CSRF cookie and returns the paired form token.
+      responses:
+        '200':
+          description: Export form context; not a grant to export.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  data:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      csrfToken: {type: string, pattern: '^[a-f0-9]{64}$'}
+                    required: [csrfToken]
+                  meta:
+                    $ref: '#/components/schemas/Meta'
+                required: [data, meta]
+        '401':
+          description: Verified session required.
     post:
       operationId: post_exports
       tags:
       - ImportExport
       summary: /exports
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Durable private demo export metadata. Rechecks actor, scope, bulk MFA, expiry and current policy. Queued does not mean an artifact exists.
       security:
       - sessionCookie: []
       responses:
@@ -8216,7 +8240,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/Job'
+                    $ref: '#/components/schemas/ExportJob'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -8291,8 +8315,7 @@ paths:
       tags:
       - ImportExport
       summary: /exports/{id}
-      description: Mutation phải kiểm tra Origin và CSRF; actor lấy từ session. Contract là đặc tả, chưa có server
-        triển khai.
+      description: Durable private demo export metadata. Rechecks actor, scope, bulk MFA, expiry and current policy. Queued does not mean an artifact exists.
       security:
       - sessionCookie: []
       responses:
@@ -8305,7 +8328,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    $ref: '#/components/schemas/Job'
+                    $ref: '#/components/schemas/ExportJob'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required:
@@ -14227,6 +14250,9 @@ components:
       type: object
       additionalProperties: false
       properties:
+        treeId: *id001
+        scope:
+          $ref: '#/components/schemas/ExportScope'
         format:
           type: string
           enum:
@@ -14235,10 +14261,7 @@ components:
           - gedcom_551
           - gedcom_7
           - book_pdf
-        personIds:
-          type: array
-          items: *id001
-        branchId: *id001
+          - svg
         includeMedia: *id007
         audience:
           type: string
@@ -14246,12 +14269,59 @@ components:
           - self
           - members
           - public
-        reason: *id002
+        reason:
+          type: string
+          minLength: 5
+          maxLength: 1000
       required:
+      - treeId
+      - scope
       - format
       - includeMedia
       - audience
       - reason
+    ExportScope:
+      oneOf:
+      - type: object
+        additionalProperties: false
+        properties:
+          kind: {const: personal}
+          personId: *id001
+        required: [kind, personId]
+      - type: object
+        additionalProperties: false
+        properties:
+          kind: {const: tree}
+        required: [kind]
+      - type: object
+        additionalProperties: false
+        properties:
+          kind: {const: branch}
+          branchId: *id001
+        required: [kind, branchId]
+      description: Self audience requires an independently approved personal scope; bulk scopes require exports.bulk and AAL2.
+    ExportJob:
+      type: object
+      additionalProperties: false
+      properties:
+        id: *id001
+        treeId: *id001
+        version: {type: integer, minimum: 1}
+        format:
+          type: string
+          enum: [canonical_json, csv, gedcom_551, gedcom_7, book_pdf, svg]
+        scope:
+          $ref: '#/components/schemas/ExportScope'
+        policyVersion: {type: integer, minimum: 1}
+        audience: {type: string, enum: [self, members, public]}
+        includeMedia: {type: boolean}
+        status: {type: string, enum: [queued, running, complete, failed, cancelled]}
+        expiresAt: {type: string, format: date-time}
+        warnings:
+          type: array
+          maxItems: 200
+          items: {type: string, maxLength: 200}
+      required: [id, treeId, version, format, scope, policyVersion, audience, includeMedia, status, expiresAt, warnings]
     QualityIssue:
       type: object
       additionalProperties: false

@@ -954,7 +954,10 @@ UNIQUE: (tree_id, application_id).
 | updated_at | timestamptz | Không | Thời điểm cập nhật UTC |
 | created_by | uuid | Có | Actor; không suy từ payload → auth.users |
 | requested_by | uuid | Không | Actor thật → auth.users |
-| format | text | Không | json/csv/gedcom/pdf/svg |
+| purpose | text | Không | Private request reason, excluded from job DTO |
+| audience | text | Không | self/members/public; self requires approved personal scope |
+| include_media | boolean | Không | Private media packaging request, not proof of an artifact |
+| format | text | Không | json/csv/gedcom_551/gedcom_7/pdf/svg; API uses canonical_json/book_pdf |
 | scope | jsonb | Không | Allowlisted scope |
 | policy_version | bigint | Không | Recheck current |
 | status | text | Không | queued/running/complete/failed/cancelled |

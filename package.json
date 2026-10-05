@@ -66,6 +66,7 @@
     "test:m15:award": "node scripts/test-m15-program-application-local.mjs",
     "test:m16:import": "node scripts/test-m16-import-local.mjs",
     "test:m16:concurrency": "node scripts/test-m16-chunk-concurrency-local.mjs",
+    "test:m16:export": "node scripts/test-m16-export-local.mjs",
     "test:m16:http": "node scripts/test-m16-import-http-local.mjs"
   },
   "devDependencies": {

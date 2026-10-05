@@ -6533,13 +6533,51 @@
           "enum": null
         },
         {
-          "name": "format",
+          "name": "purpose",
           "sqlType": "text",
-          "description": "json/csv/gedcom/pdf/svg",
+          "description": "Private request reason; never in job DTO",
           "nullable": false,
           "references": null,
           "default": null,
           "enum": null
+        },
+        {
+          "name": "audience",
+          "sqlType": "text",
+          "description": "Requested audience; self requires independently approved personal scope",
+          "nullable": false,
+          "references": null,
+          "default": "'members'",
+          "enum": [
+            "self",
+            "members",
+            "public"
+          ]
+        },
+        {
+          "name": "include_media",
+          "sqlType": "boolean",
+          "description": "Requested private media packaging; no artifact implied",
+          "nullable": false,
+          "references": null,
+          "default": "false",
+          "enum": null
+        },
+        {
+          "name": "format",
+          "sqlType": "text",
+          "description": "DB format; API maps json to canonical_json and pdf to book_pdf",
+          "nullable": false,
+          "references": null,
+          "default": null,
+          "enum": [
+            "json",
+            "csv",
+            "gedcom_551",
+            "gedcom_7",
+            "pdf",
+            "svg"
+          ]
         },
         {
           "name": "scope",
@@ -6565,7 +6603,7 @@
           "description": "queued/running/complete/failed/cancelled",
           "nullable": false,
           "references": null,
-          "default": null,
+          "default": "'queued'",
           "enum": null
         },
         {
@@ -6583,7 +6621,7 @@
           "description": "TTL",
           "nullable": false,
           "references": null,
-          "default": null,
+          "default": "clock_timestamp() + interval '24 hours'",
           "enum": null
         },
         {
