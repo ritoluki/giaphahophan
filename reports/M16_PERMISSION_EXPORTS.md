@@ -6,6 +6,8 @@ The export workspace sets `aria-busy` while authorized scope/job/preview reads a
 
 This narrow check is not a full axe/manual accessibility audit, authenticated download authorization, or proof of live worker/RPC/Storage behavior. PDF/SVG renderer and production/release gates remain open; M16-06 remains IN_PROGRESS.
 
+Fresh local regression after this UI change: `pnpm.cmd test:m16:export` PASS against local Docker. It rechecked queued/replay/hash-media conflict, MFA/personal claim, quota/expiry/policy/revocation, private projection redactions/consent withdrawal and cancellation denial/replay; the synthetic transaction rolled back. The test explicitly reports rendering/download NOT_RUN.
+
 ## Local authorization fixture recheck — 2026-10-06
 
 PASS `pnpm.cmd test:m16:export` under authorized local Docker execution; existing metadata/projection/cancel SQL fixture passed and rolled back. Local Supabase CLI returned generated service-role/API/DB values transiently; values were withheld and not saved. No owner env needed for one-shot tests. A proposed persistent worker migration was rejected by auto-review before file creation; no database security change was made. See `state/HUMAN_ACTIONS.md` for the exact owner approval request.
