@@ -46,7 +46,7 @@ type GedcomVersion = "5.5.1" | "7.0";
 type GedcomDate = NonNullable<ExportProjection["people"][number]["facts"][number]["valueDate"]>;
 const monthNames = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"] as const;
 
-function gedcomDateParts(value: GedcomDate): string | null {
+function gedcomDateParts(value: GedcomDate, version: GedcomVersion): string | null {
   if (value.calendar !== "gregorian" && value.calendar !== "julian") return null;
   if (value.year === undefined || value.year < 1) return null;
   if (value.month !== undefined && (value.month < 1 || value.month > 12)) return null;
@@ -59,15 +59,16 @@ function gedcomDateParts(value: GedcomDate): string | null {
   if (date.includes("  ") || date.endsWith(" ")) return null;
   const qualifier = value.precision === "about" ? "ABT " : value.precision === "before" ? "BEF " : value.precision === "after" ? "AFT " : "";
   if (["unknown", "text", "month_day"].includes(value.precision)) return null;
+  const julianPrefix = value.calendar === "julian" ? version === "5.5.1" ? "@#DJULIAN@ " : "JULIAN " : "";
   if (value.precision === "range" && value.rangeEnd) {
     if (value.rangeEnd.year < 1 || (value.rangeEnd.month !== undefined && (value.rangeEnd.month < 1 || value.rangeEnd.month > 12))
       || (value.rangeEnd.day !== undefined && (value.rangeEnd.day < 1 || value.rangeEnd.day > 31))) return null;
     const endMonth = value.rangeEnd.month === undefined ? "" : ` ${monthNames[value.rangeEnd.month - 1] ?? ""}`;
     const endDay = value.rangeEnd.day === undefined ? "" : `${String(value.rangeEnd.day).padStart(2, "0")} `;
     const endDate = `${endDay}${endMonth} ${value.rangeEnd.year}`.replaceAll(/\s+/g, " ").trim();
-    return `${value.calendar === "julian" ? "@#DJULIAN@ " : ""}BET ${date} AND ${endDate}`;
+    return `${julianPrefix}BET ${date} AND ${endDate}`;
   }
-  return `${value.calendar === "julian" ? "@#DJULIAN@ " : ""}${qualifier}${date}`;
+  return `${julianPrefix}${qualifier}${date}`;
 }
 
 function serializeGedcom(input: unknown, version: GedcomVersion): SerializedExport {
@@ -77,6 +78,7 @@ function serializeGedcom(input: unknown, version: GedcomVersion): SerializedExpo
     "family_partner_tags_are_layout_slots_not_sex_or_gender",
     "name_components_not_inferred",
     "canonical_identifiers_replaced_with_file_local_xrefs",
+    "union_and_parent_link_semantics_are_lossless_json_sidecar_only",
   ]);
   const people = [...projection.people].sort((left, right) => left.id.localeCompare(right.id));
   const personRefs = new Map(people.map((person, index) => [person.id, `I${String(index + 1).padStart(6, "0")}`]));
@@ -106,10 +108,10 @@ function serializeGedcom(input: unknown, version: GedcomVersion): SerializedExpo
     });
   }
 
-  const lines = [
-    "0 HEAD", "1 SOUR PHAN_GIA_PHA", "2 VERS 0.1", "1 GEDC", `2 VERS ${version}`, "2 FORM LINEAGE-LINKED", "1 CHAR UTF-8",
-    `1 DATE ${String(Number(projection.generatedAt.slice(8, 10))).padStart(2, "0")} ${monthNames[Number(projection.generatedAt.slice(5, 7)) - 1] ?? "JAN"} ${projection.generatedAt.slice(0, 4)}`,
-  ];
+  const lines = ["0 HEAD", "1 SOUR PHAN_GIA_PHA", "2 VERS 0.1", "1 GEDC", `2 VERS ${version}`];
+  if (version === "5.5.1") lines.push("2 FORM LINEAGE-LINKED", "1 CHAR UTF-8");
+  lines.push("1 SUBM @U000001@");
+  lines.push(`1 DATE ${String(Number(projection.generatedAt.slice(8, 10))).padStart(2, "0")} ${monthNames[Number(projection.generatedAt.slice(5, 7)) - 1] ?? "JAN"} ${projection.generatedAt.slice(0, 4)}`);
   const maxLineLength = version === "5.5.1" ? 255 : Number.POSITIVE_INFINITY;
   const cleanPayload = (payload: string) => payload.replace(/\r\n|\r/g, "\n").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, () => { warnings.add("gedcom_control_characters_replaced_json_sidecar_preserves_original"); return "�"; });
   const appendText = (level: number, tag: string, rawPayload: string) => {
@@ -135,16 +137,15 @@ function serializeGedcom(input: unknown, version: GedcomVersion): SerializedExpo
     }
   };
   const appendDate = (level: number, tag: "DATE", value: GedcomDate) => {
-    const formatted = gedcomDateParts(value);
+    const formatted = gedcomDateParts(value, version);
     if (formatted) lines.push(`${level} ${tag} ${formatted}`);
     else {
       if (value.calendar === "vietnamese_lunar") {
-        warnings.add("vietnamese_lunar_dates_kept_in_json_sidecar_and_phan_extension");
-        appendText(level, "_PHAN_LUNAR_DATE", value.originalText);
+        warnings.add("vietnamese_lunar_dates_kept_in_json_sidecar");
       } else {
-        warnings.add("nonrepresentable_date_kept_in_json_sidecar_and_phan_extension");
-        appendText(level, "_PHAN_DATE_TEXT", value.originalText);
+        warnings.add("nonrepresentable_date_kept_in_json_sidecar");
       }
+      appendText(level, "NOTE", `Original date text is preserved in the attached JSON sidecar: ${value.originalText}`);
     }
   };
   const sourceRefs = new Map([...projection.sources].sort((left, right) => left.id.localeCompare(right.id)).map((source, index) => [source.id, `S${String(index + 1).padStart(6, "0")}`]));
@@ -168,8 +169,13 @@ function serializeGedcom(input: unknown, version: GedcomVersion): SerializedExpo
       const event = fact.kind === "birth" ? "BIRT" : fact.kind === "death" ? "DEAT" : fact.kind === "burial" ? "BURI" : null;
       if (event) {
         lines.push(`1 ${event}`);
+        const eventLineCount = lines.length;
         if (fact.valueDate) appendDate(2, "DATE", fact.valueDate);
         if (fact.valueText) appendText(2, "NOTE", fact.valueText);
+        if (lines.length === eventLineCount) {
+          warnings.add("event_without_details_is_described_in_json_sidecar");
+          appendText(2, "NOTE", "Event details are preserved in the attached JSON sidecar.");
+        }
       } else if (fact.kind === "occupation") {
         if (fact.valueText) appendText(1, "OCCU", fact.valueText);
         else warnings.add("occupation_without_value_kept_in_json_sidecar");
@@ -182,10 +188,10 @@ function serializeGedcom(input: unknown, version: GedcomVersion): SerializedExpo
       if (familyRef.role === "partner") lines.push(`1 FAMS @${familyRef.ref}@`);
       else {
         lines.push(`1 FAMC @${familyRef.ref}@`);
-        if (familyRef.kind === "biological") appendText(2, "PEDI", "birth");
-        else if (familyRef.kind === "adoptive") appendText(2, "PEDI", "adopted");
-        else if (familyRef.kind) appendText(2, "_PHAN_LINK_KIND", familyRef.kind);
-        if (familyRef.status) appendText(2, "_PHAN_LINK_STATUS", familyRef.status);
+        if (familyRef.kind === "biological") appendText(2, "PEDI", version === "7.0" ? "BIRTH" : "birth");
+        else if (familyRef.kind === "adoptive") appendText(2, "PEDI", version === "7.0" ? "ADOPTED" : "adopted");
+        else if (familyRef.kind) warnings.add("nonstandard_parent_link_kind_kept_in_json_sidecar");
+        if (familyRef.status && familyRef.status !== "confirmed") warnings.add("nonconfirmed_parent_link_status_kept_in_json_sidecar");
       }
     }
     appendCitations(1, "person", person.id);
@@ -194,16 +200,15 @@ function serializeGedcom(input: unknown, version: GedcomVersion): SerializedExpo
     lines.push(`0 @${family.ref}@ FAM`);
     if (family.partners[0]) lines.push(`1 HUSB @${personRefs.get(family.partners[0])}@`);
     if (family.partners[1]) lines.push(`1 WIFE @${personRefs.get(family.partners[1])}@`);
-    for (const partner of family.partners.slice(2)) { warnings.add("more_than_two_partners_kept_in_json_sidecar"); lines.push(`1 _PHAN_PARTNER @${personRefs.get(partner)}@`); }
+    if (family.partners.length > 2) warnings.add("more_than_two_partners_kept_in_json_sidecar");
     for (const child of family.children) lines.push(`1 CHIL @${personRefs.get(child)}@`);
     const union = family.unionId ? projection.unions.find((item) => item.id === family.unionId) : undefined;
     if (union) {
-      appendText(1, "_PHAN_UNION_KIND", union.kind);
-      appendText(1, "_PHAN_UNION_STATUS", union.status);
+      if (union.kind !== "marriage" || union.status !== "active") warnings.add("nonstandard_union_semantics_kept_in_json_sidecar");
       appendCitations(1, "union", union.id);
     }
     for (const link of family.links) {
-      appendText(1, "_PHAN_PARENT_LINK", `${personRefs.get(link.parentId)}>${personRefs.get(link.childId)}:${link.kind}:${link.status}`);
+      if (link.kind !== "biological" || link.status !== "confirmed") warnings.add("nonstandard_parent_link_semantics_kept_in_json_sidecar");
       appendCitations(1, "parent_link", link.id);
     }
   });
@@ -211,6 +216,7 @@ function serializeGedcom(input: unknown, version: GedcomVersion): SerializedExpo
     lines.push(`0 @${sourceRefs.get(source.id)}@ SOUR`);
     appendText(1, "TITL", source.title);
   }
+  lines.push("0 @U000001@ SUBM", "1 NAME Phan Gia Pha");
   lines.push("0 TRLR");
   if (projection.parentLinks.length) warnings.add("relationship_edge_sidecar_is_lossless_source_of_truth");
   return {

@@ -1,5 +1,6 @@
 import Papa from "papaparse";
 import { describe, expect, it } from "vitest";
+import { GedcomDocument } from "@domorium/validator";
 import { exportProjectionSchema, exportRequestSchema, type ExportProjection } from "@phan/contracts";
 import { serializeExportCsv, serializeExportGedcom551, serializeExportGedcom7, serializeExportJson, serializeExportSvg } from "./m16-export";
 import { buildExportChartPages } from "./m16-export-chart";
@@ -89,6 +90,8 @@ describe("M16-06 authorized projection serialization", () => {
     input.sources = [{ id: "a6600000-0000-4000-8000-000000000014", title: "Tư liệu tổng hợp hư cấu" }];
     input.citations = [{ id: "a6600000-0000-4000-8000-000000000015", sourceId: input.sources[0]!.id, targetKind: "fact", targetId: input.people[2]!.facts[0]!.id, locator: "Trang 12" }];
     const result = serialize(input);
+    const externalDiagnostics = new GedcomDocument().createDocument(result.content).getErrors();
+    expect(externalDiagnostics).toEqual([]);
     expect(result.extension).toBe("ged");
     expect(result.sidecarExtension).toBe("json");
     expect(result.sidecarMimeType).toBe("application/json; charset=utf-8");
@@ -96,12 +99,14 @@ describe("M16-06 authorized projection serialization", () => {
     expect(result.content).toContain(`2 VERS ${version}`);
     expect(result.content).toContain("2 DATE 1940");
     expect(result.content).not.toContain("01 JAN 1940");
-    expect(result.content).toContain("2 DATE @#DJULIAN@ 29 FEB 1900");
-    expect(result.content).toContain("2 _PHAN_LUNAR_DATE 10/2 nhuận 2023");
+    expect(result.content).toContain(version === "7.0" ? "2 DATE JULIAN 29 FEB 1900" : "2 DATE @#DJULIAN@ 29 FEB 1900");
+    expect(result.content).not.toContain("_PHAN_");
     expect(result.content).toContain("1 HUSB @I");
     expect(result.content).toContain("1 WIFE @I");
     expect(result.warnings).toContain("family_partner_tags_are_layout_slots_not_sex_or_gender");
     expect(result.warnings).toContain("relationship_edge_sidecar_is_lossless_source_of_truth");
+    expect(result.warnings).toContain("vietnamese_lunar_dates_kept_in_json_sidecar");
+    expect(result.warnings).toContain("union_and_parent_link_semantics_are_lossless_json_sidecar_only");
     expect(result.content).not.toContain(input.treeId);
     const parsed = dryRunGedcomImport(result.content);
     expect(parsed?.version).toBe(version);
@@ -116,6 +121,20 @@ describe("M16-06 authorized projection serialization", () => {
     expect(ged7.content).toContain("CONT");
     expect(ged7.content).not.toMatch(/^\d+ CONC(?: |$)/m);
     expect(ged7.content).toContain("@ký hiệu");
+  });
+  it.each([
+    ["5.5.1", serializeExportGedcom551], ["7.0", serializeExportGedcom7],
+  ] as const)("passes the independent @domorium validator structural checks for GEDCOM %s synthetic export", (version, serialize) => {
+    const input = projection(); input.scope = { kind: "tree" };
+    input.people[0]!.facts.push({
+      id: "a6600000-0000-4000-8000-000000000035", kind: "birth",
+      valueDate: { calendar: "gregorian", precision: "range", year: 1890, month: 1, day: 1, rangeEnd: { year: 1891, month: 2, day: 2 }, originalText: "BET 01 JAN 1890 AND 02 FEB 1891" },
+      valueText: null, confidence: "supported",
+    });
+    const exported = serialize(input);
+    const diagnostics = new GedcomDocument().createDocument(exported.content).getErrors();
+    expect(diagnostics.filter((diagnostic) => diagnostic.level === "error")).toEqual([]);
+    expect(exported.sidecarExtension).toBe("json");
   });
   it("does not emit forbidden control bytes and preserves the exact authorized value only in the JSON sidecar", () => {
     const input = projection(); input.people[0]!.displayName = "Tên\u0001hư cấu";
