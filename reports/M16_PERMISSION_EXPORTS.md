@@ -1,5 +1,11 @@
 # M16-06 permission-bound exports
 
+## Accessibility regression slice — 2026-10-06
+
+The export workspace sets `aria-busy` while authorized scope/job/preview reads are loading. An isolated standalone build at `.next-m16-export-a11y` and `tests/e2e/m16-export-restricted.spec.ts` verified the anonymous 320px state exposes the named workspace and sign-in action, but no format form, private preview, or download control, and has no horizontal overflow. Playwright: 1/1 PASS; isolated production build: 55 routes PASS. Workspace tests: contracts75/domain128/worker24/lunar4/web6 PASS; typecheck and verify PASS; lint 0 errors/2 pre-existing warnings. A worker test-double call missing its required synthetic workerId was corrected, discovered by the workspace typecheck.
+
+This narrow check is not a full axe/manual accessibility audit, authenticated download authorization, or proof of live worker/RPC/Storage behavior. PDF/SVG renderer and production/release gates remain open; M16-06 remains IN_PROGRESS.
+
 ## Local authorization fixture recheck — 2026-10-06
 
 PASS `pnpm.cmd test:m16:export` under authorized local Docker execution; existing metadata/projection/cancel SQL fixture passed and rolled back. Local Supabase CLI returned generated service-role/API/DB values transiently; values were withheld and not saved. No owner env needed for one-shot tests. A proposed persistent worker migration was rejected by auto-review before file creation; no database security change was made. See `state/HUMAN_ACTIONS.md` for the exact owner approval request.

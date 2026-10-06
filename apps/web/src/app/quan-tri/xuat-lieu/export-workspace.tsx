@@ -216,7 +216,7 @@ function ExportWorkflow() {
     finally { setPending(""); }
   }
 
-  return <section className="import-workspace" aria-label="Khu vực xuất liệu" aria-busy={Boolean(pending)}>
+  return <section className="import-workspace" aria-label="Khu vực xuất liệu" aria-busy={Boolean(pending) || contextQuery.isLoading || jobQuery.isFetching || previewQuery.isFetching}>
     <div className="card import-result export-intro"><p>Phạm vi → Yêu cầu → Xem dữ liệu theo quyền → Theo dõi</p>
       <p>Hiện kiểm thử local: đã lưu job và lọc dữ liệu tại DB; worker tạo tệp chưa tích hợp. Không có tệp tải giả hoặc trạng thái hoàn tất giả.</p>
       {contextQuery.isLoading && <p role="status">Đang kiểm tra phiên và phạm vi được phép…</p>}

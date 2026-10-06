@@ -83,7 +83,7 @@ describe("M16 export worker orchestration", () => {
 
   it("does not call unsupported PDF rendering a successful export", async () => {
     const store = new Store();
-    store.claim = async () => ({ ...await Store.prototype.claim.call(store), job: { ...job, format: "book_pdf" } });
+    store.claim = async () => ({ ...await Store.prototype.claim.call(store, "worker-synthetic"), job: { ...job, format: "book_pdf" } });
     expect(await processOneExport(store, "worker-synthetic")).toEqual({ status: "failed", jobId: job.id, errorCode: "EXPORT_RENDERER_NOT_IMPLEMENTED" });
     expect(store.uploaded).toEqual([]);
     expect(store.failedCodes).toEqual(["EXPORT_RENDERER_NOT_IMPLEMENTED"]);
