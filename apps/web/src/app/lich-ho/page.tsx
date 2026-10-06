@@ -5,7 +5,7 @@ import { demoEvents } from "../../lib/demo-data";
 export default function CalendarPage() {
   return (
     <SiteShell active="calendar">
-      <main id="main-content" className="container page">
+      <main id="main-content" tabIndex={-1} className="container page">
         <p className="eyebrow">Âm lịch Việt Nam · Asia/Ho_Chi_Minh</p>
         <h1>Lịch họ & sự kiện</h1>
         <p className="page-lede">Ngày giỗ hiển thị ngày âm, ngày dương và quy ước tháng nhuận. Bộ chuyển đổi ngày âm sẽ chỉ bật sau golden tests.</p>

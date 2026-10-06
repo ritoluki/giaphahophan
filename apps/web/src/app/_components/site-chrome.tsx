@@ -53,10 +53,14 @@ export function BottomNav({ active }: { active: NavKey }) {
   );
 }
 
+function SkipLink() {
+  return <a className="skip-link" href="#main-content">Bỏ qua đến nội dung</a>;
+}
+
 export function SiteShell({ children, active }: { children: ReactNode; active: NavKey }) {
   return (
     <div className="site-shell">
-      <a className="skip-link" href="#main-content">Bỏ qua đến nội dung</a>
+      <SkipLink />
       <SiteHeader />
       {children}
       <BottomNav active={active} />
@@ -67,6 +71,7 @@ export function SiteShell({ children, active }: { children: ReactNode; active: N
 export function AdminShell({ children }: { children: ReactNode }) {
   return (
     <div className="site-shell admin-shell">
+      <SkipLink />
       <header className="container admin-topbar">
         <Link className="brand-lockup" href="/" aria-label="Phan Gia Phả - Trang chủ">
           <Image src="/assets/logo-mark.png" alt="" width={40} height={40} priority />

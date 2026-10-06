@@ -12,7 +12,7 @@ const demoViewerItems: MediaViewerItem[] = [
 export default function SourcesPage() {
   return (
     <SiteShell active="sources">
-      <main id="main-content" className="container page">
+      <main id="main-content" tabIndex={-1} className="container page">
         <p className="eyebrow">Tư liệu · Có nguồn và quyền truy cập</p>
         <h1>Thư viện tư liệu</h1>
         <p className="page-lede">Nguồn, ảnh và tài liệu chỉ hiển thị theo quyền. File riêng tư không được lấy bằng cách đoán URL.</p>

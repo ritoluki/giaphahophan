@@ -1,5 +1,9 @@
 # M16-06 permission-bound exports
 
+## Accessibility keyboard continuation — 2026-10-06
+
+Extended the existing local 14 axe checks with 14 Playwright keyboard regressions. The shared skip link now appears in restricted `AdminShell`, and every in-app `main#main-content` target is programmatically focusable. On desktop and 320px, Tab focuses the skip link and Enter both sets the main-content fragment and moves actual focus to `main` on seven representative routes. PASS full local `pnpm.cmd test:a11y` 28/28, workspace tests244, typecheck, `verify`, and isolated local-config Next standalone production build55 routes; lint zero errors/two existing warnings. This closes skip navigation only; manual full-flow keyboard/screen-reader/device acceptance remains NOT_RUN. No hosted or real data.
+
 ## M16-06 verification refresh — 2026-10-06
 
 PASS `pnpm.cmd test` — 244 tests (contracts75/domain132/worker27/lunar4/web6); PASS all workspace typechecks and `pnpm.cmd verify`; PASS `pnpm.cmd lint` with zero errors and two existing warnings. PASS fresh `pnpm.cmd test:a11y` — 14/14 automated axe checks across five public + two unauthenticated restricted-admin routes at desktop and 320px, zero violations. PASS fresh `pnpm.cmd test:m16:export-download` against local loopback Supabase: standalone production Next BFF, synthetic cookie login/MFA AAL2, CSRF-protected export, worker/private Storage, exact-session download with PDF signature/length/MIME/cache/security headers, anonymous 401 and missing-sidecar 404; synthetic rows/user/object cleaned. No hosted endpoint or real data used. These checks do not close manual accessibility/device/load or staging/release. GEDCOM interop fixtures from two open-source applications and versioned conformance report remain NOT_RUN; no synthetic fixture is presented as vendor output. `includeMedia` remains fail-closed pending H3. M16-06 remains IN_PROGRESS.

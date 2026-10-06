@@ -11,7 +11,7 @@ const previewCards = [
 export default function AdminPage() {
   return (
     <AdminShell>
-      <main id="main-content" className="container page admin-page">
+      <main id="main-content" tabIndex={-1} className="container page admin-page">
         <p className="eyebrow">Quản trị · Capability required</p>
         <h1>Tổng quan quản trị</h1>
         <p className="page-lede">Không có thao tác thay đổi dữ liệu trong bản preview. Mọi quyền thật sẽ được kiểm tra ở server/DB.</p>

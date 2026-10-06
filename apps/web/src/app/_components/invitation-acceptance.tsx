@@ -45,7 +45,7 @@ export function InvitationAcceptance({ token }: { token: string }) {
 
   if (accepted) {
     return (
-      <main id="main-content" className="container page invitation-page">
+      <main id="main-content" tabIndex={-1} className="container page invitation-page">
         <p className="eyebrow">Lời mời · Đã tiếp nhận</p>
         <section className="card invitation-card" aria-labelledby="invitation-success-title">
           <div className="invitation-seal" aria-hidden="true">✓</div>
@@ -58,7 +58,7 @@ export function InvitationAcceptance({ token }: { token: string }) {
   }
 
   return (
-    <main id="main-content" className="container page invitation-page">
+    <main id="main-content" tabIndex={-1} className="container page invitation-page">
       <p className="eyebrow">Lời mời · Thành viên gia phả</p>
       <section className="card invitation-card" aria-labelledby="invitation-title">
         <div className="invitation-seal" aria-hidden="true">PG</div>

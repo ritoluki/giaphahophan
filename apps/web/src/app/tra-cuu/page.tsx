@@ -11,7 +11,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const initialQuery = params.q ?? "";
   return (
     <SiteShell active="search">
-      <main id="main-content" className="container page">
+      <main id="main-content" tabIndex={-1} className="container page">
         <p className="eyebrow">Tra cứu · Trong phạm vi được phép xem</p>
         <h1>Tìm người trong gia phả</h1>
         <p className="page-lede">Tên trùng sẽ luôn đi cùng mã hồ sơ, chi và mốc năm trong kết quả demo.</p>

@@ -1,5 +1,7 @@
 # Blockers
 
+2026-10-06 accessibility follow-up: automated skip-navigation regression verifies real focus transfer for seven public/restricted routes on desktop and320px; shared AdminShell includes the same skip link. Workspace tests244, local-config production build55 routes, typecheck and verify PASS; lint0 errors/2 existing warnings. This is not full manual keyboard or assistive-technology acceptance. Screen-reader, broader interactive-flow keyboard, zoom/imagery contrast and physical-device checks remain NOT_RUN; no owner action is needed to continue local test work.
+
 2026-10-06 M16-06 follow-up: local automated gates refreshed and PASS (244 workspace tests, typecheck, verify, lint0 errors/2 existing warnings, axe14/14, authenticated Next BFF download E2E). Remaining owner-independent NOT_RUN gates: actual sanitized/version-pinned GEDCOM exports from two open-source genealogy applications plus official profile comparison; manual accessibility/physical-device/load and staging/release. Do not mark these PASS from synthetic serializer fixtures or automated axe. Existing H3 media decision remains separately recorded below; no immediate owner action is required to continue other local work.
 
 2026-10-06 local demo owner account created and verified (`reports/LOCAL_DEMO_ACCOUNT.md`). Credential file `.env.demo.local` is ignored and must remain local. The account is owner on an empty demo tree; owner/admin privileged operations remain AAL2/MFA-gated and cannot self-approve two-person actions. No H1/H2/H3/H4/H5 gate is thereby approved.

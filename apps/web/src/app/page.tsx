@@ -7,7 +7,7 @@ import { demoEvents } from "../lib/demo-data";
 export default function HomePage() {
   return (
     <SiteShell active="home">
-      <main id="main-content" className="container">
+      <main id="main-content" tabIndex={-1} className="container">
         <section className="hero" aria-labelledby="hero-title">
           <Image className="hero-image" src="/assets/hero-mobile.png" alt="" fill priority sizes="(max-width: 767px) 100vw, 1200px" />
           <div className="hero-overlay" />

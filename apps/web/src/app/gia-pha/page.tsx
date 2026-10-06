@@ -8,7 +8,7 @@ export default function GiaPhaPage() {
   const family = getFamilyFocus();
   return (
     <SiteShell active="tree">
-      <main id="main-content" className="container page">
+      <main id="main-content" tabIndex={-1} className="container page">
         <p className="eyebrow">Thành viên · Bản demo minh họa</p>
         <h1>Cây gia phả</h1>
         <p className="page-lede">Bắt đầu bằng gia đình gần để đọc được trên điện thoại. Sơ đồ mở rộng chỉ xuất hiện sau thao tác chủ động.</p>

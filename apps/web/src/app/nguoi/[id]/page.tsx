@@ -15,7 +15,7 @@ export default async function PersonPage({ params }: PersonPageProps) {
   const sources = demoSources.filter((source) => person.sourceIds.includes(source.id));
   return (
     <SiteShell active="search">
-      <main id="main-content" className="container page">
+      <main id="main-content" tabIndex={-1} className="container page">
         <Link className="muted back-link" href="/tra-cuu">← Quay lại tra cứu</Link>
         <p className="eyebrow">Hồ sơ minh họa · {person.externalId}</p>
         <div className="profile-heading"><span className="profile-monogram" aria-hidden="true">{person.displayName.slice(0, 1)}</span><div><h1>{person.displayName}</h1><p className="page-lede">{branchName(person.branchId)} · Mốc năm: {yearLabel}</p></div></div>

@@ -13,7 +13,7 @@ const menuItems = [
 export default function MorePage() {
   return (
     <SiteShell active="more">
-      <main id="main-content" className="container page">
+      <main id="main-content" tabIndex={-1} className="container page">
         <p className="eyebrow">Mục lục</p>
         <h1>Thêm</h1>
         <div className="cards">{menuItems.map((item) => <Link className="card" href={item.href} key={item.href}><h2>{item.title}</h2><p>{item.description}</p></Link>)}</div>
