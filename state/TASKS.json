@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-10-06T22:25:51+07:00",
+  "updatedAt": "2026-10-06T22:48:02+07:00",
   "tasks": [
     {
       "id": "P0-01",
@@ -20,6 +20,7 @@
       "status": "DONE",
       "approvalRequired": [],
       "evidence": [
+        "2026-10-06 resumed local demo: authorized `pnpm.cmd doctor` PASS for Node24.21.0/pnpm12.6.0, cache/store, registry and install smoke; local Supabase containers healthy. Started Next16.3.3 at http://127.0.0.1:3100 with only CLI-derived loopback Supabase settings (ignored apps/web/.env.local host target); socket verified 127.0.0.1 only. HTTP200 demo-labeled response PASS for /, /gia-pha, /tra-cuu, /lich-ho, /quan-tri/xuat-lieu. TASKS status snapshot: 3 DONE/75 IN_PROGRESS/24 TODO of102; weighted midpoint estimate39.7% (DONE=1, IN_PROGRESS=.5, TODO=0), not release readiness. Production/visual approval gates remain pending.",
         "2026-10-06 Chromium sandbox correction: Playwright sandbox is mandatory in staging/production and all non-local-demo modes; only APP_ENV=development/test plus DATA_MODE=demo uses the unsandboxed local runner profile. Unit configuration tests PASS; local PDF E2E rerun PASS. Worker tests26 and workspace tests241 (contracts75/domain130/worker26/lunar4/web6). No production runtime/deployment was attempted.",
         "2026-10-06 PDF/SVG renderer phase: real Playwright Chromium book PDF with TOC, all authorized people/facts/date precision/citations/relations/sources and paginated chart appendix; SVG is escaped and paginates people, explicit parent-link kind/status and union participants using shared design tokens. JS disabled/CSP/network blocked; size limits fail closed; includeMedia is rejected until a private media projection/package exists. PASS Chromium PDF signature test, SVG pagination/XML control tests, local Supabase synthetic JSON/PDF/SVG worker+private Storage+same-session download/hash E2E and cleanup; PASS tests contracts75/domain130/worker25/lunar4/web6 (240), all seven package typechecks, ESLint targeted0 errors/2 config warnings, isolated Next production build55 routes, package JSON/lock importer check/diff check. Clean install BLOCKED by pnpm store ACL/offline mirror metadata. Noto files absent from approved assets; actual font rendering/embedding NOT_RUN. Remaining: media packaging, authenticated Next BFF download E2E, GEDCOM external validation, consent/publication flows, exact font assets, full accessibility/device/load, clean install/staging/release. M16-06 IN_PROGRESS; local synthetic only, no cloud/real data/deploy; reports/M16_PERMISSION_EXPORTS.md.",
         "pnpm run doctor: Node 24.21.0 found; Node 24 baseline, Docker 29.8.0 client/server and workspace asset checks PASS.",
