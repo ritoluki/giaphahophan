@@ -1,5 +1,7 @@
 # Backlog triển khai
 
+2026-10-06 M16-06 verification refresh: PASS workspace tests244 (contracts75/domain132/worker27/lunar4/web6), typecheck, verify, lint (0 errors, 2 existing warnings), and local axe suite14/14 desktop+320px (zero automated violations). Re-ran authenticated production-standalone Next BFF download E2E with synthetic local Supabase: MFA AAL2, CSRF, worker/private Storage, same-session file response and authorization/error checks PASS; temporary fixtures cleaned. Official/two open-source GEDCOM application fixtures and versioned conformance report remain NOT_RUN; media stays fail-closed pending H3. M16-06 remains IN_PROGRESS; no hosted/real-data/production action.
+
 2026-10-06 local demo account: added `pnpm.cmd demo:account:local`; strict loopback guard, generated credentials in ignored `.env.demo.local`, one empty demo tree + active owner membership, audit event, SQL verification and BFF login PASS. M07-04 remains IN_PROGRESS; MFA enrollment and independent reviewer remain separate. See `reports/LOCAL_DEMO_ACCOUNT.md`. Hosted Supabase unchanged.
 
 2026-10-06 M16-06 next gate: all export formats except media have local implementation/evidence including worker, private Storage download, PDF/SVG and GEDCOM structural validation. `includeMedia` remains fail-closed until H3 determines subject review, consent/audience and ambiguous-asset behavior. See `state/HUMAN_ACTIONS.md`; M16-06 stays IN_PROGRESS, no scope is waived.

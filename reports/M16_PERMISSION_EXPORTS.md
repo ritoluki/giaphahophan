@@ -1,5 +1,9 @@
 # M16-06 permission-bound exports
 
+## M16-06 verification refresh — 2026-10-06
+
+PASS `pnpm.cmd test` — 244 tests (contracts75/domain132/worker27/lunar4/web6); PASS all workspace typechecks and `pnpm.cmd verify`; PASS `pnpm.cmd lint` with zero errors and two existing warnings. PASS fresh `pnpm.cmd test:a11y` — 14/14 automated axe checks across five public + two unauthenticated restricted-admin routes at desktop and 320px, zero violations. PASS fresh `pnpm.cmd test:m16:export-download` against local loopback Supabase: standalone production Next BFF, synthetic cookie login/MFA AAL2, CSRF-protected export, worker/private Storage, exact-session download with PDF signature/length/MIME/cache/security headers, anonymous 401 and missing-sidecar 404; synthetic rows/user/object cleaned. No hosted endpoint or real data used. These checks do not close manual accessibility/device/load or staging/release. GEDCOM interop fixtures from two open-source applications and versioned conformance report remain NOT_RUN; no synthetic fixture is presented as vendor output. `includeMedia` remains fail-closed pending H3. M16-06 remains IN_PROGRESS.
+
 ## Authenticated Next BFF download E2E — 2026-10-06
 
 Added `scripts/test-m16-export-download-http-local.mjs` and `pnpm test:m16:export-download`. This launches an isolated standalone production server and drives a real local HTTP flow: synthetic password login/cookie, TOTP MFA AAL2, export context + CSRF, idempotent PDF job, live local worker and private Storage, then authenticated Next BFF download. It asserts anonymous requests return 401, absent sidecar returns 404/private no-store, and the primary download returns `%PDF-`, correct byte length, `application/pdf`, attachment disposition, `nosniff` and `private, no-store`; synthetic auth/tree/job/object are cleaned up.
