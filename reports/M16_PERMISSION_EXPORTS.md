@@ -1,5 +1,13 @@
 # M16-06 permission-bound exports
 
+## Authenticated Next BFF download E2E — 2026-10-06
+
+Added `scripts/test-m16-export-download-http-local.mjs` and `pnpm test:m16:export-download`. This launches an isolated standalone production server and drives a real local HTTP flow: synthetic password login/cookie, TOTP MFA AAL2, export context + CSRF, idempotent PDF job, live local worker and private Storage, then authenticated Next BFF download. It asserts anonymous requests return 401, absent sidecar returns 404/private no-store, and the primary download returns `%PDF-`, correct byte length, `application/pdf`, attachment disposition, `nosniff` and `private, no-store`; synthetic auth/tree/job/object are cleaned up.
+
+During diagnosis, the existing `apps/web/.env.local` was confirmed to name a hosted project. A previous isolated build had embedded that hosted endpoint. One initial failed diagnostic run therefore sent a single password-login request with a randomly generated `synthetic.test` email/password to hosted Auth and got 401. Password login does not create an account; no user, tree, export or other hosted data was written/read, and no real genealogy data or owner credential was sent. This incident is recorded so the evidence is explicit. The passing harness now requires a loopback Supabase URL and scans the standalone server bundle for the exact local API URL before it can start the HTTP test. The dedicated build was created with local CLI-provided settings only; the passing E2E made no cloud request. Local endpoint/key values were kept in process environment and not logged. The dedicated output is ignored; generated `next-env.d.ts` imports were restored.
+
+PASS `node --check scripts/test-m16-export-download-http-local.mjs`; PASS live synthetic local E2E with production standalone Next and worker/Storage. This is local integration evidence, not staging/production evidence. Remaining M16-06 gates are listed below; no scope reduction.
+
 Chromium sandbox hardening: Playwright's `chromiumSandbox` is enabled by default and cannot be disabled for staging/production or real-data modes. Only `APP_ENV=development|test` with `DATA_MODE=demo` selects unsandboxed Chromium for this local Windows demo runner; this is exercised by unit configuration tests. After this adjustment worker tests are 26 and all workspace suites total 241 PASS; local synthetic PDF + JSON/SVG Storage E2E PASS.
 
 ## Chromium PDF book and paginated SVG chart — 2026-10-06
