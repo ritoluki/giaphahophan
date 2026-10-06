@@ -1,5 +1,7 @@
 # Các bước chủ dự án thực sự cần tham gia
 
+2026-10-06 — Local demo account created on owner request. Read credentials only from ignored `.env.demo.local` on this machine. It is a synthetic owner login on local Supabase, not an account on the hosted project. Do not share/commit the file. Enroll MFA through the app before testing owner/admin privileged actions; create a separate synthetic reviewer only if testing two-person approval is desired.
+
 2026-10-06 — APPROVAL RECORDED: project owner approved “local M16 worker migration” in this conversation. Scope is local Supabase only: migration 0075, service_role-only per-operation worker RPCs, live session/AAL + current membership/capability/policy rechecks, outbox, private bucket/manifest, and synthetic local regression/E2E. Risk remains service_role bypassing RLS if a function is defective. Excludes hosted/cloud migration, real genealogy data, public access, paid services, production deployment and H1–H5 approval. Approval evidence: owner message in this thread; no secret values shared. Local migration has been applied; see `state/BLOCKERS.md` and `reports/M16_PERMISSION_EXPORTS.md` for actual test evidence.
 
 [SUPERSEDED 2026-10-06] A local-only `apps/worker/.env.local` was requested for testing. Supabase CLI can provide its locally generated keys/DB URL transiently during elevated local test runs; no owner-created env or cloud secret is required for one-shot tests. A worker env file is optional if the owner wants to run the worker manually.

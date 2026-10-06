@@ -1,5 +1,7 @@
 # Backlog triển khai
 
+2026-10-06 local demo account: added `pnpm.cmd demo:account:local`; strict loopback guard, generated credentials in ignored `.env.demo.local`, one empty demo tree + active owner membership, audit event, SQL verification and BFF login PASS. M07-04 remains IN_PROGRESS; MFA enrollment and independent reviewer remain separate. See `reports/LOCAL_DEMO_ACCOUNT.md`. Hosted Supabase unchanged.
+
 2026-10-06 M16-06 next gate: all export formats except media have local implementation/evidence including worker, private Storage download, PDF/SVG and GEDCOM structural validation. `includeMedia` remains fail-closed until H3 determines subject review, consent/audience and ambiguous-asset behavior. See `state/HUMAN_ACTIONS.md`; M16-06 stays IN_PROGRESS, no scope is waived.
 
 2026-10-06 accessibility continuation: pinned direct dev-only axe-core 4.13.0 (MPL-2.0); local loopback `pnpm.cmd test:a11y` PASS 14/14 (5 public + 2 unauthenticated restricted-admin routes × desktop Chromium/320px; WCAG 2.0 A/AA, 2.1 A/AA, 2.2 AA; zero automated violations). Typecheck PASS; lint 0 errors/2 existing unrelated warnings. UI-01 remains IN_PROGRESS. Manual keyboard/screen-reader/zoom/overlay/authenticated states and real-device remain NOT_RUN. Evidence `reports/A11Y_AUTOMATED_LOCAL.md`; no real/cloud/production data.

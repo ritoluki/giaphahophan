@@ -1228,7 +1228,8 @@
       "approvalRequired": [],
       "evidence": [
         "Migration 0024 + BFF /api/v1/members, PATCH membership and POST grants; owner/admin + MFA, version/idempotency, audit/outbox and restricted projection implemented.",
-        "pnpm test:m07:membership, pnpm test:db, pnpm test, typecheck, lint, build and Playwright 45/45 PASS on Node 24/Supabase local synthetic data."
+        "pnpm test:m07:membership, pnpm test:db, pnpm test, typecheck, lint, build and Playwright 45/45 PASS on Node 24/Supabase local synthetic data.",
+        "2026-10-06 local demo login: `pnpm.cmd demo:account:local` created a synthetic confirmed local Auth user, empty demo tree, restricted branch, active owner membership and audit event. Strict Auth/DB loopback guard, stored-state verification and local Next BFF login PASS. Credentials live only in ignored `.env.demo.local` and are not logged. Owner role is highest single membership; MFA and independent two-person approval rules remain. M07-04 IN_PROGRESS; hosted project unchanged. Evidence reports/LOCAL_DEMO_ACCOUNT.md."
       ]
     },
     {

@@ -69,7 +69,8 @@
     "test:m16:export": "node scripts/test-m16-export-local.mjs",
     "test:m16:export-worker": "node --import ./apps/worker/node_modules/tsx/dist/loader.mjs scripts/test-m16-export-worker-local.mjs",
     "test:m16:export-download": "node --import ./apps/worker/node_modules/tsx/dist/loader.mjs scripts/test-m16-export-download-http-local.mjs",
-    "test:m16:http": "node scripts/test-m16-import-http-local.mjs"
+    "test:m16:http": "node scripts/test-m16-import-http-local.mjs",
+    "demo:account:local": "node scripts/provision-local-demo-account.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",

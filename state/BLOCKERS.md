@@ -1,5 +1,7 @@
 # Blockers
 
+2026-10-06 local demo owner account created and verified (`reports/LOCAL_DEMO_ACCOUNT.md`). Credential file `.env.demo.local` is ignored and must remain local. The account is owner on an empty demo tree; owner/admin privileged operations remain AAL2/MFA-gated and cannot self-approve two-person actions. No H1/H2/H3/H4/H5 gate is thereby approved.
+
 2026-10-06 M16-06 owner decision required before implementing media export: keep `includeMedia` fail-closed. `docs/13_MEDIA_CONTENT_PLACES.md` requires reviewer inspection of every depicted person; `docs/10_AUTH_PERMISSIONS_PRIVACY.md` says visibility alone is insufficient and requires current consent/audience policy. Current asset linkage does not establish all depicted subjects or independent review/consent. Do not infer permission from the attached person, invent consent, or lower the approved scope. Exact H3 question is recorded in `state/HUMAN_ACTIONS.md`. Text-only PDF/JSON/CSV/GEDCOM/SVG export remains independently testable; no cloud/real data/production.
 
 2026-10-06 accessibility status: local automated axe scan is PASS 14/14 on five public and two unauthenticated restricted-admin routes at desktop and 320px (`reports/A11Y_AUTOMATED_LOCAL.md`). This narrows—but does not close—the release gate: manual keyboard/screen-reader/zoom/contrast-on-imagery/authenticated-state and physical-device accessibility remain NOT_RUN. No owner decision is currently required for this slice.
