@@ -1,6 +1,6 @@
 # Local demo owner account
 
-Date: 2026-10-06  
+Date: 2026-10-06
 Environment: `phan-gia-pha-local` Supabase stack and Next demo on `127.0.0.1:3100` only.
 
 ## Provisioning evidence
