@@ -16,7 +16,7 @@ export function NewsStateCard({ status }: { status: "loading" | "empty" | "error
 export function NewsIndex({ posts }: { posts: readonly DemoNewsPost[] }) {
   return (
     <SiteShell active="more">
-      <main id="main-content" className="container page news-reader-page">
+      <main id="main-content" tabIndex={-1} className="container page news-reader-page">
         <p className="eyebrow">Tin họ · Đọc theo mạch chuyện</p>
         <h1>Những câu chuyện được gìn giữ</h1>
         <p className="page-lede">Bài viết dài, ảnh và nguồn được trình bày theo thứ tự rõ ràng; nội dung công khai chỉ đi ra từ bản đã duyệt.</p>
@@ -31,7 +31,7 @@ export function NewsIndex({ posts }: { posts: readonly DemoNewsPost[] }) {
 export function NewsArticle({ post }: { post: DemoNewsPost }) {
   return (
     <SiteShell active="more">
-      <main id="main-content" className="container page news-reader-page">
+      <main id="main-content" tabIndex={-1} className="container page news-reader-page">
         <Link className="news-back-link" href="/tin-ho">← Về Tin họ</Link>
         <article className="news-article">
           <header className="news-article-heading">

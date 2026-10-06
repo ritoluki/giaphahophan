@@ -1,5 +1,9 @@
 # Blockers
 
+2026-10-07 accessibility build regression gate: workspace tests244, TypeScript, isolated local-config production build55 routes and loopback-artifact check PASS after expanding route coverage. Lint has0 errors/two existing warnings. Remaining accessibility gaps are manual/full-flow/assistive-tech/real-device; these are not waived by automation.
+
+2026-10-07 accessibility expanded sweep: PASS 92/92 local checks across 23 routes × desktop/320px (axe zero violations + real skip-focus transfer). This reduces the unauthenticated responsive-route gap only; authenticated actions, all-flow manual keyboard, screen readers, zoom/imagery contrast and real devices remain NOT_RUN. No owner action required for these remaining local/manual QA slices.
+
 2026-10-06 accessibility follow-up: automated skip-navigation regression verifies real focus transfer for seven public/restricted routes on desktop and320px; shared AdminShell includes the same skip link. Workspace tests244, local-config production build55 routes, typecheck and verify PASS; lint0 errors/2 existing warnings. This is not full manual keyboard or assistive-technology acceptance. Screen-reader, broader interactive-flow keyboard, zoom/imagery contrast and physical-device checks remain NOT_RUN; no owner action is needed to continue local test work.
 
 2026-10-06 M16-06 follow-up: local automated gates refreshed and PASS (244 workspace tests, typecheck, verify, lint0 errors/2 existing warnings, axe14/14, authenticated Next BFF download E2E). Remaining owner-independent NOT_RUN gates: actual sanitized/version-pinned GEDCOM exports from two open-source genealogy applications plus official profile comparison; manual accessibility/physical-device/load and staging/release. Do not mark these PASS from synthetic serializer fixtures or automated axe. Existing H3 media decision remains separately recorded below; no immediate owner action is required to continue other local work.

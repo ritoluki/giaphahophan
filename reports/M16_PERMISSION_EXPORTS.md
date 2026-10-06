@@ -1,5 +1,13 @@
 # M16-06 permission-bound exports
 
+## Expanded sweep build verification — 2026-10-07
+
+After the route-wide main-target change, PASS workspace tests244, full TypeScript checks, lint0 errors/2 pre-existing warnings, and isolated standalone Next production build55 routes. Build environment explicitly selected demo/test mode and a loopback Supabase URL; compiled artifact endpoint assertion PASS. Next-generated `apps/web/next-env.d.ts` edits were restored. `git diff --check` clean. No hosted or real data.
+
+## Expanded route accessibility sweep — 2026-10-07
+
+Expanded axe + keyboard regression coverage from seven to 23 public/auth/restricted-admin routes, including family, relationship, places, news, contribution, scholarship/fundraising, login/recovery/MFA and all admin preview routes. PASS local `pnpm.cmd test:a11y` 92/92 on desktop and320px: 46 axe scans (WCAG2.0 A/AA,2.1 A/AA,2.2 AA) with zero violations and 46 Tab→Enter→main-focus keyboard checks. Shared M12–M15 content readers now also mark their `main#main-content` landmarks as programmatically focusable. This is local demo automation only; authenticated workflow and manual/device acceptance remain NOT_RUN. No real data or hosted services.
+
 ## Accessibility keyboard continuation — 2026-10-06
 
 Extended the existing local 14 axe checks with 14 Playwright keyboard regressions. The shared skip link now appears in restricted `AdminShell`, and every in-app `main#main-content` target is programmatically focusable. On desktop and 320px, Tab focuses the skip link and Enter both sets the main-content fragment and moves actual focus to `main` on seven representative routes. PASS full local `pnpm.cmd test:a11y` 28/28, workspace tests244, typecheck, `verify`, and isolated local-config Next standalone production build55 routes; lint zero errors/two existing warnings. This closes skip navigation only; manual full-flow keyboard/screen-reader/device acceptance remains NOT_RUN. No hosted or real data.

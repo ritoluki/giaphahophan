@@ -72,7 +72,7 @@ export function FundReader({ fund, journals, report = demoReport, reconciliation
   const expenseVnd = report.expenseVnd;
   return (
     <SiteShell active="more">
-      <main id="main-content" className="container page fund-page">
+      <main id="main-content" tabIndex={-1} className="container page fund-page">
         <p className="eyebrow">Sinh hoạt dòng họ · Báo cáo theo quyền</p>
         <h1>Minh bạch quỹ</h1>
         <p className="page-lede">Số tiền hiển thị dưới dạng VND nguyên số. Đây là sổ nội bộ minh họa, không phải đồng bộ ngân hàng hay báo cáo tài chính bên ngoài.</p>

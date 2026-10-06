@@ -49,7 +49,7 @@ export function PlaceStateCard({ status }: { status: PlaceListState }) {
 export function PlaceIndex({ places }: { places: readonly PlaceRecord[] }) {
   return (
     <SiteShell active="more">
-      <main id="main-content" className="container page place-page">
+      <main id="main-content" tabIndex={-1} className="container page place-page">
         <p className="eyebrow">Không gian tưởng niệm · Theo quyền truy cập</p>
         <h1>Nhà thờ và địa điểm</h1>
         <p className="page-lede">Địa điểm thờ tự, khu mộ và nơi lưu dấu được ghi nhận riêng với địa chỉ nhà của người đang sống. Tọa độ chỉ hiện khi có quyền phù hợp.</p>
@@ -71,7 +71,7 @@ export function PlaceDetail({ place }: { place: PlaceRecord }) {
   const directions = demoDirections.find((item) => item.placeId === place.id);
   return (
     <SiteShell active="more">
-      <main id="main-content" className="container page place-page">
+      <main id="main-content" tabIndex={-1} className="container page place-page">
         <Link className="back-link" href="/dia-diem">← Về danh sách địa điểm</Link>
         <article className="place-detail-card">
           <p className="eyebrow">{kindLabels[place.kind]}</p>

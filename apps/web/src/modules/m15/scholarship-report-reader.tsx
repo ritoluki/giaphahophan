@@ -39,7 +39,7 @@ function StateCard({ state }: { state: Exclude<ScholarshipReportState, "ready"> 
 export function ScholarshipReportReader({ report = demoScholarshipReport, state = "ready" }: { report?: ScholarshipReportRecord | null; state?: ScholarshipReportState }) {
   return (
     <AdminShell>
-      <main id="main-content" className="container page scholarship-report-page">
+      <main id="main-content" tabIndex={-1} className="container page scholarship-report-page">
         <p className="eyebrow">Quản trị · Báo cáo khuyến học</p>
         <h1>Tổng hợp hỗ trợ</h1>
         <p className="page-lede">Đối chiếu award với bút toán đã posted trong một kỳ. Báo cáo chỉ trả projection được phép, không phải xác nhận kiểm toán hay đồng bộ ngân hàng.</p>

@@ -77,7 +77,7 @@ function formatDeadline(value: string | null) {
 export function ScholarshipReader({ program = demoScholarshipProgram, application = demoScholarshipApplication, award = demoScholarshipAward }: { program?: ScholarshipProgramRecord; application?: ScholarshipApplicationRecord | null; award?: ScholarshipAwardRecord | null }) {
   return (
     <SiteShell active="more">
-      <main id="main-content" className="container page scholarship-page">
+      <main id="main-content" tabIndex={-1} className="container page scholarship-page">
         <p className="eyebrow">Khuyến học · Nội dung theo quyền</p>
         <h1>Chương trình khuyến học</h1>
         <p className="page-lede">Nơi dòng họ cùng khích lệ việc học. Tiêu chí và hạn nộp được công bố rõ; hồ sơ và minh chứng chỉ hiển thị cho đúng người.</p>

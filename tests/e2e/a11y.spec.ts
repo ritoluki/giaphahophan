@@ -3,12 +3,28 @@ import { expect, test } from "@playwright/test";
 
 const scanRoutes = [
   "/",
+  "/gioi-thieu",
   "/tra-cuu",
   "/gia-pha",
+  "/quan-he",
   "/lich-ho",
   "/tu-lieu",
+  "/them",
+  "/dong-gop/moi",
+  "/quy-ho",
+  "/khuyen-hoc",
+  "/tin-ho",
+  "/tin-ho/giu-gin-nguon-coi",
+  "/dia-diem",
+  "/dia-diem/a3500000-0000-4000-8000-000000000001",
+  "/quan-tri",
+  "/quan-tri/khuyen-hoc",
+  "/quan-tri/thanh-vien",
   "/quan-tri/xuat-lieu",
   "/quan-tri/nhap-lieu",
+  "/dang-nhap",
+  "/quen-mat-khau",
+  "/thiet-lap-mfa",
 ];
 const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
