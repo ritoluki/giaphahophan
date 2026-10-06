@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { ExportJob, ExportProjection } from "@phan/contracts";
 import {
   processOneExport,
@@ -7,6 +7,7 @@ import {
   type ExportProcessingStore,
   type ExportArtifact,
 } from "./export-processor";
+import { chromiumSandboxEnabled } from "./export-book-pdf";
 
 const personId = "a6600000-0000-4000-8000-000000000001";
 const treeId = "a6600000-0000-4000-8000-000000000002";
@@ -50,6 +51,14 @@ class Store implements ExportProcessingStore {
 }
 
 describe("M16 export worker orchestration", () => {
+  it("keeps Chromium sandbox mandatory outside local synthetic demo mode", () => {
+    expect(chromiumSandboxEnabled({ APP_ENV: "development", DATA_MODE: "demo" })).toBe(false);
+    expect(chromiumSandboxEnabled({ APP_ENV: "test", DATA_MODE: "demo" })).toBe(false);
+    expect(chromiumSandboxEnabled({ APP_ENV: "staging", DATA_MODE: "demo" })).toBe(true);
+    expect(chromiumSandboxEnabled({ APP_ENV: "production", DATA_MODE: "real" })).toBe(true);
+    expect(chromiumSandboxEnabled({ APP_ENV: "production", DATA_MODE: "demo" })).toBe(true);
+  });
+
   it("serializes only the reauthorized projection and persists private GEDCOM plus JSON sidecar metadata", async () => {
     const store = new Store();
     const result = await processOneExport(store, "worker-synthetic");
@@ -81,12 +90,29 @@ describe("M16 export worker orchestration", () => {
     expect(store.failedCodes).toEqual(["EXPORT_PROJECTION_CONTEXT_MISMATCH"]);
   });
 
-  it("does not call unsupported PDF rendering a successful export", async () => {
+  it("renders a private book PDF in Chromium with the authorized projection", async () => {
+    vi.stubEnv("APP_ENV", "test");
+    vi.stubEnv("DATA_MODE", "demo");
     const store = new Store();
     store.claim = async () => ({ ...await Store.prototype.claim.call(store, "worker-synthetic"), job: { ...job, format: "book_pdf" } });
-    expect(await processOneExport(store, "worker-synthetic")).toEqual({ status: "failed", jobId: job.id, errorCode: "EXPORT_RENDERER_NOT_IMPLEMENTED" });
+    try {
+      expect(await processOneExport(store, "worker-synthetic")).toEqual({ status: "completed", jobId: job.id, artifactCount: 1 });
+      expect(store.uploaded).toHaveLength(1);
+      expect(store.uploaded[0]?.objectPath).toBe(`${treeId}/${job.id}/primary.pdf`);
+      expect(store.uploaded[0]?.contentType).toBe("application/pdf");
+      expect(new TextDecoder().decode(store.uploaded[0]?.content.slice(0, 5))).toBe("%PDF-");
+      expect(store.completedInputs[0]?.artifacts[0]?.sizeBytes).toBe(store.uploaded[0]?.sizeBytes);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  }, 15_000);
+
+  it("never claims media packaging succeeded while private media projection is not implemented", async () => {
+    const store = new Store();
+    store.claim = async () => ({ ...await Store.prototype.claim.call(store, "worker-synthetic"), job: { ...job, includeMedia: true } });
+    expect(await processOneExport(store, "worker-synthetic")).toEqual({ status: "failed", jobId: job.id, errorCode: "EXPORT_MEDIA_PACKAGING_NOT_IMPLEMENTED" });
     expect(store.uploaded).toEqual([]);
-    expect(store.failedCodes).toEqual(["EXPORT_RENDERER_NOT_IMPLEMENTED"]);
+    expect(store.failedCodes).toEqual(["EXPORT_MEDIA_PACKAGING_NOT_IMPLEMENTED"]);
   });
 
   it("reconciles an upload whose remote write succeeded but response failed", async () => {

@@ -12,7 +12,9 @@
     "@phan/config": "workspace:*",
     "@phan/contracts": "workspace:*",
     "@phan/domain": "workspace:*",
+    "@phan/ui": "workspace:*",
     "@supabase/supabase-js": "2.57.0",
+    "playwright": "1.55.1",
     "zod": "4.1.5"
   },
   "devDependencies": {

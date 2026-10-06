@@ -1,7 +1,8 @@
 import Papa from "papaparse";
 import { describe, expect, it } from "vitest";
 import { exportProjectionSchema, exportRequestSchema, type ExportProjection } from "@phan/contracts";
-import { serializeExportCsv, serializeExportGedcom551, serializeExportGedcom7, serializeExportJson } from "./m16-export";
+import { serializeExportCsv, serializeExportGedcom551, serializeExportGedcom7, serializeExportJson, serializeExportSvg } from "./m16-export";
+import { buildExportChartPages } from "./m16-export-chart";
 import { dryRunGedcomImport } from "./m16-gedcom";
 
 const personId = "a6600000-0000-4000-8000-000000000001";
@@ -122,5 +123,32 @@ describe("M16-06 authorized projection serialization", () => {
     expect(result.content).not.toContain("\u0001");
     expect(JSON.parse(result.sidecarContent ?? "null").people[0].displayName).toBe("Tên\u0001hư cấu");
     expect(result.warnings).toContain("gedcom_control_characters_replaced_json_sidecar_preserves_original");
+  });
+  it("renders escaped, paginated SVG sheets with explicit relationship kinds and preserves all projected people", () => {
+    const input = projection(); input.scope = { kind: "tree" };
+    input.people[0]!.displayName = `<script>alert("x")</script> & Tên`;
+    for (let index = 2; index <= 33; index += 1) input.people.push({
+      id: `a6600000-0000-4000-8000-${String(index).padStart(12, "0")}`,
+      version: 1, code: `DEMO-${index}`, displayName: `Người tổng hợp ${index}`, names: [], recordedSex: null,
+      lifeStatus: null, facts: [],
+    });
+    input.parentLinks = [{ id: "a6600000-0000-4000-8000-000000000034", parentId: input.people[0]!.id, childId: input.people[1]!.id, kind: "adoptive", status: "disputed" }];
+    const pages = buildExportChartPages(input);
+    expect(pages.length).toBeGreaterThanOrEqual(3);
+    const svg = serializeExportSvg(input);
+    expect(svg.extension).toBe("svg");
+    expect(svg.mimeType).toContain("image/svg+xml");
+    expect(svg.content).toContain("&lt;script&gt;");
+    expect(svg.content).not.toContain("<script>");
+    expect(svg.content).toContain("adoptive · disputed");
+    for (const person of input.people) expect(svg.content).toContain(person.code);
+    expect(svg.warnings).toContain("svg_is_paginated_two_sheets_per_row");
+  });
+  it("replaces XML-forbidden controls in SVG and reports the loss explicitly", () => {
+    const input = projection(); input.people[0]!.displayName = "Tên\u0001 tổng hợp";
+    const result = serializeExportSvg(input);
+    expect(result.content).not.toContain("\u0001");
+    expect(result.content).toContain("\uFFFD");
+    expect(result.warnings).toContain("svg_invalid_xml_controls_replaced_with_unicode_replacement_character");
   });
 });

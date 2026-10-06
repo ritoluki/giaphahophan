@@ -10,8 +10,12 @@ import {
   serializeExportGedcom551,
   serializeExportGedcom7,
   serializeExportJson,
+  serializeExportSvg,
   type SerializedExport,
 } from "@phan/domain";
+import { renderExportBookPdf } from "./export-book-pdf";
+import { ExportProcessingError } from "./export-errors";
+export { ExportProcessingError } from "./export-errors";
 
 export type ExportArtifact = {
   readonly objectPath: string;
@@ -53,29 +57,23 @@ export type ExportProcessResult =
   | { readonly status: "cancelled_or_lease_lost"; readonly jobId: string }
   | { readonly status: "failed"; readonly jobId: string; readonly errorCode: string };
 
-export class ExportProcessingError extends Error {
-  constructor(readonly code: string) {
-    super(code);
-    this.name = "ExportProcessingError";
-  }
-}
+type ProcessedExport = Omit<SerializedExport, "content"> & { readonly content: string | Uint8Array };
 
-function serialize(format: ExportJob["format"], projection: ExportProjection): SerializedExport {
+async function serialize(format: ExportJob["format"], projection: ExportProjection): Promise<ProcessedExport> {
   switch (format) {
     case "canonical_json": return serializeExportJson(projection);
     case "csv": return serializeExportCsv(projection);
     case "gedcom_551": return serializeExportGedcom551(projection);
     case "gedcom_7": return serializeExportGedcom7(projection);
-    case "book_pdf":
-    case "svg":
-      throw new ExportProcessingError("EXPORT_RENDERER_NOT_IMPLEMENTED");
+    case "book_pdf": return { content: await renderExportBookPdf(projection), mimeType: "application/pdf", extension: "pdf", warnings: [] };
+    case "svg": return serializeExportSvg(projection);
   }
 }
 
-function artifact(lease: ExportLease, suffix: string, contentType: string, content: string): ExportArtifact {
+function artifact(lease: ExportLease, suffix: string, contentType: string, content: string | Uint8Array): ExportArtifact {
   const jobId = lease.job.id;
   const objectPath = `${lease.job.treeId}/${jobId}/${suffix}`;
-  const bytes = new TextEncoder().encode(content);
+  const bytes = typeof content === "string" ? new TextEncoder().encode(content) : content;
   const digest = createHash("sha256").update(bytes).digest("hex");
   return {
     objectPath,
@@ -87,10 +85,10 @@ function artifact(lease: ExportLease, suffix: string, contentType: string, conte
   };
 }
 
-function buildArtifacts(lease: ExportLease, projectionInput: unknown): {
+async function buildArtifacts(lease: ExportLease, projectionInput: unknown): Promise<{
   readonly artifacts: readonly ExportArtifact[];
   readonly warnings: readonly string[];
-} {
+}> {
   const job = exportJobSchema.parse(lease.job);
   const projection = exportProjectionSchema.parse(projectionInput);
   if (projection.treeId !== job.treeId || projection.policyVersion !== job.policyVersion
@@ -98,7 +96,8 @@ function buildArtifacts(lease: ExportLease, projectionInput: unknown): {
     throw new ExportProcessingError("EXPORT_PROJECTION_CONTEXT_MISMATCH");
   }
 
-  const output = serialize(job.format, projection);
+  if (job.includeMedia) throw new ExportProcessingError("EXPORT_MEDIA_PACKAGING_NOT_IMPLEMENTED");
+  const output = await serialize(job.format, projection);
   const artifacts = [artifact(lease, `primary.${output.extension}`, output.mimeType, output.content)];
   if (output.sidecarContent !== undefined && output.sidecarExtension !== undefined && output.sidecarMimeType !== undefined) {
     artifacts.push(artifact(lease, `sidecar.${output.sidecarExtension}`, output.sidecarMimeType, output.sidecarContent));
@@ -119,7 +118,7 @@ export async function processOneExport(
       await store.removePrivateArtifacts(lease, lease.cleanupPaths);
     }
     const projection = await store.loadCurrentAuthorizedProjection(lease);
-    const built = buildArtifacts(lease, projection);
+    const built = await buildArtifacts(lease, projection);
     for (const item of built.artifacts) {
       // Track before the remote write: a timeout can occur after Storage accepted bytes.
       objectPaths.push(item.objectPath);

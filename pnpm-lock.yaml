@@ -272,9 +272,15 @@ importers:
       '@phan/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@phan/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@supabase/supabase-js':
         specifier: 2.57.0
         version: 2.57.0
+      playwright:
+        specifier: 1.55.1
+        version: 1.55.1
       zod:
         specifier: 4.1.5
         version: 4.1.5
@@ -303,6 +309,9 @@ importers:
       '@phan/lunar':
         specifier: workspace:*
         version: link:../lunar
+      '@phan/ui':
+        specifier: workspace:*
+        version: link:../ui
       papaparse:
         specifier: 5.5.3
         version: 5.5.3

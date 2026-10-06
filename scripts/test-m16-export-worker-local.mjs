@@ -5,6 +5,8 @@ import { spawnSync } from "node:child_process";
 
 const root = resolve(import.meta.dirname, "..");
 const container = "supabase_db_phan-gia-pha-local";
+process.env.APP_ENV = "test";
+process.env.DATA_MODE = "demo";
 const requireWorker = createRequire(resolve(root, "apps/worker/package.json"));
 const { createClient } = requireWorker("@supabase/supabase-js");
 const { processOneExport } = await import("../apps/worker/src/export-processor.ts");
@@ -46,7 +48,11 @@ const actorId = randomUUID();
 const sessionId = randomUUID();
 const treeId = randomUUID();
 const membershipId = randomUUID();
-const jobId = randomUUID();
+const jobs = [
+  { id: randomUUID(), dbFormat: "json", resultFormat: "canonical_json" },
+  { id: randomUUID(), dbFormat: "pdf", resultFormat: "book_pdf" },
+  { id: randomUUID(), dbFormat: "svg", resultFormat: "svg" },
+];
 const workerId = randomUUID();
 const email = `m16-worker-${randomUUID()}@synthetic.test`;
 const service = createClient(env.API_URL, env.SERVICE_ROLE_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
@@ -59,7 +65,7 @@ const userClient = createClient(env.API_URL, env.ANON_KEY, {
   auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   global: { headers: { Authorization: `Bearer ${userJwt}` } },
 });
-const objectPath = `${treeId}/${jobId}/primary.json`;
+const objectPaths = jobs.map(({ id, dbFormat }) => `${treeId}/${id}/primary.${dbFormat === "json" ? "json" : dbFormat}`);
 let created = false;
 
 try {
@@ -76,36 +82,47 @@ values(${sql(treeId)},${sql(membershipId)},${sql(actorId)},'exports.bulk');
 select set_config('request.jwt.claim.sub',${sql(actorId)},true);
 select set_config('request.jwt.claims',${sql(JSON.stringify({ sub: actorId, role: "authenticated", aal: "aal2", session_id: sessionId }))},true);
 insert into private.export_jobs(id,tree_id,created_by,requested_by,purpose,format,scope,policy_version)
-select ${sql(jobId)},id,${sql(actorId)},${sql(actorId)},'Synthetic local worker E2E','json','{"kind":"tree"}'::jsonb,policy_version
-from private.trees where id=${sql(treeId)};
+select fixtures.id,t.id,${sql(actorId)},${sql(actorId)},'Synthetic local worker E2E',fixtures.format,'{"kind":"tree"}'::jsonb,t.policy_version
+from private.trees t cross join (values ${jobs.map((item) => `(${sql(item.id)}::uuid,${sql(item.dbFormat)}::text)`).join(",")}) fixtures(id,format)
+where t.id=${sql(treeId)};
 commit;
 `);
   assert(setup.status === 0, "synthetic worker fixture setup failed");
   created = true;
 
   const store = new SupabaseExportProcessingStore(service);
-  const result = await processOneExport(store, workerId);
-  assert(result.status === "completed" && result.artifactCount === 1, `local worker did not complete synthetic export (${result.status}${result.status === "failed" ? `:${result.errorCode}` : ""})`);
+  const completedJobs = new Map();
+  for (let index = 0; index < jobs.length; index += 1) {
+    const result = await processOneExport(store, workerId);
+    assert(result.status === "completed" && result.artifactCount === 1, `local worker did not complete synthetic render (${result.status}${result.status === "failed" ? `:${result.errorCode}` : ""})`);
+    completedJobs.set(result.jobId, result);
+  }
+  assert(jobs.every(({ id }) => completedJobs.has(id)), "local worker did not render the complete JSON/PDF/SVG fixture set");
 
-  const { data: manifest, error: manifestError } = await userClient.schema("api").rpc("export_download_manifest", { p_job_id: jobId });
-  assert(!manifestError && Array.isArray(manifest?.files) && manifest.files.length === 1, "authenticated same-session download manifest denied");
-  assert(manifest.files[0].objectPath === objectPath, "download manifest did not match the job-scoped object path");
-  const { data: downloaded, error: downloadError } = await userClient.storage.from("export-artifacts").download(objectPath);
-  assert(!downloadError && downloaded instanceof Blob, "user-session private Storage download failed");
-  const bytes = Buffer.from(await downloaded.arrayBuffer());
-  // Hash the retrieved bytes using the manifest algorithm, without exposing the content to logs.
-  const actualHash = createHash("sha256").update(bytes).digest("hex");
-  assert(bytes.byteLength === manifest.files[0].sizeBytes && timingSafeEqual(Buffer.from(actualHash), Buffer.from(manifest.files[0].sha256)), "downloaded artifact size/hash did not match its committed manifest");
+  for (const [index, fixture] of jobs.entries()) {
+    const path = objectPaths[index];
+    const { data: manifest, error: manifestError } = await userClient.schema("api").rpc("export_download_manifest", { p_job_id: fixture.id });
+    assert(!manifestError && Array.isArray(manifest?.files) && manifest.files.length === 1, "authenticated same-session download manifest denied");
+    assert(manifest.files[0].objectPath === path, "download manifest did not match the job-scoped object path");
+    const { data: downloaded, error: downloadError } = await userClient.storage.from("export-artifacts").download(path);
+    assert(!downloadError && downloaded instanceof Blob, "user-session private Storage download failed");
+    const bytes = Buffer.from(await downloaded.arrayBuffer());
+    const actualHash = createHash("sha256").update(bytes).digest("hex");
+    assert(bytes.byteLength === manifest.files[0].sizeBytes && timingSafeEqual(Buffer.from(actualHash), Buffer.from(manifest.files[0].sha256)), "downloaded artifact size/hash did not match its committed manifest");
+    if (fixture.resultFormat === "book_pdf") assert(bytes.subarray(0, 5).toString("ascii") === "%PDF-", "Chromium output is not a PDF");
+    if (fixture.resultFormat === "svg") assert(bytes.toString("utf8", 0, 4) === "<svg", "chart output is not an SVG document");
+    if (fixture.resultFormat === "canonical_json") assert(JSON.parse(bytes.toString("utf8")).schemaVersion === "phan-export/1", "JSON export payload schema mismatch");
+  }
 
   const denied = await createClient(env.API_URL, env.ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } })
     .schema("api").rpc("export_worker_claim", { p_worker_id: randomUUID(), p_lease_seconds: 120 });
   assert(denied.error !== null, "anonymous client unexpectedly claimed an export job");
-  console.log("PASS local M16 worker HTTP/Storage E2E: service-role RPC claim, authorized projection, private upload, stored-manifest completion, exact-session download manifest, authenticated private-object download and byte hash/size; anonymous worker RPC denied. Synthetic DB rows and object cleaned up.");
+  console.log("PASS local M16 worker HTTP/Storage E2E: service-role RPC claim, authorized projection, private JSON/PDF/SVG renders and uploads, stored-manifest completion, exact-session download manifests, authenticated private-object byte/hash verification; anonymous worker RPC denied. Synthetic DB rows and objects cleaned up.");
 } finally {
-  await service.storage.from("export-artifacts").remove([objectPath]).catch(() => undefined);
+  await service.storage.from("export-artifacts").remove(objectPaths).catch(() => undefined);
   if (created) {
     const cleanup = psql(`begin;
-delete from private.export_jobs where id=${sql(jobId)};
+delete from private.export_jobs where id in (${jobs.map(({ id }) => sql(id)).join(",")});
 delete from private.outbox where tree_id=${sql(treeId)};
 delete from private.audit_events where tree_id=${sql(treeId)};
 delete from private.idempotency_records where tree_id=${sql(treeId)};

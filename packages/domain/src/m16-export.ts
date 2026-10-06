@@ -1,8 +1,9 @@
 import Papa from "papaparse";
 import { exportProjectionSchema, type ExportProjection } from "@phan/contracts";
+import { serializeExportSvgChart } from "./m16-export-chart";
 
 export type SerializedExport = {
-  readonly content: string; readonly mimeType: string; readonly extension: "json" | "csv" | "ged";
+  readonly content: string; readonly mimeType: string; readonly extension: "json" | "csv" | "ged" | "svg" | "pdf";
   readonly sidecarContent?: string;
   readonly sidecarMimeType?: "application/json; charset=utf-8";
   readonly sidecarExtension?: "json";
@@ -222,3 +223,8 @@ function serializeGedcom(input: unknown, version: GedcomVersion): SerializedExpo
 
 export function serializeExportGedcom551(input: unknown): SerializedExport { return serializeGedcom(input, "5.5.1"); }
 export function serializeExportGedcom7(input: unknown): SerializedExport { return serializeGedcom(input, "7.0"); }
+
+export function serializeExportSvg(input: unknown): SerializedExport {
+  const result = serializeExportSvgChart(input);
+  return { ...result, mimeType: "image/svg+xml; charset=utf-8", extension: "svg" };
+}

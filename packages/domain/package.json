@@ -13,6 +13,7 @@
   "dependencies": {
     "@phan/contracts": "workspace:*",
     "@phan/lunar": "workspace:*",
+    "@phan/ui": "workspace:*",
     "papaparse": "5.5.3",
     "zod": "4.1.5"
   },
