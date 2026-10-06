@@ -25,6 +25,8 @@ Chủ dự án tạo/đứng tên repository, cloud, domain, email và bật MFA
 ## H3 — Quản trị dữ liệu
 Chỉ định ít nhất người nhập và người duyệt độc lập; chốt người được xem dữ liệu sống/trẻ em, publication consent, lịch giỗ tháng nhuận, tài liệu có thể xử lý ở đâu. Hỏi chỉ những điểm tư liệu chưa có câu trả lời.
 
+2026-10-06 — Cần chốt trước khi triển khai M16-06 `includeMedia`: xác nhận có áp dụng quy tắc “chỉ đóng gói asset sau khi người duyệt độc lập đã liệt kê/kiểm tra mọi người xuất hiện và có consent hợp lệ cho đúng audience/scope” hay không; nếu có, ai/role nào được làm reviewer và asset chưa rõ/thiếu consent phải bị loại kèm cảnh báo hay làm cả export thất bại. Khuyến nghị an toàn: loại asset không đủ bằng chứng, lưu quyết định duyệt theo version; không xem liên kết `asset → person` là bằng chứng người đó là người duy nhất trong ảnh. Căn cứ `docs/13_MEDIA_CONTENT_PLACES.md`, `docs/10_AUTH_PERMISSIONS_PRIVACY.md`; hiện media export vẫn fail-closed. Không hỏi lại các phần H3 không liên quan cho tới khi chạm phạm vi.
+
 ## H4 — Production
 Duyệt exact release manifest, launch mode demo/real, tên miền và rollback. Không duyệt chung chung “cứ deploy” cho mọi release tương lai.
 
