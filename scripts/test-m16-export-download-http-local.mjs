@@ -12,6 +12,7 @@ const dbContainer = "supabase_db_phan-gia-pha-local";
 process.env.APP_ENV = "test";
 process.env.DATA_MODE = "demo";
 const requireWorker = createRequire(resolve(root, "apps/worker/package.json"));
+const { chromium } = requireWorker("playwright");
 const { createClient } = requireWorker("@supabase/supabase-js");
 const { processOneExport } = await import("../apps/worker/src/export-processor.ts");
 const { SupabaseExportProcessingStore } = await import("../apps/worker/src/supabase-export-store.ts");
@@ -145,6 +146,29 @@ try {
   }
   assert(ready, "Standalone Next build did not become ready on the reserved loopback port");
 
+  const browser = await chromium.launch({ headless: true, chromiumSandbox: false });
+  try {
+    const page = await browser.newPage();
+    await page.route("**/*", (route) => new URL(route.request().url()).origin === origin ? route.continue() : route.abort("blockedbyclient"));
+    const home = await page.goto(`${origin}/`, { waitUntil: "networkidle" });
+    assert(home?.ok(), "Local homepage did not render for font verification");
+    const fonts = await page.evaluate(async () => {
+      const sans = await document.fonts.load('400 17px "Noto Sans Variable"', "Tiếng Việt");
+      const serif = await document.fonts.load('500 32px "Noto Serif Variable"', "Phả đồ Việt");
+      const heading = document.querySelector("h1");
+      return {
+        sansLoaded: sans.length > 0 && document.fonts.check('400 17px "Noto Sans Variable"', "Tiếng Việt"),
+        serifLoaded: serif.length > 0 && document.fonts.check('500 32px "Noto Serif Variable"', "Phả đồ Việt"),
+        bodyFamily: getComputedStyle(document.body).fontFamily,
+        headingFamily: heading ? getComputedStyle(heading).fontFamily : ""
+      };
+    });
+    assert(fonts.sansLoaded && fonts.serifLoaded, `Self-hosted Vietnamese Noto web fonts did not load in Chromium (${JSON.stringify(fonts)})`);
+    assert(fonts.bodyFamily.includes("Noto Sans Variable") && fonts.headingFamily.includes("Noto Serif Variable"), "Approved Noto font families are not applied to body and page heading");
+  } finally {
+    await browser.close();
+  }
+
   const created = await service.auth.admin.createUser({ email, password, email_confirm: true });
   assert(!created.error && created.data.user, "Synthetic local auth user creation failed");
   createdUser = true;
@@ -200,7 +224,7 @@ commit;`);
   assert(downloaded.headers.get("content-type") === "application/pdf" && downloaded.headers.get("x-content-type-options") === "nosniff", "Next download response MIME/security headers mismatch");
   assert(downloaded.headers.get("cache-control") === "private, no-store" && downloaded.headers.get("content-disposition")?.includes(`${jobId}-primary.pdf`), "Next download was cacheable or lacked attachment disposition");
   assert(bytes.subarray(0, 5).toString("ascii") === "%PDF-" && Number(downloaded.headers.get("content-length")) === bytes.byteLength, "Next BFF returned invalid PDF bytes or length");
-  console.log("PASS local authenticated Next BFF download E2E: standalone production build, cookie login, synthetic MFA AAL2, CSRF-protected PDF job, local worker/private Storage, exact-session authenticated GET, MIME/no-store/attachment/nosniff/length and PDF signature; anonymous access 401 and unavailable sidecar 404. Synthetic user/tree/job/object cleaned up.");
+  console.log("PASS local authenticated Next BFF download E2E: standalone production build with self-hosted Vietnamese Noto Sans/Serif, Chromium font loading + applied-family check, cookie login, synthetic MFA AAL2, CSRF-protected PDF job, local worker/private Storage, exact-session authenticated GET, MIME/no-store/attachment/nosniff/length and PDF signature; anonymous access 401 and unavailable sidecar 404. Synthetic user/tree/job/object cleaned up.");
 } finally {
   if (objectPath) await service.storage.from("export-artifacts").remove([objectPath]).catch(() => undefined);
   if (jobId) {

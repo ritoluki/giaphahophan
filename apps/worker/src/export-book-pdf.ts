@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { chromium } from "playwright";
 import { exportProjectionSchema, type ExportProjection } from "@phan/contracts";
 import { buildExportChartPages } from "@phan/domain";
@@ -7,6 +9,28 @@ import { ExportProcessingError } from "./export-errors";
 const MAX_HTML_BYTES = 64 * 1024 * 1024;
 const MAX_PDF_BYTES = 96 * 1024 * 1024;
 const MAX_RENDER_TEXT_BYTES = 8 * 1024 * 1024;
+const require = createRequire(import.meta.url);
+
+function embeddedFont(packageName: string, fileName: string): string {
+  const path = require.resolve(`${packageName}/files/${fileName}`);
+  return `data:font/woff2;base64,${readFileSync(path).toString("base64")}`;
+}
+
+const fontSubsets = [
+  ["latin", "U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD"],
+  ["latin-ext", "U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF"],
+  ["vietnamese", "U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB"],
+] as const;
+
+const embeddedPdfFontCss = ["noto-sans", "noto-serif"].flatMap((font) => fontSubsets.map(([subset, range]) => {
+  const family = font === "noto-sans" ? "Noto Sans Variable" : "Noto Serif Variable";
+  return `@font-face{font-family:"${family}";font-style:normal;font-weight:100 900;src:url("${embeddedFont(`@fontsource-variable/${font}`, `${font}-${subset}-wght-normal.woff2`)}") format("woff2");unicode-range:${range}}`;
+})).join("");
+const fontLicenseFiles = ["noto-sans", "noto-serif"].map((font) =>
+  readFileSync(require.resolve(`@fontsource-variable/${font}/LICENSE`), "utf8")
+);
+const commonFontLicense = fontLicenseFiles[0]?.slice(fontLicenseFiles[0].indexOf("This Font Software is licensed")) ?? "";
+const embeddedFontLicense = `${fontLicenseFiles.map((license) => license.split(/\r?\n/, 1)[0]).join("\n")}\n\n${commonFontLicense}`;
 
 export function chromiumSandboxEnabled(env: NodeJS.ProcessEnv): boolean {
   // Production/staging must retain Chromium's sandbox; only local synthetic demo work is unsandboxed.
@@ -87,6 +111,15 @@ function renderBookHtml(projection: ExportProjection): string {
 </style></head><body><section class="cover"><p class="eyebrow">GIA PHẢ · GIA ĐÌNH</p><h1>Sách gia phả</h1><p>${escapeHtml(scope)}</p><p>${projection.people.length} hồ sơ · ${projection.parentLinks.length} quan hệ cha mẹ – con · ${projection.unions.length} nhóm quan hệ</p><p class="meta">Ngày biên soạn: ${date}${projection.isDemo ? " · DỮ LIỆU TỔNG HỢP" : ""}</p></section><section class="contents"><h2>Mục lục</h2><ol>${contents || "<li>Chưa có hồ sơ trong phạm vi xuất</li>"}</ol></section>${people}<section class="source-list"><h2>Nguồn tư liệu trong phạm vi xuất</h2><ul>${sources || "<li>Không có nguồn tư liệu được phép hiển thị.</li>"}</ul><p class="muted">Ngày biên soạn: ${date} · ${escapeHtml(scope)}</p></section>${charts}</body></html>`;
 }
 
+export function createExportBookHtml(projection: ExportProjection): string {
+  return renderBookHtml(projection)
+    .replace("font-src 'none'", "font-src data:")
+    .replaceAll('"Noto Sans"', '"Noto Sans Variable"')
+    .replaceAll('"Noto Serif"', '"Noto Serif Variable"')
+    .replace("</style>", `${embeddedPdfFontCss}.font-license{break-before:page;font:6.5pt/1.35 "Noto Sans Variable",Arial,sans-serif}.font-license h2{font:14pt "Noto Serif Variable",Georgia,serif}.font-license pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit}</style>`)
+    .replace("</body>", `<section class="font-license"><h2>Giấy phép phông chữ</h2><pre>${escapeHtml(embeddedFontLicense)}</pre></section></body>`);
+}
+
 export async function renderExportBookPdf(input: unknown): Promise<Uint8Array> {
   const projection = exportProjectionSchema.parse(input);
   let textBytes = Buffer.byteLength(projection.generatedAt, "utf8");
@@ -102,7 +135,7 @@ export async function renderExportBookPdf(input: unknown): Promise<Uint8Array> {
   for (const source of projection.sources) addText(source.title);
   for (const citation of projection.citations) addText(citation.locator);
   if (textBytes > MAX_RENDER_TEXT_BYTES) throw new ExportProcessingError("EXPORT_RENDER_LIMIT_EXCEEDED");
-  const html = renderBookHtml(projection);
+  const html = createExportBookHtml(projection);
   if (Buffer.byteLength(html, "utf8") > MAX_HTML_BYTES) throw new ExportProcessingError("EXPORT_RENDER_LIMIT_EXCEEDED");
   let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined;
   try {

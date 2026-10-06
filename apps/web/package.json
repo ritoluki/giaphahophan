@@ -12,6 +12,8 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
+    "@fontsource-variable/noto-sans": "5.3.0",
+    "@fontsource-variable/noto-serif": "5.3.0",
     "@hookform/resolvers": "5.2.1",
     "@phan/config": "workspace:*",
     "@phan/contracts": "workspace:*",

@@ -7,7 +7,7 @@ import {
   type ExportProcessingStore,
   type ExportArtifact,
 } from "./export-processor";
-import { chromiumSandboxEnabled } from "./export-book-pdf";
+import { chromiumSandboxEnabled, createExportBookHtml } from "./export-book-pdf";
 
 const personId = "a6600000-0000-4000-8000-000000000001";
 const treeId = "a6600000-0000-4000-8000-000000000002";
@@ -59,6 +59,16 @@ describe("M16 export worker orchestration", () => {
     expect(chromiumSandboxEnabled({ APP_ENV: "production", DATA_MODE: "demo" })).toBe(true);
   });
 
+  it("embeds local Vietnamese font subsets and their full OFL notices in book HTML", () => {
+    const html = createExportBookHtml(projection);
+    expect(html).toContain("font-src data:");
+    expect(html).toContain("data:font/woff2;base64,");
+    expect(html).toContain("U+1EA0-1EF9");
+    expect(html).toContain("SIL OPEN FONT LICENSE Version 1.1");
+    expect(html).toContain("NotoSans-Italic");
+    expect(html).toContain("NotoSerif-Italic");
+  });
+
   it("serializes only the reauthorized projection and persists private GEDCOM plus JSON sidecar metadata", async () => {
     const store = new Store();
     const result = await processOneExport(store, "worker-synthetic");
@@ -101,6 +111,8 @@ describe("M16 export worker orchestration", () => {
       expect(store.uploaded[0]?.objectPath).toBe(`${treeId}/${job.id}/primary.pdf`);
       expect(store.uploaded[0]?.contentType).toBe("application/pdf");
       expect(new TextDecoder().decode(store.uploaded[0]?.content.slice(0, 5))).toBe("%PDF-");
+      const pdf = Buffer.from(store.uploaded[0]?.content ?? []).toString("latin1");
+      expect(pdf).toMatch(/\/FontFile[23]?\s+\d+\s+\d+\s+R/);
       expect(store.completedInputs[0]?.artifacts[0]?.sizeBytes).toBe(store.uploaded[0]?.sizeBytes);
     } finally {
       vi.unstubAllEnvs();
