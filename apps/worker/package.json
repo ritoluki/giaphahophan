@@ -9,7 +9,9 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@phan/config": "workspace:*"
+    "@phan/config": "workspace:*",
+    "@phan/contracts": "workspace:*",
+    "@phan/domain": "workspace:*"
   },
   "devDependencies": {
     "tsx": "4.19.2"

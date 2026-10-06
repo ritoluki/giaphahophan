@@ -1,5 +1,7 @@
 # Blockers
 
+2026-10-06 current M16-06 integration gate: `apps/worker/.env.local` is absent; local Supabase CLI status cannot run under the sandbox because it attempts a telemetry write outside workspace and receives Access Denied. No secret values were read or logged. Orchestration unit work continues. Before real local adapter/E2E, project owner should populate ignored `apps/worker/.env.local` with local-only `APP_ENV`, `DATA_MODE`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_DB_URL`, `CSRF_SECRET`; never use hosted production credentials or send secret values in chat. Existing config schema already requires these server variables.
+
 2026-10-06 supersedes prior SCR-33 environment blockers: dependency store installation recovered; pinned RHF/resolvers/TanStack Query installed and verified. Synthetic authenticated browser suite passes against local Supabase. GEDCOM serializer/build now PASS locally. No current owner action; worker/artifacts/download, validator/vendor interoperability and accessibility/device/release gates remain implementation/QA work. Staging/production/real data remain approval-gated.
 
 [SUPERSEDED 2026-10-06] SCR-33 dependency installation and local verification succeeded; its commit `b183c12` is pushed to origin/main. See the current entries above.

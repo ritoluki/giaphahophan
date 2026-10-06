@@ -1,5 +1,11 @@
 # M16-06 permission-bound exports
 
+## Worker orchestration boundary — 2026-10-06
+
+Added `apps/worker/src/export-processor.ts`: a lease-oriented processor validates the job and freshly returned authorized projection, serializes JSON/CSV/GEDCOM formats, creates deterministic tree/job-only private object paths and SHA-256 metadata, and conditionally completes only through an authorization-aware store port. It tracks object paths before remote writes (to clean up ambiguous write timeouts), removes artifacts if cancellation/lease loss wins, and never overwrites a terminal state when failure recording loses the lease. PDF/SVG renderer absence is a typed failure, never fake success. Added 6 worker orchestration tests for sidecar/hash/path, context mismatch, cancellation race, uncertain upload, lease loss, and unsupported PDF.
+
+PASS worker tests24/24 (full worker suite), workspace tests contracts75/domain128/worker24/lunar4/web6, typecheck, lint0 errors/2 existing warnings, verify and diff check. These are port/orchestration tests with explicit in-memory test doubles only. No live database adapter, service-role RPC, pg-boss claim, Storage upload, download authorization or PDF/SVG renderer is implemented or evidenced; M16-06 stays IN_PROGRESS.
+
 ## GEDCOM projection serializer — 2026-10-06
 
 PASS domain-only `serializeExportGedcom551/7` for validated, already permission-filtered projections. Stable file-local opaque xrefs; supported INDI/FAM/name/fact/source/citation subset; 5.5.1 line wrapping with CONC; GEDCOM 7 CONT and initial-@ escaping; Julian date syntax without invented precision; unsupported/lunar fields preserved in a full filtered canonical JSON sidecar with explicit warnings. HUSB/WIFE are structural slots, not gender inference. The serializer does not fetch projections, execute jobs, write artifacts, create ZIPs, or authorize downloads.

@@ -266,6 +266,12 @@ importers:
       '@phan/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@phan/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
+      '@phan/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
     devDependencies:
       tsx:
         specifier: 4.19.2
