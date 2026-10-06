@@ -34,7 +34,7 @@ class Store implements ExportProcessingStore {
   projectionValue: unknown = projection;
 
   async claim(_workerId: string): Promise<ExportLease> {
-    return { job, leaseId: "lease-test", leaseExpiresAt: "2026-10-06T13:00:00Z" };
+    return { job, leaseId: "lease-test", leaseExpiresAt: "2026-10-06T13:00:00Z", cleanupPaths: [] };
   }
   async loadCurrentAuthorizedProjection(_lease: ExportLease): Promise<unknown> { return this.projectionValue; }
   async putPrivateArtifact(_lease: ExportLease, item: ExportArtifact): Promise<void> {
@@ -57,8 +57,8 @@ describe("M16 export worker orchestration", () => {
     expect(store.uploaded.map((item) => item.objectPath)).toEqual([
       `${treeId}/${job.id}/primary.ged`, `${treeId}/${job.id}/sidecar.json`,
     ]);
-    expect(store.uploaded[0]?.contentType).toBe("text/plain; charset=utf-8");
-    expect(store.uploaded[1]?.contentType).toBe("application/json; charset=utf-8");
+    expect(store.uploaded[0]?.contentType).toBe("text/plain");
+    expect(store.uploaded[1]?.contentType).toBe("application/json");
     for (const item of store.uploaded) {
       expect(item.sha256).toBe(createHash("sha256").update(item.content).digest("hex"));
       expect(item.objectPath).not.toContain(personId);

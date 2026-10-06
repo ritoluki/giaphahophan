@@ -1,6 +1,6 @@
 # Các bước chủ dự án thực sự cần tham gia
 
-2026-10-06 — owner decision needed: approve the narrow M16-06 local-demo worker migration described in the latest `state/BLOCKERS.md` entry (service_role-only per-operation RPCs; active auth session/AAL + current membership/capability/policy recheck; outbox event, private bucket and manifest; local synthetic negative tests only). Risk: privileged code bypasses RLS and a policy bug could expose data or falsely complete a private export. Approval does not authorize hosted migration, real data, public access or production deployment. Reply “approve local M16 worker migration” to authorize this exact scope, or decline/request adjustments. No secret values should be shared.
+2026-10-06 — APPROVAL RECORDED: project owner approved “local M16 worker migration” in this conversation. Scope is local Supabase only: migration 0075, service_role-only per-operation worker RPCs, live session/AAL + current membership/capability/policy rechecks, outbox, private bucket/manifest, and synthetic local regression/E2E. Risk remains service_role bypassing RLS if a function is defective. Excludes hosted/cloud migration, real genealogy data, public access, paid services, production deployment and H1–H5 approval. Approval evidence: owner message in this thread; no secret values shared. Local migration has been applied; see `state/BLOCKERS.md` and `reports/M16_PERMISSION_EXPORTS.md` for actual test evidence.
 
 [SUPERSEDED 2026-10-06] A local-only `apps/worker/.env.local` was requested for testing. Supabase CLI can provide its locally generated keys/DB URL transiently during elevated local test runs; no owner-created env or cloud secret is required for one-shot tests. A worker env file is optional if the owner wants to run the worker manually.
 
@@ -8,12 +8,11 @@
 
 2026-10-04: no owner action/env needed for local M16-04 continuation. Scalar apply and reversible row decisions verified with synthetic Docker fixtures; agent continues full-row inspection/relationship mapping. H2/H4/H5 remain separate gates; no real data or production deployment authorized by these tests.
 
-Chưa có hành động nào được đánh dấu đã duyệt. Agent không được tự ghi APPROVED.
+Approval above is narrowly scoped to local M16 worker engineering only. No H1–H5 product, data-governance, staging or production gate is approved by it; do not broaden the decision.
 
 ## Môi trường hiện tại (không phải approval sản phẩm)
 
-- Mở/khởi động Docker Desktop, rồi chạy lại `DOCKER_CONFIG=.docker-config docker version`; không cần gửi secret.
-- Cung cấp Node 24 LTS trong PATH/terminal mới để đóng environment gate. Trong lúc chờ, agent tiếp tục các phần không phụ thuộc DB.
+- 2026-10-06: Node 24.21.0 and local Docker/Supabase are available to the agent for approved local synthetic tests. No owner env or secret is needed for one-shot local work; do not paste secrets into chat. (Older setup requests in this file are superseded.)
 
 ## H1 — Giao diện
 Duyệt bản home, hồ sơ, gia phả mobile, lịch, quản trị. Xem chữ/màu/bố cục trên điện thoại thật. Ghi link/build/screenshot version và điều chỉnh đã chốt.

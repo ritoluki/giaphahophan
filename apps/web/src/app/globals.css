@@ -46,6 +46,7 @@ button, a, input, select { min-height: 44px; }
 .button-primary:hover { background: var(--brand-hover); }
 .button-secondary { background: var(--surface); border: 1px solid var(--brand); color: var(--brand); }
 .button-secondary:hover { background: #FBF1DE; }
+.export-downloads { display: flex; flex-wrap: wrap; gap: .75rem; }
 .search-panel { position: relative; z-index: 1; margin: -1.5rem 1rem 0; padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 8px 24px rgba(41,37,32,.08); }
 .search-panel-compact { margin: 1.5rem 0 0; }
 .search-panel label { display: block; margin-bottom: .4rem; color: var(--ink-muted); font-size: .85rem; font-weight: 700; }

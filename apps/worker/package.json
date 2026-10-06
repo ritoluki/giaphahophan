@@ -4,14 +4,16 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx src/index.ts",
+    "dev": "node --env-file-if-exists=.env.local --import tsx src/index.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@phan/config": "workspace:*",
     "@phan/contracts": "workspace:*",
-    "@phan/domain": "workspace:*"
+    "@phan/domain": "workspace:*",
+    "@supabase/supabase-js": "2.57.0",
+    "zod": "4.1.5"
   },
   "devDependencies": {
     "tsx": "4.19.2"

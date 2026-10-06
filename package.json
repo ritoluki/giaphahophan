@@ -67,6 +67,7 @@
     "test:m16:import": "node scripts/test-m16-import-local.mjs",
     "test:m16:concurrency": "node scripts/test-m16-chunk-concurrency-local.mjs",
     "test:m16:export": "node scripts/test-m16-export-local.mjs",
+    "test:m16:export-worker": "node --import ./apps/worker/node_modules/tsx/dist/loader.mjs scripts/test-m16-export-worker-local.mjs",
     "test:m16:http": "node scripts/test-m16-import-http-local.mjs"
   },
   "devDependencies": {

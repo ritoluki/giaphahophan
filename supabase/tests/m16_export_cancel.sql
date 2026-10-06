@@ -1,6 +1,6 @@
 -- Runs inside the existing synthetic export transaction, after projection checks.
 select set_config('request.jwt.claim.sub','e1600000-0000-4000-8000-000000000001',true);
-select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2","session_id":"e1600000-0000-4000-8000-000000000012"}',true);
 reset role;
 update private.export_jobs set expires_at=clock_timestamp()+interval '1 hour' where id=:'job_id'::uuid;
 select set_config('test.export_job_id',:'job_id',true);
@@ -21,20 +21,20 @@ do $$ declare v_id uuid:=current_setting('test.export_job_id')::uuid; v_a jsonb;
   begin perform pg_temp.export_request('e1610000-0000-4000-8000-000000000001','json','{"kind":"tree"}','Cancellation does not refund quota',gen_random_uuid(),repeat('a',64));
     raise exception 'cancel refunded quota'; exception when sqlstate 'P0010' then null; end;
 end $$;
-select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal1"}',true);
+select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal1","session_id":"e1600000-0000-4000-8000-000000000011"}',true);
 do $$ begin
   begin perform api.export_job_cancel(current_setting('test.export_job_id')::uuid,1,'Synthetic cancellation','e1640000-0000-4000-8000-000000000071',repeat('a',64));
     raise exception 'AAL1 replay accepted'; exception when insufficient_privilege then null; end;
 end $$;
 select set_config('request.jwt.claim.sub','e1600000-0000-4000-8000-000000000002',true);
-select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}',true);
+select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2","session_id":"e1600000-0000-4000-8000-000000000022"}',true);
 do $$ begin
   begin perform api.export_job_cancel(current_setting('test.export_job_id')::uuid,1,'Synthetic cancellation',gen_random_uuid(),repeat('a',64));
     raise exception 'other actor cancelled'; exception when insufficient_privilege then null; end;
 end $$;
 reset role;
 select set_config('request.jwt.claim.sub','e1600000-0000-4000-8000-000000000001',true);
-select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2","session_id":"e1600000-0000-4000-8000-000000000012"}',true);
 update private.memberships set status='revoked' where id='e1620000-0000-4000-8000-000000000001';
 set local role authenticated;
 do $$ begin

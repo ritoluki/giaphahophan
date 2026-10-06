@@ -1,5 +1,15 @@
 # M16-06 permission-bound exports
 
+## Approved local worker and private artifact E2E — 2026-10-06
+
+Owner explicitly approved the narrowly scoped local M16 worker migration in this conversation. Migration0075 was applied to local Supabase only. No hosted/cloud migration, real data, public bucket, paid service or production deployment was authorized or used. The earlier migration source dry-run command unexpectedly committed to the local DB because shell escaping prevented its rollback substitution; this was caught immediately and transparently recorded. No hosted database was involved. Subsequent source corrections were applied to local with narrowly extracted transactional function/grant blocks rather than replaying migrations.
+
+PASS `node scripts/test-m16-export-local.mjs`: synthetic transaction verifies live session/AAL + membership/capability/policy rechecks, bounded claim/projection/artifact manifest, completion, cleanup/outbox, cancel-vs-completion, anonymous/authenticated claim denial, second-live-session download denial and revoked-session/AAL-downgrade/capability/policy fail-closed. The transaction rolled back.
+
+PASS `node --import ./apps/worker/node_modules/tsx/dist/loader.mjs scripts/test-m16-export-worker-local.mjs`: a disposable synthetic owner/session/tree/job exercised the real service-role RPC adapter and worker, private Storage upload, manifest completion, authenticated exact-session manifest and private object download, plus downloaded-byte SHA-256/size validation. Anonymous worker claim was denied. The object, job/tree and synthetic auth user/session were removed. A first real Storage attempt exposed HTTP415 because the worker sent `; charset=utf-8` MIME parameters not accepted by the local bucket allowlist; MIME metadata/headers were normalized and the complete E2E rerun PASS.
+
+PASS contracts75/domain128/worker24/lunar4/web6 (237 tests), worker+web TypeScript typecheck, targeted ESLint and isolated Next production build (55 routes, including `/api/v1/exports/[id]/download`). Storage SDK/RPC download integration is verified; the Next BFF cookie-based route is build-verified but authenticated browser/HTTP E2E remains NOT_RUN. PDF/SVG renderer, media packaging, GEDCOM vendor conformance, full accessibility/device/load, clean-install/staging/production remain NOT_RUN. M16-06 remains IN_PROGRESS; no product scope removed.
+
 ## Accessibility regression slice — 2026-10-06
 
 The export workspace sets `aria-busy` while authorized scope/job/preview reads are loading. An isolated standalone build at `.next-m16-export-a11y` and `tests/e2e/m16-export-restricted.spec.ts` verified the anonymous 320px state exposes the named workspace and sign-in action, but no format form, private preview, or download control, and has no horizontal overflow. Playwright: 1/1 PASS; isolated production build: 55 routes PASS. Workspace tests: contracts75/domain128/worker24/lunar4/web6 PASS; typecheck and verify PASS; lint 0 errors/2 pre-existing warnings. A worker test-double call missing its required synthetic workerId was corrected, discovered by the workspace typecheck.

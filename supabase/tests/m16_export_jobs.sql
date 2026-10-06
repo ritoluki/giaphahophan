@@ -7,6 +7,11 @@ language sql security invoker as $$ select api.export_job_create_v1(p_tree,p_for
 insert into auth.users(instance_id,id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at,raw_app_meta_data,raw_user_meta_data)
 values ('00000000-0000-0000-0000-000000000000','e1600000-0000-4000-8000-000000000001','authenticated','authenticated','m16-export-owner@example.test','',now(),now(),now(),'{}','{}'),
 ('00000000-0000-0000-0000-000000000000','e1600000-0000-4000-8000-000000000002','authenticated','authenticated','m16-export-member@example.test','',now(),now(),now(),'{}','{}');
+insert into auth.sessions(id,user_id,aal) values
+('e1600000-0000-4000-8000-000000000011','e1600000-0000-4000-8000-000000000001','aal1'),
+('e1600000-0000-4000-8000-000000000012','e1600000-0000-4000-8000-000000000001','aal2'),
+('e1600000-0000-4000-8000-000000000021','e1600000-0000-4000-8000-000000000002','aal1'),
+('e1600000-0000-4000-8000-000000000022','e1600000-0000-4000-8000-000000000002','aal2');
 insert into private.trees(id,slug,name,data_mode) values
 ('e1610000-0000-4000-8000-000000000001','m16-export-demo','Synthetic Export','demo'),
 ('e1610000-0000-4000-8000-000000000002','m16-export-other','Synthetic Other','demo');
@@ -16,13 +21,13 @@ insert into private.memberships(id,tree_id,auth_user_id,role,status,person_id,ap
 ('e1620000-0000-4000-8000-000000000001','e1610000-0000-4000-8000-000000000001','e1600000-0000-4000-8000-000000000001','owner','active',null,'e1600000-0000-4000-8000-000000000001'),
 ('e1620000-0000-4000-8000-000000000002','e1610000-0000-4000-8000-000000000001','e1600000-0000-4000-8000-000000000002','member','active','e1630000-0000-4000-8000-000000000001','e1600000-0000-4000-8000-000000000001');
 select set_config('request.jwt.claim.sub','e1600000-0000-4000-8000-000000000001',true);
-select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal1"}',true);
+select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal1","session_id":"e1600000-0000-4000-8000-000000000011"}',true);
 set local role authenticated;
 do $$ begin
  begin perform pg_temp.export_request('e1610000-0000-4000-8000-000000000001','json','{"kind":"tree"}','Synthetic copy',gen_random_uuid(),repeat('a',64));
   raise exception 'AAL1 bulk accepted'; exception when insufficient_privilege then null; end;
 end $$;
-select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2","session_id":"e1600000-0000-4000-8000-000000000012"}',true);
 select pg_temp.export_request('e1610000-0000-4000-8000-000000000001','json','{"kind":"tree"}','Synthetic copy','e1640000-0000-4000-8000-000000000001',repeat('a',64)) value \gset bulk_
 select (:'bulk_value'::jsonb->>'id') id \gset job_
 do $$ declare v_a jsonb; v_b jsonb; begin
@@ -45,7 +50,7 @@ do $$ declare v_a jsonb; v_b jsonb; begin
   raise exception 'quota fourth accepted'; exception when sqlstate 'P0010' then null; end;
 end $$;
 select set_config('request.jwt.claim.sub','e1600000-0000-4000-8000-000000000002',true);
-select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2"}',true);
+select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal2","session_id":"e1600000-0000-4000-8000-000000000022"}',true);
 do $$ begin
  begin perform pg_temp.export_request('e1610000-0000-4000-8000-000000000001','json','{"kind":"tree"}','Member bulk',gen_random_uuid(),repeat('a',64));
   raise exception 'member bulk accepted'; exception when insufficient_privilege then null; end;
@@ -56,6 +61,7 @@ select format('do $b$ begin begin perform api.export_job_state(%L::uuid); raise 
 reset role;
 insert into private.person_claims(tree_id,membership_id,person_id,status,created_by,reviewed_by,reason) values
 ('e1610000-0000-4000-8000-000000000001','e1620000-0000-4000-8000-000000000002','e1630000-0000-4000-8000-000000000001','approved','e1600000-0000-4000-8000-000000000002','e1600000-0000-4000-8000-000000000001','Synthetic approved scope');
+select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal1","session_id":"e1600000-0000-4000-8000-000000000021"}',true);
 set local role authenticated;
 select pg_temp.export_request('e1610000-0000-4000-8000-000000000001','json','{"kind":"personal","personId":"e1630000-0000-4000-8000-000000000001"}','Approved personal copy',gen_random_uuid(),repeat('a',64)) value \gset personal_
 select (:'personal_value'::jsonb->>'id') id \gset personal_job_
@@ -65,7 +71,7 @@ set local role authenticated;
 select format('do $b$ begin begin perform api.export_job_state(%L::uuid); raise exception ''revoked actor read job''; exception when insufficient_privilege then null; end; end $b$;',:'personal_job_id') \gexec
 reset role;
 select set_config('request.jwt.claim.sub','e1600000-0000-4000-8000-000000000001',true);
-select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2","session_id":"e1600000-0000-4000-8000-000000000012"}',true);
 update private.trees set policy_version=policy_version+1 where id='e1610000-0000-4000-8000-000000000001';
 set local role authenticated;
 select format('do $b$ begin begin perform api.export_job_state(%L::uuid); raise exception ''changed policy read job''; exception when insufficient_privilege then null; end; end $b$;',:'job_id') \gexec

@@ -646,7 +646,8 @@ try {
     await page.getByTestId("export-status").filter({ hasText: "Chờ xử lý" }).waitFor();
     await page.getByRole("button", { name: "Xem dữ liệu theo quyền", exact: true }).click();
     await page.getByTestId("export-preview").filter({ hasText: "1 hồ sơ" }).waitFor();
-    assert(await page.getByRole("button", { name: "Tệp chưa sẵn sàng", exact: true }).isDisabled(), "SCR-33 fabricated download availability");
+    assert(await page.getByText("Tệp chỉ xuất hiện sau khi worker lưu artifact riêng tư và DB xác nhận hoàn tất.", { exact: true }).isVisible(), "queued export claimed a downloadable artifact");
+    assert(await page.getByRole("link", { name: /Tải tệp/ }).count() === 0, "queued export exposed a download link");
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "export UI overflow320px");
     await page.screenshot({ path: "reports/m16-export-320.png", fullPage: true });
     await page.getByLabel("Lý do hủy yêu cầu xuất", { exact: true }).fill("Cancel synthetic export through SCR-33");

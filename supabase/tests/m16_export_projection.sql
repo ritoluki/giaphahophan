@@ -41,7 +41,8 @@ insert into private.citations(tree_id,source_id,person_id,locator,quoted_text) v
 ('e1610000-0000-4000-8000-000000000001','e1670000-0000-4000-8000-000000000001','e1630000-0000-4000-8000-000000000002','HIDDEN_TARGET_LOCATOR',null),
 ('e1610000-0000-4000-8000-000000000001','e1670000-0000-4000-8000-000000000002','e1630000-0000-4000-8000-000000000001','HIDDEN_SOURCE_LOCATOR',null);
 select set_config('request.jwt.claim.sub','e1600000-0000-4000-8000-000000000001',true);
-select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2"}',true);
+select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000001","role":"authenticated","aal":"aal2","session_id":"e1600000-0000-4000-8000-000000000012"}',true);
+reset role;
 set local role authenticated;
 select api.export_projection(:'job_id'::uuid) value \gset projection_
 select (jsonb_array_length(:'projection_value'::jsonb->'people')=3
@@ -91,7 +92,7 @@ select jsonb_array_length(api.export_projection(:'public_job_id'::uuid)->'people
   \quit 1
 \endif
 select set_config('request.jwt.claim.sub','e1600000-0000-4000-8000-000000000002',true);
-select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal1"}',true);
+select set_config('request.jwt.claims','{"sub":"e1600000-0000-4000-8000-000000000002","role":"authenticated","aal":"aal1","session_id":"e1600000-0000-4000-8000-000000000021"}',true);
 select jsonb_array_length(api.export_projection(:'personal_job_id'::uuid)->'people')=1 ok \gset personal_projection_
 \if :personal_projection_ok
 \else

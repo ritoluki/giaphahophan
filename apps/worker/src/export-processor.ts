@@ -19,12 +19,14 @@ export type ExportArtifact = {
   readonly contentType: string;
   readonly content: Uint8Array;
   readonly sha256: string;
+  readonly sizeBytes: number;
 };
 
 export type ExportLease = {
   readonly job: ExportJob;
   readonly leaseId: string;
   readonly leaseExpiresAt: string;
+  readonly cleanupPaths: readonly string[];
 };
 
 export interface ExportProcessingStore {
@@ -36,7 +38,7 @@ export interface ExportProcessingStore {
   putPrivateArtifact(lease: ExportLease, artifact: ExportArtifact): Promise<void>;
   /** Must atomically recheck lease, expiry, cancellation and current authorization before completion. */
   completeIfAuthorized(lease: ExportLease, input: {
-    readonly artifacts: readonly Pick<ExportArtifact, "objectPath" | "fileName" | "contentType" | "sha256">[];
+    readonly artifacts: readonly Pick<ExportArtifact, "objectPath" | "fileName" | "contentType" | "sha256" | "sizeBytes">[];
     readonly warnings: readonly string[];
   }): Promise<boolean>;
   /** Conditional on the same lease; accepts only a non-PII machine error code. */
@@ -78,9 +80,10 @@ function artifact(lease: ExportLease, suffix: string, contentType: string, conte
   return {
     objectPath,
     fileName: `phan-gia-pha-${jobId}-${suffix}`,
-    contentType,
+    contentType: contentType.replace(/;\s*charset=utf-8$/i, ""),
     content: bytes,
     sha256: digest,
+    sizeBytes: bytes.byteLength,
   };
 }
 
@@ -112,6 +115,9 @@ export async function processOneExport(
 
   const objectPaths: string[] = [];
   try {
+    if (lease.cleanupPaths.length > 0) {
+      await store.removePrivateArtifacts(lease, lease.cleanupPaths);
+    }
     const projection = await store.loadCurrentAuthorizedProjection(lease);
     const built = buildArtifacts(lease, projection);
     for (const item of built.artifacts) {
@@ -120,7 +126,7 @@ export async function processOneExport(
       await store.putPrivateArtifact(lease, item);
     }
     const completed = await store.completeIfAuthorized(lease, {
-      artifacts: built.artifacts.map(({ objectPath, fileName, contentType, sha256 }) => ({ objectPath, fileName, contentType, sha256 })),
+      artifacts: built.artifacts.map(({ objectPath, fileName, contentType, sha256, sizeBytes }) => ({ objectPath, fileName, contentType, sha256, sizeBytes })),
       warnings: built.warnings,
     });
     if (!completed) {

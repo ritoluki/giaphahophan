@@ -12,7 +12,7 @@ const formatLabels: Record<ExportRequest["format"], string> = {
   gedcom_7: "GEDCOM 7 — subset", book_pdf: "PDF — sách gia phả", svg: "SVG — phả đồ",
 };
 const statusLabels: Record<ExportJob["status"], string> = {
-  queued: "Đã lưu · Chờ xử lý", running: "Đang xử lý", complete: "Đã xử lý", failed: "Xử lý chưa thành công", cancelled: "Đã hủy",
+  queued: "Đã lưu · Chờ xử lý", running: "Đang xử lý", complete: "Đã hoàn tất", failed: "Xử lý chưa thành công", cancelled: "Đã hủy",
 };
 const draftStorageKey = "pgp-export-draft-v1";
 const draftLifetimeMs = 15 * 60 * 1000;
@@ -73,6 +73,7 @@ function ExportWorkflow() {
   const jobQuery = useQuery({
     queryKey: ["m16-export-job", jobId], enabled: Boolean(jobId),
     queryFn: async ({ signal }) => exportJobSchema.parse(await responseData(await fetch("/api/v1/exports/" + jobId, { cache: "no-store", signal }))),
+    refetchInterval: (query) => ["queued", "running"].includes(query.state.data?.status ?? "") ? 3_000 : false,
   });
   const job = jobQuery.isError ? null : jobQuery.data ?? null;
   const previewQuery = useQuery({
@@ -254,7 +255,10 @@ function ExportWorkflow() {
         {job.warnings.length > 0 && <ul>{job.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul>}
         <button type="button" className="button-secondary" disabled={Boolean(pending) || !["queued", "running", "complete"].includes(job.status)} onClick={() => void preview()}>Xem dữ liệu theo quyền</button>
         {projection && <div role="status" data-testid="export-preview"><p>Được phép: {projection.people.length} hồ sơ · {projection.parentLinks.length} quan hệ · {projection.unions.length} gia đình · {projection.citations.length} trích dẫn.</p><p>Không hiển thị số lượng hoặc mã hồ sơ bị ẩn. Preview không phải file hoàn tất.</p></div>}
-        <button type="button" className="button-secondary" disabled>Tệp chưa sẵn sàng</button>
+        {job.status === "complete" ? <div className="export-downloads" aria-label="Tệp xuất đã hoàn tất">
+          <Link className="button-primary" href={`/api/v1/exports/${job.id}/download?file=primary`}>Tải tệp {formatLabels[job.format].split(" — ")[0]}</Link>
+          {(job.format === "gedcom_551" || job.format === "gedcom_7") && <Link className="button-secondary" href={`/api/v1/exports/${job.id}/download?file=sidecar`}>Tải JSON sidecar</Link>}
+        </div> : <p role="status">Tệp chỉ xuất hiện sau khi worker lưu artifact riêng tư và DB xác nhận hoàn tất.</p>}
         {(job.status === "queued" || job.status === "running") && <ExportCancelForm job={job} pending={Boolean(pending) || cancelMutation.isPending} onCancel={cancel} />}
       </>}
     </section>
