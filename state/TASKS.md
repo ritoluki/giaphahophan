@@ -1,5 +1,7 @@
 # Backlog triển khai
 
+2026-10-06 current: local SQL recheck PASS with rolled-back synthetic fixture; CLI-derived local keys remain transient and no owner env action is needed for one-shot tests. M16-06 worker integration now awaits owner approval for narrowly scoped service_role-only security migration after auto-review rejection; see state/BLOCKERS.md. No migration applied; no scope reduced.
+
 2026-10-06 latest M16-06: GEDCOM serializers PASS24 focused tests + isolated standalone build55 routes. Lease-based worker orchestration now PASS6 focused tests/full worker24; workspace tests contracts75/domain128/worker24/lunar4/web6, typecheck/lint/verify PASS. Test doubles only: no live DB authorization/RPC, pg-boss, private Storage or download. Next capability-bound RPC/adapter and worker E2E; no product scope removed.
 
 2026-10-06 latest M16-06: RHF/Zod + scoped TanStack Query integrated; session draft survives reload and is removed only after persisted create succeeds. PASS DB rollback fixture, authenticated browser/HTTP import+export regression, workspace tests/typecheck/lint/verify and standalone55-route build; full evidence in reports/M16_PERMISSION_EXPORTS.md. No owner action currently. Continue worker/private artifact/download/render and export profiles; do not mark M16-06 done.

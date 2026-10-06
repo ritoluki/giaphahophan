@@ -1,5 +1,9 @@
 # M16-06 permission-bound exports
 
+## Local authorization fixture recheck — 2026-10-06
+
+PASS `pnpm.cmd test:m16:export` under authorized local Docker execution; existing metadata/projection/cancel SQL fixture passed and rolled back. Local Supabase CLI returned generated service-role/API/DB values transiently; values were withheld and not saved. No owner env needed for one-shot tests. A proposed persistent worker migration was rejected by auto-review before file creation; no database security change was made. See `state/HUMAN_ACTIONS.md` for the exact owner approval request.
+
 ## Worker orchestration boundary — 2026-10-06
 
 Added `apps/worker/src/export-processor.ts`: a lease-oriented processor validates the job and freshly returned authorized projection, serializes JSON/CSV/GEDCOM formats, creates deterministic tree/job-only private object paths and SHA-256 metadata, and conditionally completes only through an authorization-aware store port. It tracks object paths before remote writes (to clean up ambiguous write timeouts), removes artifacts if cancellation/lease loss wins, and never overwrites a terminal state when failure recording loses the lease. PDF/SVG renderer absence is a typed failure, never fake success. Added 6 worker orchestration tests for sidecar/hash/path, context mismatch, cancellation race, uncertain upload, lease loss, and unsupported PDF.
