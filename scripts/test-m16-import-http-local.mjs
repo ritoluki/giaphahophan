@@ -550,12 +550,34 @@ try {
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "compensation UI overflow320px");
     await page.screenshot({ path: "reports/m16-compensation-320.png", fullPage: true });
     const exportContext = await browserRequest(page, "/api/v1/exports");
-    assert(exportContext.status === 200 && /^[a-f0-9]{64}$/.test(exportContext.body.data.csrfToken), "export CSRF context unavailable");
+    assert(exportContext.status === 200 && /^[a-f0-9]{64}$/.test(exportContext.body.data.csrfToken)
+      && exportContext.body.data.actorId === userId, "export CSRF/actor context unavailable");
     const exportInput = { treeId, format: "canonical_json", scope: { kind: "tree" }, reason: "Synthetic permission export", audience: "members", includeMedia: false };
-    const exportKey = randomUUID();
-    const exportHeaders = { "Idempotency-Key": exportKey, "X-CSRF-Token": exportContext.body.data.csrfToken };
-    const queuedExport = await browserRequest(page, "/api/v1/exports", exportInput, exportHeaders);
+    assert(exportContext.body.data.scopes.some((choice) => choice.treeId === treeId && choice.scope.kind === "tree"), "authorized export scope not offered");
+    await page.goto(`${webUrl}/quan-tri/xuat-lieu`);
+    await page.getByLabel("Phạm vi", { exact: true }).waitFor();
+    assert(await page.getByLabel("Định dạng xuất", { exact: true }).locator("option").count() === 6, "SCR-33 reduced approved formats");
+    await page.getByLabel("Lý do xuất", { exact: true }).fill(exportInput.reason);
+    await page.waitForFunction((expected) => {
+      const value = sessionStorage.getItem("pgp-export-draft-v1");
+      if (!value) return false;
+      try { return JSON.parse(value).reason === expected; } catch { return false; }
+    }, exportInput.reason);
+    const storedExportDraft = await page.evaluate(() => JSON.parse(sessionStorage.getItem("pgp-export-draft-v1") || "null"));
+    assert(storedExportDraft?.actorId === userId && !("csrfToken" in storedExportDraft)
+      && !JSON.stringify(storedExportDraft).includes("HIDDEN_EXPORT"), "export draft stored CSRF or private source payload");
+    await page.reload();
+    await page.getByText("Đã khôi phục bản nháp trong thẻ trình duyệt này.", { exact: true }).waitFor();
+    assert(await page.getByLabel("Lý do xuất", { exact: true }).inputValue() === exportInput.reason, "export form draft did not recover after reload");
+    const uiExportRequest = page.waitForRequest((request) => new URL(request.url()).pathname === "/api/v1/exports" && request.method() === "POST");
+    const uiExportResponse = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/v1/exports" && response.request().method() === "POST");
+    await page.getByRole("button", { name: "Lưu yêu cầu xuất", exact: true }).click();
+    const capturedExportRequest = await uiExportRequest;
+    const capturedExportResponse = await uiExportResponse;
+    const exportHeaders = { "Idempotency-Key": capturedExportRequest.headers()["idempotency-key"], "X-CSRF-Token": capturedExportRequest.headers()["x-csrf-token"] };
+    const queuedExport = { status: capturedExportResponse.status(), body: await capturedExportResponse.json() };
     assert(queuedExport.status === 202 && queuedExport.body.data.status === "queued", "export job did not durably queue");
+    await page.waitForFunction(() => sessionStorage.getItem("pgp-export-draft-v1") === null);
     const exportId = queuedExport.body.data.id;
     const exportState = await browserRequest(page, `/api/v1/exports/${exportId}`);
     assert(exportState.status === 200 && exportState.body.data.id === exportId && !exportState.body.data.resultAssetId, "export state fabricated output");
@@ -620,6 +642,21 @@ try {
     assert(exportQuota.status === 429, "fourth export exceeded daily quota");
     const exportProof = runPsql(`select count(*)=3 and count(*) filter(where status='queued')=2 and count(*) filter(where status='cancelled')=1 and bool_and(result_asset_id is null) from private.export_jobs where tree_id=${sqlString(treeId)};`, true);
     assert(exportProof.status === 0 && exportProof.stdout.trim() === "t", "export DB count/status mismatch");
+    await page.goto(`${webUrl}/quan-tri/xuat-lieu?job=${exportId}`);
+    await page.getByTestId("export-status").filter({ hasText: "Chờ xử lý" }).waitFor();
+    await page.getByRole("button", { name: "Xem dữ liệu theo quyền", exact: true }).click();
+    await page.getByTestId("export-preview").filter({ hasText: "1 hồ sơ" }).waitFor();
+    assert(await page.getByRole("button", { name: "Tệp chưa sẵn sàng", exact: true }).isDisabled(), "SCR-33 fabricated download availability");
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "export UI overflow320px");
+    await page.screenshot({ path: "reports/m16-export-320.png", fullPage: true });
+    await page.getByLabel("Lý do hủy yêu cầu xuất", { exact: true }).fill("Cancel synthetic export through SCR-33");
+    await page.getByRole("button", { name: /Hủy yêu cầu xuất/ }).click();
+    await page.getByTestId("export-status").filter({ hasText: "Đã hủy" }).waitFor();
+    await page.reload();
+    await page.getByTestId("export-status").filter({ hasText: "Đã hủy" }).waitFor();
+    assert(await page.getByRole("button", { name: "Xem dữ liệu theo quyền", exact: true }).isDisabled(), "cancelled UI preview action enabled");
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "cancelled export UI overflow320px");
+    await page.screenshot({ path: "reports/m16-export-cancelled-320.png", fullPage: true });
     const exportExpire = runPsql(`update private.export_jobs set expires_at=clock_timestamp()-interval '1 second' where id=${sqlString(exportId)} and tree_id=${sqlString(treeId)};`);
     assert(exportExpire.status === 0 && (await browserRequest(page, `/api/v1/exports/${exportId}`)).status === 403, "expired export metadata available");
     assert((await browserRequest(page, `/api/v1/exports/${exportId}/preview`)).status === 403, "expired export projection available");
@@ -628,6 +665,13 @@ try {
     assert(revokeExport.status === 0 && (await browserRequest(page, "/api/v1/exports", exportInput, exportHeaders)).status === 403, "revoked export actor replay accepted");
     assert((await browserRequest(page, `/api/v1/exports/${cancelledExportId}/cancel`, cancelExportInput, cancelExportHeaders)).status === 403, "revoked export cancellation retry accepted");
     assert(runPsql(`update private.memberships set status='active' where id=${sqlString(membershipId)} and tree_id=${sqlString(treeId)};`).status === 0, "synthetic membership restore failed");
+    const anonymousExportContext = await browser.newContext({ viewport: { width: 320, height: 844 } });
+    const anonymousExportPage = await anonymousExportContext.newPage();
+    await anonymousExportPage.goto(`${webUrl}/quan-tri/xuat-lieu`);
+    await anonymousExportPage.getByRole("heading", { name: "Chưa mở được phạm vi xuất", exact: true }).waitFor();
+    assert(await anonymousExportPage.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), "restricted export UI overflow320px");
+    await anonymousExportPage.screenshot({ path: "reports/m16-export-restricted-320.png", fullPage: true });
+    await anonymousExportContext.close();
     console.log("PASS local M16-06 authenticated HTTP: queued DB/reload/replay,format/audience/media persisted,changed409,CSRF403,override400,cross-actor403,quota429,expiry/revoke403; live preview omits restricted/private quotes,retains authorized year-only facts/citations/sources; cancellation persists/reloads/retries exactly,stale/changed409,CSRF/cross-actor/revoke/expiry403,unknown actor400,preview disabled and quota retained. Rendering/download NOT_RUN");
     await reviewerContext.close();
     await context.close();

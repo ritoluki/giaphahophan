@@ -1,5 +1,9 @@
 # Blockers
 
+2026-10-06 supersedes prior SCR-33 environment blockers: dependency store installation recovered; pinned RHF/resolvers/TanStack Query installed and type/lint/build/test verified. Synthetic authenticated browser HTTP suite passes against local Supabase when using one localhost origin. Earlier 401 was hosted-vs-local URL mismatch; later CORS was test host alias mismatch—neither required product policy changes. No current owner action. Staging/production/real data remain approval-gated; export worker/artifacts/download and full accessibility/device/release gates are implementation/QA work, not owner blockers.
+
+[SUPERSEDED 2026-10-06] SCR-33 local context/UI was verified, while RHF/TanStack installation was temporarily blocked by the package-store lock and a commit/push attempt by an auto-review credit gate. Dependency installation and local verification have since succeeded; see the latest entry above. Push remains pending a fresh authorized attempt.
+
 2026-10-06 M16-06 cancellation API/DB now PASS locally; no environment/owner blocker for next local SCR-33 slice. Worker-completion race tests remain NOT_RUN until worker exists. Public/representative/consent management, private artifact/render/download and full clean-install/staging/a11y/device/production gates remain open; reports/M16_PERMISSION_EXPORTS.md.
 
 2026-10-06 superseding M16-06 status: permission-filtered projection now PASS locally, including field consent/proof revocation and hidden union participants; see reports/M16_PERMISSION_EXPORTS.md. Public-person publication and representative/consent management remain open dependencies; public export fails closed. Worker/private artifact/render/download/cancel/SCR-33, clean-install/staging/load/a11y/device/release gates remain NOT_RUN. No owner action needed to continue local implementation.

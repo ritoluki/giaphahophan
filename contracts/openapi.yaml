@@ -8201,7 +8201,7 @@ paths:
       operationId: get_export_csrf_context
       security:
       - sessionCookie: []
-      description: Verified session only; no-store. Reuses a valid HttpOnly export CSRF cookie and returns the paired form token.
+      description: Verified session only; no-store. DB-authorized demo scopes and current own jobs, with live MFA/claim/membership/policy checks; paired HttpOnly CSRF token. No raw grants/private reasons/artifact paths.
       responses:
         '200':
           description: Export form context; not a grant to export.
@@ -8212,11 +8212,7 @@ paths:
                 additionalProperties: false
                 properties:
                   data:
-                    type: object
-                    additionalProperties: false
-                    properties:
-                      csrfToken: {type: string, pattern: '^[a-f0-9]{64}$'}
-                    required: [csrfToken]
+                    $ref: '#/components/schemas/ExportContext'
                   meta:
                     $ref: '#/components/schemas/Meta'
                 required: [data, meta]
@@ -14356,6 +14352,31 @@ components:
       - includeMedia
       - audience
       - reason
+    ExportContext:
+      type: object
+      additionalProperties: false
+      required: [actorId, csrfToken, scopes, jobs]
+      properties:
+        actorId: {type: string, format: uuid, description: Verified caller's own auth identifier for isolating tab-local draft recovery.}
+        csrfToken: {type: string, pattern: '^[a-f0-9]{64}$'}
+        scopes:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            additionalProperties: false
+            required: [treeId, treeName, label, scope]
+            properties:
+              treeId: {type: string, format: uuid}
+              treeName: {type: string, minLength: 1, maxLength: 1000}
+              label: {type: string, minLength: 1, maxLength: 1000}
+              scope:
+                $ref: '#/components/schemas/ExportScope'
+        jobs:
+          type: array
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/ExportJob'
     ExportScope:
       oneOf:
       - type: object

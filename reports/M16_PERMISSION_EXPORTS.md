@@ -1,6 +1,18 @@
 # M16-06 permission-bound exports
 
+## SCR-33 form/cache continuation — 2026-10-06 (supersedes older dependency/draft blocker notes)
+
+Installed pinned MIT dependencies: `react-hook-form@7.62.0`, `@hookform/resolvers@5.2.1`, `@tanstack/react-query@5.87.1`; Zod remains the form/edge schema. Create/cancel form state uses RHF + resolver; reads/mutations use a page-local QueryClient with no cross-workspace cache, retries disabled and cache cleared at unmount. Server reads remain `no-store` and validated at response boundaries.
+
+Create-form draft is limited to sessionStorage in the current tab, expires after 15 minutes, validates strict schema, binds actor and authorized tree/scope, and retains the idempotency request signature/key only when its input still matches. It never stores CSRF or projected genealogy data; invalid/expired/foreign-scope drafts are deleted. Browser verified save → reload → restore → create → delete. Cancellation itself is not persisted as a local draft; server job bookmark remains the recovery path.
+
+PASS current checks: `pnpm.cmd test` (contracts75/domain124/worker18/lunar4/web6), `pnpm.cmd typecheck`, `pnpm.cmd lint` (0 errors, 2 existing warnings), `pnpm.cmd verify`, `pnpm.cmd test:m16:export` (synthetic transaction rollback), isolated standalone Next build (55 routes) and complete `pnpm.cmd test:m16:http` on `localhost:3101` against local Supabase. Browser includes previous import/chunk/compensation suite plus export create/draft/reload/preview/cancel/reload/anonymous restricted at 320px. The earlier CORS failure was caused only by mixing `127.0.0.1` and `localhost` in this test; corrected the test origin, no product CORS widening. Screenshots recaptured and inspected: `reports/m16-export-320.png`, `reports/m16-export-cancelled-320.png`, `reports/m16-export-restricted-320.png`.
+
+M16-06 remains IN_PROGRESS. Still open: queue worker completion/cancellation concurrency, private artifact generation and authorized downloads, GEDCOM export profile, PDF/SVG/book/media packages, representative/consent/publication workflow, full keyboard/axe/real-device/load/clean-install/staging and release approvals. Queue metadata is not a finished file. Local synthetic only; no hosted writes/real data/production deployment.
+
 ## Execution plan
+
+SCR-33 slice plan: DB-authorized demo scope choices and current own jobs only, typed no-store context, shared AdminShell/form tokens, all approved format/audience/media choices, actual request/preview/cancel/reload with recoverable idempotency keys and URL job bookmark. Keep artifact/download unavailable until implemented; never label a queued job complete. Test authenticated 320px navigation/reload/actions and anonymous restricted state.
 
 1. Preserve approved formats, audience/media choices and explicit personal/tree/branch scopes; implement strict request/job/projection contracts.
 2. Serialize only DB-authorized projections. Test CSV formulas, Unicode/quotes/newlines, lossless JSON dates and hidden-endpoint/reference rejection.
@@ -17,6 +29,16 @@ PASS local migration0073 + test:m16:export: queued/running cancellation persists
 PASS test:m16:http on standalone .next-m16-export-cancel at localhost3100 + synthetic local Supabase: cancel/reload/exact retry, stale/changed409, CSRF/cross-actor/revoked/expired403, unknown actor400, preview invalidation and unchanged3-job quota. Existing import/family/chunk/1000-person two-person compensation regression PASS; cleanup verified. PASS workspace73/124/18/4/6,typecheck,lint0errors/2known warnings,verify/OpenAPI/state parse,diff check and isolated build.
 
 M16-06 still IN_PROGRESS: SCR-33, worker/private artifact/download/render, GEDCOM/PDF/SVG/media packaging, public/representative/consent workflows and full accessibility/device/load/clean-install/staging/production remain open. Cancellation completes only the queued/running API/DB slice.
+
+## SCR-33 context and mobile UI — 2026-10-06
+
+PASS migration0074 and export SQL fixture on local rollback: DB-generated context returns only active demo scopes authorized by live MFA or independently reviewed personal claim; protected-minor scopes excluded. Expired/foreign jobs omitted, membership revocation removes scopes/jobs, and private purpose/grant/artifact fields absent. Exact Vietnamese labels tested. A Windows PowerShell native SQL pipe initially damaged Unicode; reapplied the same functions through Node UTF-8 stdin and reran assertions PASS.
+
+PASS authenticated browser pnpm.cmd test:m16:http on standalone .next-m16-export-ui-final, localhost:3100/local Supabase: SCR-33 submits an actual queued DB job, shows all six approved formats, filters preview to one authorized synthetic person, cancels/reloads/bookmarks status, and disables preview/download after cancellation. Anonymous 320px state remains restricted; viewport overflow test PASS. Screenshots reports/m16-export-320.png, m16-export-cancelled-320.png, and m16-export-restricted-320.png inspected. An initial narrow flex header was corrected and retested.
+
+PASS workspace tests: contracts74/domain124/worker18/lunar4/web6, typecheck, lint (0 errors/2 preexisting warnings), verify, OpenAPI parse, final isolated build55 pages. Existing import/chunk/compensation SQL/browser regressions and cleanup PASS. Shared AdminShell/logo/design tokens/style reused.
+
+[SUPERSEDED 2026-10-06] At the time of this entry, React Hook Form/TanStack installation and draft recovery were blocked by the pnpm store lock. The later SCR-33 form/cache continuation at the top of this report resolves those two items; remaining gaps are listed there.
 
 ## Local evidence — 2026-10-06
 

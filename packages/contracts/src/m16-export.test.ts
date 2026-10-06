@@ -1,7 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { exportCancelSchema, exportJobSchema, exportRequestSchema } from "./index";
+import { exportCancelSchema, exportContextSchema, exportDraftFormSchema, exportDraftSchema, exportJobSchema, exportRequestSchema } from "./index";
 const treeId = "a6700000-0000-4000-8000-000000000001";
 describe("M16-06 export contracts", () => {
+  it("validates authorized context without raw permission or private job extras", () => {
+    const context = { actorId: treeId, csrfToken: "a".repeat(64), scopes: [{ treeId, treeName: "Synthetic Demo", label: "Authorized tree", scope: { kind: "tree" } }], jobs: [] };
+    expect(exportContextSchema.safeParse(context).success).toBe(true);
+    expect(exportContextSchema.safeParse({ ...context, permissions: ["service-role"] }).success).toBe(false);
+    expect(exportContextSchema.safeParse({ ...context, csrfToken: "invalid" }).success).toBe(false);
+    expect(exportContextSchema.safeParse({ ...context, scopes: Array.from({ length: 101 }, () => context.scopes[0]) }).success).toBe(false);
+  });
+  it("bounds and actor-binds private tab drafts without CSRF tokens", () => {
+    const draft = { version: 1, actorId: treeId, treeId, scope: { kind: "tree" }, format: "canonical_json", audience: "members", includeMedia: false, reason: "x", savedAt: 1, request: null } as const;
+    expect(exportDraftSchema.safeParse(draft).success).toBe(true);
+    expect(exportDraftSchema.safeParse({ ...draft, csrfToken: "secret" }).success).toBe(false);
+    expect(exportDraftSchema.safeParse({ ...draft, reason: "x".repeat(1001) }).success).toBe(false);
+    expect(exportDraftFormSchema.safeParse({ format: draft.format, audience: draft.audience, includeMedia: draft.includeMedia, reason: draft.reason }).success).toBe(false);
+  });
   it("requires a bounded cancellation version and reason without actor overrides", () => {
     expect(exportCancelSchema.parse({ baseVersion: 1, reason: "  Synthetic cancellation  " })).toEqual({ baseVersion: 1, reason: "Synthetic cancellation" });
     for (const input of [{ baseVersion: 0, reason: "Valid reason" }, { baseVersion: 1.5, reason: "Valid reason" }, { baseVersion: 1, reason: "no" }, { baseVersion: 1, reason: "Valid reason", actorId: treeId }]) {

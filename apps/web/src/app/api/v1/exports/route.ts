@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
-import { exportJobSchema, exportRequestSchema } from "@phan/contracts";
+import { exportContextSchema, exportJobSchema, exportRequestSchema } from "@phan/contracts";
 import { readPrivateMutation } from "@/lib/server/private-mutations";
 import { apiJson, createRequestHash, createRequestSupabaseClient, getVerifiedUser, rpcErrorStatus } from "@/lib/server/supabase-api";
 
@@ -8,12 +8,16 @@ const csrfCookie = "pgp-export-csrf";
 
 export async function GET() {
   const client = await createRequestSupabaseClient();
-  if (!(await getVerifiedUser(client))) return apiJson({ code: "AUTH_REQUIRED", message: "Cần đăng nhập." }, 401);
+  const user = await getVerifiedUser(client);
+  if (!user) return apiJson({ code: "AUTH_REQUIRED", message: "Cần đăng nhập." }, 401);
+  const { data, error } = await client.schema("api").rpc("export_context");
+  if (error) return apiJson({ code: "EXPORT_CONTEXT_UNAVAILABLE", message: "Chưa tải được phạm vi xuất. Hãy kiểm tra phiên và MFA." }, error.code === "54000" ? 422 : rpcErrorStatus(error.code));
   const jar = await cookies();
   const prior = jar.get(csrfCookie)?.value;
   const csrfToken = prior && /^[a-f0-9]{64}$/.test(prior) ? prior : randomBytes(32).toString("hex");
   jar.set(csrfCookie, csrfToken, { httpOnly: true, secure: process.env.APP_ENV === "production" || process.env.APP_ENV === "staging", sameSite: "strict", path: "/", maxAge: 3600 });
-  return apiJson({ csrfToken });
+  const context = exportContextSchema.safeParse({ ...(data as Record<string, unknown>), actorId: user.id, csrfToken });
+  return context.success ? apiJson(context.data) : apiJson({ code: "EXPORT_CONTEXT_INVALID", message: "Phản hồi phạm vi xuất không hợp lệ." }, 502);
 }
 
 export async function POST(request: Request) {

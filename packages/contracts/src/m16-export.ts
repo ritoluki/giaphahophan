@@ -93,3 +93,27 @@ export const exportJobSchema = z.object({
   status: z.enum(["queued", "running", "complete", "failed", "cancelled"]),
   expiresAt: z.string().datetime({ offset: true }), warnings: z.array(z.string().max(200)).max(200),
 }).strict();
+
+export const exportContextSchema = z.object({
+  actorId: z.string().uuid(),
+  csrfToken: z.string().regex(/^[a-f0-9]{64}$/),
+  scopes: z.array(z.object({ treeId: z.string().uuid(), treeName: z.string().min(1).max(1000), label: z.string().min(1).max(1000), scope: exportScopeSchema }).strict()).max(100),
+  jobs: z.array(exportJobSchema).max(3),
+}).strict();
+export type ExportContext = z.infer<typeof exportContextSchema>;
+export type ExportJob = z.infer<typeof exportJobSchema>;
+export const exportDraftSchema = z.object({
+  version: z.literal(1), actorId: z.string().uuid(), treeId: z.string().uuid(), scope: exportScopeSchema,
+  format: exportFormatSchema, audience: z.enum(["members", "public"]), includeMedia: z.boolean(),
+  reason: z.string().max(1000), savedAt: z.number().int().nonnegative(),
+  request: z.object({ signature: z.string().max(4096), key: z.string().uuid() }).strict().nullable(),
+}).strict();
+export type ExportDraft = z.infer<typeof exportDraftSchema>;
+export const exportDraftFormSchema = exportDraftSchema.pick({ format: true, audience: true, includeMedia: true, reason: true }).extend({
+  reason: z.string().trim().min(5).max(1000),
+});
+export type ExportDraftFormInput = z.input<typeof exportDraftFormSchema>;
+export type ExportDraftFormOutput = z.output<typeof exportDraftFormSchema>;
+export const exportCancelFormSchema = z.object({ reason: exportCancelSchema.shape.reason }).strict();
+export type ExportCancelFormInput = z.input<typeof exportCancelFormSchema>;
+export type ExportCancelFormOutput = z.output<typeof exportCancelFormSchema>;
