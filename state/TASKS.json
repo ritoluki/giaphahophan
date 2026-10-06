@@ -153,7 +153,7 @@
         "apps/web/src/app/_components/site-chrome.tsx, search-box.tsx, search-results.tsx, family-focus.tsx: shared mobile-first navigation, search, family focus and state components.",
         "apps/web/src/app/globals.css: approved tokens/assets direction, responsive layout, reduced motion and touch target baseline.",
         "Playwright responsive/a11y smoke PASS 18/18 across 1440px desktop, Pixel 5 and 320px; full component stories/manual audit remains NOT_RUN.",
-        "2026-10-06: direct dev-only axe-core 4.13.0 (MPL-2.0); pnpm.cmd test:a11y PASS 10/10 across five public routes at desktop Chromium and 320px, WCAG 2.0 A/AA, 2.1 A/AA, 2.2 AA; zero automated violations. Typecheck PASS; lint 0 errors/2 existing warnings. Manual keyboard/screen-reader/zoom/imagery/authenticated state and device audit NOT_RUN; UI-01 remains IN_PROGRESS. Evidence reports/A11Y_AUTOMATED_LOCAL.md."
+        "2026-10-06: direct dev-only axe-core 4.13.0 (MPL-2.0); pnpm.cmd test:a11y PASS 14/14 across five public and two unauthenticated restricted-admin routes at desktop Chromium and 320px, WCAG 2.0 A/AA, 2.1 A/AA, 2.2 AA; zero automated violations. Typecheck PASS; lint 0 errors/2 existing warnings. Manual keyboard/screen-reader/zoom/imagery/authenticated state and device audit NOT_RUN; UI-01 remains IN_PROGRESS. Evidence reports/A11Y_AUTOMATED_LOCAL.md."
       ]
     },
     {

@@ -1,6 +1,6 @@
 # Backlog triển khai
 
-2026-10-06 accessibility continuation: pinned direct dev-only axe-core 4.13.0 (MPL-2.0); local loopback `pnpm.cmd test:a11y` PASS 10/10 (5 public routes × desktop Chromium/320px; WCAG 2.0 A/AA, 2.1 A/AA, 2.2 AA; zero automated violations). Typecheck PASS; lint 0 errors/2 existing unrelated warnings. UI-01 remains IN_PROGRESS. Manual keyboard/screen-reader/zoom/overlay/authenticated states and real-device remain NOT_RUN. Evidence `reports/A11Y_AUTOMATED_LOCAL.md`; no real/cloud/production data.
+2026-10-06 accessibility continuation: pinned direct dev-only axe-core 4.13.0 (MPL-2.0); local loopback `pnpm.cmd test:a11y` PASS 14/14 (5 public + 2 unauthenticated restricted-admin routes × desktop Chromium/320px; WCAG 2.0 A/AA, 2.1 A/AA, 2.2 AA; zero automated violations). Typecheck PASS; lint 0 errors/2 existing unrelated warnings. UI-01 remains IN_PROGRESS. Manual keyboard/screen-reader/zoom/overlay/authenticated states and real-device remain NOT_RUN. Evidence `reports/A11Y_AUTOMATED_LOCAL.md`; no real/cloud/production data.
 
 2026-10-06 plan snapshot:102 canonical tasks =3 DONE/75 IN_PROGRESS/24 TODO. Started coverage is76.5%; a transparent midpoint status-weighted estimate (DONE=1, IN_PROGRESS=0.5, TODO=0) is39.7%, not a pass rate. Current active work is M16-06 local worker/export; P8–P11 have16 TODO tasks; H1–H5 remain pending and release gates NOT_RUN. Local demo started at http://127.0.0.1:3100; doctor and five HTTP route smoke checks PASS. No hosted settings used.
 

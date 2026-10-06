@@ -1,10 +1,18 @@
 import axe from "axe-core";
 import { expect, test } from "@playwright/test";
 
-const publicRoutes = ["/", "/tra-cuu", "/gia-pha", "/lich-ho", "/tu-lieu"];
+const scanRoutes = [
+  "/",
+  "/tra-cuu",
+  "/gia-pha",
+  "/lich-ho",
+  "/tu-lieu",
+  "/quan-tri/xuat-lieu",
+  "/quan-tri/nhap-lieu",
+];
 const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
-for (const route of publicRoutes) {
+for (const route of scanRoutes) {
   test(`WCAG accessibility scan ${route}`, async ({ page }) => {
     test.setTimeout(90_000);
     await page.goto(route, { waitUntil: "domcontentloaded" });

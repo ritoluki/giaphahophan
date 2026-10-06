@@ -1,6 +1,6 @@
 # Blockers
 
-2026-10-06 accessibility status: local automated axe scan is PASS 10/10 on five public routes at desktop and 320px (`reports/A11Y_AUTOMATED_LOCAL.md`). This narrows—but does not close—the release gate: manual keyboard/screen-reader/zoom/contrast-on-imagery/authenticated-state and physical-device accessibility remain NOT_RUN. No owner decision is currently required for this slice.
+2026-10-06 accessibility status: local automated axe scan is PASS 14/14 on five public and two unauthenticated restricted-admin routes at desktop and 320px (`reports/A11Y_AUTOMATED_LOCAL.md`). This narrows—but does not close—the release gate: manual keyboard/screen-reader/zoom/contrast-on-imagery/authenticated-state and physical-device accessibility remain NOT_RUN. No owner decision is currently required for this slice.
 
 2026-10-06 local demo: no owner action needed to view. Next is bound to127.0.0.1:3100 and uses local Supabase CLI settings. Do not use `apps/web/.env.local` unchanged: its Supabase URL is non-loopback/hosted. `pnpm.cmd doctor` passes with authorized local access. Remaining release blockers: H1–H5 pending, six release gates NOT_RUN, local migration history gap0037–0075 un-reconciled, plus module-specific quality/interoperability/media/consent/a11y/device/load gates recorded below. Production is not approved.
 
