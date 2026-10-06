@@ -1,5 +1,11 @@
 # M16-06 permission-bound exports
 
+## GEDCOM projection serializer — 2026-10-06
+
+PASS domain-only `serializeExportGedcom551/7` for validated, already permission-filtered projections. Stable file-local opaque xrefs; supported INDI/FAM/name/fact/source/citation subset; 5.5.1 line wrapping with CONC; GEDCOM 7 CONT and initial-@ escaping; Julian date syntax without invented precision; unsupported/lunar fields preserved in a full filtered canonical JSON sidecar with explicit warnings. HUSB/WIFE are structural slots, not gender inference. The serializer does not fetch projections, execute jobs, write artifacts, create ZIPs, or authorize downloads.
+
+PASS focused serializer tests24/24 and domain typecheck; PASS workspace tests contracts75/domain128/worker18/lunar4/web6, full typecheck, lint0 errors/2 pre-existing warnings, verify, isolated standalone Next production build55 routes. All local synthetic. NOT_RUN GEDCOM validator/vendor interoperability, job worker/RPC authorization, private artifact/manifest, ZIP, rechecked download, full accessibility/device/staging/production. M16-06 remains IN_PROGRESS; no real data/hosted mutation/deployment.
+
 ## SCR-33 form/cache continuation — 2026-10-06 (supersedes older dependency/draft blocker notes)
 
 Installed pinned MIT dependencies: `react-hook-form@7.62.0`, `@hookform/resolvers@5.2.1`, `@tanstack/react-query@5.87.1`; Zod remains the form/edge schema. Create/cancel form state uses RHF + resolver; reads/mutations use a page-local QueryClient with no cross-workspace cache, retries disabled and cache cleared at unmount. Server reads remain `no-store` and validated at response boundaries.

@@ -28,7 +28,7 @@ GEDCOM 5.5.1 và GEDCOM 7 được hỗ trợ **theo subset có công bố**, v�
 
 Tag chuẩn đã biết nhưng chưa normalize (ví dụ `NOTE`, `SOUR`, `OBJE`, `BURI`, `CONT`/`CONC`) và extension lạ được phân loại riêng trong conformance report; mọi root record và raw line vẫn ở staging riêng tư để không mất dữ liệu. `_PHAN_LUNAR_DATE` và `_PHAN_PRIVACY` được giữ như app sidecar; ngày âm không đổi thành ngày dương. Quan hệ dùng external xref; pointer thiếu thành `needs_review`; tên `HUSB`/`WIFE` không quyết định giới tính. Notes, source payload và đường dẫn media không đi vào preview công khai; quyền riêng tư mặc định `restricted`.
 
-Profile chỉ chấp nhận UTF-8 hiện tại; nguồn encoding khác cần được chuyển đổi có kiểm tra trước khi upload. GEDCOM export/round-trip chưa được cung cấp bởi profile này; không được hiểu parser/import PASS là export PASS.
+Profile chỉ chấp nhận UTF-8 hiện tại; nguồn encoding khác cần được chuyển đổi có kiểm tra trước khi upload. Export domain serializer hỗ trợ GEDCOM 5.5.1 và FamilySearch GEDCOM 7 từ projection đã được lọc quyền; xuất kèm JSON sidecar đầy đủ để giữ nguyên lịch âm, edge kind/status và mọi trường không có biểu diễn GEDCOM tương đương. HUSB/WIFE chỉ là hai slot cấu trúc ổn định, không suy giới tính/vai trò; người nhận phải dùng sidecar để khôi phục chính xác. Serializer/parser unit round-trip không đồng nghĩa đã có worker, gói tải xuống, validator/vendor interoperability hoặc download re-authorization PASS.
 
 Agent tạo fixture từ nguồn chuẩn và từ hai phần mềm nguồn mở được phép dùng; test import/export semantics chứ không byte-equality của thứ tự tag. Profile hỗ trợ/không hỗ trợ phải được hiển thị trước import và đính kèm export.
 

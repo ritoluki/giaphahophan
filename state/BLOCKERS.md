@@ -1,8 +1,8 @@
 # Blockers
 
-2026-10-06 supersedes prior SCR-33 environment blockers: dependency store installation recovered; pinned RHF/resolvers/TanStack Query installed and type/lint/build/test verified. Synthetic authenticated browser HTTP suite passes against local Supabase when using one localhost origin. Earlier 401 was hosted-vs-local URL mismatch; later CORS was test host alias mismatch—neither required product policy changes. No current owner action. Staging/production/real data remain approval-gated; export worker/artifacts/download and full accessibility/device/release gates are implementation/QA work, not owner blockers.
+2026-10-06 supersedes prior SCR-33 environment blockers: dependency store installation recovered; pinned RHF/resolvers/TanStack Query installed and verified. Synthetic authenticated browser suite passes against local Supabase. GEDCOM serializer/build now PASS locally. No current owner action; worker/artifacts/download, validator/vendor interoperability and accessibility/device/release gates remain implementation/QA work. Staging/production/real data remain approval-gated.
 
-[SUPERSEDED 2026-10-06] SCR-33 local context/UI was verified, while RHF/TanStack installation was temporarily blocked by the package-store lock and a commit/push attempt by an auto-review credit gate. Dependency installation and local verification have since succeeded; see the latest entry above. Push remains pending a fresh authorized attempt.
+[SUPERSEDED 2026-10-06] SCR-33 dependency installation and local verification succeeded; its commit `b183c12` is pushed to origin/main. See the current entries above.
 
 2026-10-06 M16-06 cancellation API/DB now PASS locally; no environment/owner blocker for next local SCR-33 slice. Worker-completion race tests remain NOT_RUN until worker exists. Public/representative/consent management, private artifact/render/download and full clean-install/staging/a11y/device/production gates remain open; reports/M16_PERMISSION_EXPORTS.md.
 

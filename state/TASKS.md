@@ -1,5 +1,7 @@
 # Backlog triển khai
 
+2026-10-06 latest M16-06: GEDCOM 5.5.1/7 projection serializers and lossless filtered JSON sidecar PASS24 focused tests; workspace tests/typecheck/lint/verify and isolated standalone production build55 routes PASS. Serializer only, no worker/artifact/download claim. Next proceed with capability-bound job processing and private artifact manifest. Scope unchanged.
+
 2026-10-06 latest M16-06: RHF/Zod + scoped TanStack Query integrated; session draft survives reload and is removed only after persisted create succeeds. PASS DB rollback fixture, authenticated browser/HTTP import+export regression, workspace tests/typecheck/lint/verify and standalone55-route build; full evidence in reports/M16_PERMISSION_EXPORTS.md. No owner action currently. Continue worker/private artifact/download/render and export profiles; do not mark M16-06 done.
 
 2026-10-06 continuation: M16-05 chunk/cancel plus separately reviewed compensation and independent-session concurrency races PASS locally. SQL rejects changed/newly referenced rows;320px authenticated UI undoes1000 people while preserving2501 staged records/original asset. Workspace69/104/18/4/6,typecheck/lint/build/verify PASS. Next: M16-06 permission-bound exports, with clean-install/staging/load/a11y/device gates still open. Full scope unchanged; evidence: reports/M16_PARTIAL_CANCEL_UNDO.md.

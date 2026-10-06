@@ -1,7 +1,8 @@
 import Papa from "papaparse";
 import { describe, expect, it } from "vitest";
 import { exportProjectionSchema, exportRequestSchema, type ExportProjection } from "@phan/contracts";
-import { serializeExportCsv, serializeExportJson } from "./m16-export";
+import { serializeExportCsv, serializeExportGedcom551, serializeExportGedcom7, serializeExportJson } from "./m16-export";
+import { dryRunGedcomImport } from "./m16-gedcom";
 
 const personId = "a6600000-0000-4000-8000-000000000001";
 const projection = (): ExportProjection => ({
@@ -67,5 +68,59 @@ describe("M16-06 authorized projection serialization", () => {
     expect(JSON.parse(serializeExportJson(input).content).unions).toEqual(input.unions);
     expect(JSON.parse(serializeExportJson(input).content).parentLinks).toEqual([]);
     input.unions[0]!.childIds = [input.treeId]; expect(() => serializeExportJson(input)).toThrow();
+  });
+  it.each([
+    ["5.5.1", serializeExportGedcom551], ["7.0", serializeExportGedcom7],
+  ] as const)("serializes GEDCOM %s from the filtered projection and attaches a lossless JSON sidecar", (version, serialize) => {
+    const input = projection(); input.scope = { kind: "tree" };
+    input.people[0]!.facts.push({ id: "a6600000-0000-4000-8000-000000000016", kind: "birth", valueDate: { calendar: "gregorian", precision: "year", year: 1940, originalText: "1940" }, valueText: null, confidence: "supported" });
+    const partnerId = "a6600000-0000-4000-8000-000000000008";
+    const childId = "a6600000-0000-4000-8000-000000000009";
+    input.people.push(
+      { id: partnerId, version: 1, code: "DEMO-2", displayName: "Người hư cấu thứ hai", names: [], recordedSex: null, lifeStatus: null, facts: [] },
+      { id: childId, version: 1, code: "DEMO-3", displayName: "Người hư cấu thứ ba", names: [], recordedSex: null, lifeStatus: null, facts: [
+        { id: "a6600000-0000-4000-8000-000000000010", kind: "birth", valueDate: { calendar: "julian", precision: "exact", year: 1900, month: 2, day: 29, originalText: "@#DJULIAN@ 29 FEB 1900" }, valueText: null, confidence: "supported" },
+        { id: "a6600000-0000-4000-8000-000000000011", kind: "death", valueDate: { calendar: "vietnamese_lunar", precision: "exact", year: 2023, month: 2, day: 10, isLeapMonth: true, originalText: "10/2 nhuận 2023", timezone: "Asia/Ho_Chi_Minh" }, valueText: null, confidence: "unverified" },
+      ] },
+    );
+    input.unions = [{ id: "a6600000-0000-4000-8000-000000000012", kind: "partnership", status: "active", partnerIds: [partnerId, personId], childIds: [childId] }];
+    input.parentLinks = [{ id: "a6600000-0000-4000-8000-000000000013", parentId: personId, childId, kind: "biological", status: "confirmed" }];
+    input.sources = [{ id: "a6600000-0000-4000-8000-000000000014", title: "Tư liệu tổng hợp hư cấu" }];
+    input.citations = [{ id: "a6600000-0000-4000-8000-000000000015", sourceId: input.sources[0]!.id, targetKind: "fact", targetId: input.people[2]!.facts[0]!.id, locator: "Trang 12" }];
+    const result = serialize(input);
+    expect(result.extension).toBe("ged");
+    expect(result.sidecarExtension).toBe("json");
+    expect(result.sidecarMimeType).toBe("application/json; charset=utf-8");
+    expect(JSON.parse(result.sidecarContent ?? "null")).toEqual(input);
+    expect(result.content).toContain(`2 VERS ${version}`);
+    expect(result.content).toContain("2 DATE 1940");
+    expect(result.content).not.toContain("01 JAN 1940");
+    expect(result.content).toContain("2 DATE @#DJULIAN@ 29 FEB 1900");
+    expect(result.content).toContain("2 _PHAN_LUNAR_DATE 10/2 nhuận 2023");
+    expect(result.content).toContain("1 HUSB @I");
+    expect(result.content).toContain("1 WIFE @I");
+    expect(result.warnings).toContain("family_partner_tags_are_layout_slots_not_sex_or_gender");
+    expect(result.warnings).toContain("relationship_edge_sidecar_is_lossless_source_of_truth");
+    expect(result.content).not.toContain(input.treeId);
+    const parsed = dryRunGedcomImport(result.content);
+    expect(parsed?.version).toBe(version);
+    expect(parsed?.records.filter((record) => record.tag === "INDI")).toHaveLength(3);
+  });
+  it("wraps GEDCOM 5.5.1 without exceeding its line limit and uses CONT (not CONC) for GEDCOM 7", () => {
+    const input = projection(); input.people[0]!.displayName = `${"Tên".repeat(120)}\nDòng hai @ký hiệu`;
+    const ged551 = serializeExportGedcom551(input);
+    expect(Math.max(...ged551.content.split("\n").map((line) => line.length))).toBeLessThanOrEqual(255);
+    expect(ged551.content).toContain("CONC");
+    const ged7 = serializeExportGedcom7(input);
+    expect(ged7.content).toContain("CONT");
+    expect(ged7.content).not.toMatch(/^\d+ CONC(?: |$)/m);
+    expect(ged7.content).toContain("@ký hiệu");
+  });
+  it("does not emit forbidden control bytes and preserves the exact authorized value only in the JSON sidecar", () => {
+    const input = projection(); input.people[0]!.displayName = "Tên\u0001hư cấu";
+    const result = serializeExportGedcom7(input);
+    expect(result.content).not.toContain("\u0001");
+    expect(JSON.parse(result.sidecarContent ?? "null").people[0].displayName).toBe("Tên\u0001hư cấu");
+    expect(result.warnings).toContain("gedcom_control_characters_replaced_json_sidecar_preserves_original");
   });
 });
