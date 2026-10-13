@@ -1,5 +1,9 @@
 # Backlog triển khai
 
+2026-10-13 M16-03/06: added actual versioned Gramps/GeneWeb fixtures, spec-derived GEDCOM7 fixture, reproducible network-disabled Docker QA and semantic/structural report; known GeneWeb losses and missing HEAD.SUBM remain documented compatibility limitations. Fixed dialect selection and malformed-version acceptance; translated export guidance. PASS257 unit tests, full types/verify/lint0errors2warnings, local55-route build, M16 SQL import/export rollback tests, mobile320 export3/3. Scoped media policy proposal now ready for owner review; includeMedia remains blocked. Task statuses stay IN_PROGRESS; no full release gate waived. reports/M16_GEDCOM_INTEROP_LOCAL.md.
+
+2026-10-09 M16-06 external GEDCOM applications: NOT_RUN/BLOCKED; no vendor interoperability PASS. GeneWeb 7.1.0-beta2 compiler stack-overflows on minimal synthetic fixtures; Gramps 6.0.8 CLI does not start/emit output in extracted archive mode. Beta installer stopped at welcome screen, no install. Details and safe local-only scope in `reports/M16_GEDCOM_INTEROP_LOCAL.md`. Existing H3 media approval and full manual/device gates remain open; continue independent work.
+
 2026-10-07 expanded accessibility release check: alongside `test:a11y`92/92, workspace tests244, typecheck, verify and isolated loopback-config standalone Next build55 routes PASS; compiled endpoint checked; generated `next-env.d.ts` restored. Lint0 errors/2 existing warnings. No production/human data. Manual and device checks remain NOT_RUN.
 
 2026-10-07 accessibility coverage expansion: 23 public/auth/restricted-admin routes × desktop/320px. PASS `pnpm.cmd test:a11y` 92/92 (axe46, WCAG2.0 A/AA +2.1 A/AA +2.2 AA, zero violations; keyboard Tab/Enter/main-focus46). Includes M12–M15 shared page readers; all main-content targets now programmatically focusable. `reports/A11Y_AUTOMATED_LOCAL.md`. Manual full-flow/screen-reader/physical-device acceptance remains NOT_RUN.

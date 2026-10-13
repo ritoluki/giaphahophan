@@ -1,5 +1,7 @@
 # Môi trường cần agent xác minh
 
+2026-10-13 local verification: Node24.21.0, pnpm12.6.0, Docker server29.8.0 available with authorized execution. Existing local Supabase containers used only for synthetic transaction-rollback tests. Dev-only GEDCOM QA image built from a digest-pinned Debian bookworm base, Gramps5.1.5-1 and SHA-verified official GeneWeb7.1.0-beta2 Linux ZIP; image fingerprint and library versions in fixture manifest/evidence. Runtime QA network disabled, root read-only, bounded resources, profiles/input/output scoped to workspace. No Windows desktop app installation or hosted service used. Supabase local public build settings captured transiently and loopback-checked; owner env values not logged. No further owner setup is needed for this QA path.
+
 Trạng thái: VERIFIED_WITH_BROWSER_PARTIAL trên workspace ngày 27/09/2026 01:38 Asia/Saigon.
 
 | Hạng mục | Giá trị dự kiến | Kết quả thực tế |

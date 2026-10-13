@@ -1,5 +1,9 @@
 # Các bước chủ dự án thực sự cần tham gia
 
+2026-10-13 — RESOLVED safety follow-up: the owner ran the requested read-only check and returned `not found`. The expected `%USERPROFILE%\\gramps` directory does not exist. No cleanup or further owner action is required for that check.
+
+2026-10-13 — Owner decision requested only for M16-06 media export: approve or amend `reports/M16_MEDIA_POLICY_PROPOSAL.md`. Proposed designated independent reviewer (reviewer + scoped publication.manage, MFA), complete subject/audience/consent review, versioned evidence, omit ineligible assets with a generic warning while exporting eligible data, and recheck at creation/render/download. This is a scoped media-policy choice; H3 as a whole and H1/H2/H4/H5 remain unapproved. No extra env, secret, Docker setup, hosted migration, or real data is requested.
+
 2026-10-06 — Local demo account created on owner request. Read credentials only from ignored `.env.demo.local` on this machine. It is a synthetic owner login on local Supabase, not an account on the hosted project. Do not share/commit the file. Enroll MFA through the app before testing owner/admin privileged actions; create a separate synthetic reviewer only if testing two-person approval is desired.
 
 2026-10-06 — APPROVAL RECORDED: project owner approved “local M16 worker migration” in this conversation. Scope is local Supabase only: migration 0075, service_role-only per-operation worker RPCs, live session/AAL + current membership/capability/policy rechecks, outbox, private bucket/manifest, and synthetic local regression/E2E. Risk remains service_role bypassing RLS if a function is defective. Excludes hosted/cloud migration, real genealogy data, public access, paid services, production deployment and H1–H5 approval. Approval evidence: owner message in this thread; no secret values shared. Local migration has been applied; see `state/BLOCKERS.md` and `reports/M16_PERMISSION_EXPORTS.md` for actual test evidence.

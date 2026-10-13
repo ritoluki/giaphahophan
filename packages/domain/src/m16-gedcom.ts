@@ -86,10 +86,8 @@ export function dryRunGedcomImport(input: string): GedcomDryRun | null {
   if (head?.tag !== "HEAD" || trailer?.tag !== "TRLR") return null;
   const gedc = head.children.find((line) => line.tag === "GEDC");
   const version = firstValue(gedc?.children ?? [], "VERS");
-  const source = firstValue(head.children, "SOUR") ?? "";
-  const is7 = version?.startsWith("7") === true || /FamilySearch/i.test(source);
-  if (!version || (!version.startsWith("5.5.1") && !version.startsWith("7"))) return null;
-  const supportedVersion: GedcomVersion = is7 ? "7.0" : "5.5.1";
+  if (!version || (version !== "5.5.1" && !/^7\.0(?:\.\d+)?$/.test(version))) return null;
+  const supportedVersion: GedcomVersion = version === "5.5.1" ? "5.5.1" : "7.0";
   const xrefSet = new Set<string>();
   const records: GedcomRecord[] = [];
   const unknownTags = new Set<string>();

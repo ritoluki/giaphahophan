@@ -4,6 +4,16 @@ import { dryRunGedcomImport } from "./m16-gedcom";
 const fixture = (version: "5.5.1" | "7.0", date = "ABT 1901") => `0 HEAD\n1 SOUR SyntheticFixture\n1 GEDC\n2 VERS ${version}\n1 CHAR UTF-8\n0 @I1@ INDI\n1 NAME An /Nguyen/\n1 SEX U\n1 BIRT\n2 DATE ${date}\n2 PLAC Hue\n2 ZZTEST raw extension\n1 FAMC @F1@\n1 _PHAN_PRIVACY restricted\n1 _PHAN_LUNAR_DATE 12/03/Canh Ty\n0 @I2@ INDI\n1 NAME Bình /Trần/\n0 @F1@ FAM\n1 HUSB @I1@\n1 CHIL @I2@\n1 NOTE private synthetic note\n0 @N1@ NOTE Standalone private note\n0 TRLR\n`;
 
 describe("M16 bounded GEDCOM 5.5.1/7 subset import", () => {
+  it("uses GEDC.VERS regardless of the originating application name", () => {
+    const input = fixture("5.5.1").replace("1 SOUR SyntheticFixture", "1 SOUR FamilySearch");
+    expect(dryRunGedcomImport(input)?.version).toBe("5.5.1");
+    expect(dryRunGedcomImport(fixture("7.0").replace("2 VERS 7.0", "2 VERS 7.0.18"))?.version).toBe("7.0");
+  });
+
+  it.each(["5.5.10", "5.5.1-invalid", "7invalid", "7.0-invalid", "70.0"])("rejects malformed or unsupported version %s", (version) => {
+    expect(dryRunGedcomImport(fixture("7.0").replace("2 VERS 7.0", `2 VERS ${version}`))).toBeNull();
+  });
+
   it.each(["5.5.1", "7.0"] as const)("recognizes version %s and stages linked records without inferring spouse gender", (version) => {
     const result = dryRunGedcomImport(fixture(version));
     expect(result).toMatchObject({ version, parserVersion: "gedcom-subset/1", valid: 0, invalid: 0 });

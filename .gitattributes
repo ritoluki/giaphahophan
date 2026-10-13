@@ -1,0 +1,4 @@
+tools/gedcom-interop/*.sh text eol=lf
+tools/gedcom-interop/*.gw text eol=lf
+tools/gedcom-interop/Dockerfile text eol=lf
+packages/domain/tests/fixtures/gedcom-interop/*.ged text eol=lf

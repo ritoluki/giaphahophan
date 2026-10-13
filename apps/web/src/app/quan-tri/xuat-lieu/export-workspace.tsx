@@ -5,11 +5,12 @@ import { QueryClient, QueryClientProvider, useMutation, useQuery, useQueryClient
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
+import { describeExportFormat, describeExportWarning } from "../../../lib/export-guidance";
 import { exportCancelFormSchema, exportContextSchema, exportDraftFormSchema, exportDraftSchema, exportJobSchema, exportProjectionSchema, exportRequestSchema, idempotencyKeySchema, type ExportCancelFormOutput, type ExportDraft, type ExportDraftFormInput, type ExportDraftFormOutput, type ExportJob, type ExportRequest } from "@phan/contracts";
 
 const formatLabels: Record<ExportRequest["format"], string> = {
-  canonical_json: "JSON — dữ liệu theo scope", csv: "CSV — danh sách hồ sơ", gedcom_551: "GEDCOM 5.5.1 — subset",
-  gedcom_7: "GEDCOM 7 — subset", book_pdf: "PDF — sách gia phả", svg: "SVG — phả đồ",
+  canonical_json: "JSON — dữ liệu đầy đủ theo quyền", csv: "CSV — danh sách hồ sơ", gedcom_551: "GEDCOM 5.5.1 — trao đổi gia phả",
+  gedcom_7: "GEDCOM 7 — trao đổi gia phả", book_pdf: "PDF — sách gia phả", svg: "SVG — phả đồ",
 };
 const statusLabels: Record<ExportJob["status"], string> = {
   queued: "Đã lưu · Chờ xử lý", running: "Đang xử lý", complete: "Đã hoàn tất", failed: "Xử lý chưa thành công", cancelled: "Đã hủy",
@@ -47,7 +48,7 @@ function ExportCancelForm({ job, pending, onCancel }: { job: ExportJob; pending:
   return <form className="import-form" onSubmit={handleSubmit(onCancel)}><label htmlFor="export-cancel-reason">Lý do hủy yêu cầu xuất</label>
     <input id="export-cancel-reason" minLength={5} maxLength={1000} required disabled={pending} aria-invalid={errors.reason ? "true" : "false"} aria-describedby={errors.reason ? "export-cancel-error" : undefined} {...register("reason")} />
     {errors.reason?.message && <p id="export-cancel-error" className="form-error" role="alert">{errors.reason.message}</p>}
-    <button className="button-secondary" disabled={pending}>{pending ? "Đang hủy…" : "Hủy yêu cầu xuất · v" + job.version}</button></form>;
+    <button className="button-secondary" disabled={pending}>{pending ? "Đang hủy…" : "Hủy yêu cầu xuất"}</button></form>;
 }
 
 function ExportWorkflow() {
@@ -219,26 +220,26 @@ function ExportWorkflow() {
 
   return <section className="import-workspace" aria-label="Khu vực xuất liệu" aria-busy={Boolean(pending) || contextQuery.isLoading || jobQuery.isFetching || previewQuery.isFetching}>
     <div className="card import-result export-intro"><p>Phạm vi → Yêu cầu → Xem dữ liệu theo quyền → Theo dõi</p>
-      <p>Hiện kiểm thử local: đã lưu job và lọc dữ liệu tại DB; worker tạo tệp chưa tích hợp. Không có tệp tải giả hoặc trạng thái hoàn tất giả.</p>
+      <p>Chọn phạm vi và định dạng. Bạn có thể tải tệp khi yêu cầu đã hoàn tất; chỉ thông tin được phép xuất mới được đưa vào tệp.</p>
       {contextQuery.isLoading && <p role="status">Đang kiểm tra phiên và phạm vi được phép…</p>}
       {(error || (contextQuery.error instanceof Error ? contextQuery.error.message : "")) && <p className="form-error" role="alert">{error || (contextQuery.error instanceof Error ? contextQuery.error.message : "")}</p>}{notice && <p role="status">{notice}</p>}
       <button type="button" className="button-secondary" disabled={Boolean(pending)} onClick={() => void reload(job?.id)}>Tải lại trạng thái xuất</button>
     </div>
     {!context && !contextQuery.isLoading && !pending && <div className="restricted-card"><h2>Chưa mở được phạm vi xuất</h2><p>Đăng nhập và xác thực hai bước đối với xuất hàng loạt. Không hiển thị dữ liệu riêng tư khi thiếu phiên.</p><Link className="button-secondary" href="/dang-nhap">Đăng nhập</Link></div>}
-    {context && context.scopes.length === 0 && <div className="restricted-card"><h2>Chưa có phạm vi được phép</h2><p>Cần hồ sơ cá nhân được duyệt hoặc grant xuất hàng loạt kèm MFA. Dữ liệu thật chưa được bật.</p><Link className="button-secondary" href="/thiet-lap-mfa">Xác thực hai bước</Link></div>}
+    {context && context.scopes.length === 0 && <div className="restricted-card"><h2>Chưa có phạm vi được phép</h2><p>Cần hồ sơ cá nhân đã được duyệt, hoặc quyền xuất hàng loạt và xác thực hai bước. Dữ liệu thật chưa được bật.</p><Link className="button-secondary" href="/thiet-lap-mfa">Xác thực hai bước</Link></div>}
     {choice && <form className="card import-form" onSubmit={handleExportSubmit}>
       <h2>Yêu cầu bản xuất</h2><label htmlFor="export-scope">Phạm vi</label>
       <select id="export-scope" value={scopeIndex} onChange={(event) => setScopeIndex(Number(event.target.value))} disabled={Boolean(pending)}>
         {context?.scopes.map((scope, index) => <option key={JSON.stringify([scope.treeId, scope.scope])} value={index}>{scope.treeName} · {scope.label}</option>)}
       </select><label htmlFor="export-format">Định dạng xuất</label>
-      <select id="export-format" disabled={Boolean(pending) || createMutation.isPending} {...register("format")}>
+      <select id="export-format" aria-describedby="export-format-guidance" disabled={Boolean(pending) || createMutation.isPending} {...register("format")}>
         {Object.entries(formatLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-      </select><label htmlFor="export-audience">Đối tượng nhận</label>
+      </select><p id="export-format-guidance">{describeExportFormat(draftFormat)}</p><label htmlFor="export-audience">Đối tượng nhận</label>
       <select id="export-audience" disabled={Boolean(pending) || createMutation.isPending || choice.scope.kind === "personal"} {...register("audience")}>
         {choice.scope.kind === "personal" ? <option value="members">Chính chủ · hồ sơ đã duyệt</option> : <><option value="members">Thành viên · theo consent từng trường</option><option value="public">Công khai · chờ workflow xuất bản</option></>}
       </select>{draftAudience === "public" && choice.scope.kind !== "personal" && <p>Chưa nối duyệt xuất bản hồ sơ: preview công khai hiện không trả dữ liệu người.</p>}
       <label htmlFor="export-media"><input id="export-media" type="checkbox" disabled={Boolean(pending) || createMutation.isPending} {...register("includeMedia")} /> Yêu cầu kèm tư liệu được phép</label>
-      <p>Tùy chọn được lưu; chưa tạo gói media. Không bao gồm tư liệu restricted hoặc đường dẫn kho riêng.</p>
+      <p>Xuất kèm tư liệu đang chờ quy định duyệt quyền sử dụng. Nếu chọn, hiện chưa thể tạo tệp hoàn chỉnh.</p>
       <label htmlFor="export-reason">Lý do xuất</label><input id="export-reason" minLength={5} maxLength={1000} required disabled={Boolean(pending) || createMutation.isPending} aria-invalid={formErrors.reason ? "true" : "false"} aria-describedby={formErrors.reason ? "export-reason-error" : undefined} {...register("reason")} />
       {formErrors.reason?.message && <p id="export-reason-error" className="form-error" role="alert">{formErrors.reason.message}</p>}
       <button className="button-primary" disabled={Boolean(pending) || createMutation.isPending}>{createMutation.isPending ? "Đang lưu yêu cầu…" : "Lưu yêu cầu xuất"}</button>
@@ -252,13 +253,13 @@ function ExportWorkflow() {
       </select></>}
       {job && <><p role="status" data-testid="export-status">{statusLabels[job.status]} · Phiên bản {job.version}</p>
         <p>Định dạng: {formatLabels[job.format]} · Hết hạn: {new Date(job.expiresAt).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}</p>
-        {job.warnings.length > 0 && <ul>{job.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul>}
+        {job.warnings.length > 0 && <ul>{job.warnings.map((warning, index) => <li key={index}>{describeExportWarning(warning)}</li>)}</ul>}
         <button type="button" className="button-secondary" disabled={Boolean(pending) || !["queued", "running", "complete"].includes(job.status)} onClick={() => void preview()}>Xem dữ liệu theo quyền</button>
         {projection && <div role="status" data-testid="export-preview"><p>Được phép: {projection.people.length} hồ sơ · {projection.parentLinks.length} quan hệ · {projection.unions.length} gia đình · {projection.citations.length} trích dẫn.</p><p>Không hiển thị số lượng hoặc mã hồ sơ bị ẩn. Preview không phải file hoàn tất.</p></div>}
         {job.status === "complete" ? <div className="export-downloads" aria-label="Tệp xuất đã hoàn tất">
           <Link className="button-primary" href={`/api/v1/exports/${job.id}/download?file=primary`}>Tải tệp {formatLabels[job.format].split(" — ")[0]}</Link>
-          {(job.format === "gedcom_551" || job.format === "gedcom_7") && <Link className="button-secondary" href={`/api/v1/exports/${job.id}/download?file=sidecar`}>Tải JSON sidecar</Link>}
-        </div> : <p role="status">Tệp chỉ xuất hiện sau khi worker lưu artifact riêng tư và DB xác nhận hoàn tất.</p>}
+          {(job.format === "gedcom_551" || job.format === "gedcom_7") && <Link className="button-secondary" href={`/api/v1/exports/${job.id}/download?file=sidecar`}>Tải JSON giữ đầy đủ dữ liệu</Link>}
+        </div> : <p role="status">Tệp tải xuống sẽ xuất hiện khi quá trình xử lý hoàn tất.</p>}
         {(job.status === "queued" || job.status === "running") && <ExportCancelForm job={job} pending={Boolean(pending) || cancelMutation.isPending} onCancel={cancel} />}
       </>}
     </section>

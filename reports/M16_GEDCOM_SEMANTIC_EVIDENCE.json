@@ -1,0 +1,157 @@
+{
+  "capturedOn": "2026-10-13",
+  "recordedAt": "2026-10-13T16:05:28Z",
+  "environment": "Windows Node24.21.0 / pnpm12.6.0; Docker29.8.0 Linux QA; local loopback Supabase only",
+  "demoRuntime": {
+    "origin": "http://127.0.0.1:3100",
+    "webPid": 22560,
+    "workerPid": 15856,
+    "logDirectory": "reports/local/demo-runtime-20261013-855a0c48",
+    "status": "PASS",
+    "scope": "home/export GET200, fictional label/current copy, IPv4 loopback listener, worker boot and process alive; startup smoke only"
+  },
+  "scope": "measured synthetic GEDCOM 5.5.1 profile; vendor losses explicitly reported",
+  "semantic": {
+    "status": "PASS",
+    "scope": "measured synthetic GEDCOM 5.5.1 profile; vendor losses explicitly reported",
+    "results": [
+      {
+        "kind": "gramps",
+        "dialect": "5.5.1",
+        "people": 3,
+        "families": 1,
+        "losses": [],
+        "structuralDiagnostics": []
+      },
+      {
+        "kind": "geneweb-native",
+        "dialect": "5.5.1",
+        "people": 3,
+        "families": 1,
+        "losses": [],
+        "structuralDiagnostics": [
+          {
+            "code": "VAL002",
+            "message": "Missing required tag SUBM in HEAD",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 13,
+                "character": 12
+              }
+            },
+            "level": "error"
+          }
+        ]
+      },
+      {
+        "kind": "geneweb-project",
+        "dialect": "5.5.1",
+        "people": 3,
+        "families": 1,
+        "losses": [
+          "unknown_surname_placeholders_added",
+          "source_flattened_to_private_note",
+          "citation_locator_not_retained"
+        ],
+        "structuralDiagnostics": [
+          {
+            "code": "VAL002",
+            "message": "Missing required tag SUBM in HEAD",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 13,
+                "character": 12
+              }
+            },
+            "level": "error"
+          }
+        ]
+      }
+    ]
+  },
+  "fixtureManifest": "packages/domain/tests/fixtures/gedcom-interop/manifest.json",
+  "liveRun": "reports/local/gedcom-interop/run-mQaVMQ",
+  "checks": [
+    {
+      "command": "pnpm.cmd test:m16:gedcom-interop",
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm.cmd test",
+      "status": "PASS",
+      "tests": 257,
+      "packages": {
+        "contracts": 75,
+        "domain": 143,
+        "worker": 27,
+        "lunar": 4,
+        "web": 8
+      }
+    },
+    {
+      "command": "pnpm.cmd typecheck",
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm.cmd lint",
+      "status": "PASS",
+      "errors": 0,
+      "preExistingWarnings": 2
+    },
+    {
+      "command": "pnpm.cmd verify",
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm.cmd test:m16:import",
+      "status": "PASS",
+      "data": "synthetic SQL transaction rolled back"
+    },
+    {
+      "command": "pnpm.cmd test:m16:export",
+      "status": "PASS",
+      "data": "synthetic SQL transaction rolled back"
+    },
+    {
+      "command": "isolated .next-m16-interop standalone build",
+      "status": "PASS",
+      "routes": 55,
+      "config": "APP_ENV=test, DATA_MODE=demo, CLI-local Supabase loopback values in memory"
+    },
+    {
+      "command": "Playwright mobile-320 export restricted + axe + skip-navigation",
+      "status": "PASS",
+      "tests": 3
+    },
+    {
+      "command": "focused interop fixture rerun after structural diagnostic capture",
+      "status": "PASS",
+      "tests": 5
+    },
+    {
+      "command": "tsc --project tools/gedcom-interop/tsconfig.json",
+      "status": "PASS",
+      "scope": "strict QA generator and ESM verifier scripts"
+    },
+    {
+      "command": "compiled standalone server byte scan",
+      "status": "PASS",
+      "scope": "loopback Supabase URL present in the new build"
+    }
+  ],
+  "limits": [
+    "GeneWeb VAL002: HEAD.SUBM missing; no full structural compliance claim",
+    "GeneWeb surname/citation losses explicitly reported; authorized JSON sidecar remains required",
+    "Vendor GEDCOM7 round-trip NOT_RUN; specification-derived fixture and independent structural validator only",
+    "includeMedia awaits scoped owner H3 decision",
+    "Full manual/physical-device/staging/production gates remain open"
+  ]
+}

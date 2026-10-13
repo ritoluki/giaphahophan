@@ -77,6 +77,7 @@ function serializeGedcom(input: unknown, version: GedcomVersion): SerializedExpo
     "gedcom_subset_not_lossless_json_sidecar_attached",
     "family_partner_tags_are_layout_slots_not_sex_or_gender",
     "name_components_not_inferred",
+    "external_applications_may_change_names_and_source_citations_use_json_sidecar",
     "canonical_identifiers_replaced_with_file_local_xrefs",
     "union_and_parent_link_semantics_are_lossless_json_sidecar_only",
   ]);

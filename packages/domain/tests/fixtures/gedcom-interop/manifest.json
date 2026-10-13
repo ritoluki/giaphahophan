@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "capturedOn": "2026-10-13",
+  "dataMode": "fictional-demo",
+  "baseImage": "debian:bookworm-slim@sha256:7c7b2c966bc9ee8cedfeef67e0e279108992c77681fa595db4a9d65c06ccc587",
+  "runtime": {
+    "image": "phan-gia-pha-gedcom-interop:20261013",
+    "imageId": "sha256:4dab864b453c3571d2095904a065f45d33d51e96626259e1ac64f7cef71eaf46",
+    "network": "none",
+    "dataMode": "synthetic-demo"
+  },
+  "grampsPackage": "5.1.5-1",
+  "genewebRelease": "7.1.0-beta2",
+  "genewebCommit": "2115f6a",
+  "genewebLinuxZipSha256": "84b29e6fd1370cae81ea5f812d7fefe127396f294a949692a958556531905734",
+  "vendorArtifacts": {
+    "geneweb-7.1.0-beta2.ged": "7c391bd4d1f59302e6e03060fe1eb3f147e530648321ee4bd5c951d6d9004f39",
+    "geneweb-project-roundtrip.ged": "285d96e747465027c858e6eeca92053b072d776c184f256a50a391b65111a51a",
+    "gramps-5.1.5.ged": "6bfb351a24d7d5b6db460d4d809621fc9da79848e0ca3e19e613dd40ca05789e"
+  },
+  "specification": {
+    "version": "7.0.18",
+    "url": "https://gedcom.io/specifications/FamilySearchGEDCOMv7.html",
+    "fixture": "spec-7-synthetic.ged",
+    "provenance": "Independently authored fictional fixture derived from normative structures; not a copied real family dataset."
+  }
+}
