@@ -1,5 +1,7 @@
 # Blockers
 
+2026-10-14 — RESOLVED scoped media-policy decision: owner approved reports/M16_MEDIA_POLICY_PROPOSAL.md. Remaining media limitation is technical implementation/test work, not missing owner approval; do not ask the same policy question again. Keep includeMedia guard until eligible sanitized media packaging/current authorization is verified. H1-H5 broader gates unchanged.
+
 2026-10-14 — Owner export-save403 resolved with actual browser320/worker/download evidence. No extra env or owner technical setup. Refresh cannot fix mismatched internal/public origins; strict guard now uses trusted config. For text-only demo leave includeMedia unchecked; media policy awaits owner. reports/M16_EXPORT_ORIGIN_FIX_LOCAL.md.
 
 2026-10-14 — Local broken MFA QR resolved with actual Chromium320/TOTP verification; no extra env or owner technical setup needed. User must explicitly create fresh setup and confirm with their own authenticator because the old setup secret was exposed in their screenshot; agent did not read/use/rotate it. Media-policy/H3 and broader release gates remain pending. Evidence reports/M07_MFA_QR_FIX_LOCAL.md.

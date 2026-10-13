@@ -1,5 +1,7 @@
 # Các bước chủ dự án thực sự cần tham gia
 
+2026-10-14 — RESOLVED M16 scoped media policy: owner explicitly approved “Duyệt quy tắc xuất ảnh”. Approval H3-M16-MEDIA-20261014; implementation can proceed on synthetic local data. No further media-policy clarification or extra env requested now. Older requests below are superseded for this scoped decision, not for all H3/H4/H5 gates.
+
 2026-10-14 — No technical setup needed for MFA/export403 fixes. Owner can refresh http://127.0.0.1:3100/quan-tri/xuat-lieu and save with includeMedia unchecked. Existing media-policy decision remains pending; testing is not approval.
 
 2026-10-13 — RESOLVED safety follow-up: the owner ran the requested read-only check and returned `not found`. The expected `%USERPROFILE%\\gramps` directory does not exist. No cleanup or further owner action is required for that check.

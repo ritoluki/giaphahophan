@@ -1,6 +1,6 @@
 # M16-06 proposed media export policy
 
-Status: PROPOSED; owner H3 decision pending. This is a scoped proposal for image/media export, not approval of H3 as a whole, cloud access, real-data use, or release. Text-only exports remain available while this decision is pending.
+Status: APPROVED by the project owner on 2026-10-14 (Asia/Saigon), message “Duyệt quy tắc xuất ảnh”. Scope recorded as H3-M16-MEDIA-20261014 in state/APPROVALS.json against the original proposal checksum/revision. This approves this media-export policy, not H3 as a whole, cloud access, real-data use or release. Implementation remains IN_PROGRESS; approval alone does not enable includeMedia.
 
 ## Decision requested
 
@@ -18,4 +18,11 @@ Status: PROPOSED; owner H3 decision pending. This is a scoped proposal for image
 
 Basis: `docs/10_AUTH_PERMISSIONS_PRIVACY.md` (current consent/audience and deny-first field policy), `docs/13_MEDIA_CONTENT_PLACES.md` (review every depicted person, private originals and sanitized derivatives), and `docs/11_IMPORT_EXPORT_REAL_DATA.md` (permission-filtered private exports with rechecks and manifests).
 
-Owner response can be: **approve this scoped media policy** or identify the desired change, especially whether an ineligible asset should instead fail the entire export. Until approval, `includeMedia` continues to fail closed.
+Owner decision: approved the scoped policy without amendments, including omission of ineligible assets rather than failure of the entire export. `includeMedia` remains fail-closed until the versioned review, authorization projection, sanitized packaging and revocation tests are implemented and verified; do not remove the worker guard merely because policy is approved.
+
+## Execution plan after approval
+
+1. Private versioned review manifest and user-scoped independent-review DTO/RPC/API, audit and optimistic locking; explicit rights/consent references, never infer completeness from asset-person links.
+2. Permission-filtered media projection with current subject/consent/version checks at job creation and worker claim/render; generic omission warning without hidden IDs/counts.
+3. Bounded sanitized-derivative package with safe relative paths, checksums and private Storage; cancellation/retry cleanup and download reauthorization/revocation.
+4. Shared-component mobile review/recovery UI; actual local DB/Storage/browser tests for independent reviewers, ambiguity, protected subjects, cross-tree, expiry/revocation, changed versions and cancellation before enabling media export. No real uploads or hosted migrations.

@@ -1,5 +1,7 @@
 # Backlog triển khai
 
+2026-10-14 M16-06 media policy owner approval recorded (H3-M16-MEDIA-20261014). Decision blocker resolved; implement versioned independent subject review, permission projection, sanitized package/current-download recheck, mobile reviewer UI and actual synthetic tests in that order. Feature remains IN_PROGRESS and includeMedia fail-closed until verified. H3 as a whole remains PENDING.
+
 2026-10-14 M16-06 export403 fixed: strict configured origin+CSRF with separate errors, actual Chromium320 refresh/save202, worker/PDF/download and foreign-origin/token negative tests PASS; web29/types/lint/build PASS. reports/M16_EXPORT_ORIGIN_FIX_LOCAL.md. M16-06 remains IN_PROGRESS; media policy/release gates unchanged.
 
 2026-10-14 M07 MFA follow-up: QR normalization covers real provider XML/comment prolog; hidden manual secret, explicit unfinished enrollment restart, login session feedback. PASS18 web tests/types/lint0errors2warnings/build55routes and real local Chromium320 enrollment/replacement/TOTP/AAL2 persistence/verified+unrelated factor preservation. reports/M07_MFA_QR_FIX_LOCAL.md. Scoped regression complete; canonical module status remains IN_PROGRESS and broader gates unchanged.

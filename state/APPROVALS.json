@@ -2,6 +2,22 @@
   "schemaVersion": "1.0",
   "approvals": [
     {
+      "id": "H3-M16-MEDIA-20261014",
+      "status": "APPROVED",
+      "approvedBy": "Project owner (this conversation)",
+      "approvedAt": "2026-10-14T00:43:48+07:00",
+      "scope": "M16-06 scoped media export policy: independent scoped reviewer with publication.manage and MFA; complete versioned subject/audience/rights/consent review; omit ineligible assets with generic non-identifying warning; recheck at create/render/download. Local synthetic implementation and tests only; no approval of H3 as a whole, hosted migration, real data, production, paid service or public original assets.",
+      "evidence": "Owner message: Duyệt quy tắc xuất ảnh. Approved proposal at reports/M16_MEDIA_POLICY_PROPOSAL.md, revision 034eb47; original file SHA256 3da2018f4691c2f182686891aa7dedaafecce9980b1fe856011104abfc075de2. Timestamp records approval receipt, not a claimed message timestamp."
+    },
+    {
+      "id": "H3-M16-MEDIA-20261014",
+      "status": "APPROVED",
+      "approvedBy": "Project owner (this conversation)",
+      "approvedAt": "2026-10-14T00:43:48+07:00",
+      "scope": "M16-06 scoped media export policy: independent scoped reviewer with publication.manage and MFA; complete versioned subject/audience/rights/consent review; omit ineligible assets with generic non-identifying warning; recheck at create/render/download. Local synthetic implementation and tests only; no approval of H3 as a whole, hosted migration, real data, production, paid service or public original assets.",
+      "evidence": "Owner message: Duyệt quy tắc xuất ảnh. Approved proposal at reports/M16_MEDIA_POLICY_PROPOSAL.md, revision 034eb47; original file SHA256 3da2018f4691c2f182686891aa7dedaafecce9980b1fe856011104abfc075de2. Timestamp records approval receipt, not a claimed message timestamp."
+    },
+    {
       "id": "H1",
       "status": "PENDING",
       "approvedBy": null,

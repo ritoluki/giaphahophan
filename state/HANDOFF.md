@@ -1,5 +1,7 @@
 # Bàn giao cho agent kế tiếp
 
+2026-10-14 scoped M16 media policy APPROVED: see H3-M16-MEDIA-20261014 and approved proposal execution plan. Begin private versioned independent subject-review contract/migration/tests; keep worker packaging guard until end-to-end media implementation passes. Do not request same approval again or mark H3 as a whole approved. Existing text-only demo unchanged.
+
 2026-10-14 demo supersedes older PIDs: Next18924 uses tested .next-export-csrf on127.0.0.1:3100, worker15856 retained, ignored logs reports/local/demo-export-csrf-20261014. Actual local MFA and browser export/worker/download evidence recorded. Owner account/factor unchanged. Media policy pending; includeMedia unchecked for text-only demo. No hosted/real-data/production.
 
 2026-10-13 Git handoff: implementation/evidence commit `defd2fd` (fix(m16): verify GEDCOM interoperability and clarify exports) successfully pushed to origin/main at the owner-provided ritoluki/giaphahophan repository. Only the 13 pre-existing owner design-review PNG modifications remain outside the committed feature. The scoped media-policy question is awaiting an owner response; no approval has been inferred. Continue from the concrete proposal and retain the live local demo processes documented below.
