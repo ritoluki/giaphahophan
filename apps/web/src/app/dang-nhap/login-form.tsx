@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { safeNextPath } from "@/lib/safe-next-path";
@@ -14,6 +14,18 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [session, setSession] = useState<"checking" | "authenticated" | "anonymous">("checking");
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/v1/auth/mfa/status", { signal: controller.signal, cache: "no-store" })
+      .then(async response => {
+        const payload = await response.json() as { data?: { authenticated?: boolean } };
+        if (!controller.signal.aborted) setSession(response.ok && payload.data?.authenticated === true ? "authenticated" : "anonymous");
+      })
+      .catch(() => { if (!controller.signal.aborted) setSession("anonymous"); });
+    return () => controller.abort();
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,6 +51,9 @@ export function LoginForm() {
       setPending(false);
     }
   }
+
+  if (session === "checking") return <div className="card" role="status">Đang kiểm tra phiên đăng nhập…</div>;
+  if (session === "authenticated") return <div className="card"><h2>Bạn đã đăng nhập</h2><p>Không cần nhập lại email và mật khẩu. Chức năng quản trị có thể yêu cầu xác thực hai bước.</p><Link className="button-primary" href={nextPath === "/" ? "/quan-tri" : nextPath}>Tiếp tục</Link><p><Link href="/thiet-lap-mfa">Xác thực hai bước</Link></p></div>;
 
   return (
     <form className="card" onSubmit={submit} noValidate>

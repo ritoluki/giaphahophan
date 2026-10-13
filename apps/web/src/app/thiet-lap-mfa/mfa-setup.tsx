@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
+import { mfaQrImageSource } from "../../lib/mfa-qr";
 
 type MfaStatus = {
   authenticated: boolean;
@@ -36,6 +37,7 @@ export function MfaSetup() {
   const [pending, setPending] = useState(true);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [showSecret, setShowSecret] = useState(false);
 
   async function loadStatus() {
     setPending(true);
@@ -73,12 +75,17 @@ export function MfaSetup() {
     });
     if (!result.response.ok || !result.payload.data?.challengeId) throw new Error(result.payload.error?.message ?? "Không thể tạo thử thách MFA.");
     setChallengeId(result.payload.data.challengeId);
+    return result.payload.data.challengeId;
   }
 
   async function enroll() {
     setPending(true);
     setError("");
     setNotice("");
+    setEnrollment(null);
+    setChallengeId(null);
+    setCode("");
+    setShowSecret(false);
     try {
       const result = await readApi("/api/v1/auth/mfa/enroll", { method: "POST" });
       if (!result.response.ok || !result.payload.data?.factorId || !result.payload.data.qrCode || !result.payload.data.secret || !result.payload.data.uri) {
@@ -86,13 +93,13 @@ export function MfaSetup() {
       }
       const nextEnrollment = {
         factorId: result.payload.data.factorId,
-        qrCode: result.payload.data.qrCode,
+        qrCode: mfaQrImageSource(result.payload.data.qrCode),
         secret: result.payload.data.secret,
         uri: result.payload.data.uri
       };
       setEnrollment(nextEnrollment);
       await startChallenge(nextEnrollment.factorId);
-      setNotice("Đã tạo factor. Quét QR hoặc nhập mã bí mật rồi điền mã 6 số để xác nhận.");
+      setNotice("Quét mã QR bằng ứng dụng xác thực trên điện thoại, rồi nhập mã 6 số do ứng dụng tạo.");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Không thể bắt đầu thiết lập MFA.");
     } finally {
@@ -108,11 +115,7 @@ export function MfaSetup() {
     setError("");
     setNotice("");
     try {
-      let currentChallengeId = challengeId;
-      if (!currentChallengeId) {
-        await startChallenge(factorId);
-        throw new Error("Thử thách mới đã được tạo. Vui lòng nhập mã hiện tại và gửi lại.");
-      }
+      const currentChallengeId = challengeId ?? await startChallenge(factorId);
       const result = await readApi("/api/v1/auth/mfa/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -128,8 +131,10 @@ export function MfaSetup() {
       setEnrollment(null);
       setChallengeId(null);
       setCode("");
-      setNotice("MFA đã được xác nhận cho phiên này.");
+      setShowSecret(false);
+      setNotice("Đã hoàn tất xác thực hai bước. Bạn có thể tiếp tục dùng chức năng quản trị.");
     } catch (cause) {
+      setChallengeId(null);
       setError(cause instanceof Error ? cause.message : "Mã MFA chưa được chấp nhận.");
     } finally {
       setPending(false);
@@ -168,15 +173,18 @@ export function MfaSetup() {
   return (
     <div className="mfa-panel">
       <div className="mfa-status" role="status">
-        <strong>{status?.mfaEnrolled ? "MFA đã đăng ký" : "MFA chưa được đăng ký"}</strong>
-        <span>Phiên hiện tại: {status?.aal === "aal2" ? "đã xác nhận MFA" : "chỉ xác thực mật khẩu"}</span>
+        <strong>{status?.mfaEnrolled ? "Đã bật xác thực hai bước" : enrollment ? "Đang thiết lập — cần xác nhận mã 6 số" : "Chưa bật xác thực hai bước"}</strong>
+        <span>{status?.aal === "aal2" ? "Phiên hiện tại đã được xác thực hai bước." : "Bạn đã đăng nhập bằng mật khẩu. Hoàn tất bước dưới để dùng chức năng cần bảo mật bổ sung."}</span>
       </div>
       {!status?.mfaEnrolled && !enrollment ? <button className="button-primary" type="button" onClick={enroll} disabled={pending}>Thiết lập ứng dụng xác thực</button> : null}
       {enrollment ? (
         <div className="mfa-enrollment">
-          <div className="mfa-qr-frame"><img src={`data:image/svg+xml;utf8,${encodeURIComponent(enrollment.qrCode)}`} alt="Mã QR thiết lập MFA" /></div>
-          <label className="mfa-secret">Mã bí mật dự phòng<input type="text" value={enrollment.secret} readOnly autoComplete="off" /></label>
-          <p className="muted">Không gửi mã bí mật qua chat hoặc lưu vào ảnh chụp. Chỉ dùng nó khi ứng dụng xác thực không quét được QR.</p>
+          <p>Mở ứng dụng xác thực trên điện thoại, thêm tài khoản bằng cách quét mã QR này.</p>
+          <div className="mfa-qr-frame"><img src={enrollment.qrCode} alt="Mã QR thiết lập MFA" /></div>
+          <button type="button" className="button-secondary" onClick={() => setShowSecret(value => !value)}>{showSecret ? "Ẩn mã thiết lập" : "Không quét được QR? Hiện mã để nhập thủ công"}</button>
+          {showSecret && <label className="mfa-secret">Mã thiết lập thủ công<input type="text" value={enrollment.secret} readOnly autoComplete="off" /></label>}
+          <p className="muted">Không gửi mã QR hoặc mã thiết lập qua chat hay ảnh chụp.</p>
+          <button type="button" className="button-secondary" onClick={enroll} disabled={pending}>Tạo mã QR mới</button>
         </div>
       ) : null}
       {status?.mfaEnrolled || enrollment ? (
@@ -187,6 +195,7 @@ export function MfaSetup() {
         </form>
       ) : null}
       {status?.mfaEnrolled && status.aal === "aal2" ? <button className="button-danger" type="button" onClick={unenroll} disabled={pending}>Gỡ factor theo policy</button> : null}
+      {status?.aal === "aal2" && <Link className="button-primary" href="/quan-tri">Vào trang quản trị</Link>}
       {notice ? <p className="mfa-notice" role="status">{notice}</p> : null}
       {error ? <p className="field-error" role="alert">{error}</p> : null}
     </div>

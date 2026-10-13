@@ -3,6 +3,11 @@ import type { createRequestSupabaseClient } from "@/lib/server/supabase-api";
 
 export type RequestSupabaseClient = Awaited<ReturnType<typeof createRequestSupabaseClient>>;
 
+export const appTotpFriendlyName = "Phan Gia Phả authenticator";
+export function pendingAppTotpFactorIds(factors: ReadonlyArray<{ id: string; status: string; factor_type: string; friendly_name?: string }>): string[] {
+  return factors.filter(factor => factor.status === "unverified" && factor.factor_type === "totp" && factor.friendly_name === appTotpFriendlyName).map(factor => factor.id);
+}
+
 export function mfaErrorStatus(error: { code?: string | undefined; message?: string | undefined }) {
   if (error.code === "insufficient_aal" || error.code === "mfa_verification_failed" || error.code === "mfa_verification_rejected") return 403;
   if (error.code === "mfa_factor_not_found" || error.code === "mfa_challenge_expired") return 409;

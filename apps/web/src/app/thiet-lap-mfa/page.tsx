@@ -5,8 +5,8 @@ export default function MfaSetupPage() {
   return (
     <FoundationPage
       kicker="Tài khoản · Bảo mật"
-      title="Thiết lập xác thực bổ sung"
-      description="MFA dùng TOTP của ứng dụng xác thực. Mã bí mật chỉ hiển thị trong phiên đã xác thực và không được ghi vào log hay dữ liệu gia phả."
+      title="Thiết lập xác thực hai bước"
+      description="Thêm lớp bảo vệ cho tài khoản bằng ứng dụng tạo mã xác thực trên điện thoại."
     >
       <MfaSetup />
     </FoundationPage>

@@ -1,5 +1,7 @@
 # Tiến độ
 
+2026-10-14 — M07 MFA usability regression: fixed double-wrapped SVG QR including provider XML declaration/comments, manual secret hidden by default, explicit pending-only app enrollment restart, first-submit challenge verification and signed-in login feedback. PASS18 web unit tests, types, lint0errors/2existing warnings, local standalone55-route build and actual Chromium320/TOTP/AAL2 reload, pending replacement preserving unrelated and verified factors. Synthetic test account cleaned; owner account untouched. Demo now uses tested .next-mfa-fix at127.0.0.1:3100 PID25668. Evidence reports/M07_MFA_QR_FIX_LOCAL.md. No hosted/real-data/production; media approval remains pending.
+
 2026-10-13 — Local demo resumed on the new tested standalone build: http://127.0.0.1:3100, Next PID22560 and demo export worker PID15856. PASS home/export GET200, fictional label/current copy, loopback listener and worker boot/alive; this is startup/smoke evidence, not a new authenticated export/download acceptance run. Logs remain ignored under reports/local/demo-runtime-20261013-855a0c48. No extra owner env/setup needed.
 
 2026-10-13 — Local demo resumed on the new tested standalone build: http://127.0.0.1:3100, Next PID22560 and demo export worker PID15856. PASS home/export GET200, fictional label/current copy, loopback listener and worker boot/alive; this is startup/smoke evidence, not a new authenticated export/download acceptance run. Logs remain ignored under reports/local/demo-runtime-20261013-855a0c48. No extra owner env/setup needed.
