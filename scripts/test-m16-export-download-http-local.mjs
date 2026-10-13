@@ -96,8 +96,10 @@ const pendingCount = psql("select count(*) from private.export_jobs where status
 assert(pendingCount.status === 0 && pendingCount.stdout.trim() === "0", "Local export queue is not empty; refusing to claim another user's queued work");
 
 const port = await reservePort();
-const origin = `http://localhost:${port}`;
-const standaloneRoot = resolve(root, "apps/web/.next-m16-export-download-local/standalone/apps/web");
+const origin = `http://127.0.0.1:${port}`;
+const buildDirectory = process.env.M16_HTTP_TEST_DIST ?? ".next-m16-export-download-local";
+assert(/^\.next-[a-z0-9-]+$/.test(buildDirectory), "Invalid local test build directory");
+const standaloneRoot = resolve(root, `apps/web/${buildDirectory}/standalone/apps/web`);
 const serverPath = resolve(standaloneRoot, "server.js");
 function hasCompiledLocalEndpoint(directory) {
   let entries;
@@ -113,7 +115,7 @@ function hasCompiledLocalEndpoint(directory) {
   return false;
 }
 assert(
-  hasCompiledLocalEndpoint(resolve(standaloneRoot, ".next-m16-export-download-local/server")),
+  hasCompiledLocalEndpoint(resolve(standaloneRoot, `${buildDirectory}/server`)),
   "Standalone build does not contain the loopback Supabase URL; rebuild it with local env before HTTP E2E"
 );
 const web = spawn(process.execPath, [serverPath], {
@@ -203,11 +205,39 @@ commit;`);
   let context = await jsonRequest(`${origin}/api/v1/exports`, { headers: { Cookie: cookie } });
   assert(context.response.ok && /^[a-f0-9]{64}$/.test(context.body?.data?.csrfToken), "Authorized export context did not return a CSRF token");
   cookie = mergeCookies(cookie, context.response);
+  for (const rejection of [
+    { origin: "https://untrusted.example", token: context.body.data.csrfToken, code: "ORIGIN_INVALID" },
+    { origin, token: "", code: "CSRF_INVALID" },
+    { origin, token: "0".repeat(64), code: "CSRF_INVALID" },
+  ]) {
+    const denied = await jsonRequest(`${origin}/api/v1/exports`, { method: "POST", headers: { Cookie: cookie, Origin: rejection.origin, "X-CSRF-Token": rejection.token, "Content-Type": "application/json", "Idempotency-Key": randomUUID() }, body: "{}" });
+    assert(denied.response.status === 403 && denied.body?.data?.code === rejection.code, `CSRF/origin negative regression failed: expected ${rejection.code}, got HTTP${denied.response.status}/${denied.body?.data?.code ?? "unknown"}`);
+  }
+  cookie = mergeCookies(cookie, context.response);
   assert(context.body.data.scopes.some((scope) => scope.treeId === treeId && scope.scope.kind === "tree"), "Synthetic tree is missing from authorized export scopes");
-  const key = randomUUID();
-  const queued = await jsonRequest(`${origin}/api/v1/exports`, { method: "POST", headers: { Cookie: cookie, Origin: origin, "Content-Type": "application/json", "X-CSRF-Token": context.body.data.csrfToken, "Idempotency-Key": key }, body: JSON.stringify({ treeId, format: "book_pdf", scope: { kind: "tree" }, reason: "Synthetic BFF download verification", includeMedia: false, audience: "members" }) });
-  assert(queued.response.status === 202 && queued.body?.data?.id, `Synthetic export job creation failed (${queued.response.status})`);
-  jobId = queued.body.data.id;
+  const exportBrowser = await chromium.launch({ headless: true, chromiumSandbox: false });
+  try {
+    const browserContext = await exportBrowser.newContext({ viewport: { width: 320, height: 900 } });
+    await browserContext.addCookies(cookie.split("; ").map(pair => {
+      const separator = pair.indexOf("=");
+      return { name: pair.slice(0, separator), value: pair.slice(separator + 1), url: origin, sameSite: "Strict" };
+    }));
+    const page = await browserContext.newPage();
+    await page.route("**/*", route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort());
+    await page.goto(`${origin}/quan-tri/xuat-lieu`);
+    await page.locator("#export-format").selectOption("book_pdf");
+    await page.locator("#export-media").uncheck();
+    await page.locator("#export-reason").fill("Synthetic BFF download verification");
+    await page.getByRole("button", { name: "Tải lại trạng thái xuất", exact: true }).click();
+    const queuedResponse = page.waitForResponse(response => response.url() === `${origin}/api/v1/exports` && response.request().method() === "POST");
+    await page.getByRole("button", { name: "Lưu yêu cầu xuất", exact: true }).click();
+    const response = await queuedResponse;
+    const queued = await response.json();
+    assert(response.status() === 202 && queued.data?.id, `Synthetic browser export creation failed (${response.status()}, ${queued.data?.code ?? "unknown"})`);
+    jobId = queued.data.id;
+    await page.getByTestId("export-status").waitFor();
+    assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), "Export form overflows at320px");
+  } finally { await exportBrowser.close(); }
 
   const processed = await processOneExport(new SupabaseExportProcessingStore(service), randomUUID());
   assert(processed.status === "completed" && processed.jobId === jobId && processed.artifactCount === 1, `Synthetic PDF worker did not complete requested job (${processed.status}${processed.status === "failed" ? `:${processed.errorCode}` : ""})`);

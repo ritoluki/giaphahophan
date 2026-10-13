@@ -1,5 +1,7 @@
 # Blockers
 
+2026-10-14 — Owner export-save403 resolved with actual browser320/worker/download evidence. No extra env or owner technical setup. Refresh cannot fix mismatched internal/public origins; strict guard now uses trusted config. For text-only demo leave includeMedia unchecked; media policy awaits owner. reports/M16_EXPORT_ORIGIN_FIX_LOCAL.md.
+
 2026-10-14 — Local broken MFA QR resolved with actual Chromium320/TOTP verification; no extra env or owner technical setup needed. User must explicitly create fresh setup and confirm with their own authenticator because the old setup secret was exposed in their screenshot; agent did not read/use/rotate it. Media-policy/H3 and broader release gates remain pending. Evidence reports/M07_MFA_QR_FIX_LOCAL.md.
 
 2026-10-13 supersedes the local app-execution blocker: Docker execution works with authorized access; Linux Gramps5.1.5/GeneWeb7.1.0-beta2 generated actual synthetic vendor GEDCOM fixtures and the bounded semantic checks passed. GeneWeb still has measured name/citation losses and structural VAL002 missing HEAD.SUBM; these are recorded limits, not silently waived. Vendor GEDCOM7 interoperability remains NOT_RUN. Owner check of expected profile directory returned not found; safety follow-up resolved. Active next M16-06 blocker is the scoped H3 media-policy choice in reports/M16_MEDIA_POLICY_PROPOSAL.md; no extra env or owner technical setup is requested. Full manual/device/staging/release and broader consent gates remain open. Evidence reports/M16_GEDCOM_SEMANTIC_EVIDENCE.json.

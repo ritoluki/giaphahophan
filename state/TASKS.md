@@ -1,5 +1,7 @@
 # Backlog triển khai
 
+2026-10-14 M16-06 export403 fixed: strict configured origin+CSRF with separate errors, actual Chromium320 refresh/save202, worker/PDF/download and foreign-origin/token negative tests PASS; web29/types/lint/build PASS. reports/M16_EXPORT_ORIGIN_FIX_LOCAL.md. M16-06 remains IN_PROGRESS; media policy/release gates unchanged.
+
 2026-10-14 M07 MFA follow-up: QR normalization covers real provider XML/comment prolog; hidden manual secret, explicit unfinished enrollment restart, login session feedback. PASS18 web tests/types/lint0errors2warnings/build55routes and real local Chromium320 enrollment/replacement/TOTP/AAL2 persistence/verified+unrelated factor preservation. reports/M07_MFA_QR_FIX_LOCAL.md. Scoped regression complete; canonical module status remains IN_PROGRESS and broader gates unchanged.
 
 2026-10-13 M16-03/06: added actual versioned Gramps/GeneWeb fixtures, spec-derived GEDCOM7 fixture, reproducible network-disabled Docker QA and semantic/structural report; known GeneWeb losses and missing HEAD.SUBM remain documented compatibility limitations. Fixed dialect selection and malformed-version acceptance; translated export guidance. PASS257 unit tests, full types/verify/lint0errors2warnings, local55-route build, M16 SQL import/export rollback tests, mobile320 export3/3. Scoped media policy proposal now ready for owner review; includeMedia remains blocked. Task statuses stay IN_PROGRESS; no full release gate waived. reports/M16_GEDCOM_INTEROP_LOCAL.md.

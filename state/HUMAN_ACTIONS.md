@@ -1,5 +1,7 @@
 # Các bước chủ dự án thực sự cần tham gia
 
+2026-10-14 — No technical setup needed for MFA/export403 fixes. Owner can refresh http://127.0.0.1:3100/quan-tri/xuat-lieu and save with includeMedia unchecked. Existing media-policy decision remains pending; testing is not approval.
+
 2026-10-13 — RESOLVED safety follow-up: the owner ran the requested read-only check and returned `not found`. The expected `%USERPROFILE%\\gramps` directory does not exist. No cleanup or further owner action is required for that check.
 
 2026-10-13 — Owner decision requested only for M16-06 media export: approve or amend `reports/M16_MEDIA_POLICY_PROPOSAL.md`. Proposed designated independent reviewer (reviewer + scoped publication.manage, MFA), complete subject/audience/consent review, versioned evidence, omit ineligible assets with a generic warning while exporting eligible data, and recheck at creation/render/download. This is a scoped media-policy choice; H3 as a whole and H1/H2/H4/H5 remain unapproved. No extra env, secret, Docker setup, hosted migration, or real data is requested.

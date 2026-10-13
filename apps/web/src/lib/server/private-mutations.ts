@@ -2,12 +2,18 @@ import { timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 import { idempotencyKeySchema } from "@phan/contracts";
 import { apiJson, createRequestSupabaseClient, getVerifiedUser } from "./supabase-api";
+import { isAllowedMutationOrigin } from "./mutation-origin";
 
 export async function readPrivateMutation(request: Request, options: { csrfCookie: string; prefix: "IMPORT" | "EXPORT" }) {
   const origin = request.headers.get("Origin");
   const token = request.headers.get("X-CSRF-Token") ?? "";
   const stored = (await cookies()).get(options.csrfCookie)?.value ?? "";
-  if (origin !== new URL(request.url).origin || !/^[a-f0-9]{64}$/.test(token) || !/^[a-f0-9]{64}$/.test(stored)
+  // Read runtime deployment config; public env references can be inlined by Next.
+  const appUrl: unknown = Reflect.get(process.env, "NEXT_PUBLIC_APP_URL");
+  if (!isAllowedMutationOrigin(origin, typeof appUrl === "string" ? appUrl : undefined)) {
+    return { ok: false as const, response: apiJson({ code: "ORIGIN_INVALID", message: "Địa chỉ mở website không khớp cấu hình. Hãy mở lại từ địa chỉ chính thức của bản demo hoặc website." }, 403) };
+  }
+  if (!/^[a-f0-9]{64}$/.test(token) || !/^[a-f0-9]{64}$/.test(stored)
       || !timingSafeEqual(Buffer.from(stored), Buffer.from(token))) {
     return { ok: false as const, response: apiJson({ code: "CSRF_INVALID", message: "Phiên xác nhận đã hết hạn. Hãy tải lại trạng thái." }, 403) };
   }
