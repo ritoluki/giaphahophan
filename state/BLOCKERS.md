@@ -1,5 +1,7 @@
 # Blockers
 
+2026-11-03 — Audit cập nhật: blocker media-policy đã giải quyết ngày14/10; phần còn lại là implementation/test, không hỏi duyệt lại. Các gap code hiện thấy: profile/tree/kinship còn demo; M10 domain chưa nối DB/API/UI; M11 entrypoint chưa chạy delivery; M17/M18 chưa hoàn tất. Migration history0037–0075 vẫn là gap được ghi nhận, chưa kiểm toán/repair trong phiên này. Project doctor hiện BLOCKED do quyền đọc Docker config trong sandbox, không phải bằng chứng Docker daemon hỏng; không cần owner sửa máy từ kết quả này. H1–H5/G1–G6 không thay đổi. Unit278/types/lint/foundation verify PASS local không thay các gate đó; xem TEST_REPORT mới nhất.
+
 2026-10-14 — RESOLVED scoped media-policy decision: owner approved reports/M16_MEDIA_POLICY_PROPOSAL.md. Remaining media limitation is technical implementation/test work, not missing owner approval; do not ask the same policy question again. Keep includeMedia guard until eligible sanitized media packaging/current authorization is verified. H1-H5 broader gates unchanged.
 
 2026-10-14 — Owner export-save403 resolved with actual browser320/worker/download evidence. No extra env or owner technical setup. Refresh cannot fix mismatched internal/public origins; strict guard now uses trusted config. For text-only demo leave includeMedia unchecked; media policy awaits owner. reports/M16_EXPORT_ORIGIN_FIX_LOCAL.md.

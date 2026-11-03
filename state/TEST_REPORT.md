@@ -1,5 +1,16 @@
 # Báo cáo kiểm thử ứng dụng
 
+## Rà soát ngày 2026-11-03 — local, baseline 98c7511
+
+- PASS `pnpm.cmd test`, exit 0: 278 tests = contracts75/domain143/worker27/lunar4/web29. Config/UI không có test files, không cộng vào tổng. Evidence: [unit.log](../reports/local/project-audit-20261103/unit.log).
+- PASS `pnpm.cmd typecheck`, exit 0: các package/app hoàn tất `tsc --noEmit`. Evidence: [typecheck.log](../reports/local/project-audit-20261103/typecheck.log).
+- PASS `pnpm.cmd lint`, exit 0: 0 errors, 2 warnings tại PostCSS export và MFA img. Evidence: [lint.log](../reports/local/project-audit-20261103/lint.log).
+- PASS `pnpm.cmd verify`, exit 0: chỉ kiểm tra foundation files, không chứng minh nghiệm thu sản phẩm. Evidence: [verify.log](../reports/local/project-audit-20261103/verify.log).
+- BLOCKED `pnpm.cmd run doctor`, exit 2: Node24.21.0/pnpm12.6.0/Docker client29.8.0 có sẵn; Docker daemon check bị Access Denied ở Docker config trong sandbox. Chưa kết luận daemon hỏng. Evidence: [project-doctor.log](../reports/local/project-audit-20261103/project-doctor.log).
+- BLOCKED `pnpm.cmd release:check`, exit 2: H1–H5 pending; script hiện luôn trả BLOCKED, chưa đánh giá đủ RELEASE_GATES/manifest. Evidence: [release.log](../reports/local/project-audit-20261103/release.log).
+- NOT_RUN trong phiên này: DB/migration/Storage/browser/E2E/a11y/build/load/backup/restore/staging/production. Evidence lịch sử local 13–14/10 vẫn giữ nguyên, không chuyển thành kết quả chạy mới. Không đọc env/secret hay dùng hosted endpoint.
+- Lần gọi `pnpm.cmd doctor` ban đầu chạy built-in của pnpm, không phải script dự án; thất bại do ACL/cache/store/network. Log [doctor.log](../reports/local/project-audit-20261103/doctor.log) chỉ phản ánh môi trường công cụ; lệnh dự án đúng là `pnpm.cmd run doctor` ở trên.
+
 2026-10-14 scoped media approval bookkeeping: `node scripts/verify.mjs` PASS foundation-files on local Node24; `node scripts/release-check.mjs` remains BLOCKED listing H1-H5, productionDeploy NOT_RUN. Separate H3-M16-MEDIA-20261014 does not waive broader gates. New media implementation/DB/Storage/browser acceptance NOT_RUN; approval is not a test result.
 
 2026-10-14 PASS local M07/M16: real Chromium320 QR/TOTP/AAL2 persistence and factor preservation; subsequent export fix web29 tests/types/lint0errors2warnings/build55routes, actual Chromium320 refresh/save202, foreign-origin/missing/mismatched-token403, worker/private PDF download/anonymous401/sidecar404 and synthetic cleanup. reports/M07_MFA_QR_FIX_LOCAL.md and reports/M16_EXPORT_ORIGIN_FIX_LOCAL.md. Intermediate failures recorded, not PASS. Staging/production/full device/manual NOT_RUN.

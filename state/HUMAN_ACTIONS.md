@@ -1,5 +1,7 @@
 # Các bước chủ dự án thực sự cần tham gia
 
+2026-11-03 — Rà soát tiến độ: không yêu cầu thêm approval, secret hay thao tác kỹ thuật từ chủ dự án trong phiên này. Scoped M16 media policy đã APPROVED ngày14/10, agent có thể tiếp tục triển khai/test local synthetic theo phạm vi đó. H1–H5 tổng thể vẫn pending; chỉ trình quyết định với build/manifest/batch cụ thể khi đến gate. Docker Access Denied của lượt kiểm tra sandbox này chưa phải yêu cầu owner sửa môi trường. Các yêu cầu media-policy cũ bên dưới đã được supersede.
+
 2026-10-14 — RESOLVED M16 scoped media policy: owner explicitly approved “Duyệt quy tắc xuất ảnh”. Approval H3-M16-MEDIA-20261014; implementation can proceed on synthetic local data. No further media-policy clarification or extra env requested now. Older requests below are superseded for this scoped decision, not for all H3/H4/H5 gates.
 
 2026-10-14 — No technical setup needed for MFA/export403 fixes. Owner can refresh http://127.0.0.1:3100/quan-tri/xuat-lieu and save with includeMedia unchecked. Existing media-policy decision remains pending; testing is not approval.

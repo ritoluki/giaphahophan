@@ -1,5 +1,9 @@
 # Backlog triển khai
 
+2026-11-03 — Owner direction update: next work prioritizes the M03/M04/M05/M06/M07 reading journey (login→DB search→DB profile→family/tree→kinship), with a mobile end-to-end acceptance run; then M08 independent review reflected in profile/tree. This supersedes M16-first next-action notes below. M16 media approval and all M01–M18 acceptance requirements remain; canonical task statuses are unchanged. Current session commits the pending snapshot and launches local demo only.
+
+2026-11-03 — Status audit, không đổi canonical TASKS.json:102 ticket =3 DONE/75 IN_PROGRESS/24 TODO. Đây là trạng thái nghiệm thu ticket, không phải % hoàn thiện; nhiều IN_PROGRESS chứa implementation sâu nhưng acceptance còn thiếu. PASS local278 unit tests/types/lint/foundation verify, scope và log ở TEST_REPORT. Tiếp tục M16-06 media đã được duyệt; đồng thời đưa migration reproducibility và core DB→UI integration vào kế hoạch hoàn thiện trước staging. M01/M02/M17/M18/QA/STAGE/RELEASE/REAL/HANDOVER TODO vẫn giữ nguyên; không đóng ticket từ kiểm kê code.
+
 2026-10-14 M16-06 media policy owner approval recorded (H3-M16-MEDIA-20261014). Decision blocker resolved; implement versioned independent subject review, permission projection, sanitized package/current-download recheck, mobile reviewer UI and actual synthetic tests in that order. Feature remains IN_PROGRESS and includeMedia fail-closed until verified. H3 as a whole remains PENDING.
 
 2026-10-14 M16-06 export403 fixed: strict configured origin+CSRF with separate errors, actual Chromium320 refresh/save202, worker/PDF/download and foreign-origin/token negative tests PASS; web29/types/lint/build PASS. reports/M16_EXPORT_ORIGIN_FIX_LOCAL.md. M16-06 remains IN_PROGRESS; media policy/release gates unchanged.
