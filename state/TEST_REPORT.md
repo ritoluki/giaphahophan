@@ -1,5 +1,13 @@
 # Báo cáo kiểm thử ứng dụng
 
+## Khởi động local theo yêu cầu — 2026-11-03, snapshot 4d60bc7
+
+- PASS commit pending snapshot:19 tracked files; staged diff/check and visual privacy review of13 demo screenshots completed before commit. Screenshots show fictional UI, not DB policy evidence. No env/log/runtime file staged.
+- PASS authorized local startup: Docker29.8.0/Supabase containers healthy, standalone web PID7776 and demo worker PID22896 launched with CLI loopback settings held in memory. Launcher `node reports/local/demo-runtime-20261103/start-demo.mjs`, exit0; evidence [smoke.json](../reports/local/demo-runtime-20261103/smoke.json), [web log](../reports/local/demo-runtime-20261103/web.stdout.log), [worker log](../reports/local/demo-runtime-20261103/worker.stdout.log).
+- PASS HTTP200 for `/`, `/tra-cuu`, `/gia-pha`, `/quan-he`, `/dang-nhap`, `/quan-tri/xuat-lieu`, `/api/v1/health/live`; homepage retains fictional label. Worker boot recorded, no tick errors observed through final inspection. This is startup evidence, not a new export-job acceptance run.
+- PASS independent post-launch `Invoke-WebRequest` live200 and `netstat -ano -p tcp` listener `127.0.0.1:3100` PID7776. Initial `Get-NetTCPConnection` returned no matching object; netstat plus HTTP resolved listener verification rather than treating that failed query as PASS. Local read-only `docker exec ... psql ... -c 'select 1'` returned1, exit0.
+- Known limitation: `/api/v1/health/ready` returns503 because source currently hard-codes degraded; full readiness acceptance is not PASS. No schema/seed/reset or hosted request performed. Existing tested build reused; build/unit/E2E not rerun in this launch-only slice.
+
 ## Rà soát ngày 2026-11-03 — local, baseline 98c7511
 
 - PASS `pnpm.cmd test`, exit 0: 278 tests = contracts75/domain143/worker27/lunar4/web29. Config/UI không có test files, không cộng vào tổng. Evidence: [unit.log](../reports/local/project-audit-20261103/unit.log).
