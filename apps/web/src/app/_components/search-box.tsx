@@ -21,14 +21,15 @@ export function SearchBox({ initialValue = "", compact = false }: { initialValue
 
   return (
     <form className={`search-panel${compact ? " search-panel-compact" : ""}`} onSubmit={submit} role="search">
-      <label htmlFor="family-search">Tìm trong dòng họ</label>
+      <label htmlFor="family-search">Tên người cần tìm</label>
       <div className="search-row">
         <input
           id="family-search"
           type="search"
           value={value}
           onChange={(event) => setValue(event.target.value)}
-          placeholder="Tên người, chi họ, mã hồ sơ…"
+          placeholder="Nhập tên hoặc tên gọi khác"
+          autoComplete="off"
           aria-describedby={message ? "family-search-message" : undefined}
         />
         <button className="button-primary" type="submit">Tìm</button>

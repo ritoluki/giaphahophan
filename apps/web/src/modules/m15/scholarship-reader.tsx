@@ -1,5 +1,6 @@
 import type { ScholarshipApplicationRecord, ScholarshipAwardRecord, ScholarshipProgramRecord } from "@phan/contracts";
 import { DemoNotice, SectionHeading, SiteShell } from "../../app/_components/site-chrome";
+import { scholarshipApplicationStatusLabels, scholarshipAwardStatusLabels, scholarshipProgramStatusLabels } from "../../lib/ui-labels";
 
 export type ScholarshipState = "loading" | "empty" | "error" | "restricted";
 
@@ -36,28 +37,11 @@ export const demoScholarshipAward: ScholarshipAwardRecord = {
   status: "approved",
 };
 
-const statusLabels: Record<ScholarshipApplicationRecord["status"], string> = {
-  draft: "Bản nháp",
-  submitted: "Đã nộp",
-  needs_info: "Cần bổ sung",
-  approved: "Đã duyệt hồ sơ",
-  rejected: "Chưa phù hợp",
-  withdrawn: "Đã rút",
-  awarded: "Đã ghi nhận trao",
-};
-
-const awardStatusLabels: Record<ScholarshipAwardRecord["status"], string> = {
-  approved: "Đã duyệt hỗ trợ",
-  paid: "Đã ghi nhận chi",
-  reversed: "Đã hoàn tác",
-  withdrawn: "Đã rút",
-};
-
 const stateCopy: Record<ScholarshipState, [string, string]> = {
-  loading: ["Đang tải chương trình", "Đang kiểm tra phạm vi cây và quyền xem hiện tại."],
+  loading: ["Đang tải chương trình", "Vui lòng chờ trong giây lát."],
   empty: ["Chưa có chương trình mở", "Các chương trình sẽ xuất hiện sau khi được công bố và gắn quỹ phù hợp."],
-  error: ["Không tải được chương trình", "Hãy thử lại; lỗi không hiển thị hồ sơ riêng tư hoặc mã minh chứng."],
-  restricted: ["Chương trình được giới hạn", "Phiên hiện tại chưa có quyền xem nội dung hoặc theo dõi hồ sơ này."],
+  error: ["Không tải được chương trình", "Hãy kiểm tra kết nối rồi thử lại."],
+  restricted: ["Bạn chưa có quyền xem nội dung này", "Hãy liên hệ ban khuyến học nếu cần xem hồ sơ hoặc kết quả hỗ trợ."],
 };
 
 export function ScholarshipStateCard({ status }: { status: ScholarshipState }) {
@@ -78,53 +62,49 @@ export function ScholarshipReader({ program = demoScholarshipProgram, applicatio
   return (
     <SiteShell active="more">
       <main id="main-content" tabIndex={-1} className="container page scholarship-page">
-        <p className="eyebrow">Khuyến học · Nội dung theo quyền</p>
         <h1>Chương trình khuyến học</h1>
-        <p className="page-lede">Nơi dòng họ cùng khích lệ việc học. Tiêu chí và hạn nộp được công bố rõ; hồ sơ và minh chứng chỉ hiển thị cho đúng người.</p>
+        <p className="page-lede">Cùng động viên con cháu học tập. Xem tiêu chí, hạn nhận hồ sơ và kết quả hỗ trợ của từng chương trình.</p>
         <DemoNotice />
 
         <section className="scholarship-hero-card" aria-labelledby="scholarship-program-title">
-          <div className="scholarship-card-kicker"><span>Đang mở</span><span>Phụ trách · Ban khuyến học</span></div>
           <h2 id="scholarship-program-title">{program.title}</h2>
           <p>{program.criteria}</p>
           <dl className="scholarship-meta-list">
             <div><dt>Hạn nhận hồ sơ</dt><dd>{formatDeadline(program.closesAt)}</dd></div>
             <div><dt>Nguồn quỹ</dt><dd>Quỹ khuyến học dòng họ</dd></div>
-            <div><dt>Trạng thái</dt><dd>{program.status === "open" ? "Đang nhận đề cử" : program.status}</dd></div>
+            <div><dt>Trạng thái</dt><dd>{scholarshipProgramStatusLabels[program.status]}</dd></div>
           </dl>
-          <a className="button-primary" href="#scholarship-privacy">Xem tiêu chí & quy trình đề cử</a>
+          <a className="button-secondary" href="#scholarship-privacy">Về hồ sơ và quyền riêng tư</a>
         </section>
 
-        <SectionHeading title="Theo dõi hồ sơ của tôi" />
+        <SectionHeading title="Theo dõi hồ sơ" />
         {application ? <section className="scholarship-application-card" aria-label="Trạng thái hồ sơ minh họa">
-          <div className="scholarship-application-head"><span>Hồ sơ minh họa</span><span className="scholarship-status-pill">{statusLabels[application.status]}</span></div>
-          <h2>Hồ sơ đang chờ bổ sung</h2>
+          <div className="scholarship-application-head"><span>Hồ sơ minh họa</span><span className="scholarship-status-pill">{scholarshipApplicationStatusLabels[application.status]}</span></div>
+          <h2>{scholarshipApplicationStatusLabels[application.status]}</h2>
           <p>{application.statement}</p>
-          <div className="scholarship-progress" aria-label="Tiến trình hồ sơ"><span className="is-complete">Đã nộp</span><span className="is-current">Cần bổ sung</span><span>Đang duyệt</span><span>Kết quả</span></div>
           <small>Minh chứng được lưu riêng tư; không hiển thị trong trang công khai.</small>
         </section> : <ScholarshipStateCard status="empty" />}
 
         <SectionHeading title="Kết quả hỗ trợ" />
         {award ? <section className="scholarship-award-card" aria-label="Kết quả hỗ trợ minh họa">
-          <div className="scholarship-application-head"><span>Quyết định minh họa</span><span className="scholarship-status-pill">{awardStatusLabels[award.status]}</span></div>
+          <div className="scholarship-application-head"><span>Quyết định minh họa</span><span className="scholarship-status-pill">{scholarshipAwardStatusLabels[award.status]}</span></div>
           <h2>Khoản hỗ trợ học tập</h2>
           <dl className="scholarship-meta-list">
             <div><dt>Mức hỗ trợ</dt><dd>{formatVnd(award.amountVnd)}</dd></div>
-            <div><dt>Thanh toán</dt><dd>{award.paidJournalEntryId ? "Đã liên kết bút toán posted" : "Chưa ghi nhận chi"}</dd></div>
-            <div><dt>Trạng thái</dt><dd>{awardStatusLabels[award.status]}</dd></div>
+            <div><dt>Thanh toán</dt><dd>{award.status === "reversed" ? "Giao dịch chi đã được đảo" : award.paidJournalEntryId ? "Đã có phiếu chi được ghi sổ" : "Chưa ghi nhận chi"}</dd></div>
+            <div><dt>Trạng thái</dt><dd>{scholarshipAwardStatusLabels[award.status]}</dd></div>
           </dl>
-          <small>Award được duyệt không đồng nghĩa đã chi. Chỉ bút toán đã posted mới được liên kết; nếu có reversal, lịch sử vẫn được giữ và trạng thái được phản ánh.</small>
+          <small>Khoản hỗ trợ được duyệt chưa có nghĩa đã chi tiền. Việc chi được xác nhận bằng phiếu đã ghi sổ; nếu đảo giao dịch, lịch sử vẫn được giữ.</small>
         </section> : <ScholarshipStateCard status="restricted" />}
 
         <SectionHeading title="Câu chuyện được duyệt" />
         <section className="scholarship-story-card">
-          <span className="scholarship-card-kicker">Bản demo · không phải dữ liệu thật</span>
           <h2>Một hành trình học tập đáng trân trọng</h2>
           <p>Nội dung chỉ được chia sẻ sau khi có sự đồng ý phù hợp. Trẻ vị thành niên cần quy trình người giám hộ trước khi công bố.</p>
-          <span className="scholarship-story-link">Đọc câu chuyện đã được duyệt →</span>
+          <p className="muted">Đây là nội dung minh họa. Chưa có câu chuyện thật được công bố.</p>
         </section>
 
-        <div id="scholarship-privacy" className="scholarship-privacy-note"><strong>Thu thập tối thiểu & bảo vệ trẻ em</strong><span>Phiên bản đầu chỉ yêu cầu người được đề cử, lời giới thiệu và một minh chứng riêng tư. Thông tin học tập chi tiết hoặc dữ liệu trẻ em sẽ không tự động công khai. Story thành tích là một yêu cầu xuất bản riêng, cần nguồn riêng và reviewer phê duyệt; hồ sơ trẻ em cần guardian status đã xác minh.</span></div>
+        <div id="scholarship-privacy" className="scholarship-privacy-note"><strong>Hồ sơ và quyền riêng tư</strong><span>Hồ sơ gồm người được đề cử, lời giới thiệu và tài liệu minh chứng được giữ riêng tư. Để chia sẻ câu chuyện thành tích, cần có tư liệu, sự đồng ý phù hợp và người duyệt. Hồ sơ trẻ em cần được xác minh với người giám hộ trước khi công bố.</span></div>
       </main>
     </SiteShell>
   );

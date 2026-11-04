@@ -23,21 +23,21 @@ function isAccessResponse(value: unknown): value is AccessResponse {
 }
 
 function kindLabel(kind: MediaKind) {
-  return kind === "image" ? "Ảnh" : kind === "pdf" ? "PDF" : kind === "audio" ? "Âm thanh" : "Video";
+  return kind === "image" ? "Ảnh" : kind === "pdf" ? "Tài liệu PDF" : kind === "audio" ? "Bản ghi âm" : "Đoạn phim";
 }
 
 function ViewerState({ status, onRetry }: { status: Exclude<ViewerStatus, "ready">; onRetry: () => void }) {
-  if (status === "idle") return <p className="media-viewer-hint">Nội dung lớn chỉ tải sau thao tác của bạn.</p>;
-  if (status === "loading") return <p className="media-viewer-hint" aria-live="polite">Đang kiểm tra quyền xem…</p>;
-  if (status === "restricted") return <div className="media-viewer-state media-viewer-state-restricted"><strong>Tư liệu được giới hạn</strong><span>Phiên hiện tại chưa có quyền xem bản gốc hoặc bản dẫn xuất.</span></div>;
-  return <div className="media-viewer-state media-viewer-state-error"><strong>Không tải được tư liệu</strong><span>Quyền và dữ liệu gốc vẫn giữ nguyên.</span><button className="button-secondary" type="button" onClick={onRetry}>Thử lại</button></div>;
+  if (status === "idle") return <p className="media-viewer-hint">Chọn “Xem tư liệu” để tải nội dung.</p>;
+  if (status === "loading") return <p className="media-viewer-hint" aria-live="polite">Đang mở tư liệu…</p>;
+  if (status === "restricted") return <div className="media-viewer-state media-viewer-state-restricted"><strong>Bạn chưa có quyền xem tư liệu này</strong><span>Hãy đăng nhập hoặc liên hệ người phụ trách gia phả.</span></div>;
+  return <div className="media-viewer-state media-viewer-state-error"><strong>Không tải được tư liệu</strong><span>Hãy kiểm tra kết nối rồi thử lại.</span><button className="button-secondary" type="button" onClick={onRetry}>Thử lại</button></div>;
 }
 
 function AuthorizedMedia({ item, url }: { item: MediaViewerItem; url: string }) {
   if (item.kind === "image") return <div className="media-viewer-image-frame"><Image className="media-viewer-image" src={url} alt={item.altText ?? item.title} fill unoptimized sizes="(max-width: 767px) 100vw, 50vw" /></div>;
-  if (item.kind === "pdf") return <div className="media-viewer-document"><p>PDF không được nhúng trình đọc có active content.</p><a className="button-secondary" href={url} download={item.title}>Mở hoặc tải PDF</a></div>;
-  if (item.kind === "audio") return <audio className="media-viewer-control" controls preload="none" src={url}>Trình duyệt không hỗ trợ audio. Hãy tải tệp để nghe.</audio>;
-  return <video className="media-viewer-video" controls preload="metadata" playsInline poster={item.thumbnailUrl} src={url}>Trình duyệt không hỗ trợ video. Hãy tải tệp để xem.</video>;
+  if (item.kind === "pdf") return <div className="media-viewer-document"><p>Tải tài liệu về thiết bị để đọc.</p><a className="button-secondary" href={url} download={item.title}>Tải tài liệu PDF</a></div>;
+  if (item.kind === "audio") return <audio className="media-viewer-control" aria-label={item.title} controls preload="none" src={url}>Trình duyệt không phát được bản ghi âm này. <a href={url} download>Tải về để nghe</a>.</audio>;
+  return <video className="media-viewer-video" aria-label={item.title} controls preload="metadata" playsInline poster={item.thumbnailUrl} src={url}>Trình duyệt không phát được đoạn phim này. <a href={url} download>Tải về để xem</a>.</video>;
 }
 
 export function MediaViewer({ item }: { item: MediaViewerItem }) {
@@ -71,17 +71,15 @@ export function MediaViewer({ item }: { item: MediaViewerItem }) {
   return (
     <article className="media-viewer-card">
       <div className="media-viewer-heading">
-        <div><span className="source-kind">{kindLabel(item.kind)}</span><h3>{item.title}</h3></div>
-        <span className="status-label">{item.mimeType}</span>
+        <div><h3>{item.title}</h3><span className="source-kind">{kindLabel(item.kind)}</span></div>
       </div>
       {loaded ? <AuthorizedMedia item={item} url={url} /> : <div className="media-viewer-placeholder">{item.thumbnailUrl ? <Image src={item.thumbnailUrl} alt="" aria-hidden="true" width={640} height={360} unoptimized /> : <span aria-hidden="true">{kindLabel(item.kind)}</span>}<button className="button-secondary" type="button" onClick={() => { setRequestVersion((value) => value + 1); void requestAccess(); }} disabled={status === "loading"}>{status === "idle" ? "Xem tư liệu" : status === "loading" ? "Đang kiểm tra…" : "Thử xem lại"}</button></div>}
       {status !== "ready" ? <ViewerState key={requestVersion} status={status} onRetry={() => void requestAccess()} /> : null}
-      <p className="media-viewer-caption">Không tự phát, không chạy HTML/script nhúng; bản lớn chỉ tải sau khi kiểm tra quyền.</p>
     </article>
   );
 }
 
 export function MediaViewerGallery({ items }: { items: MediaViewerItem[] }) {
-  if (items.length === 0) return <div className="card empty-state"><strong>Chưa có tư liệu được cấp quyền</strong><p>Ảnh, PDF, âm thanh và video sẽ xuất hiện sau khi kiểm tra an toàn và quyền truy cập.</p></div>;
+  if (items.length === 0) return <div className="card empty-state"><strong>Chưa có tư liệu để xem</strong><p>Ảnh và tài liệu được chia sẻ với bạn sẽ xuất hiện ở đây.</p></div>;
   return <section className="media-viewer-gallery" aria-label="Trình xem tư liệu">{items.map((item) => <MediaViewer item={item} key={item.id} />)}</section>;
 }

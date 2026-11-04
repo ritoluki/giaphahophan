@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useRef, useState } from "react";
+import { getUiErrorMessage } from "../../lib/ui-error";
 
 type AcceptanceResult = {
   data?: { status?: "pending" | "queued" | "revoked" };
@@ -32,7 +33,7 @@ export function InvitationAcceptance({ token }: { token: string }) {
       });
       const payload = (await response.json()) as AcceptanceResult;
       if (!response.ok || payload.data?.status !== "pending") {
-        setError(payload.error?.message ?? "Lời mời chưa thể được xác nhận. Vui lòng kiểm tra phiên đăng nhập và thử lại.");
+        setError(getUiErrorMessage(payload, "Chưa xác nhận được lời mời. Kiểm tra tài khoản đăng nhập rồi thử lại."));
         return;
       }
       setAccepted(true);
@@ -46,11 +47,9 @@ export function InvitationAcceptance({ token }: { token: string }) {
   if (accepted) {
     return (
       <main id="main-content" tabIndex={-1} className="container page invitation-page">
-        <p className="eyebrow">Lời mời · Đã tiếp nhận</p>
         <section className="card invitation-card" aria-labelledby="invitation-success-title">
-          <div className="invitation-seal" aria-hidden="true">✓</div>
           <h1 id="invitation-success-title">Lời mời đã được ghi nhận</h1>
-          <p>Tài khoản của bạn đang chờ người quản trị gia phả phê duyệt. Email đã xác thực không tự động trở thành quyền thành viên.</p>
+          <p>Người quản lý gia phả sẽ kiểm tra lời mời và duyệt tài khoản của bạn.</p>
           <Link className="button-primary" href="/gia-pha">Về gia phả</Link>
         </section>
       </main>
@@ -59,14 +58,12 @@ export function InvitationAcceptance({ token }: { token: string }) {
 
   return (
     <main id="main-content" tabIndex={-1} className="container page invitation-page">
-      <p className="eyebrow">Lời mời · Thành viên gia phả</p>
       <section className="card invitation-card" aria-labelledby="invitation-title">
-        <div className="invitation-seal" aria-hidden="true">PG</div>
         <h1 id="invitation-title">Xác nhận lời mời</h1>
-        <p>Lời mời này chỉ dành cho tài khoản có địa chỉ email khớp với lời mời. Vui lòng đăng nhập hoặc tạo tài khoản bằng email đã nhận lời mời trước khi tiếp tục.</p>
+        <p>Đăng nhập bằng email đã nhận lời mời để tiếp tục. Nếu chưa có tài khoản, hãy liên hệ người quản lý gia phả.</p>
         <div className="invitation-notice" role="note">
-          <strong>Bảo vệ gia phả</strong>
-          <span>Thông tin về gia phả và vai trò sẽ chỉ hiển thị sau khi máy chủ xác thực đúng tài khoản. Quyền thành viên vẫn cần được phê duyệt.</span>
+          <strong>Lời mời dành riêng cho bạn</strong>
+          <span>Đăng nhập bằng email đã nhận lời mời. Thông tin gia phả sẽ hiện sau khi tài khoản được kiểm tra và duyệt.</span>
         </div>
         <form onSubmit={submit}>
           <label className="invitation-check">

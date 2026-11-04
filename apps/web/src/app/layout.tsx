@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@fontsource-variable/noto-sans/wght.css";
 import "@fontsource-variable/noto-serif/wght.css";
 import "./globals.css";
+import "./interface.css";
 
 export const metadata: Metadata = {
   title: "Phan Gia Phả",

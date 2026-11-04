@@ -1,27 +1,29 @@
 "use client";
 
 import type { Kinship } from "@phan/contracts";
+import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { getDemoKinship, type DemoPersonSummary } from "../../lib/demo-data";
+import { branchName, getDemoKinship, type DemoPersonSummary } from "../../lib/demo-data";
 
-type KinshipFinderProps = { people: ReadonlyArray<DemoPersonSummary> };
+type KinshipFinderProps = { people: ReadonlyArray<DemoPersonSummary>; initialFromId?: string | undefined };
 
 const viaLabels: Record<NonNullable<Kinship["paths"][number][number]>["via"], string> = {
-  start: "Điểm bắt đầu",
-  parent: "cha/mẹ",
-  child: "con",
-  partner: "bạn đời",
-  adoptive_parent: "cha/mẹ nuôi",
-  adoptive_child: "con nuôi",
-  guardian_parent: "người giám hộ",
-  guardian_child: "người được giám hộ",
-  step_parent: "cha/mẹ kế",
-  step_child: "con riêng"
+  start: "Người thứ nhất",
+  parent: "Cha hoặc mẹ của người phía trên",
+  child: "Con của người phía trên",
+  partner: "Vợ, chồng hoặc bạn đời của người phía trên",
+  adoptive_parent: "Cha hoặc mẹ nuôi của người phía trên",
+  adoptive_child: "Con nuôi của người phía trên",
+  guardian_parent: "Người giám hộ của người phía trên",
+  guardian_child: "Người được người phía trên giám hộ",
+  step_parent: "Cha dượng hoặc mẹ kế của người phía trên",
+  step_child: "Con riêng của vợ hoặc chồng người phía trên"
 };
 
-export function KinshipFinder({ people }: KinshipFinderProps) {
-  const [fromId, setFromId] = useState(people[0]?.id ?? "");
-  const [toId, setToId] = useState(people[1]?.id ?? people[0]?.id ?? "");
+export function KinshipFinder({ people, initialFromId }: KinshipFinderProps) {
+  const startingPersonId = people.find((person) => person.id === initialFromId)?.id ?? people[0]?.id ?? "";
+  const [fromId, setFromId] = useState(startingPersonId);
+  const [toId, setToId] = useState(people.find((person) => person.id !== startingPersonId)?.id ?? startingPersonId);
   const [includeAdoptive, setIncludeAdoptive] = useState(true);
   const [result, setResult] = useState<Kinship | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,31 +45,31 @@ export function KinshipFinder({ people }: KinshipFinderProps) {
     }
   };
 
+  if (people.length === 0) return <div className="empty-state"><h2>Chưa có người để chọn</h2><p>Những hồ sơ được chia sẻ với bạn sẽ xuất hiện ở đây.</p></div>;
+
   return (
     <section className="kinship-finder" aria-labelledby="kinship-finder-title">
       <div className="card">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">M05 · Đường quan hệ đã ghi nhận</p>
-            <h2 id="kinship-finder-title">Chọn hai hồ sơ</h2>
+            <h2 id="kinship-finder-title">Chọn hai người</h2>
           </div>
         </div>
         <form className="kinship-form" onSubmit={calculate}>
-          <label>Người A<select value={fromId} onChange={(event) => setFromId(event.target.value)}>{people.map((person) => <option key={person.id} value={person.id}>{person.displayName} · {person.code}</option>)}</select></label>
-          <label>Người B<select value={toId} onChange={(event) => setToId(event.target.value)}>{people.map((person) => <option key={person.id} value={person.id}>{person.displayName} · {person.code}</option>)}</select></label>
-          <label className="kinship-check"><input type="checkbox" checked={includeAdoptive} onChange={(event) => setIncludeAdoptive(event.target.checked)} /> Bao gồm quan hệ nuôi đã xác nhận</label>
-          <button className="button-primary" type="submit" disabled={isLoading || !fromId || !toId}>{isLoading ? "Đang tính đường…" : "Tính đường quan hệ"}</button>
+          <label>Người thứ nhất<select value={fromId} onChange={(event) => { setFromId(event.target.value); setResult(null); }}>{people.map((person) => <option key={person.id} value={person.id}>{person.displayName} · {person.yearLabel} · {branchName(person.primaryBranchId)}</option>)}</select></label>
+          <label>Người thứ hai<select value={toId} onChange={(event) => { setToId(event.target.value); setResult(null); }}>{people.map((person) => <option key={person.id} value={person.id}>{person.displayName} · {person.yearLabel} · {branchName(person.primaryBranchId)}</option>)}</select></label>
+          <label className="kinship-check"><input type="checkbox" checked={includeAdoptive} onChange={(event) => { setIncludeAdoptive(event.target.checked); setResult(null); }} /> Bao gồm quan hệ nuôi đã xác nhận</label>
+          <button className="button-primary" type="submit" disabled={isLoading || !fromId || !toId}>{isLoading ? "Đang tìm quan hệ…" : "Xem quan hệ"}</button>
         </form>
       </div>
 
-      {hasError ? <div className="tree-state tree-state-error" role="alert"><strong>Không thể tính đường quan hệ</strong><p>Thử lại với hai hồ sơ khác. Dữ liệu không đủ quyền sẽ không được suy đoán.</p></div> : null}
-      {!hasError && isLoading ? <div className="tree-state" role="status"><strong>Đang lọc graph theo quyền…</strong><p>Không tải dữ liệu ngoài phạm vi được phép xem.</p></div> : null}
-      {!hasError && !isLoading && result?.status === "found" ? result.paths.map((path, index) => <article className="kinship-path card" key={path.map((step) => step.person.id).join("/")} aria-label={`Đường quan hệ ${index + 1}`}><h3>Đường {index + 1} · {path.length - 1} bước</h3><ol>{path.map((step) => <li key={`${step.person.id}-${step.via}`}><span className="kinship-step-via">{viaLabels[step.via]}</span><strong>{step.person.displayName}</strong><small>{step.person.code}</small></li>)}</ol></article>) : null}
-      {result?.status === "found" && result.label ? <p className="muted kinship-label" role="note">Gợi ý mô tả: <strong>{result.label}</strong> · {result.labelConfidence === "reviewed_rule" ? "đủ dữ kiện theo rule" : "mô tả trung tính, chưa phải cách xưng hô chắc chắn"}</p> : null}
-      {!hasError && !isLoading && result?.status === "not_found_within_visible_graph" ? <div className="tree-state" role="status"><strong>Chưa tìm thấy đường trong phạm vi được phép</strong><p>Điều này không kết luận hai người không có quan hệ; có thể đường chưa được ghi nhận hoặc bị giới hạn quyền xem.</p></div> : null}
-      {!hasError && !isLoading && result?.status === "limit_reached" ? <div className="tree-state" role="status"><strong>Đường vượt giới hạn tìm kiếm</strong><p>Hệ thống không kết luận “không có quan hệ” khi đã chạm giới hạn an toàn.</p></div> : null}
-      {!hasError && !isLoading && !result ? <div className="tree-state" role="status"><strong>Chưa tính đường</strong><p>Chọn Người A và Người B để xem từng bước đã được ghi nhận.</p></div> : null}
-      {result?.status === "found" ? <p className="muted kinship-disclaimer" role="note">Kết quả mô tả đường dữ liệu, không tự suy ra cách xưng hô. {personName(fromId)} và {personName(toId)} vẫn cần nguồn/đối chiếu khi có tranh chấp.</p> : null}
+      {hasError ? <div className="tree-state tree-state-error" role="alert"><strong>Chưa thể tìm quan hệ</strong><p>Hãy thử lại sau hoặc chọn hai người khác.</p></div> : null}
+      {!hasError && isLoading ? <div className="tree-state" role="status"><strong>Đang tìm quan hệ giữa hai người…</strong></div> : null}
+      {!hasError && !isLoading && result?.status === "found" ? result.paths.map((path, index) => <article className="kinship-path card" key={path.map((step) => step.person.id).join("/")} aria-label={`Mối liên hệ ${index + 1}`}><h3>{path.length === 1 ? "Bạn đang chọn cùng một người" : result.paths.length > 1 ? `Mối liên hệ ${index + 1}` : "Mối liên hệ đã ghi nhận"}</h3><ol>{path.map((step) => <li key={`${step.person.id}-${step.via}`}><span className="kinship-step-via">{viaLabels[step.via]}</span><strong>{step.person.displayName}</strong><small><Link href={"/nguoi/" + step.person.id}>Xem hồ sơ</Link></small></li>)}</ol></article>) : null}
+      {!hasError && !isLoading && result?.status === "not_found_within_visible_graph" ? <div className="tree-state" role="status"><strong>Chưa tìm thấy mối liên hệ</strong><p>Có thể gia phả chưa ghi nhận đủ thông tin hoặc một phần thông tin chưa được chia sẻ với bạn. Kết quả này không có nghĩa hai người không có quan hệ.</p></div> : null}
+      {!hasError && !isLoading && result?.status === "limit_reached" ? <div className="tree-state" role="status"><strong>Chưa thể tìm hết mối liên hệ</strong><p>Hai người có thể cách nhau nhiều thế hệ. Hãy thử chọn một người gần hơn trong cùng nhánh gia đình.</p></div> : null}
+      {!hasError && !isLoading && !result ? <div className="tree-state" role="status"><strong>Quan hệ sẽ hiện ở đây</strong><p>Chọn hai người rồi nhấn “Xem quan hệ”.</p></div> : null}
+      {result?.status === "found" ? <p className="muted kinship-disclaimer" role="note">Đây là các quan hệ đã được ghi nhận giữa {personName(fromId)} và {personName(toId)}. Cách xưng hô cụ thể còn tùy thứ bậc và tập quán của gia đình.</p> : null}
     </section>
   );
 }

@@ -18,9 +18,9 @@ export const demoScholarshipReport: ScholarshipReportRecord = {
 
 const stateCopy: Record<Exclude<ScholarshipReportState, "ready">, [string, string]> = {
   loading: ["Đang tải báo cáo", "Đang đối chiếu kỳ báo cáo trong phạm vi quỹ được phép xem."],
-  empty: ["Chưa có dữ liệu hỗ trợ", "Kỳ này chưa có award đủ điều kiện hiển thị."],
-  error: ["Không tải được báo cáo", "Hãy thử lại; báo cáo không chứa hồ sơ riêng tư hoặc chứng từ thô."],
-  restricted: ["Báo cáo được giới hạn", "Phiên hiện tại chưa có quyền xem báo cáo quỹ này."],
+  empty: ["Chưa có dữ liệu hỗ trợ", "Kỳ này chưa có quyết định hỗ trợ được chia sẻ trong báo cáo."],
+  error: ["Không tải được báo cáo", "Hãy kiểm tra kết nối rồi thử lại."],
+  restricted: ["Bạn chưa có quyền xem báo cáo này", "Hãy liên hệ người phụ trách quỹ nếu cần xem báo cáo."],
 };
 
 function formatVnd(value: string) {
@@ -40,33 +40,32 @@ export function ScholarshipReportReader({ report = demoScholarshipReport, state 
   return (
     <AdminShell>
       <main id="main-content" tabIndex={-1} className="container page scholarship-report-page">
-        <p className="eyebrow">Quản trị · Báo cáo khuyến học</p>
-        <h1>Tổng hợp hỗ trợ</h1>
-        <p className="page-lede">Đối chiếu award với bút toán đã posted trong một kỳ. Báo cáo chỉ trả projection được phép, không phải xác nhận kiểm toán hay đồng bộ ngân hàng.</p>
+        <h1>Báo cáo khuyến học</h1>
+        <p className="page-lede">Tổng hợp các khoản đã duyệt, đã chi và đã đảo giao dịch trong kỳ.</p>
         <DemoNotice />
 
         {state !== "ready" ? <StateCard state={state} /> : report ? <>
           <section className="scholarship-report-period" aria-label="Kỳ báo cáo">
             <span>Kỳ báo cáo</span>
             <strong>{formatDate(report.from)} – {formatDate(report.to)}</strong>
-            <small>Quỹ khuyến học · {report.awardsCount} award trong kỳ</small>
+            <small>Quỹ khuyến học · {report.awardsCount} quyết định hỗ trợ trong kỳ</small>
           </section>
 
           <SectionHeading title="Số liệu chính" />
           <section className="scholarship-report-grid" aria-label="Số liệu báo cáo khuyến học">
-            <article className="scholarship-report-metric"><span>Đã duyệt</span><strong>{formatVnd(report.approvedAmountVnd)}</strong><small>Giá trị award không đồng nghĩa đã chi.</small></article>
-            <article className="scholarship-report-metric"><span>Đã ghi nhận chi</span><strong>{formatVnd(report.paidAmountVnd)}</strong><small>Chỉ journal có trạng thái posted.</small></article>
-            <article className="scholarship-report-metric"><span>Đã reversal</span><strong>{formatVnd(report.reversedAmountVnd)}</strong><small>Lịch sử gốc không bị xóa.</small></article>
-            <article className="scholarship-report-metric is-emphasis"><span>Hỗ trợ ròng</span><strong>{formatVnd(report.netPaidAmountVnd)}</strong><small>Paid trừ reversal trong kỳ.</small></article>
+            <article className="scholarship-report-metric"><span>Đã duyệt</span><strong>{formatVnd(report.approvedAmountVnd)}</strong><small>Được duyệt chưa có nghĩa đã chi tiền.</small></article>
+            <article className="scholarship-report-metric"><span>Đã ghi nhận chi</span><strong>{formatVnd(report.paidAmountVnd)}</strong><small>Có phiếu chi đã ghi sổ.</small></article>
+            <article className="scholarship-report-metric"><span>Đã đảo giao dịch chi</span><strong>{formatVnd(report.reversedAmountVnd)}</strong><small>Lịch sử phiếu gốc vẫn được giữ.</small></article>
+            <article className="scholarship-report-metric is-emphasis"><span>Thực chi sau đối chiếu</span><strong>{formatVnd(report.netPaidAmountVnd)}</strong><small>Tổng đã chi trừ các giao dịch chi đã đảo trong kỳ.</small></article>
           </section>
 
           <SectionHeading title="Phạm vi dữ liệu" />
           <section className="scholarship-report-scope-card">
             <dl className="scholarship-meta-list">
               <div><dt>Số ứng viên</dt><dd>{report.applicantsCount === null ? "Ẩn theo quyền" : report.applicantsCount}</dd></div>
-              <div><dt>Số donor</dt><dd>{report.donorsCount === null ? "Ẩn theo quyền" : report.donorsCount}</dd></div>
+              <div><dt>Số người đóng góp</dt><dd>{report.donorsCount === null ? "Chưa được chia sẻ với bạn" : report.donorsCount}</dd></div>
             </dl>
-            <p>Không trả person ID, tên trẻ em, minh chứng, donor riêng lẻ hoặc nội dung hồ sơ trong aggregate report. Chi tiết chỉ được mở bởi projection và capability riêng.</p>
+            <p>Báo cáo này chỉ tổng hợp số liệu. Hồ sơ cá nhân, thông tin trẻ em, tài liệu minh chứng và danh tính từng người đóng góp được giữ riêng tư.</p>
           </section>
         </> : <StateCard state="empty" />}
       </main>

@@ -2,6 +2,7 @@
 
 import { FormEvent, useRef, useState } from "react";
 import { importReviewStateSchema, type ImportReviewState } from "@phan/contracts";
+import { getUiErrorMessage } from "../../../lib/ui-error";
 
 export function ImportCompensation({ state, csrfToken, onChanged }: {
   state: ImportReviewState; csrfToken: string; onChanged: () => Promise<void>;
@@ -27,10 +28,10 @@ export function ImportCompensation({ state, csrfToken, onChanged }: {
       });
       const envelope: unknown = await response.json();
       const data = envelope && typeof envelope === "object" && "data" in envelope ? envelope.data : null;
-      if (!response.ok) throw new Error(data && typeof data === "object" && "message" in data && typeof data.message === "string" ? data.message : "Chưa thể hoàn tác; phần đã nhập vẫn được giữ.");
+      if (!response.ok) throw envelope;
       importReviewStateSchema.parse(data);
       await onChanged(); setReason("");
-    } catch (cause: unknown) { setError(cause instanceof Error ? cause.message : "Chưa thể hoàn tác; bạn có thể thử lại an toàn."); }
+    } catch (cause: unknown) { setError(getUiErrorMessage(cause, "Chưa thể hoàn tác. Bạn có thể thử lại.")); }
     finally { setPending(false); }
   }
 

@@ -5,8 +5,8 @@ export default function LoginPage() {
   return (
     <FoundationPage
       kicker="Tài khoản · Lời mời"
-      title="Đăng nhập thành viên"
-      description="Đăng nhập để tiếp tục những thao tác cần quyền trong gia phả. Quyền truy cập vẫn được kiểm tra ở server và DB."
+      title="Đăng nhập"
+      description="Dùng tài khoản đã được mời để xem gia phả và gửi thông tin bổ sung."
     >
       <LoginForm />
     </FoundationPage>

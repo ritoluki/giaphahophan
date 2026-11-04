@@ -1,24 +1,18 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { DemoNotice, SiteShell } from "../_components/site-chrome";
-import { SearchBox } from "../_components/search-box";
 import { SearchResults } from "../_components/search-results";
 import { demoBranches, demoPeople } from "../../lib/demo-data";
 
-type SearchPageProps = { searchParams: Promise<{ q?: string; branchId?: string; lifeStatus?: string; birthYear?: string }> };
-
-export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const params = await searchParams;
-  const initialQuery = params.q ?? "";
+export default function SearchPage() {
   return (
     <SiteShell active="search">
       <main id="main-content" tabIndex={-1} className="container page">
-        <p className="eyebrow">Tra cứu · Trong phạm vi được phép xem</p>
         <h1>Tìm người trong gia phả</h1>
-        <p className="page-lede">Tên trùng sẽ luôn đi cùng mã hồ sơ, chi và mốc năm trong kết quả demo.</p>
-        <SearchBox initialValue={initialQuery} compact />
+        <p className="page-lede">Nhập tên, tên gọi khác hoặc mã hồ sơ. Dùng chi họ và năm sinh để phân biệt người trùng tên.</p>
         <DemoNotice />
-        <p><Link className="button-secondary" href="/quan-he">Tra quan hệ giữa hai người →</Link></p>
-        <SearchResults people={demoPeople} branches={demoBranches} initialQuery={initialQuery} initialBranchId={params.branchId ?? ""} initialLifeStatus={params.lifeStatus ?? ""} initialBirthYear={params.birthYear ?? ""} remoteSearch={process.env.DATA_MODE === "real"} />
+        <Suspense fallback={<p role="status">Đang tải tra cứu…</p>}><SearchResults people={demoPeople} branches={demoBranches} remoteSearch={process.env.DATA_MODE === "real"} /></Suspense>
+        <p><Link className="button-secondary" href="/quan-he">Xem quan hệ giữa hai người</Link></p>
       </main>
     </SiteShell>
   );

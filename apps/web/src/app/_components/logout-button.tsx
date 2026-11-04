@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { getUiErrorMessage } from "../../lib/ui-error";
 
 export function LogoutButton() {
   const router = useRouter();
@@ -14,9 +15,9 @@ export function LogoutButton() {
 
     try {
       const response = await fetch("/api/v1/auth/sign-out", { method: "POST" });
-      const payload = (await response.json()) as { error?: { message?: string } };
+      const payload: unknown = await response.json();
       if (!response.ok) {
-        setError(payload.error?.message ?? "Không thể kết thúc phiên lúc này.");
+        setError(getUiErrorMessage(payload, "Chưa đăng xuất được. Thử lại sau giây lát."));
         return;
       }
       router.push("/dang-nhap");

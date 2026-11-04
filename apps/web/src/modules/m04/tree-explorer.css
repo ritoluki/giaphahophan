@@ -1,0 +1,107 @@
+/* Family reading: three equal desktop columns (3 × 1fr + 2 × 28px),
+   stacked in their reading order on a phone. All widths belong to the page grid. */
+.family-browser { margin-top: 0; min-width: 0; font-size: 17px; }
+.family-browser :is(button, input, select, summary), .family-person-actions a { min-height: 48px; }
+.family-browser :is(button, input, select) { font-size: 16px; }
+.family-browser :is(h2, h3, h4, p) { overflow-wrap: anywhere; }
+.family-start { max-width: 760px; }
+.family-start h2, .family-browser .family-heading h1 { margin: 0; color: var(--ink); font-family: "Noto Serif Variable", "Noto Serif", Georgia, serif; font-size: clamp(22px, 3vw, 28px); font-weight: 500; line-height: 1.4; }
+.family-start h1 { margin-bottom: 1rem; }
+.family-demo-note { margin: .5rem 0 0; color: var(--ink-muted); font-size: 14px; }
+.family-heading { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: start; }
+.family-heading h1 { max-width: 26ch; }
+.family-heading h1 span { display: block; }
+.family-heading-actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: start; }
+.family-chooser { margin-top: 1rem; }
+.family-chooser label { display: block; margin-bottom: .5rem; font-weight: 600; }
+.family-chooser input { width: 100%; min-width: 0; min-height: 52px; padding: .65rem .85rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--ink); }
+.family-search-note { margin: .6rem 0; color: var(--ink-muted); font-size: 15px; }
+.family-search-results { margin: 0; padding: 0; list-style: none; background: var(--surface); }
+.family-search-results li + li { border-top: 1px solid var(--border); }
+.family-search-results button { display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%; padding: .9rem 1rem; border: 0; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+.family-search-results button:hover { background: var(--surface-muted, var(--muted)); }
+.family-search-results button > span:first-child { display: grid; min-width: 0; }
+.family-search-results strong { font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
+.family-search-results small { color: var(--ink-muted); font-size: 15px; }
+.family-options { position: relative; }
+.family-options summary, .family-change-person summary { display: flex; align-items: center; width: fit-content; min-height: 48px; padding: .55rem .85rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--ink); cursor: pointer; font-size: 16px; font-weight: 600; list-style: none; }
+.family-options summary::-webkit-details-marker, .family-change-person summary::-webkit-details-marker { display: none; }
+.family-options summary::after, .family-change-person summary::after { content: "+"; margin-left: .8rem; font-size: 20px; font-weight: 400; }
+.family-options[open] summary::after, .family-change-person[open] summary::after { content: "−"; }
+.family-options form { position: absolute; z-index: 5; right: 0; display: grid; gap: 1rem; width: min(370px, calc(100vw - 32px)); padding: 1rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); box-shadow: 0 8px 24px #00000014; }
+.family-start > .family-options { margin-top: 1rem; }
+.family-start > .family-options form { right: auto; left: 0; }
+.family-options label { display: grid; gap: .4rem; font-size: 16px; }
+.family-options select { width: 100%; min-width: 0; max-width: 100%; padding: .55rem .5rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--ink); }
+.family-change-person { margin: 1rem 0 1.75rem; }
+.family-change-person > .family-chooser { max-width: 760px; padding: 1rem 0; }
+.family-reading-grid { display: grid; gap: 1.75rem; }
+.family-group { min-width: 0; }
+.family-group > h2 { margin: 0 0 .75rem; font-family: inherit; font-size: 18px; font-weight: 600; color: var(--ink); line-height: 1.5; }
+.family-center > .family-group { margin-top: 1.75rem; }
+.family-members { display: grid; gap: 0; background: var(--surface); }
+.family-person-row { min-width: 0; padding: 1rem; background: var(--surface); }
+.family-person-row + .family-person-row { border-top: 1px solid var(--border); }
+.family-person-current { background: var(--surface-muted, var(--muted)); border-left: 3px solid var(--brand); }
+.family-person-description h3 { margin: 0 0 .35rem; font-family: "Noto Serif Variable", "Noto Serif", Georgia, serif; color: var(--ink); font-size: 21px; font-weight: 600; line-height: 1.45; }
+.family-person-description p { margin: .25rem 0; color: var(--ink-muted); font-size: 15px; line-height: 1.6; }
+.family-person-marker { display: block; margin-bottom: .4rem; color: var(--brand); font-size: 15px; font-weight: 600; }
+.family-person-description .family-relationship-label { color: var(--ink); }
+.family-person-actions { display: flex; flex-wrap: wrap; column-gap: 1rem; row-gap: .25rem; margin-top: .5rem; }
+.family-person-actions :is(a, button) { display: inline-flex; align-items: center; min-height: 48px; padding: .25rem 0; border: 0; background: transparent; color: var(--brand); font-size: 16px; font-weight: 600; text-align: left; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.family-person-actions :is(a, button):hover { text-decoration-thickness: 2px; }
+.family-empty { margin: 0; padding: 1rem; background: var(--surface-muted, var(--muted)); color: var(--ink-muted); font-size: 16px; }
+.family-review-note, .family-filter-note { margin: 1.25rem 0; color: var(--ink-muted); font-size: 16px; }
+.family-filter-note button { border: 0; background: transparent; color: var(--brand); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+.family-diagram-dialog { position: fixed; inset: 0; width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); border: 0; border-radius: 0; background: var(--background); color: var(--ink); }
+.family-diagram-dialog[open] { display: flex; flex-direction: column; }
+.family-diagram-dialog::backdrop { background: #0007; }
+.family-diagram-header { display: flex; flex: 0 0 auto; align-items: start; justify-content: space-between; gap: .75rem; padding-bottom: .65rem; }
+.family-diagram-header h2 { margin: 0; color: var(--ink); font-family: inherit; font-size: 20px; font-weight: 600; line-height: 1.5; }
+.family-diagram-header p { margin: .1rem 0 0; font-size: 15px; color: var(--ink-muted); }
+.family-diagram-header button { flex: 0 0 auto; min-height: 48px; padding: .5rem .7rem; font-size: 16px; }
+.family-diagram-message { display: grid; align-content: center; justify-items: start; flex: 1; gap: 1rem; padding: 1rem; }
+.family-diagram-message h3, .family-diagram-message p { margin: 0; }
+.family-diagram-message > div { display: flex; flex-wrap: wrap; gap: .75rem; }
+.family-diagram-workspace { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+.family-diagram-hint { flex: 0 0 auto; margin: 0 0 .5rem; font-size: 15px; color: var(--ink-muted); }
+.family-diagram-controls { display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: .4rem; padding-bottom: .6rem; }
+.family-diagram-controls button { min-width: 48px; min-height: 48px; padding: .5rem .65rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--ink); font-size: 15px; font-weight: 600; cursor: pointer; }
+.family-diagram-controls button:nth-child(-n+2) { font-size: 24px; font-weight: 400; }
+.family-diagram-canvas { position: relative; flex: 1; min-height: 100px; background: var(--surface-muted, var(--muted)); }
+.family-diagram-canvas .react-flow { --xy-edge-stroke-default: var(--ink-muted); --xy-background-color-default: var(--surface-muted, var(--muted)); }
+.family-diagram-canvas .react-flow__attribution { background: var(--surface); }
+.family-diagram-canvas .react-flow__attribution a { display: inline-flex; min-height: 24px; align-items: center; padding-inline: .3rem; color: var(--ink-muted); font-size: 12px; }
+.family-diagram-node { width: 248px; height: 100%; min-height: 112px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); }
+.family-diagram-node-current { border: 2px solid var(--brand); }
+.family-diagram-node button { display: flex; flex-direction: column; align-items: start; justify-content: center; gap: .25rem; width: 100%; min-height: 112px; height: 100%; padding: .9rem 1rem; border: 0; border-radius: 3px; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+.family-diagram-node button strong { max-width: 100%; font-size: 18px; font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+.family-diagram-node button :is(small, span) { font-size: 14px; line-height: 1.5; }
+.family-diagram-node button span { color: var(--brand); }
+.family-diagram-node button small { color: var(--ink-muted); }
+.family-diagram-node .react-flow__handle { width: 5px; height: 5px; min-width: 0; min-height: 0; border: 0; background: var(--ink-muted); }
+.family-diagram-summary { flex: 0 0 auto; max-height: 42dvh; overflow-y: auto; padding: .75rem 1rem; background: var(--surface); }
+.family-diagram-summary h3 { margin: 0; color: var(--ink); font-size: 20px; font-weight: 600; }
+.family-diagram-summary p { margin: .25rem 0 0; color: var(--ink-muted); font-size: 15px; }
+.family-diagram-legend { display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: .2rem 1rem; padding-top: .5rem; font-size: 13px; color: var(--ink-muted); }
+.family-diagram-legend span { display: inline-flex; align-items: center; gap: .4rem; }
+.family-diagram-legend i { width: 22px; border-top: 2px solid var(--ink-muted); }
+.family-diagram-legend .family-line-other { border-top-style: dashed; }
+.family-diagram-legend .family-line-review { border-top: 2px dotted var(--danger); }
+.family-diagram-cap { flex: 0 0 auto; margin: .35rem 0 0; font-size: 14px; color: var(--ink-muted); }
+@media (min-width: 1024px) {
+  .family-reading-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; align-items: start; }
+  .family-heading h1 { max-width: none; }
+  .family-heading h1 span { display: inline; }
+  .family-diagram-summary { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+  .family-diagram-summary .family-person-actions { margin: 0; }
+}
+@media (max-width: 380px) {
+  .family-heading-actions { width: 100%; }
+  .family-diagram-controls { gap: .25rem; }
+  .family-diagram-controls button { padding-inline: .4rem; font-size: 14px; }
+  .family-diagram-controls button:last-child { flex-basis: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .family-browser *, .family-diagram-dialog * { scroll-behavior: auto; transition: none; }
+}

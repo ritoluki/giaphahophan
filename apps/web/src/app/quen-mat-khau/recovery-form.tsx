@@ -23,6 +23,11 @@ export function RecoveryForm() {
 
   async function submitRecovery(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setStatus("error");
+      setMessage("Nhập địa chỉ email đã đăng ký của bạn.");
+      return;
+    }
     setStatus("pending");
     setMessage("");
     try {
@@ -38,7 +43,7 @@ export function RecoveryForm() {
         return;
       }
       setStatus("success");
-      setMessage("Nếu tài khoản tồn tại, hướng dẫn phục hồi đã được gửi đến email bạn cung cấp.");
+      setMessage("Nếu email này đã đăng ký tài khoản, bạn sẽ nhận được hướng dẫn đặt lại mật khẩu. Hãy kiểm tra cả thư mục thư rác.");
     } catch {
       setStatus("error");
       setMessage("Không thể kết nối. Vui lòng thử lại.");
@@ -47,6 +52,11 @@ export function RecoveryForm() {
 
   async function submitPassword(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (password.length < 8 || password.length > 128) {
+      setStatus("error");
+      setMessage("Mật khẩu cần có từ 8 đến 128 ký tự.");
+      return;
+    }
     if (password !== confirmation) {
       setStatus("error");
       setMessage("Mật khẩu xác nhận chưa khớp.");
@@ -81,7 +91,8 @@ export function RecoveryForm() {
         <form className="card recovery-form" onSubmit={submitPassword} noValidate>
           <div className="filter-row">
             <label htmlFor="recovery-password">Mật khẩu mới</label>
-            <input id="recovery-password" type="password" autoComplete="new-password" minLength={8} maxLength={128} required value={password} onChange={(event) => setPassword(event.target.value)} />
+            <input id="recovery-password" type="password" autoComplete="new-password" aria-describedby="recovery-password-help" minLength={8} maxLength={128} required value={password} onChange={(event) => setPassword(event.target.value)} />
+            <small id="recovery-password-help">Từ 8 đến 128 ký tự.</small>
           </div>
           <div className="filter-row">
             <label htmlFor="recovery-confirmation">Nhập lại mật khẩu mới</label>
@@ -102,7 +113,7 @@ export function RecoveryForm() {
           <input id="recovery-email" name="email" type="email" autoComplete="email" maxLength={320} required value={email} onChange={(event) => setEmail(event.target.value)} />
         </div>
         {message ? <p className={status === "error" ? "field-error" : "form-notice"} role={status === "error" ? "alert" : "status"}>{message}</p> : null}
-        <button className="button-primary" type="submit" disabled={status === "pending"}>{status === "pending" ? "Đang gửi…" : "Gửi hướng dẫn phục hồi"}</button>
+        <button className="button-primary" type="submit" disabled={status === "pending"}>{status === "pending" ? "Đang gửi…" : "Gửi hướng dẫn đặt lại mật khẩu"}</button>
       </form>
       <p className="muted"><Link href="/dang-nhap">Quay lại đăng nhập</Link></p>
     </div>

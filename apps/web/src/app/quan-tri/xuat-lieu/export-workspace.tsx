@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { describeExportFormat, describeExportWarning } from "../../../lib/export-guidance";
+import { getUiErrorMessage } from "../../../lib/ui-error";
 import { exportCancelFormSchema, exportContextSchema, exportDraftFormSchema, exportDraftSchema, exportJobSchema, exportProjectionSchema, exportRequestSchema, idempotencyKeySchema, type ExportCancelFormOutput, type ExportDraft, type ExportDraftFormInput, type ExportDraftFormOutput, type ExportJob, type ExportRequest } from "@phan/contracts";
 
 const formatLabels: Record<ExportRequest["format"], string> = {
@@ -24,14 +25,9 @@ function bookmark(id: string) {
 
 async function responseData(response: Response): Promise<unknown> {
   const body: unknown = await response.json();
+  if (!response.ok) throw body;
   if (!body || typeof body !== "object" || !("data" in body)) throw new Error("Phản hồi máy chủ không hợp lệ.");
-  const envelope = body as { data: unknown; meta?: { requestId?: unknown } };
-  if (!response.ok) {
-    const detail = envelope.data && typeof envelope.data === "object" && "message" in envelope.data ? envelope.data.message : null;
-    const requestId = typeof envelope.meta?.requestId === "string" ? ` Mã yêu cầu: ${envelope.meta.requestId}.` : "";
-    throw new Error(`${typeof detail === "string" ? detail : "Chưa thể hoàn tất thao tác."}${requestId}`);
-  }
-  return envelope.data;
+  return body.data;
 }
 
 export function ExportWorkspace() {
@@ -47,7 +43,7 @@ function ExportCancelForm({ job, pending, onCancel }: { job: ExportJob; pending:
   const { register, handleSubmit, formState: { errors } } = useForm<ExportCancelFormOutput>({ resolver: zodResolver(exportCancelFormSchema), defaultValues: { reason: "" } });
   return <form className="import-form" onSubmit={handleSubmit(onCancel)}><label htmlFor="export-cancel-reason">Lý do hủy yêu cầu xuất</label>
     <input id="export-cancel-reason" minLength={5} maxLength={1000} required disabled={pending} aria-invalid={errors.reason ? "true" : "false"} aria-describedby={errors.reason ? "export-cancel-error" : undefined} {...register("reason")} />
-    {errors.reason?.message && <p id="export-cancel-error" className="form-error" role="alert">{errors.reason.message}</p>}
+    {errors.reason && <p id="export-cancel-error" className="form-error" role="alert">Lý do cần từ 5 đến 1.000 ký tự.</p>}
     <button className="button-secondary" disabled={pending}>{pending ? "Đang hủy…" : "Hủy yêu cầu xuất"}</button></form>;
 }
 
@@ -118,7 +114,7 @@ function ExportWorkflow() {
     const id = new URL(window.location.href).searchParams.get("job");
     if (!id) return;
     const timeout = window.setTimeout(() => {
-      void loadJob(id).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : "Chưa tải được trạng thái bản xuất."));
+      void loadJob(id).catch((cause: unknown) => setError(getUiErrorMessage(cause, "Chưa tải được trạng thái bản xuất.")));
     }, 0);
     return () => window.clearTimeout(timeout);
   }, [contextQuery.dataUpdatedAt, contextQuery.error, contextQuery.isFetched, jobId, loadJob]);
@@ -184,9 +180,9 @@ function ExportWorkflow() {
       const result = await createMutation.mutateAsync({ input: input.data, key: requestKey.current.key, csrfToken: context.csrfToken });
       setJobId(result.id); bookmark(result.id);
       try { sessionStorage.removeItem(draftStorageKey); } catch { /* Storage may be disabled. */ }
-      setDraftNotice(""); setNotice("Yêu cầu đã được lưu. Trạng thái chờ không có nghĩa đã tạo tệp.");
+      setDraftNotice(""); setNotice("Đã lưu yêu cầu. Tệp sẽ được tạo sau khi xử lý xong.");
       await refreshContext();
-    } catch (cause: unknown) { setError(cause instanceof Error ? cause.message : "Chưa lưu được yêu cầu. Thử lại giữ nguyên mã thao tác."); }
+    } catch (cause: unknown) { setError(getUiErrorMessage(cause, "Chưa lưu được yêu cầu. Bạn có thể thử lại.")); }
     finally { setPending(""); }
   }
   function handleExportSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -195,7 +191,7 @@ function ExportWorkflow() {
   async function preview() {
     if (!job) return; setPending("preview"); setError(""); setPreviewEnabled(true);
     try { await previewQuery.refetch({ throwOnError: true }); }
-    catch (cause: unknown) { setError(cause instanceof Error ? cause.message : "Chưa tải được dữ liệu theo quyền."); }
+    catch (cause: unknown) { setError(getUiErrorMessage(cause, "Chưa tải được nội dung bản xuất.")); }
     finally { setPending(""); }
   }
   async function cancel(draft: ExportCancelFormOutput) {
@@ -206,23 +202,23 @@ function ExportWorkflow() {
     setPending("cancel"); setError(""); setNotice("");
     try {
       const result = await cancelMutation.mutateAsync({ id: job.id, body, key: cancelKey.current.key, csrfToken: context.csrfToken });
-      setPreviewEnabled(false); setNotice("Đã hủy yêu cầu xuất. Không xóa hồ sơ hoặc tư liệu gốc và không hoàn lại quota.");
+      setPreviewEnabled(false); setNotice("Đã hủy yêu cầu xuất. Hồ sơ và tư liệu gốc vẫn được giữ. Yêu cầu này vẫn được tính vào giới hạn trong ngày.");
       await refreshContext();
-    } catch (cause: unknown) { setError(cause instanceof Error ? cause.message : "Chưa hủy được yêu cầu. Hãy tải lại trạng thái."); }
+    } catch (cause: unknown) { setError(getUiErrorMessage(cause, "Chưa hủy được yêu cầu. Hãy tải lại trạng thái.")); }
     finally { setPending(""); }
   }
   async function reload(id?: string) {
     setPending("reload"); setError(""); setNotice("");
     try { await refreshContext(); if (id) await loadJob(id); }
-    catch (cause: unknown) { setJobId(""); setPreviewEnabled(false); setError(cause instanceof Error ? cause.message : "Chưa tải được trạng thái."); }
+    catch (cause: unknown) { setJobId(""); setPreviewEnabled(false); setError(getUiErrorMessage(cause, "Chưa tải được trạng thái.")); }
     finally { setPending(""); }
   }
 
   return <section className="import-workspace" aria-label="Khu vực xuất liệu" aria-busy={Boolean(pending) || contextQuery.isLoading || jobQuery.isFetching || previewQuery.isFetching}>
-    <div className="card import-result export-intro"><p>Phạm vi → Yêu cầu → Xem dữ liệu theo quyền → Theo dõi</p>
+    <div className="card import-result export-intro"><h2>Chọn bản gia phả cần xuất</h2>
       <p>Chọn phạm vi và định dạng. Bạn có thể tải tệp khi yêu cầu đã hoàn tất; chỉ thông tin được phép xuất mới được đưa vào tệp.</p>
       {contextQuery.isLoading && <p role="status">Đang kiểm tra phiên và phạm vi được phép…</p>}
-      {(error || (contextQuery.error instanceof Error ? contextQuery.error.message : "")) && <p className="form-error" role="alert">{error || (contextQuery.error instanceof Error ? contextQuery.error.message : "")}</p>}{notice && <p role="status">{notice}</p>}
+      {(error || contextQuery.error) && <p className="form-error" role="alert">{error || getUiErrorMessage(contextQuery.error, "Chưa tải được phạm vi xuất. Hãy kiểm tra phiên đăng nhập và thử lại.")}</p>}{notice && <p role="status">{notice}</p>}
       <button type="button" className="button-secondary" disabled={Boolean(pending)} onClick={() => void reload(job?.id)}>Tải lại trạng thái xuất</button>
     </div>
     {!context && !contextQuery.isLoading && !pending && <div className="restricted-card"><h2>Chưa mở được phạm vi xuất</h2><p>Đăng nhập và xác thực hai bước đối với xuất hàng loạt. Không hiển thị dữ liệu riêng tư khi thiếu phiên.</p><Link className="button-secondary" href="/dang-nhap">Đăng nhập</Link></div>}
@@ -236,26 +232,26 @@ function ExportWorkflow() {
         {Object.entries(formatLabels).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
       </select><p id="export-format-guidance">{describeExportFormat(draftFormat)}</p><label htmlFor="export-audience">Đối tượng nhận</label>
       <select id="export-audience" disabled={Boolean(pending) || createMutation.isPending || choice.scope.kind === "personal"} {...register("audience")}>
-        {choice.scope.kind === "personal" ? <option value="members">Chính chủ · hồ sơ đã duyệt</option> : <><option value="members">Thành viên · theo consent từng trường</option><option value="public">Công khai · chờ workflow xuất bản</option></>}
-      </select>{draftAudience === "public" && choice.scope.kind !== "personal" && <p>Chưa nối duyệt xuất bản hồ sơ: preview công khai hiện không trả dữ liệu người.</p>}
+        {choice.scope.kind === "personal" ? <option value="members">Bản cá nhân · hồ sơ đã được xác nhận</option> : <><option value="members">Thành viên · theo phạm vi đã đồng ý chia sẻ</option><option value="public">Công khai · cần duyệt xuất bản</option></>}
+      </select>{draftAudience === "public" && choice.scope.kind !== "personal" && <p>Chức năng duyệt công khai hồ sơ đang được hoàn thiện. Bản xem trước công khai hiện chưa có thông tin người.</p>}
       <label htmlFor="export-media"><input id="export-media" type="checkbox" disabled={Boolean(pending) || createMutation.isPending} {...register("includeMedia")} /> Yêu cầu kèm tư liệu được phép</label>
-      <p>Xuất kèm tư liệu đang chờ quy định duyệt quyền sử dụng. Nếu chọn, hiện chưa thể tạo tệp hoàn chỉnh.</p>
+      <p>Chức năng xuất kèm tư liệu đang được hoàn thiện. Nếu chọn mục này, hiện chưa thể tạo tệp hoàn chỉnh.</p>
       <label htmlFor="export-reason">Lý do xuất</label><input id="export-reason" minLength={5} maxLength={1000} required disabled={Boolean(pending) || createMutation.isPending} aria-invalid={formErrors.reason ? "true" : "false"} aria-describedby={formErrors.reason ? "export-reason-error" : undefined} {...register("reason")} />
-      {formErrors.reason?.message && <p id="export-reason-error" className="form-error" role="alert">{formErrors.reason.message}</p>}
+      {formErrors.reason && <p id="export-reason-error" className="form-error" role="alert">Lý do cần từ 5 đến 1.000 ký tự.</p>}
       <button className="button-primary" disabled={Boolean(pending) || createMutation.isPending}>{createMutation.isPending ? "Đang lưu yêu cầu…" : "Lưu yêu cầu xuất"}</button>
-      <p>Tối đa 3 yêu cầu trong 24 giờ, kể cả yêu cầu đã hủy. File mặc định hết hạn sau 24 giờ; quyền được kiểm tra lại ở mỗi bước.</p>
+      <p>Tối đa 3 yêu cầu trong 24 giờ, kể cả yêu cầu đã hủy. Tệp mặc định hết hạn sau 24 giờ; quyền xuất được kiểm tra lại trước khi tải.</p>
       <p aria-live="polite">{draftNotice || (draftHydrated ? "Bản nháp lưu tạm trong thẻ trình duyệt 15 phút; dữ liệu gia phả không được lưu trong bản nháp." : "")}</p>
     </form>}
     <section className="card import-result" aria-label="Trạng thái xuất">
-      <h2>Yêu cầu đã lưu</h2>{!job && <p>Chọn yêu cầu gần đây hoặc lưu yêu cầu mới để theo dõi. Chưa tạo file.</p>}
+      <h2>Theo dõi yêu cầu</h2>{!job && <p>Chọn yêu cầu đã lưu hoặc tạo yêu cầu mới để theo dõi tiến độ.</p>}
       {context && context.jobs.length > 0 && <><label htmlFor="export-jobs">Yêu cầu còn hiệu lực</label><select id="export-jobs" value={job?.id ?? ""} disabled={Boolean(pending) || jobQuery.isFetching} onChange={(event) => { if (event.target.value) void reload(event.target.value); }}>
         <option value="">Chọn yêu cầu</option>{context.jobs.map((item) => <option key={item.id} value={item.id}>{formatLabels[item.format]} · {statusLabels[item.status]}</option>)}
       </select></>}
       {job && <><p role="status" data-testid="export-status">{statusLabels[job.status]} · Phiên bản {job.version}</p>
         <p>Định dạng: {formatLabels[job.format]} · Hết hạn: {new Date(job.expiresAt).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}</p>
         {job.warnings.length > 0 && <ul>{job.warnings.map((warning, index) => <li key={index}>{describeExportWarning(warning)}</li>)}</ul>}
-        <button type="button" className="button-secondary" disabled={Boolean(pending) || !["queued", "running", "complete"].includes(job.status)} onClick={() => void preview()}>Xem dữ liệu theo quyền</button>
-        {projection && <div role="status" data-testid="export-preview"><p>Được phép: {projection.people.length} hồ sơ · {projection.parentLinks.length} quan hệ · {projection.unions.length} gia đình · {projection.citations.length} trích dẫn.</p><p>Không hiển thị số lượng hoặc mã hồ sơ bị ẩn. Preview không phải file hoàn tất.</p></div>}
+        <button type="button" className="button-secondary" disabled={Boolean(pending) || !["queued", "running", "complete"].includes(job.status)} onClick={() => void preview()}>Xem trước nội dung</button>
+        {projection && <div role="status" data-testid="export-preview"><p>Nội dung được phép xuất: {projection.people.length} hồ sơ · {projection.parentLinks.length} quan hệ · {projection.unions.length} gia đình · {projection.citations.length} trích dẫn.</p><p>Đây là bản xem trước. Tệp tải xuống xuất hiện sau khi yêu cầu hoàn tất.</p></div>}
         {job.status === "complete" ? <div className="export-downloads" aria-label="Tệp xuất đã hoàn tất">
           <Link className="button-primary" href={`/api/v1/exports/${job.id}/download?file=primary`}>Tải tệp {formatLabels[job.format].split(" — ")[0]}</Link>
           {(job.format === "gedcom_551" || job.format === "gedcom_7") && <Link className="button-secondary" href={`/api/v1/exports/${job.id}/download?file=sidecar`}>Tải JSON giữ đầy đủ dữ liệu</Link>}

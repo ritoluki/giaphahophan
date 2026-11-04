@@ -5,6 +5,8 @@ import { importPreviewSchema, importReviewStateSchema, type ImportPreviewRecord,
 import { ImportRowInspector } from "./import-row-inspector";
 import { ImportRelationshipEditor } from "./import-relationship-editor";
 import { ImportCompensation } from "./import-compensation";
+import { describeImportIssue, importClassificationLabels } from "./import-labels";
+import { getUiErrorMessage } from "../../../lib/ui-error";
 
 type Envelope<T> = { data?: T; meta?: { requestId?: string; csrfToken?: string } };
 type UploadIntent = { assetId: string; uploadUrl: string; requiredHeaders: Record<string, string> };
@@ -22,10 +24,11 @@ function warningText(warning: string) {
     "privacy_defaults_to_restricted; no GEDCOM note or media path is published": "Hồ sơ mặc định riêng tư; ghi chú và đường dẫn ảnh trong tệp không được công khai.",
     relationship_mapping_requires_review: "Quan hệ gia đình cần được đối chiếu trước khi áp dụng.",
     unresolved_relationship_references_require_review: "Có mã quan hệ chưa tìm thấy trong tệp; cần đối chiếu nguồn.",
-    duplicate_external_ids_require_review: "Mã nguồn bị lặp; cần rà soát từng bản ghi.",
+    duplicate_external_ids_require_review: "Mã trong tệp bị lặp; cần rà soát từng dòng.",
     ambiguous_dates_preserved_for_review: "Ngày chưa rõ được giữ nguyên để đối chiếu.",
     unmapped_source_columns_preserved_in_raw_payload: "Cột chưa chọn vẫn được giữ trong nguồn riêng tư.",
-    source_schema_version_differs_from_mapping: "Phiên bản tệp khác mapping đã chọn; cần kiểm tra trước khi duyệt.",
+    source_schema_version_differs_from_mapping: "Phiên bản tệp khác mẫu đọc đã chọn; cần kiểm tra trước khi duyệt.",
+    real_data_owner_approval_required: "Nhập dữ liệu thật cần chủ gia phả phê duyệt riêng.",
   };
   const conformance = [
     ["gedcom_conformance_supported:", "Trường GEDCOM đã nhận diện"],
@@ -35,17 +38,12 @@ function warningText(warning: string) {
   for (const [prefix, label] of conformance) {
     if (prefix && warning.startsWith(prefix)) return `${label}: ${warning.slice(prefix.length) || "không có"}.`;
   }
-  return labels[warning] ?? `Cần đối chiếu nguồn: ${warning}`;
+  return Object.hasOwn(labels, warning) ? labels[warning]! : "Tệp có thông tin cần đối chiếu thêm với tư liệu gốc.";
 }
 
 async function responseData<T>(response: Response): Promise<T> {
   const body = await response.json() as Envelope<T>;
-  if (!response.ok) {
-    const detail = body.data && typeof body.data === "object" ? body.data as { message?: unknown } : null;
-    const message = typeof detail?.message === "string" ? detail.message : `Yêu cầu chưa hoàn tất (${response.status}).`;
-    const requestId = typeof body.meta?.requestId === "string" ? ` Mã yêu cầu: ${body.meta.requestId}.` : "";
-    throw new Error(`${message}${requestId}`);
-  }
+  if (!response.ok) throw body;
   if (body.data === undefined) throw new Error("Máy chủ trả về nội dung không hợp lệ.");
   return body.data;
 }
@@ -101,7 +99,7 @@ export function ImportIntake() {
       setPreview(importPreviewSchema.parse(await responseData<ImportPreviewRecord>(response)));
       await refreshReview(preview.jobId);
       setDecisionReason("");
-    } catch (cause: unknown) { setError(cause instanceof Error ? cause.message : "Chưa cập nhật được dòng. Bạn có thể thử lại an toàn."); }
+    } catch (cause: unknown) { setError(getUiErrorMessage(cause, "Chưa cập nhật được dòng. Bạn có thể thử lại.")); }
     finally { setReviewAction(null); }
   }
 
@@ -122,7 +120,7 @@ export function ImportIntake() {
       await responseData<unknown>(response);
       await refreshReview(preview.jobId);
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : "Thao tác chưa hoàn tất. Bạn có thể thử lại bằng cùng mã thao tác.");
+      setError(getUiErrorMessage(cause, "Thao tác chưa hoàn tất. Bạn có thể thử lại."));
     } finally { setReviewAction(null); }
   }
 
@@ -141,7 +139,7 @@ export function ImportIntake() {
       await responseData<unknown>(response);
       await refreshReview(preview.jobId);
       setCancelReason("");
-    } catch (cause: unknown) { setError(cause instanceof Error ? cause.message : "Chưa thể hủy bản nhập; trạng thái được giữ nguyên để thử lại an toàn."); }
+    } catch (cause: unknown) { setError(getUiErrorMessage(cause, "Chưa thể hủy bản nhập. Hãy tải lại trạng thái rồi thử lại.")); }
     finally { setReviewAction(null); }
   }
 
@@ -149,7 +147,7 @@ export function ImportIntake() {
     let active = true;
     fetch("/api/v1/imports", { cache: "no-store" }).then(async (response) => responseData<ImportTree[]>(response))
       .then((items) => { if (active) { setTrees(items); setTreeId(items[0]?.id ?? ""); } })
-      .catch((cause: unknown) => { if (active) setError(cause instanceof Error ? cause.message : "Không tải được danh sách cây được cấp quyền nhập liệu."); })
+      .catch((cause: unknown) => { if (active) setError(getUiErrorMessage(cause, "Chưa tải được danh sách gia phả được cấp quyền nhập liệu.")); })
       .finally(() => { if (active) setLoadingTrees(false); });
     return () => { active = false; };
   }, []);
@@ -169,7 +167,7 @@ export function ImportIntake() {
         const saved = importReviewStateSchema.parse(await responseData<ImportReviewState>(response));
         if (active) { setReviewState(saved); setCsrfToken(envelope.meta?.csrfToken ?? ""); }
       })
-      .catch((cause: unknown) => { if (active) setError(cause instanceof Error ? cause.message : "Không thể tải bản dry-run đã lưu."); })
+      .catch((cause: unknown) => { if (active) setError(getUiErrorMessage(cause, "Chưa tải được kết quả kiểm tra đã lưu.")); })
       .finally(() => { if (active) setLoadingPreview(false); });
     return () => { active = false; };
   }, []);
@@ -230,52 +228,53 @@ export function ImportIntake() {
       setPreview(parsedPreview);
       await refreshReview(job.id);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Không thể tiếp nhận tệp lúc này.");
+      setError(getUiErrorMessage(cause, "Chưa thể nhận tệp lúc này. Vui lòng thử lại."));
     } finally { setPending(false); }
   }
 
   return (
     <section className="import-workspace" aria-labelledby="import-step-title">
-      <div className="import-stepper" aria-label="Quy trình tiếp nhận">
-        <span aria-current="step"><b>1</b> Tư liệu</span><span><b>2</b> Kiểm tra</span><span><b>3</b> Rà soát</span>
-      </div>
+      <p className="muted">Tải tệp → Kiểm tra → Đối chiếu và duyệt</p>
       <form className="card import-form" onSubmit={submit}>
+        <h2 id="import-step-title">Chọn tệp gia phả</h2>
+        <p className="muted">Kết quả kiểm tra được lưu để bạn và người duyệt cùng xem. Thông tin chưa rõ được giữ nguyên để đối chiếu.</p>
         <label htmlFor="import-format">Định dạng</label>
-        <select id="import-format" value={format} onChange={(event) => { setFormat(event.target.value as typeof format); setFile(null); }}><option value="canonical_json">JSON canonical</option><option value="structured_json">JSON có mapping</option><option value="csv">CSV có mapping</option><option value="gedcom_551">GEDCOM 5.5.1 (subset)</option><option value="gedcom_7">GEDCOM 7 (subset)</option></select>
-        {format.startsWith("gedcom") && <p className="muted">Profile GEDCOM hiện nhận UTF-8 và subset được công bố; tag/lịch không hỗ trợ sẽ được giữ nguyên để rà soát, không tự diễn giải.</p>}
-        <h2 id="import-step-title">Bản nhập demo</h2>
-        <p className="muted">Nhận JSON canonical, JSON/CSV có mapping hoặc GEDCOM 5.5.1/7 theo subset. Tệp được giữ trong bucket riêng tư; bản gốc không xuất hiện trong phản hồi. Ngày mơ hồ được giữ để rà soát, không tự ép thành ngày chính xác.</p>
-        <label htmlFor="import-tree">Cây gia phả được cấp quyền</label>
+        <select id="import-format" value={format} onChange={(event) => { setFormat(event.target.value as typeof format); setFile(null); }}><option value="canonical_json">JSON theo mẫu gia phả</option><option value="structured_json">JSON — chọn cột thông tin</option><option value="csv">CSV — chọn cột thông tin</option><option value="gedcom_551">GEDCOM 5.5.1 — các trường được hỗ trợ</option><option value="gedcom_7">GEDCOM 7 — các trường được hỗ trợ</option></select>
+        {format.startsWith("gedcom") && <p className="muted">Tệp GEDCOM cần dùng bảng mã UTF-8. Những trường và cách ghi lịch chưa được hỗ trợ sẽ được giữ trong tư liệu gốc để đối chiếu.</p>}
+        <label htmlFor="import-tree">Gia phả cần nhập</label>
         <select id="import-tree" required value={treeId} disabled={loadingTrees || trees.length === 0} onChange={(event) => setTreeId(event.target.value)}>
           {loadingTrees && <option value="">Đang tải danh sách…</option>}
-          {!loadingTrees && trees.length === 0 && <option value="">Không có cây được cấp quyền</option>}
+          {!loadingTrees && trees.length === 0 && <option value="">Chưa có gia phả được cấp quyền</option>}
           {trees.map((tree) => <option key={tree.id} value={tree.id}>{tree.name}</option>)}
         </select>
-        <label htmlFor="import-source">Không gian nguồn</label>
-        <input id="import-source" required maxLength={200} value={sourceNamespace} onChange={(event) => setSourceNamespace(event.target.value)} />
+        <label htmlFor="import-source">Mã bộ tư liệu</label>
+        <input id="import-source" required maxLength={200} aria-describedby="import-source-help" value={sourceNamespace} onChange={(event) => setSourceNamespace(event.target.value)} />
+        <p id="import-source-help" className="muted">Dùng cùng mã cho các tệp thuộc một bộ tư liệu để giữ đúng mã người trong nguồn.</p>
         <label htmlFor="import-file">Tệp {format === "csv" ? "CSV" : format.startsWith("gedcom") ? "GEDCOM" : "JSON"} · tối đa 10 MiB</label>
         <input id="import-file" type="file" accept={format === "csv" ? "text/csv,.csv" : format.startsWith("gedcom") ? ".ged,.gedcom,text/plain" : "application/json,.json"} required onChange={(event) => setFile(event.target.files?.[0] ?? null)} />
-        {(format === "csv" || format === "structured_json") && <fieldset className="import-mapping-fields"><legend>Mapping {format === "csv" ? "structured-csv/1" : "structured-json/1"}</legend>
+        {(format === "csv" || format === "structured_json") && <fieldset className="import-mapping-fields"><legend>Chọn cột thông tin trong tệp</legend>
+          <p>Nhập đúng tiêu đề cột đang có trong tệp nguồn.</p>
           <label htmlFor="mapping-external-id">Tiêu đề cột mã nguồn</label><input id="mapping-external-id" required maxLength={100} value={externalIdColumn} onChange={(event) => setExternalIdColumn(event.target.value)} />
           <label htmlFor="mapping-display-name">Tiêu đề cột họ tên</label><input id="mapping-display-name" required maxLength={100} value={displayNameColumn} onChange={(event) => setDisplayNameColumn(event.target.value)} />
           <label htmlFor="mapping-birth-date">Tiêu đề cột ngày sinh (không bắt buộc)</label><input id="mapping-birth-date" maxLength={100} placeholder="Để trống nếu không có cột" value={birthDateColumn} onChange={(event) => setBirthDateColumn(event.target.value)} />
           <label htmlFor="mapping-death-date">Tiêu đề cột ngày mất (không bắt buộc)</label><input id="mapping-death-date" maxLength={100} placeholder="Để trống nếu không có cột" value={deathDateColumn} onChange={(event) => setDeathDateColumn(event.target.value)} />
           <label htmlFor="mapping-gender">Tiêu đề cột giới tính ghi nhận (không bắt buộc)</label><input id="mapping-gender" maxLength={100} placeholder="Để trống nếu không có cột" value={genderColumn} onChange={(event) => setGenderColumn(event.target.value)} />
           <label htmlFor="mapping-notes">Tiêu đề cột ghi chú nguồn (không bắt buộc)</label><input id="mapping-notes" maxLength={100} placeholder="Để trống nếu không có cột" value={notesColumn} onChange={(event) => setNotesColumn(event.target.value)} />
-          <label htmlFor="mapping-date-format">Cách diễn giải ngày mơ hồ</label><select id="mapping-date-format" value={dateInterpretation} onChange={(event) => setDateInterpretation(event.target.value as typeof dateInterpretation)}><option value="explicit_only">Giữ nguyên để rà soát</option><option value="gregorian_dmy">Dương lịch ngày/tháng/năm đã xác nhận</option><option value="lunar_dmy">Âm lịch, không tự suy đoán tháng nhuận</option></select>
+          <label htmlFor="mapping-date-format">Cách đọc ngày tháng</label><select id="mapping-date-format" value={dateInterpretation} onChange={(event) => setDateInterpretation(event.target.value as typeof dateInterpretation)}><option value="explicit_only">Giữ nguyên ngày chưa rõ để đối chiếu</option><option value="gregorian_dmy">Đã xác nhận là ngày/tháng/năm dương lịch</option><option value="lunar_dmy">Âm lịch — giữ thông tin tháng nhuận để đối chiếu</option></select>
         </fieldset>}
-        <p className="import-safety-note">Chỉ nhập vào cây demo. Muốn áp dụng hồ sơ cần người khác duyệt và xác thực hai bước. Dữ liệu thật đang bị khóa đến khi có phê duyệt H5.</p>
+        <p className="import-safety-note">Hiện chỉ nhận dữ liệu hư cấu vào gia phả minh họa. Áp dụng hồ sơ cần người khác duyệt và xác thực hai bước. Chưa mở nhập dữ liệu gia đình thật.</p>
         {error && <p className="field-error" role="alert">{error}</p>}
-        <button className="button-primary" type="submit" disabled={pending}>{pending ? "Đang kiểm tra và tiếp nhận…" : "Tải lên và chạy dry-run"}</button>
+        <button className="button-primary" type="submit" disabled={pending}>{pending ? "Đang tải tệp và kiểm tra…" : "Tải tệp và kiểm tra"}</button>
       </form>
-      {(pending || loadingPreview) && <div className="card import-result" role="status" aria-live="polite"><span className="skeleton-line" /><span className="skeleton-line skeleton-line-short" /><p>{loadingPreview ? "Đang tải bản dry-run đã lưu…" : "Đang xác minh tệp trong kho riêng. Không đóng trang cho đến khi hoàn tất."}</p></div>}
+      {(pending || loadingPreview) && <div className="card import-result" role="status" aria-live="polite"><span className="skeleton-line" /><span className="skeleton-line skeleton-line-short" /><p>{loadingPreview ? "Đang tải kết quả kiểm tra đã lưu…" : "Đang tải và xác minh tệp. Vui lòng giữ trang này mở."}</p></div>}
       {preview && <section className="card import-result" aria-live="polite" aria-labelledby="import-result-title">
         <span className="status-label">{reviewState?.compensation?.status === "completed" ? "Đã hoàn tác bản nhập" : reviewState?.job.status === "completed" ? "Đã áp dụng" : reviewState?.job.status === "cancelled" ? (reviewState.appliedPeople > 0 ? "Đã hủy · giữ phần đã lưu" : "Đã hủy · chưa ghi hồ sơ") : reviewState?.job.status === "partially_applied" ? "Đã áp dụng một phần" : reviewState?.job.status === "ready" ? "Đã duyệt" : "Cần rà soát"}</span>
-        <h2 id="import-result-title">Kết quả dry-run</h2>
+        <h2 id="import-result-title">Kết quả kiểm tra tệp</h2>
         <dl className="import-counts"><div><dt>Tổng dòng</dt><dd>{preview.valid + preview.invalid + preview.possibleDuplicates + preview.excluded}</dd></div><div><dt>Hợp lệ</dt><dd>{preview.valid}</dd></div><div><dt>Cần sửa</dt><dd>{preview.invalid}</dd></div><div><dt>Cần rà soát</dt><dd>{preview.possibleDuplicates}</dd></div><div><dt>Đã loại trừ</dt><dd>{preview.excluded}</dd></div></dl>
-        <p>Phân loại: {preview.classification}. Checksum SHA-256: <code className="import-hash">{preview.fileSha256}</code></p>
+        <p>Loại dữ liệu: {importClassificationLabels[preview.classification]}.</p>
+        <details><summary>Mã kiểm tra tệp</summary><p>Mã SHA-256 dùng để đối chiếu đúng tệp đã tải lên.</p><code className="import-hash">{preview.fileSha256}</code></details>
         {preview.warnings.length > 0 && <div><h3>Lưu ý</h3><ul>{preview.warnings.map((warning, index) => <li key={`${index}-${warning}`}>{warningText(warning)}</li>)}</ul></div>}
-        <div><h3>Dòng mẫu · tối đa 50</h3>{preview.sampleRows.length === 0 ? <p className="muted">Chưa có dòng để xem trước.</p> : <ul className="import-row-list">{preview.sampleRows.map((row) => <li className="import-row-card" key={row.rowNumber}><div className="import-row-heading"><strong>Dòng {row.rowNumber}: {row.displayName}</strong><span className="tag">{row.excluded ? "Đã loại trừ" : row.status === "valid" ? "Hợp lệ" : row.status === "review" ? "Cần rà soát" : "Cần sửa"}</span></div><p>Mã nguồn: <code>{row.externalId}</code></p>{row.errors.length > 0 && <ul>{row.errors.map((issue, index) => <li key={`${index}-${issue}`}>{issue}</li>)}</ul>}</li>)}</ul>}</div>
+        <div><h3>Xem trước tối đa 50 dòng</h3>{preview.sampleRows.length === 0 ? <p className="muted">Chưa có dòng để xem trước.</p> : <ul className="import-row-list">{preview.sampleRows.map((row) => <li className="import-row-card" key={row.rowNumber}><div className="import-row-heading"><strong>Dòng {row.rowNumber}: {row.displayName}</strong><span className="tag">{row.excluded ? "Đã loại trừ" : row.status === "valid" ? "Hợp lệ" : row.status === "review" ? "Cần rà soát" : "Cần sửa"}</span></div><p>Mã trong nguồn: <code>{row.externalId}</code></p>{row.errors.length > 0 && <ul>{row.errors.map((issue, index) => <li key={`${index}-${issue}`}>{describeImportIssue(issue)}</li>)}</ul>}</li>)}</ul>}</div>
         {reviewState && <ImportRowInspector key={`${preview.jobId}:${reviewState.job.version}`} jobId={preview.jobId} version={reviewState.job.version}
           editable={["needs_review", "ready"].includes(reviewState.job.status) && reviewAction === null} onSelect={(rowNumber, excluded) => {
             setDecisionRow(String(rowNumber)); setDecisionExcluded(!excluded); setDecisionReason("");
@@ -287,7 +286,7 @@ export function ImportIntake() {
           onSaved={async () => { await refreshReview(preview.jobId); }} />}
         {reviewState && ["needs_review", "ready"].includes(reviewState.job.status) && <form className="import-row-decision" onSubmit={decideRow}>
           <h3>Quyết định từng dòng</h3>
-          <p className="muted">Loại trừ không xóa tư liệu gốc và có thể khôi phục. Mỗi thay đổi thu hồi bản duyệt trước; cần MFA và quyền nhập liệu. Không dùng loại trừ để tự xác nhận quan hệ chưa rõ.</p>
+          <p className="muted">Dòng bị loại vẫn còn trong tư liệu gốc và có thể chọn lại. Thay đổi lựa chọn cần duyệt lại bản nhập và xác thực hai bước. Quan hệ chưa rõ cần được đối chiếu riêng.</p>
           <label htmlFor="import-decision-row">Số dòng nguồn</label><input id="import-decision-row" type="number" min="1" max="10000" required value={decisionRow} onChange={(event) => setDecisionRow(event.target.value)} />
           <label htmlFor="import-decision-action">Quyết định</label><select id="import-decision-action" value={decisionExcluded ? "exclude" : "restore"} onChange={(event) => setDecisionExcluded(event.target.value === "exclude")}><option value="exclude">Loại trừ khỏi bản áp dụng</option><option value="restore">Khôi phục vào bản rà soát</option></select>
           <label htmlFor="import-decision-reason">Lý do (bắt buộc)</label><textarea id="import-decision-reason" required maxLength={1000} value={decisionReason} onChange={(event) => setDecisionReason(event.target.value)} />
@@ -300,21 +299,21 @@ export function ImportIntake() {
           <button className="button-secondary" type="submit" disabled={reviewAction !== null || cancelReason.trim().length < 5}>{reviewAction === "cancel" ? "Đang hủy…" : "Hủy bản nhập"}</button>
         </form>}
         {reviewState?.chunkProgress && <p role="status">Đã lưu {reviewState.chunkProgress.committed}/{reviewState.chunkProgress.total} lượt nhập.</p>}
-        {reviewState && reviewState.appliedPeople > 0 && <p className="import-safety-note" role="status">Đã lưu {reviewState.appliedPeople} hồ sơ, {reviewState.appliedUnions} gia đình và {reviewState.appliedParentLinks} quan hệ cha mẹ vào cây demo cùng nguồn trích dẫn riêng tư.</p>}
+        {reviewState && reviewState.appliedPeople > 0 && <p className="import-safety-note" role="status">Đã lưu {reviewState.appliedPeople} hồ sơ, {reviewState.appliedUnions} gia đình và {reviewState.appliedParentLinks} quan hệ cha mẹ vào gia phả minh họa cùng tư liệu đối chiếu riêng tư.</p>}
         {reviewState && ["needs_review", "ready", "partially_applied"].includes(reviewState.job.status) && <>
           <p className="import-safety-note">{reviewState.job.status === "partially_applied" ? "Phần đã lưu vẫn tồn tại sau khi tải lại trang hoặc khi lượt sau gặp lỗi. Tiếp tục từ lượt kế tiếp, hoặc hủy để dừng phần còn lại." : "Dòng lỗi và quan hệ chưa đối chiếu cần được xử lý trước khi duyệt. Bản nhập lớn được lưu theo lượt: hồ sơ trước, gia đình và quan hệ sau. Gửi đường dẫn trang này cho người duyệt có quyền nhập liệu."}</p>
           {reviewState?.job.status === "needs_review" && <button className="button-primary" type="button"
             disabled={!reviewState.canReview || preview.invalid > 0 || preview.possibleDuplicates > 0 || preview.valid < 1 || preview.valid > 10000 || reviewAction !== null}
-            onClick={() => void actOnReview("approve")}>{reviewAction === "approve" ? "Đang duyệt…" : "Duyệt bản nhập demo"}</button>}
+            onClick={() => void actOnReview("approve")}>{reviewAction === "approve" ? "Đang duyệt…" : "Duyệt bản nhập minh họa"}</button>}
           {reviewState.job.status === "ready" && (reviewState.canApply || preview.valid <= 2000) && <button className="button-primary" type="button" disabled={!reviewState.canApply || reviewAction !== null}
-            onClick={() => void actOnReview("commit")}>{reviewAction === "commit" ? "Đang lưu hồ sơ…" : "Áp dụng vào cây demo"}</button>}
+            onClick={() => void actOnReview("commit")}>{reviewAction === "commit" ? "Đang lưu hồ sơ…" : "Áp dụng vào gia phả minh họa"}</button>}
           {reviewState.canApplyChunk && <button className="button-secondary" type="button" disabled={reviewAction !== null}
             onClick={() => void actOnReview("chunks")}>{reviewAction === "chunks" ? "Đang lưu lượt nhập…" : reviewState.chunkProgress ? "Lưu lượt nhập tiếp theo" : "Bắt đầu nhập theo lượt"}</button>}
           {!reviewState.canReview && !reviewState.canApply && !reviewState.canApplyChunk && <p className="muted">Cần xác thực hai bước; người tạo không tự duyệt và người duyệt không tự áp dụng bản đã duyệt.</p>}
         </>}
         {reviewState && <ImportCompensation state={reviewState} csrfToken={csrfToken} onChanged={() => refreshReview(preview.jobId)} />}
         <button className="button-secondary" type="button" disabled={reviewAction !== null} onClick={() => {
-          setError(""); void refreshReview(preview.jobId).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : "Không tải được trạng thái."));
+          setError(""); void refreshReview(preview.jobId).catch((cause: unknown) => setError(getUiErrorMessage(cause, "Chưa tải được trạng thái.")));
         }}>Tải lại trạng thái</button>
       </section>}
     </section>

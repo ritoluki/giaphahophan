@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+import { getUiErrorMessage } from "../../../lib/ui-error";
 
 type ProposalContext = { treeId: string; treeName: string; branchId: string | null; branchName: string | null };
 type ApiPayload = { data?: unknown; error?: { message?: string } };
@@ -46,7 +47,7 @@ export function ProposalForm() {
         setContexts(payload.data as ProposalContext[]);
       })
       .catch((cause: unknown) => {
-        if (active) setError(cause instanceof Error ? cause.message : "Không thể tải phạm vi đóng góp.");
+        if (active) setError(getUiErrorMessage(cause, "Chưa tải được phạm vi đóng góp."));
       })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -59,12 +60,13 @@ export function ProposalForm() {
     const context = contexts[contextIndex];
     const reason = String(form.get("reason") ?? "").trim();
     const sourceIds = parseSourceIds(String(form.get("sourceIds") ?? ""));
-    const intent = String(form.get("intent") ?? "submit");
+    const submitter = (event.nativeEvent as SubmitEvent).submitter;
+    const intent = submitter instanceof HTMLButtonElement ? submitter.value : "submit";
     setError("");
     if (!context) { setError("Chưa có phạm vi gia phả được cấp quyền đóng góp."); return; }
     if (!reason) { setError("Vui lòng nêu lý do để người duyệt có đủ ngữ cảnh."); return; }
     if (sourceIds.length === 0 || sourceIds.some((id) => !uuidPattern.test(id))) {
-      setError("Mỗi đề nghị cần ít nhất một mã nguồn UUID hợp lệ, phân tách bằng dấu phẩy.");
+      setError("Cần ít nhất một mã tư liệu hợp lệ để người duyệt đối chiếu. Nhiều mã được ngăn cách bằng dấu phẩy.");
       return;
     }
 
@@ -94,9 +96,9 @@ export function ProposalForm() {
         const targetId = String(form.get("targetId") ?? "").trim();
         const baseVersion = Number(form.get("baseVersion") ?? 0);
         const currentResult = await readApi(`/api/v1/people/${encodeURIComponent(targetId)}`);
-        if (!currentResult.response.ok || !currentResult.payload.data || typeof currentResult.payload.data !== "object") throw new Error("Không thể đọc phiên bản hiện tại của hồ sơ để tạo diff.");
+        if (!currentResult.response.ok || !currentResult.payload.data || typeof currentResult.payload.data !== "object") throw new Error("Chưa đọc được hồ sơ hiện tại để so sánh thay đổi.");
         const current = currentResult.payload.data as Record<string, unknown>;
-        if (current.version !== baseVersion) throw new Error("Hồ sơ đã thay đổi. Hãy tải lại phiên bản hiện tại trước khi gửi.");
+        if (current.version !== baseVersion) throw { code: "VERSION_CONFLICT" };
         baseSnapshot = { person: { version: current.version, display_name: current.displayName, recorded_sex: current.recordedSex, life_status: current.lifeStatus, visibility: current.visibility, protected_minor: current.protectedMinor, primary_branch_id: current.primaryBranchId, biography: current.biography ?? null, confidence: current.confidence } };
       }
       const endpoint = intent === "draft" ? "/api/v1/proposals/draft" : "/api/v1/proposals";
@@ -105,12 +107,13 @@ export function ProposalForm() {
         headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({ treeId: context.treeId, kind, reason, branchId: context.branchId, baseSnapshot, items: [item] })
       });
-      if (!result.response.ok || !result.payload.data || typeof result.payload.data !== "object") throw new Error(result.payload.error?.message ?? "Đề nghị chưa được tiếp nhận.");
+      if (!result.response.ok) throw result.payload;
+      if (!result.payload.data || typeof result.payload.data !== "object") throw new Error("Đề nghị chưa được tiếp nhận.");
       const proposalId = (result.payload.data as { id?: unknown }).id;
       if (typeof proposalId !== "string") throw new Error("Phản hồi đề nghị không hợp lệ.");
       router.push(`/dong-gop/${proposalId}`);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Không thể gửi đề nghị. Vui lòng thử lại.");
+      setError(getUiErrorMessage(cause, "Chưa gửi được đề nghị. Vui lòng thử lại."));
     } finally { setPending(false); }
   }
 
@@ -119,12 +122,13 @@ export function ProposalForm() {
 
   return (
     <form className="card proposal-form" onSubmit={submit}>
-      <div className="proposal-notice"><strong>Đề nghị có nguồn</strong><span>Chưa duyệt không làm thay đổi dữ liệu chính thức. Không nhập thông tin nhạy cảm không cần thiết.</span></div>
+      <div className="proposal-notice"><strong>Cần tư liệu để đối chiếu</strong><span>Đề nghị chỉ thay đổi gia phả sau khi được duyệt. Chỉ cung cấp thông tin cần thiết.</span></div>
+      <p className="muted">Biểu mẫu hiện cần mã hồ sơ và mã tư liệu do người phụ trách cung cấp. Nếu chưa có mã, hãy nhờ người phụ trách đối chiếu trước khi gửi.</p>
       {error ? <p className="field-error" role="alert">{error}</p> : null}
-      <label>Phạm vi gia phả<select name="contextIndex" defaultValue="0">{contexts.map((item, index) => <option value={index} key={`${item.treeId}:${item.branchId ?? "tree"}`}>{item.treeName}{item.branchName ? ` · ${item.branchName}` : " · toàn cây"}</option>)}</select></label>
+      <label>Gia phả và chi họ<select name="contextIndex" defaultValue="0">{contexts.map((item, index) => <option value={index} key={`${item.treeId}:${item.branchId ?? "tree"}`}>{item.treeName}{item.branchName ? ` · ${item.branchName}` : " · toàn gia phả"}</option>)}</select></label>
       <label>Loại đề nghị<select value={kind} onChange={(event) => setKind(event.target.value as ProposalKind)}>{(Object.keys(kindLabels) as ProposalKind[]).map((value) => <option value={value} key={value}>{kindLabels[value]}</option>)}</select></label>
       {kind === "correction" ? <>
-        <label>Mã người cần sửa<input name="targetId" placeholder="UUID của hồ sơ người" required /></label>
+        <label>Mã hồ sơ cần sửa<input name="targetId" placeholder="Dán mã hồ sơ được cung cấp" required /></label>
         <label>Phiên bản hiện tại<input name="baseVersion" type="number" min="1" inputMode="numeric" placeholder="Ví dụ: 3" required /></label>
         <label>Tên đề xuất<input name="displayName" maxLength={500} placeholder="Tên sẽ hiển thị sau khi duyệt" required /></label>
       </> : null}
@@ -133,12 +137,12 @@ export function ProposalForm() {
         <label>Tình trạng<select name="lifeStatus" defaultValue="unknown"><option value="unknown">Chưa xác định</option><option value="deceased">Đã mất</option><option value="living">Còn sống</option></select></label>
       </> : null}
       {kind === "relationship" ? <>
-        <label>Mã người cha/mẹ<input name="parentId" placeholder="UUID hồ sơ cha/mẹ" required /></label>
-        <label>Mã người con<input name="childId" placeholder="UUID hồ sơ con" required /></label>
-        <label>Loại quan hệ<select name="relationshipKind" defaultValue="biological"><option value="biological">Sinh học</option><option value="adoptive">Nuôi</option><option value="guardian">Giám hộ</option><option value="step">Kế</option></select></label>
+        <label>Mã hồ sơ cha hoặc mẹ<input name="parentId" placeholder="Dán mã hồ sơ cha hoặc mẹ" required /></label>
+        <label>Mã hồ sơ người con<input name="childId" placeholder="Dán mã hồ sơ người con" required /></label>
+        <label>Loại quan hệ<select name="relationshipKind" defaultValue="biological"><option value="biological">Cha mẹ ruột</option><option value="adoptive">Cha mẹ nuôi</option><option value="guardian">Người giám hộ</option><option value="step">Cha dượng hoặc mẹ kế</option></select></label>
       </> : null}
-      <label>Nguồn tham chiếu (bắt buộc)<textarea name="sourceIds" rows={3} placeholder="Mã nguồn UUID, phân tách bằng dấu phẩy" required /></label>
-      <label>Lý do và ngữ cảnh<textarea name="reason" rows={5} minLength={1} maxLength={4000} placeholder="Mô tả điều cần bổ sung và căn cứ nguồn" required /></label>
+      <label>Mã tư liệu đối chiếu (bắt buộc)<textarea name="sourceIds" rows={3} placeholder="Dán mã tư liệu; nhiều mã ngăn cách bằng dấu phẩy" required /></label>
+      <label>Nội dung cần bổ sung và căn cứ<textarea name="reason" rows={5} minLength={1} maxLength={4000} placeholder="Nêu điều cần thay đổi và thông tin trong tư liệu làm căn cứ" required /></label>
       <div className="proposal-actions"><button className="button-primary" name="intent" value="submit" type="submit" disabled={pending}>{pending ? "Đang gửi…" : "Gửi đề nghị"}</button><button className="button-secondary" name="intent" value="draft" type="submit" disabled={pending}>Lưu bản nháp</button><Link className="button-secondary" href="/them">Hủy</Link></div>
     </form>
   );

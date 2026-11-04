@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { safeNextPath } from "@/lib/safe-next-path";
+import { getUiErrorMessage } from "@/lib/ui-error";
 
 export function LoginForm() {
   const router = useRouter();
@@ -29,6 +30,10 @@ export function LoginForm() {
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) || password.length === 0) {
+      setError("Nhập địa chỉ email và mật khẩu để đăng nhập.");
+      return;
+    }
     setPending(true);
     setError("");
 
@@ -40,7 +45,7 @@ export function LoginForm() {
       });
       const payload = (await response.json()) as { data?: { authenticated?: boolean }; error?: { message?: string } };
       if (!response.ok || !payload.data?.authenticated) {
-        setError(payload.error?.message ?? "Đăng nhập chưa thành công.");
+        setError(getUiErrorMessage(payload.error, "Chưa đăng nhập được. Hãy kiểm tra lại email và mật khẩu."));
         return;
       }
       router.push(nextPath);
@@ -87,7 +92,7 @@ export function LoginForm() {
         {pending ? "Đang xác thực…" : "Đăng nhập"}
       </button>
       <p className="recovery-link"><Link href="/quen-mat-khau">Quên mật khẩu?</Link></p>
-      <p className="muted">Tài khoản thành viên được cấp qua lời mời của gia phả. Không dùng dữ liệu thật trong bản demo.</p>
+      <p className="muted">Chưa có tài khoản? Hãy liên hệ người phụ trách gia phả để nhận lời mời.</p>
     </form>
   );
 }

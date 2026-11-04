@@ -1,0 +1,172 @@
+{
+  "at": "2026-11-04T00:38:11.773Z",
+  "feature": "FE-UX-01",
+  "environment": "local fictional demo only",
+  "origin": "http://127.0.0.1:3100",
+  "webPid": 21492,
+  "workerPid": 22896,
+  "buildId": "E1F1gahAUNvb5pD7ZT5pl",
+  "checks": {
+    "unit": 312,
+    "e2e": 237,
+    "affectedFamilyRerun": 30,
+    "reflow": 7,
+    "inspections": [
+      {
+        "name": "home",
+        "failures": 0,
+        "warnings": 2,
+        "url": "http://127.0.0.1:3100/"
+      },
+      {
+        "name": "family",
+        "failures": 0,
+        "warnings": 2,
+        "url": "http://127.0.0.1:3100/gia-pha?root=0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c"
+      },
+      {
+        "name": "profile",
+        "failures": 0,
+        "warnings": 3,
+        "url": "http://127.0.0.1:3100/nguoi/0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c"
+      },
+      {
+        "name": "admin",
+        "failures": 0,
+        "warnings": 2,
+        "url": "http://127.0.0.1:3100/quan-tri"
+      }
+    ]
+  },
+  "gates": {
+    "H1": "PENDING",
+    "realDevices": "NOT_RUN",
+    "dependencyAudit": "FAIL",
+    "production": "NOT_RUN"
+  },
+  "screenshots": [
+    {
+      "file": "admin-desktop-chromium.png",
+      "sha256": "7f6d76f4803ad7968759b7d87da12ff986e460be747b2587c91ff0d2119d896c"
+    },
+    {
+      "file": "admin-mobile-320.png",
+      "sha256": "29fc046a60fe92e53f2d202481274cbbcd0728c0144d4d1e2f8bb8e6da2590f6"
+    },
+    {
+      "file": "admin-mobile-chromium.png",
+      "sha256": "188adbd768416e7dffb222dc33743c8af2d81fcc50bbdeaf03eb1f06583dc535"
+    },
+    {
+      "file": "calendar-desktop-chromium.png",
+      "sha256": "6bd2a25c65a9ce6d64c66106d0b9a332e47aa44c5eb9be56f26ee050dc860f4a"
+    },
+    {
+      "file": "calendar-mobile-320.png",
+      "sha256": "ca00fb13dd55409da04ace076dd486150baa31b69cb18a61bc1b35c2225c523b"
+    },
+    {
+      "file": "calendar-mobile-chromium.png",
+      "sha256": "d628f831eb5026947385062d4f7273ad6fe2d944f3c228dd19db8a476594b36c"
+    },
+    {
+      "file": "diagram-desktop-chromium.png",
+      "sha256": "84f4e5e23f75444213c27c95acfb82475e8e746439887db70ec5b04b565b1f60"
+    },
+    {
+      "file": "diagram-mobile-320.png",
+      "sha256": "ec4e5261d3c87a21540a8d97599091b9b6e4a7c3dcfdbca5371f3bee3d9040a4"
+    },
+    {
+      "file": "diagram-mobile-chromium.png",
+      "sha256": "5e48f814c7ac3151c57af0d6ba003ba2c85f0a17680b35d75732dd4fb85d0c91"
+    },
+    {
+      "file": "family-focus-desktop-chromium.png",
+      "sha256": "fbf87488093d8caca144127fee4d2bb54aae47198ce847ea23f624c18b0b5457"
+    },
+    {
+      "file": "family-focus-mobile-320.png",
+      "sha256": "bb2044aa4c2285e241f981ba4a793824404e48ec6f700946a4fc02508af4f679"
+    },
+    {
+      "file": "family-focus-mobile-chromium.png",
+      "sha256": "bfa8e759558f33cbf0f7fb8b2c9d9c7f420add85ee33336a133541983e8538fb"
+    },
+    {
+      "file": "home-desktop-chromium.png",
+      "sha256": "3104412077887fb589857cbf4a0679ce09ec84ebb8a30709196f4df48c07aa36"
+    },
+    {
+      "file": "home-mobile-320.png",
+      "sha256": "00500f587e050fd62622f8819dbfe900122880869f4923653d815e4114639ef0"
+    },
+    {
+      "file": "home-mobile-chromium.png",
+      "sha256": "3c85bc14d10026707e0236b43a45c2387b2c21bfa273c324f9d1b0a7764b8d1f"
+    },
+    {
+      "file": "kinship-desktop-chromium.png",
+      "sha256": "d8044ae218864d63775aec12dc3d502461f09d7c3594e182c66cdc50f3f6d21f"
+    },
+    {
+      "file": "kinship-mobile-320.png",
+      "sha256": "ac46a17197d71194905543f3b7cf67fdcd6840474f89352a28b7ca2be7f0e333"
+    },
+    {
+      "file": "kinship-mobile-chromium.png",
+      "sha256": "6671059e44ab296c1ced2fa8a2e9418cf8a213ff84748c45bc0b55d3f5f31555"
+    },
+    {
+      "file": "person-desktop-chromium.png",
+      "sha256": "3fd19a92707023933cee18df9638d71f2c16c55e8ca6dc916bc20f0f10d3fd14"
+    },
+    {
+      "file": "person-mobile-320.png",
+      "sha256": "fe30daf9542c15787df16b158174850af0899c712bfc6d624a54bd81c7503681"
+    },
+    {
+      "file": "person-mobile-chromium.png",
+      "sha256": "7367672b679afd8a9cbfbcca29c292652137de3fcddb36f76e65c53ff2726652"
+    },
+    {
+      "file": "sources-desktop-chromium.png",
+      "sha256": "d166f43354a9cabab7def8db6c43b125871a3a05431fcccdedcf50962f44a041"
+    },
+    {
+      "file": "sources-mobile-320.png",
+      "sha256": "127c10c0bd1cc753578df7d242005cd6fd860983a74ce4268d3713ae055d1cc6"
+    },
+    {
+      "file": "sources-mobile-chromium.png",
+      "sha256": "6450170ae9edb3841c20b273b7c1d9053c92dd3948cb0052115ce5df4200f053"
+    }
+  ],
+  "probe": [
+    {
+      "route": "/",
+      "status": 200,
+      "fictional": true
+    },
+    {
+      "route": "/gia-pha",
+      "status": 200
+    },
+    {
+      "route": "/them",
+      "status": 200
+    },
+    {
+      "route": "/api/v1/health/live",
+      "status": 200
+    },
+    {
+      "route": "/api/v1/health/ready",
+      "status": 503
+    },
+    {
+      "route": "/licenses/Graph-NOTICE.vi.txt",
+      "status": 200
+    }
+  ]
+}

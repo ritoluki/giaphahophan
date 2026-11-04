@@ -5,6 +5,7 @@ const scanRoutes = [
   "/",
   "/gioi-thieu",
   "/tra-cuu",
+  "/nguoi/0e6ee4e5-9816-52b8-bc8b-33d7c79efe9c",
   "/gia-pha",
   "/quan-he",
   "/lich-ho",
@@ -32,7 +33,7 @@ for (const route of scanRoutes) {
   test(`keyboard skip navigation ${route}`, async ({ page }) => {
     await page.goto(route, { waitUntil: "domcontentloaded" });
     const main = page.getByRole("main");
-    const skipLink = page.getByRole("link", { name: "Bỏ qua đến nội dung" });
+    const skipLink = page.getByRole("link", { name: "Đến nội dung chính" });
 
     await expect(main).toHaveCount(1);
     await expect(skipLink).toHaveAttribute("href", "#main-content");
@@ -47,6 +48,12 @@ for (const route of scanRoutes) {
     test.setTimeout(90_000);
     await page.goto(route, { waitUntil: "domcontentloaded" });
     await page.getByRole("main").waitFor();
+    if (route.startsWith("/nguoi/")) {
+      // Include the actual disclosure contents, not only the initial profile view.
+      for (const summary of await page.locator(".profile-more > summary").all()) {
+        await summary.click();
+      }
+    }
     await page.addScriptTag({ content: axe.source });
     const violations = await page.evaluate(async (tags) => {
       const results = await window.axe.run(document, {

@@ -1,0 +1,26 @@
+Phan Gia Phả — thư viện sơ đồ gia đình
+
+React Flow (@xyflow/react) 12.12.1
+Giấy phép MIT. Bản gốc: React-Flow-12.12.1-MIT.txt
+Copyright (c) 2019-2025 webkid GmbH.
+Mã nguồn và bản phát hành:
+https://github.com/xyflow/xyflow/releases/tag/%40xyflow%2Freact%4012.12.1
+
+ELK.js (elkjs) 0.12.1
+Gói được phát hành với lựa chọn EPL-2.0 OR GPL-3.0-or-later.
+Phan Gia Phả sử dụng gói nguyên bản theo Eclipse Public License 2.0
+(EPL-2.0), không sửa mã nguồn của thư viện.
+Bản giấy phép gốc đầy đủ: ELK-js-0.12.1-EPL-2.0.md
+Mã nguồn tương ứng có tại:
+https://github.com/kieler/elkjs/releases/tag/0.12.1
+https://github.com/kieler/elkjs/archive/refs/tags/0.12.1.tar.gz
+
+Sơ đồ được vẽ bằng React Flow. Việc sắp xếp chạy bằng ELK.js trong
+luồng xử lý riêng của trình duyệt; không gửi dữ liệu sang dịch vụ
+xếp sơ đồ bên ngoài.
+
+Các thư viện phụ thuộc của React Flow sử dụng MIT, ISC hoặc BSD-3-Clause.
+Graph-dependencies-original-notices.txt giữ nguyên văn bản giấy phép
+và thông báo bản quyền của các gói này, lấy từ đúng phiên bản đã cài.
+Các văn bản giấy phép gốc được giữ nguyên ngôn ngữ, không dịch hoặc
+thay thế bằng bản tóm tắt này.

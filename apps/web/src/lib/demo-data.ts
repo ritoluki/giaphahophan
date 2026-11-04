@@ -1,6 +1,7 @@
 import fixture from "../../../../fixtures/demo-family.json";
 import { buildGraphProjection, findKinshipPaths, type GraphMode, type GraphParentLink, type GraphUnion, type KinshipEdge } from "@phan/domain";
 import type { Graph } from "@phan/contracts";
+import { buildFamilyView, type FamilyDataset, type FamilyUnion } from "./family-view-model";
 
 export type DemoPersonSummary = {
   id: string;
@@ -17,6 +18,7 @@ export type DemoPersonSummary = {
 export type DemoFamilyFocus = {
   person: DemoPersonSummary;
   parents: DemoPersonSummary[];
+  partners: DemoPersonSummary[];
   children: DemoPersonSummary[];
   links: Array<{ id: string; kind: string; status: string }>;
 };
@@ -81,10 +83,16 @@ export const demoSources: DemoSource[] = fixture.sources.map((source) => ({
   provenance: source.provenance
 }));
 
+// Display copy for the two fictional examples only; source text stays unchanged in the fixture.
+const demoEventCopy: Readonly<Record<string, { title: string; lunarLabel: string }>> = {
+  "8b4dbfd1-7cef-54e9-87b9-dd49d3b8d1d5": { title: "Giỗ tổ (minh họa)", lunarLabel: "Mùng 10 tháng 3 âm lịch, chưa xác nhận năm" },
+  "deb3e5bb-198d-50b1-b192-65379597001b": { title: "Ngày giỗ vào tháng nhuận", lunarLabel: "Ngày 30 tháng 6 nhuận, chưa xác nhận năm (minh họa)" },
+};
+
 export const demoEvents = fixture.eventRules.map((event) => ({
   id: event.id,
-  title: event.title,
-  lunarLabel: event.sourceDate.originalText,
+  title: demoEventCopy[event.id]?.title ?? event.title,
+  lunarLabel: demoEventCopy[event.id]?.lunarLabel ?? event.sourceDate.originalText,
   reviewStatus: event.reviewStatus,
   recurrence: event.recurrence
 }));
@@ -112,6 +120,7 @@ export function getFamilyFocus(personId = summaries[0]?.id): DemoFamilyFocus | n
   return {
     person,
     parents: uniquePeople(parentLinks.map((link) => summaryById.get(link.parentId))),
+    partners: uniquePeople(fixture.unions.filter((union) => union.partnerIds.includes(personId)).flatMap((union) => union.partnerIds.filter((id) => id !== personId).map((id) => summaryById.get(id)))),
     children: uniquePeople(childLinks.map((link) => summaryById.get(link.childId))),
     links: [...parentLinks, ...childLinks].map((link) => ({ id: link.id, kind: link.kind, status: link.status }))
   };
@@ -125,6 +134,31 @@ function graphParentKind(value: string): GraphParentLink["kind"] {
 function graphParentStatus(value: string): GraphParentLink["status"] {
   if (value === "confirmed" || value === "disputed") return value;
   throw new Error("Invalid synthetic parent-link status");
+}
+
+function familyUnionKind(value: string): FamilyUnion["kind"] {
+  return value === "marriage" || value === "partnership" ? value : "unknown";
+}
+
+function familyUnionStatus(value: string): FamilyUnion["status"] {
+  if (value === "married" || value === "widowed" || value === "divorced" || value === "separated") return value;
+  return "unknown";
+}
+
+export const demoFamilyDataset: FamilyDataset = {
+  people: summaries,
+  parentLinks: fixture.parentLinks.map((link) => ({
+    id: link.id, parentId: link.parentId, childId: link.childId,
+    kind: graphParentKind(link.kind), status: graphParentStatus(link.status)
+  })),
+  unions: fixture.unions.map((union) => ({
+    id: union.id, partnerIds: union.partnerIds,
+    kind: familyUnionKind(union.kind), status: familyUnionStatus(union.status)
+  }))
+};
+
+export function getDemoFamilyView(personId: string) {
+  return buildFamilyView(demoFamilyDataset, personId);
 }
 
 function kinshipEdgeKind(value: string): KinshipEdge["kind"] {

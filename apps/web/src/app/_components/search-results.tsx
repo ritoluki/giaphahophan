@@ -1,75 +1,89 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import type { PersonSearchResult } from "@phan/contracts";
 import { searchPeople } from "@phan/domain";
 import { fetchPersonSearch, createLatestSearchRequestCoordinator } from "../../lib/search-request";
+import { emptyPersonSearchFilters, personSearchHref, readPersonSearchState, validSearchBirthYear, type PersonSearchFilters, type PersonSearchState } from "../../lib/search-state";
 import type { DemoPersonSummary } from "../../lib/demo-data";
 import { branchName } from "../../lib/demo-data";
 
-export function SearchResults({ people, branches, initialQuery = "", initialBranchId = "", initialLifeStatus = "", initialBirthYear = "", remoteSearch = false }: { people: DemoPersonSummary[]; branches: Array<{ id: string; name: string }>; initialQuery?: string; initialBranchId?: string; initialLifeStatus?: string; initialBirthYear?: string; remoteSearch?: boolean }) {
-  const router = useRouter();
-  const [query, setQuery] = useState(initialQuery);
-  const [branchId, setBranchId] = useState(initialBranchId);
-  const [lifeStatus, setLifeStatus] = useState(initialLifeStatus);
-  const [birthYear, setBirthYear] = useState(initialBirthYear);
-  const [remoteResults, setRemoteResults] = useState<PersonSearchResult[]>([]);
-  const [remoteLoading, setRemoteLoading] = useState(false);
-  const [remoteError, setRemoteError] = useState(false);
-  const [retryNonce, setRetryNonce] = useState(0);
-  const requestCoordinator = useRef(createLatestSearchRequestCoordinator());
+type RemoteSearchState = { key: string; results: PersonSearchResult[]; status: "loading" | "ready" | "error" };
 
-  function replaceFilters(next: { branchId?: string; lifeStatus?: string; birthYear?: string }) {
-    const params = new URLSearchParams();
-    if (query.trim()) params.set("q", query.trim());
-    const nextBranchId = next.branchId ?? branchId;
-    const nextLifeStatus = next.lifeStatus ?? lifeStatus;
-    const nextBirthYear = next.birthYear ?? birthYear;
-    if (nextBranchId) params.set("branchId", nextBranchId);
-    if (nextLifeStatus) params.set("lifeStatus", nextLifeStatus);
-    if (nextBirthYear) params.set("birthYear", nextBirthYear);
-    router.replace(`/tra-cuu${params.toString() ? `?${params.toString()}` : ""}`, { scroll: false });
+export function SearchResults({ people, branches, remoteSearch = false }: { people: DemoPersonSummary[]; branches: Array<{ id: string; name: string }>; remoteSearch?: boolean }) {
+  // Native history integrates with useSearchParams in this Next version. The URL is
+  // the source of truth for reload and Back without remounting the search field.
+  const searchParams = useSearchParams();
+  const { query, branchId, lifeStatus, birthYear } = readPersonSearchState(searchParams);
+  const [draftFilters, setDraftFilters] = useState<PersonSearchFilters>({ branchId, lifeStatus, birthYear });
+  const [filterError, setFilterError] = useState("");
+  const [remoteState, setRemoteState] = useState<RemoteSearchState>({ key: "", results: [], status: "ready" });
+  const [retryNonce, setRetryNonce] = useState(0);
+  const detailsRef = useRef<HTMLDetailsElement>(null);
+  const summaryRef = useRef<HTMLElement>(null);
+  const requestCoordinator = useRef(createLatestSearchRequestCoordinator());
+  const normalizedQuery = query.trim();
+  const hasQuery = normalizedQuery.length >= 2;
+  const searchKey = personSearchHref({ query: normalizedQuery, branchId, lifeStatus, birthYear });
+  const activeFilterCount = [branchId, lifeStatus, birthYear].filter(Boolean).length;
+
+  function writeSearch(next: PersonSearchState, history: "push" | "replace") {
+    const href = personSearchHref(next);
+    if (href === window.location.pathname + window.location.search) return;
+    if (history === "push") window.history.pushState(null, "", href);
+    else window.history.replaceState(null, "", href);
+  }
+
+  function closeFilters() {
+    if (detailsRef.current) detailsRef.current.open = false;
+    summaryRef.current?.focus();
+  }
+
+  function applyFilters(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!validSearchBirthYear(draftFilters.birthYear)) {
+      setFilterError("Nhập năm sinh là số nguyên từ −5000 đến 5000, hoặc để trống.");
+      return;
+    }
+    writeSearch({ ...readPersonSearchState(new URLSearchParams(window.location.search)), ...draftFilters }, "push");
+    setFilterError("");
+    closeFilters();
+  }
+
+  function clearFilters() {
+    setDraftFilters(emptyPersonSearchFilters);
+    setFilterError("");
+    writeSearch({ ...readPersonSearchState(new URLSearchParams(window.location.search)), ...emptyPersonSearchFilters }, "push");
+    closeFilters();
   }
 
   useEffect(() => {
-    if (!remoteSearch) return;
-    const normalizedQuery = query.trim();
     const coordinator = requestCoordinator.current;
-    if (normalizedQuery.length > 0 && normalizedQuery.length < 2) {
+    if (!remoteSearch || !hasQuery) {
       coordinator.cancel();
-      const clearTimer = window.setTimeout(() => {
-        setRemoteResults([]);
-        setRemoteLoading(false);
-        setRemoteError(false);
-      }, 0);
-      return () => window.clearTimeout(clearTimer);
+      return;
     }
 
     const request = coordinator.begin();
     const timer = window.setTimeout(() => {
       if (!request.isCurrent()) return;
-      setRemoteLoading(true);
-      setRemoteError(false);
+      setRemoteState({ key: searchKey, results: [], status: "loading" });
       void fetchPersonSearch({ query: normalizedQuery, branchId, lifeStatus, birthYear }, request.signal)
         .then((nextResults) => {
-          if (!request.isCurrent()) return;
-          setRemoteResults(nextResults);
-          setRemoteLoading(false);
+          if (request.isCurrent()) setRemoteState({ key: searchKey, results: nextResults, status: "ready" });
         })
         .catch((error: unknown) => {
           if (error instanceof Error && error.name === "AbortError") return;
-          if (!request.isCurrent()) return;
-          setRemoteLoading(false);
-          setRemoteError(true);
+          if (request.isCurrent()) setRemoteState({ key: searchKey, results: [], status: "error" });
         });
     }, 180);
     return () => {
       window.clearTimeout(timer);
       coordinator.cancel();
     };
-  }, [birthYear, branchId, lifeStatus, query, remoteSearch, retryNonce]);
+  }, [birthYear, branchId, hasQuery, lifeStatus, normalizedQuery, remoteSearch, retryNonce, searchKey]);
 
   const localResults = useMemo(() => searchPeople(people, query).filter((person) => {
     const matchesBranch = !branchId || person.primaryBranchId === branchId;
@@ -77,48 +91,72 @@ export function SearchResults({ people, branches, initialQuery = "", initialBran
     const matchesBirthYear = !birthYear || person.yearLabel === birthYear;
     return matchesBranch && matchesLifeStatus && matchesBirthYear;
   }), [birthYear, branchId, lifeStatus, people, query]);
-  const results = remoteSearch ? remoteResults : localResults;
+  const remoteLoading = remoteSearch && hasQuery && (remoteState.key !== searchKey || remoteState.status === "loading");
+  const remoteError = remoteSearch && remoteState.key === searchKey && remoteState.status === "error";
+  const results = remoteSearch ? remoteState.key === searchKey && remoteState.status === "ready" ? remoteState.results : [] : localResults;
 
   return (
     <section className="search-results" aria-labelledby="result-title">
-      <div className="filter-row">
-        <label htmlFor="result-query">Từ khóa</label>
-        <input id="result-query" type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tối thiểu 2 ký tự" />
-        <label htmlFor="result-branch">Chi họ</label>
-        <select id="result-branch" value={branchId} onChange={(event) => { const value = event.target.value; setBranchId(value); replaceFilters({ branchId: value }); }}>
-          <option value="">Tất cả chi được phép xem</option>
-          {branches.map((branch) => <option value={branch.id} key={branch.id}>{branch.name}</option>)}
-        </select>
-        <label htmlFor="result-life-status">Trạng thái</label>
-        <select id="result-life-status" value={lifeStatus} onChange={(event) => { const value = event.target.value; setLifeStatus(value); replaceFilters({ lifeStatus: value }); }}>
-          <option value="">Mọi trạng thái</option>
-          <option value="deceased">Đã mất</option>
-          <option value="living">Còn sống</option>
-          <option value="unknown">Chưa rõ</option>
-        </select>
-        <label htmlFor="result-birth-year">Năm sinh</label>
-        <input id="result-birth-year" inputMode="numeric" type="number" value={birthYear} onChange={(event) => { const value = event.target.value; setBirthYear(value); replaceFilters({ birthYear: value }); }} placeholder="Ví dụ 1900" />
+      <div className="search-input-row">
+        <label htmlFor="result-query">Tìm người</label>
+        <input id="result-query" type="search" autoComplete="off" maxLength={200} value={query} onChange={(event) => writeSearch({ ...readPersonSearchState(new URLSearchParams(window.location.search)), query: event.target.value }, "replace")} placeholder="Tên, tên gọi khác hoặc mã hồ sơ" aria-describedby="result-query-help" />
+        <small id="result-query-help">Nhập ít nhất 2 ký tự. Có thể gõ không dấu.</small>
       </div>
+      <details className="search-filters" ref={detailsRef} onToggle={(event) => {
+        if (event.currentTarget.open) {
+          setDraftFilters({ branchId, lifeStatus, birthYear });
+          setFilterError("");
+        }
+      }}>
+        <summary ref={summaryRef}>Bộ lọc{activeFilterCount ? <span className="muted"> · {activeFilterCount} đang dùng</span> : null}</summary>
+        <form className="search-filter-form" onSubmit={applyFilters} noValidate>
+          <div className="search-filter-fields">
+            <label htmlFor="result-branch">Chi họ
+              <select id="result-branch" value={draftFilters.branchId} onChange={(event) => setDraftFilters((current) => ({ ...current, branchId: event.target.value }))}>
+                <option value="">Tất cả các chi</option>
+                {branches.map((branch) => <option value={branch.id} key={branch.id}>{branch.name}</option>)}
+              </select>
+            </label>
+            <label htmlFor="result-life-status">Tình trạng
+              <select id="result-life-status" value={draftFilters.lifeStatus} onChange={(event) => {
+                const value = event.target.value;
+                if (value === "" || value === "living" || value === "deceased" || value === "unknown") setDraftFilters((current) => ({ ...current, lifeStatus: value }));
+              }}>
+                <option value="">Tất cả</option>
+                <option value="deceased">Đã mất</option>
+                <option value="living">Còn sống</option>
+                <option value="unknown">Chưa rõ</option>
+              </select>
+            </label>
+            <label htmlFor="result-birth-year">Năm sinh
+              <input id="result-birth-year" inputMode="numeric" type="text" maxLength={6} value={draftFilters.birthYear} onChange={(event) => setDraftFilters((current) => ({ ...current, birthYear: event.target.value }))} placeholder="Ví dụ: 1900" aria-invalid={filterError ? true : undefined} aria-describedby={filterError ? "result-filter-error" : undefined} />
+            </label>
+          </div>
+          {filterError ? <p id="result-filter-error" className="field-error" role="alert">{filterError}</p> : null}
+          <div className="search-filter-actions"><button className="button-primary" type="submit">Áp dụng</button><button className="button-secondary" type="button" onClick={clearFilters}>Xóa bộ lọc</button></div>
+        </form>
+      </details>
       <div className="section-heading result-heading">
         <h2 id="result-title">Kết quả tra cứu</h2>
-        <span className="muted" aria-live="polite">{results.length} kết quả</span>
+        <span className="muted" aria-live="polite">{remoteLoading ? "Đang tìm…" : hasQuery && !remoteError ? `${results.length} người` : ""}</span>
       </div>
-      {remoteSearch && remoteLoading ? (
-        <div className="card empty-state" role="status"><h3>Đang tìm kiếm…</h3><p>Đang kiểm tra phạm vi được phép xem.</p></div>
-      ) : remoteSearch && remoteError ? (
-        <div className="card empty-state" role="alert"><h3>Không thể tải kết quả lúc này</h3><p>Thử lại sau giây lát; thông tin ngoài phạm vi không được hiển thị.</p><button className="button-secondary" type="button" onClick={() => setRetryNonce((value) => value + 1)}>Thử lại</button></div>
-      ) : query.trim().length < 2 ? (
-        <div className="card empty-state"><h3>Bắt đầu bằng một tên hoặc mã hồ sơ</h3><p>Chỉ hiển thị người trong dữ liệu minh họa và phạm vi được phép xem.</p></div>
+      {!hasQuery ? (
+        <div className="empty-state"><h3>Bạn muốn tìm ai?</h3><p>Nhập tên hoặc tên gọi khác của người thân vào ô tìm kiếm.</p></div>
+      ) : remoteLoading ? (
+        <div className="empty-state" role="status"><h3>Đang tìm người…</h3><p>Vui lòng chờ trong giây lát.</p></div>
+      ) : remoteError ? (
+        <div className="empty-state" role="alert"><h3>Chưa tải được kết quả</h3><p>Hãy kiểm tra kết nối rồi thử lại.</p><button className="button-secondary" type="button" onClick={() => setRetryNonce((value) => value + 1)}>Thử lại</button></div>
       ) : results.length === 0 ? (
-        <div className="card empty-state"><h3>Chưa tìm thấy trong phạm vi bạn được xem</h3><p>Thử tên gọi khác hoặc điều chỉnh bộ lọc.</p></div>
+        <div className="empty-state"><h3>Chưa tìm thấy người phù hợp</h3><p>Thử tên gọi khác hoặc bớt bộ lọc. Một số thông tin có thể chưa được chia sẻ với bạn.</p></div>
       ) : (
         <div className="result-list">
           {results.map((person) => (
-            <Link className="card person-result" href={`/nguoi/${person.id}`} key={person.id}>
+            <Link className="person-result" href={`/nguoi/${person.id}`} key={person.id}>
               <span className="monogram" aria-hidden="true">{person.displayName.slice(0, 1)}</span>
-              <span>
+              <span className="person-result-copy">
                 <strong>{person.displayName}</strong>
-                <small>{person.code} · {branchName(person.primaryBranchId ?? null)} · {person.yearLabel}</small>
+                <small>{branchName(person.primaryBranchId ?? null)} · {person.yearLabel && /^-?\d+$/.test(person.yearLabel) ? `Sinh năm ${person.yearLabel}` : "Chưa rõ năm sinh"}</small>
+                <small>{person.code}</small>
                 {person.matchedNames.length > 0 ? <small>Tên khác: {person.matchedNames.map((name) => name.name).join(", ")}</small> : null}
               </span>
               <span className="result-arrow" aria-hidden="true">→</span>

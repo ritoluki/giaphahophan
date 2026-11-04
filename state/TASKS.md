@@ -1,5 +1,7 @@
 # Backlog triển khai
 
+2026-11-04 — FE-UX-01 implementation local đã bàn giao:312unit/237browser/7reflow PASS, inspector0FAIL; xem reports/FRONTEND_REFACTOR_20261103.md. Ticket giữ IN_PROGRESS cho H1 và điện thoại thật; không đóng module cũ từ refactor frontend. Bản chạy chính3100 là build mới. Mốc tiếp theo: DB search→profile→family/tree→kinship, sau đó contribution→independent review→updated reading UI. Audit dependency hiện có FAIL cần bản vá trước phát hành.
+
 2026-11-03 — Owner direction update: next work prioritizes the M03/M04/M05/M06/M07 reading journey (login→DB search→DB profile→family/tree→kinship), with a mobile end-to-end acceptance run; then M08 independent review reflected in profile/tree. This supersedes M16-first next-action notes below. M16 media approval and all M01–M18 acceptance requirements remain; canonical task statuses are unchanged. Current session commits the pending snapshot and launches local demo only.
 
 2026-11-03 — Status audit, không đổi canonical TASKS.json:102 ticket =3 DONE/75 IN_PROGRESS/24 TODO. Đây là trạng thái nghiệm thu ticket, không phải % hoàn thiện; nhiều IN_PROGRESS chứa implementation sâu nhưng acceptance còn thiếu. PASS local278 unit tests/types/lint/foundation verify, scope và log ở TEST_REPORT. Tiếp tục M16-06 media đã được duyệt; đồng thời đưa migration reproducibility và core DB→UI integration vào kế hoạch hoàn thiện trước staging. M01/M02/M17/M18/QA/STAGE/RELEASE/REAL/HANDOVER TODO vẫn giữ nguyên; không đóng ticket từ kiểm kê code.

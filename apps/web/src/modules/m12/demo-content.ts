@@ -17,8 +17,8 @@ export type DemoNewsPost = {
 const posts: readonly DemoNewsPost[] = [
   {
     slug: "giu-gin-nguon-coi",
-    title: "Gìn giữ nguồn cội bằng những câu chuyện có nguồn",
-    summary: "Bài mẫu minh họa cách một câu chuyện được trình bày rõ nguồn, giữ riêng tư và đọc tốt trên điện thoại.",
+    title: "Chuyện gia đình có nguồn",
+    summary: "Gìn giữ câu chuyện của gia đình bằng lời kể, ảnh cũ và tư liệu được đối chiếu cẩn thận.",
     category: "Câu chuyện",
     publishedLabel: "Bài mẫu giao diện",
     readingTime: "3 phút đọc",
@@ -26,18 +26,18 @@ const posts: readonly DemoNewsPost[] = [
     body: {
       version: 1,
       blocks: [
-        { type: "heading", level: 2, children: [{ type: "text", text: "Một bài viết bắt đầu từ sự cẩn trọng" }] },
+        { type: "heading", level: 2, children: [{ type: "text", text: "Từ những ký ức gia đình" }] },
         { type: "paragraph", children: [{ type: "text", text: "Đây là nội dung minh họa cho Phan Gia Phả, không phải tư liệu lịch sử hay dữ liệu gia đình thật. Mỗi bài viết thật sẽ đi cùng nguồn, trạng thái duyệt và người chịu trách nhiệm." }] },
-        { type: "image", assetId: coverAssetId, alt: "Nền hoa văn Việt Nam minh họa cho bài viết", caption: "Asset thiết kế được duyệt · Không phải ảnh tư liệu gia đình" },
-        { type: "paragraph", children: [{ type: "text", text: "Khi nội dung được xuất bản, bản đã duyệt trở thành một snapshot riêng. Bản nháp tiếp theo có thể thay đổi mà không làm nội dung công khai đổi theo trước khi được kiểm tra." }] },
+        { type: "image", assetId: coverAssetId, alt: "Nền hoa văn Việt Nam minh họa cho bài viết", caption: "Hình minh họa giao diện, không phải ảnh tư liệu gia đình" },
+        { type: "paragraph", children: [{ type: "text", text: "Một câu chuyện thường được nhớ lại qua nhiều người và nhiều thế hệ. Ghi rõ người kể, thời điểm và tư liệu liên quan giúp con cháu hiểu thông tin đến từ đâu, đồng thời biết phần nào còn cần tìm hiểu thêm." }] },
         { type: "quote", children: [{ type: "emphasis", text: "Có nguồn, có người gìn giữ, có giới hạn hiển thị." }] },
         {
           type: "list",
           ordered: false,
           items: [
             { type: "list_item", children: [{ type: "strong", text: "Rõ nguồn" }, { type: "text", text: " — người đọc biết thông tin đến từ đâu." }] },
-            { type: "list_item", children: [{ type: "strong", text: "Đúng quyền" }, { type: "text", text: " — ảnh và tên riêng không tự xuất hiện trong metadata công khai." }] },
-            { type: "list_item", children: [{ type: "strong", text: "Đúng bản" }, { type: "text", text: " — published snapshot không bị draft ghi đè." }] },
+            { type: "list_item", children: [{ type: "strong", text: "Tôn trọng riêng tư" }, { type: "text", text: " — ảnh và thông tin riêng chỉ được chia sẻ khi có sự đồng ý phù hợp." }] },
+            { type: "list_item", children: [{ type: "strong", text: "Cẩn thận khi bổ sung" }, { type: "text", text: " — thông tin mới cần được đối chiếu và duyệt trước khi thay đổi bài đã công bố." }] },
           ],
         },
       ],

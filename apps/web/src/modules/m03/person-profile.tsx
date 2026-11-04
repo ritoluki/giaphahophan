@@ -3,32 +3,24 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import type { DemoFamilyFocus, DemoPersonRecord, DemoSource } from "../../lib/demo-data";
+import type { DemoPersonRecord, DemoSource } from "../../lib/demo-data";
 import { branchName } from "../../lib/demo-data";
+import type { FamilyMember, FamilyView } from "../../lib/family-view-model";
+import { datePrecisionLabel, lifeStatusLabels, sourceKindLabel } from "../../lib/ui-labels";
 
 type ProfileState = "ready" | "loading" | "error" | "restricted";
 
 type PersonProfileProps = {
   person: DemoPersonRecord;
-  family: DemoFamilyFocus | null;
+  family: FamilyView | null;
   sources: DemoSource[];
   treeId: string;
   version: number;
   state?: ProfileState;
 };
 
-const tabs = [
-  { id: "overview", label: "Tổng quan" },
-  { id: "family", label: "Gia đình" },
-  { id: "timeline", label: "Dòng thời gian" },
-  { id: "sources", label: "Nguồn" },
-  { id: "media", label: "Tư liệu ảnh" }
-] as const;
-
-type TabId = (typeof tabs)[number]["id"];
-
 function EmptyPanel({ message }: { message: string }) {
-  return <div className="card empty-state"><p>{message}</p></div>;
+  return <p className="empty-state">{message}</p>;
 }
 
 function StatePanel({ state }: { state: Exclude<ProfileState, "ready"> }) {
@@ -36,13 +28,12 @@ function StatePanel({ state }: { state: Exclude<ProfileState, "ready"> }) {
     return <div className="card profile-state-panel" aria-busy="true"><span className="skeleton-line" /><span className="skeleton-line skeleton-line-short" /><p className="muted">Đang tải hồ sơ…</p></div>;
   }
   if (state === "restricted") {
-    return <div className="restricted-card profile-state-panel"><strong>Hồ sơ được giới hạn</strong><p>Thông tin này chỉ hiển thị khi phiên có quyền phù hợp.</p><Link className="button-secondary" href="/dang-nhap">Đăng nhập</Link></div>;
+    return <div className="restricted-card profile-state-panel"><strong>Bạn chưa có quyền xem hồ sơ này</strong><p>Đăng nhập bằng tài khoản đã được mời vào gia phả để tiếp tục.</p><Link className="button-secondary" href="/dang-nhap">Đăng nhập</Link></div>;
   }
-  return <div className="restricted-card profile-state-panel"><strong>Không tải được hồ sơ</strong><p>Hãy thử lại để tải projection đã được kiểm tra quyền.</p><Link className="button-secondary" href="./">Thử lại</Link></div>;
+  return <div className="restricted-card profile-state-panel"><strong>Không tải được hồ sơ</strong><p>Hãy tải lại trang. Nếu vẫn gặp lỗi, liên hệ người phụ trách gia phả.</p><button className="button-secondary" type="button" onClick={() => window.location.reload()}>Thử lại</button></div>;
 }
 
 function OverviewPanel({ person }: { person: DemoPersonRecord }) {
-  const aliases = person.names.filter((name) => !name.isPreferred);
   const yearLabel = person.birth?.year ? String(person.birth.year) : "Chưa rõ";
   return (
     <div className="profile-grid">
@@ -50,45 +41,48 @@ function OverviewPanel({ person }: { person: DemoPersonRecord }) {
         <h2>Thông tin đã ghi nhận</h2>
         <dl className="detail-list">
           <div><dt>Mã hồ sơ</dt><dd>{person.externalId}</dd></div>
-          <div><dt>Trạng thái</dt><dd>{person.lifeStatus === "deceased" ? "Đã qua đời · demo" : "Chưa xác định · demo"}</dd></div>
+          <div><dt>Tình trạng</dt><dd>{person.lifeStatus === "living" || person.lifeStatus === "deceased" ? lifeStatusLabels[person.lifeStatus] : lifeStatusLabels.unknown}</dd></div>
           <div><dt>Năm sinh</dt><dd>{yearLabel}</dd></div>
           <div><dt>Chi họ</dt><dd>{branchName(person.branchId)}</dd></div>
-          <div><dt>Hiển thị</dt><dd>{person.visibility === "members" ? "Thành viên · bản minh họa" : "Công khai · bản minh họa"}</dd></div>
+          <div><dt>Ai được xem</dt><dd>{person.visibility === "members" ? "Thành viên gia phả" : person.visibility === "public" ? "Mọi người" : "Người được cấp quyền"}</dd></div>
         </dl>
       </section>
       <section className="card">
-        <h2>Tên và bí danh</h2>
+        <h2>Tên gọi</h2>
         <ul className="profile-name-list">
-          {person.names.map((name, index) => <li key={name.kind + "-" + name.name + "-" + index}><span>{name.name}</span><small>{name.isPreferred ? "Tên ưu tiên" : "Bí danh"}</small></li>)}
+          {person.names.map((name, index) => <li key={name.kind + "-" + name.name + "-" + index}><span>{name.name}</span><small>{name.isPreferred ? "Tên thường dùng" : "Tên gọi khác"}</small></li>)}
         </ul>
-        {aliases.length === 0 ? <p className="source-note">Chưa có bí danh được ghi nhận.</p> : null}
       </section>
       <section className="card profile-span">
         <h2>Tiểu sử</h2>
         <p>{person.biography || "Chưa có nội dung tiểu sử được duyệt."}</p>
       </section>
-      <div className="restricted-card profile-span">
-        <strong>Muốn liên kết tài khoản với hồ sơ này?</strong>
-        <p>Đăng nhập để gửi đề nghị. Việc liên kết chỉ có hiệu lực sau khi người khác duyệt.</p>
-        <Link className="button-secondary" href="/dang-nhap">Đăng nhập để đề nghị</Link>
-      </div>
     </div>
   );
 }
 
-function FamilyPanel({ family }: { family: DemoFamilyFocus | null }) {
-  if (!family || (family.parents.length === 0 && family.children.length === 0)) {
-    return <EmptyPanel message="Chưa có quan hệ gia đình được ghi nhận trong bản minh họa này." />;
-  }
+function FamilyMemberList({ members }: { members: FamilyMember[] }) {
+  if (members.length === 0) return <p className="muted">Chưa có thông tin.</p>;
+  return <div className="family-list-items">{members.map(({ person, relationshipLabels }) => <article className="person-node" key={person.id}>
+    <span className="person-node-copy"><strong>{person.displayName}</strong><small>{relationshipLabels.join(" · ")}{person.yearLabel && person.yearLabel !== "Chưa rõ" ? ` · Sinh năm ${person.yearLabel}` : ""}</small><span className="person-links"><Link href={"/gia-pha?root=" + person.id}>Xem gia đình</Link><Link href={"/nguoi/" + person.id}>Xem hồ sơ</Link></span></span>
+  </article>)}</div>;
+}
+
+function FamilyPanel({ family }: { family: FamilyView | null }) {
+  if (!family) return <EmptyPanel message="Chưa có thông tin gia đình." />;
   return (
-    <div className="profile-grid">
+    <div className="profile-grid profile-family-grid">
       <section className="card">
-        <h2>Cha mẹ</h2>
-        {family.parents.length === 0 ? <p className="muted">Chưa có dữ liệu.</p> : <div className="family-list-items">{family.parents.map((parent) => <Link className="person-node" href={"/nguoi/" + parent.id} key={parent.id}><span className="monogram" aria-hidden="true">{parent.displayName.slice(0, 1)}</span><span className="person-node-copy"><strong>{parent.displayName}</strong><small>{parent.code}</small></span></Link>)}</div>}
+        <h3>Cha mẹ</h3>
+        <FamilyMemberList members={family.parents} />
       </section>
       <section className="card">
-        <h2>Con cháu</h2>
-        {family.children.length === 0 ? <p className="muted">Chưa có dữ liệu.</p> : <div className="family-list-items">{family.children.map((child) => <Link className="person-node" href={"/nguoi/" + child.id} key={child.id}><span className="monogram" aria-hidden="true">{child.displayName.slice(0, 1)}</span><span className="person-node-copy"><strong>{child.displayName}</strong><small>{child.code}</small></span></Link>)}</div>}
+        <h3>Vợ, chồng hoặc bạn đời</h3>
+        <FamilyMemberList members={family.partners} />
+      </section>
+      <section className="card profile-span">
+        <h3>Con</h3>
+        <FamilyMemberList members={family.children} />
       </section>
     </div>
   );
@@ -101,9 +95,9 @@ function TimelinePanel({ person }: { person: DemoPersonRecord }) {
       <article className="timeline-item">
         <div className="timeline-marker" aria-hidden="true" />
         <div className="card">
-          <h2>Sinh năm {person.birth.year ?? "chưa rõ"}</h2>
-          <p>{person.birth.originalText} · độ chính xác: {person.birth.precision}</p>
-          <span className="status-label">Bản minh họa · cần đối chiếu nguồn</span>
+          <h3>Thông tin sinh</h3>
+          <p>Thông tin gốc: {person.birth.originalText}</p>
+          <span className="status-label">{datePrecisionLabel(person.birth.precision)}</span>
         </div>
       </article>
     </section>
@@ -112,11 +106,11 @@ function TimelinePanel({ person }: { person: DemoPersonRecord }) {
 
 function SourcesPanel({ sources }: { sources: DemoSource[] }) {
   if (sources.length === 0) return <EmptyPanel message="Chưa có nguồn được liên kết với hồ sơ." />;
-  return <div className="source-list">{sources.map((source) => <article className="card source-card" key={source.id}><span className="source-kind">{source.kind}</span><h2>{source.title}</h2><p>{source.provenance}</p><span className="status-label">Nguồn minh họa</span></article>)}</div>;
+  return <div className="source-list">{sources.map((source) => <article className="card source-card" key={source.id}><h3>{source.title}</h3><p>{sourceKindLabel(source.kind)} · {source.provenance}</p><span className="status-label">Nguồn minh họa</span></article>)}</div>;
 }
 
 function MediaPanel() {
-  return <div className="restricted-card profile-state-panel"><strong>Chưa có tư liệu ảnh</strong><p>Ảnh và media chỉ xuất hiện sau khi được tải lên, quét an toàn và cấp quyền.</p></div>;
+  return <EmptyPanel message="Chưa có ảnh được chia sẻ cho hồ sơ này." />;
 }
 
 type ImpactState = "idle" | "loading" | "ready" | "restricted" | "error" | "submitted";
@@ -196,42 +190,40 @@ function DeletionImpactPanel({ personId, treeId, version }: { personId: string; 
 
   return (
     <section className="card profile-span deletion-impact-card" aria-labelledby="deletion-impact-title">
-      <h2 id="deletion-impact-title">Ẩn hồ sơ theo quy trình</h2>
-      <p>Soft-delete chỉ ẩn hồ sơ và cạnh liên quan sau khi được duyệt. Facts và nguồn vẫn giữ tham chiếu; erasure là quy trình riêng.</p>
+      <h3 id="deletion-impact-title">Đề nghị ẩn hồ sơ</h3>
+      <p>Hồ sơ và các quan hệ liên quan chỉ được ẩn sau khi yêu cầu được duyệt. Thông tin và tư liệu gốc vẫn được lưu để đối chiếu; đây chưa phải yêu cầu xóa vĩnh viễn.</p>
       {impactState === "idle" ? <button className="button-secondary" type="button" onClick={() => void previewImpact()}>Xem tác động trước khi gửi</button> : null}
       {impactState === "loading" ? <p className="muted" aria-live="polite">Đang kiểm tra tác động…</p> : null}
-      {impactState === "restricted" ? <div className="restricted-card"><strong>Cần quyền biên tập</strong><p>Chỉ thành viên có capability phù hợp mới xem hoặc gửi yêu cầu ẩn hồ sơ.</p></div> : null}
+      {impactState === "restricted" ? <div className="restricted-card"><strong>Bạn chưa có quyền gửi yêu cầu này</strong><p>Hãy liên hệ người phụ trách gia phả nếu cần ẩn thông tin.</p></div> : null}
       {impactState === "error" ? <div className="restricted-card"><strong>Không tải được tác động</strong><p>Hãy thử lại; dữ liệu vẫn chưa thay đổi.</p><button className="button-secondary" type="button" onClick={() => void previewImpact()}>Thử lại</button></div> : null}
       {impactState === "ready" && impact ? (
         <div className="deletion-impact-summary">
-          <p aria-live="polite">Ảnh hưởng dự kiến: {impact.edgeCount} cạnh, {impact.factCount} facts và {impact.sourceCount} nguồn được tham chiếu.</p>
+          <p aria-live="polite">Hồ sơ đang có {impact.edgeCount} quan hệ, {impact.factCount} thông tin được ghi nhận và {impact.sourceCount} nguồn tư liệu liên quan.</p>
           <label className="field-label" htmlFor="deletion-reason">Lý do yêu cầu</label>
           <textarea id="deletion-reason" value={reason} onChange={(event) => setReason(event.target.value)} rows={3} maxLength={4000} />
           <button className="button-danger" type="button" disabled={reason.trim().length === 0} onClick={() => void submitDeletion()}>Gửi yêu cầu ẩn hồ sơ</button>
         </div>
       ) : null}
-      {impactState === "submitted" ? <div className="status-label" aria-live="polite">Đã gửi yêu cầu; cần người duyệt độc lập.</div> : null}
+      {impactState === "submitted" ? <div className="status-label" aria-live="polite">Đã gửi yêu cầu, đang chờ người khác duyệt. Hồ sơ chưa bị ẩn.</div> : null}
       {impactState === "idle" && version < 1 ? <p className="muted">Phiên bản hồ sơ chưa sẵn sàng.</p> : null}
     </section>
   );
 }
 
 export function PersonProfile({ person, family, sources, treeId, version, state = "ready" }: PersonProfileProps) {
-  const [activeTab, setActiveTab] = useState<TabId>("overview");
   if (state !== "ready") return <StatePanel state={state} />;
 
   return (
-    <section className="profile-tabs-shell" aria-label="Các lớp hồ sơ">
-      <div className="profile-tabs" role="tablist" aria-label="Hồ sơ người">
-        {tabs.map((tab) => <button className={activeTab === tab.id ? "profile-tab profile-tab-active" : "profile-tab"} key={tab.id} type="button" role="tab" aria-selected={activeTab === tab.id} aria-controls={"profile-panel-" + tab.id} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>)}
-      </div>
-      <div id={"profile-panel-" + activeTab} role="tabpanel" tabIndex={0} className="profile-tab-panel">
-        {activeTab === "overview" ? <><OverviewPanel person={person} /><DeletionImpactPanel personId={person.id} treeId={treeId} version={version} /></> : null}
-        {activeTab === "family" ? <FamilyPanel family={family} /> : null}
-        {activeTab === "timeline" ? <TimelinePanel person={person} /> : null}
-        {activeTab === "sources" ? <SourcesPanel sources={sources} /> : null}
-        {activeTab === "media" ? <MediaPanel /> : null}
-      </div>
+    <section className="profile-sections" aria-label="Thông tin hồ sơ">
+      <section className="profile-section" aria-labelledby="profile-family-title"><h2 id="profile-family-title">Gia đình</h2><FamilyPanel family={family} /></section>
+      <OverviewPanel person={person} />
+      <details className="profile-more"><summary>Dòng thời gian</summary><TimelinePanel person={person} /></details>
+      <details className="profile-more"><summary>Nguồn tư liệu ({sources.length})</summary><SourcesPanel sources={sources} /></details>
+      <details className="profile-more"><summary>Ảnh của hồ sơ</summary><MediaPanel /></details>
+      <details className="profile-more"><summary>Liên kết tài khoản hoặc đề nghị ẩn hồ sơ</summary>
+        <div className="profile-state-panel"><h3>Đây là hồ sơ của bạn?</h3><p>Đăng nhập để đề nghị liên kết tài khoản. Việc liên kết chỉ có hiệu lực sau khi người khác duyệt.</p><Link className="button-secondary" href="/dang-nhap">Đăng nhập để đề nghị</Link></div>
+        <DeletionImpactPanel personId={person.id} treeId={treeId} version={version} />
+      </details>
     </section>
   );
 }

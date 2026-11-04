@@ -1,5 +1,7 @@
 node_modules/
 .pnpm-store/
+.pnpm-state/
+.taste-skill/
 .npm-cache/
 .env*
 !.env.example

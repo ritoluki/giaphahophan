@@ -1,49 +1,44 @@
-import Image from "next/image";
 import Link from "next/link";
 import { DemoNotice, SectionHeading, SiteShell } from "./_components/site-chrome";
 import { SearchBox } from "./_components/search-box";
 import { demoEvents } from "../lib/demo-data";
+import { SiteIcon } from "./_components/site-icon";
 
 export default function HomePage() {
   return (
     <SiteShell active="home">
-      <main id="main-content" tabIndex={-1} className="container">
-        <section className="hero" aria-labelledby="hero-title">
-          <Image className="hero-image" src="/assets/hero-mobile.png" alt="" fill priority sizes="(max-width: 767px) 100vw, 1200px" />
-          <div className="hero-overlay" />
-          <div className="hero-content">
-            <div className="eyebrow">Dữ liệu minh họa · Không phải lịch sử thực tế</div>
-            <h1 id="hero-title">Một gia phả là câu chuyện về những người đi trước.</h1>
-            <p>Lưu giữ ký ức có nguồn. Kết nối các thế hệ trong một không gian trang nghiêm, rõ ràng và riêng tư.</p>
-            <div className="hero-actions">
-              <Link className="button-primary" href="/tra-cuu">Tra cứu người thân <span aria-hidden="true">→</span></Link>
-              <Link className="button-secondary" href="/gia-pha">Mở cây gia phả</Link>
-            </div>
-          </div>
+      <main id="main-content" tabIndex={-1} className="container home-page">
+        <section className="home-intro" aria-labelledby="home-title">
+          <h1 id="home-title">Tìm người trong gia phả</h1>
+          <p>Tra cứu người thân và tìm hiểu các thế hệ trong gia đình.</p>
+          <SearchBox />
+          <Link className="home-family-link" href="/gia-pha">Xem gia đình và các nhánh<SiteIcon name="arrow" size={20} /></Link>
         </section>
-        <SearchBox />
         <DemoNotice />
-        <section className="section" aria-labelledby="upcoming-title">
-          <SectionHeading title="Sắp tới" href="/lich-ho" linkLabel="Xem lịch họ" />
-          <div className="cards">
-            {demoEvents.map((event) => (
-              <article className="card event-card" key={event.id}>
-                <div className="event-date"><span>ÂM LỊCH</span><strong>—</strong><span>Chưa đổi ngày</span></div>
-                <div><h3>{event.title}</h3><p>{event.lunarLabel} · {event.reviewStatus === "approved" ? "Đã duyệt" : "Đang chờ đối chiếu"}</p></div>
-              </article>
-            ))}
-          </div>
-        </section>
-        <section className="section" aria-labelledby="start-title">
-          <SectionHeading title="Bắt đầu từ đâu?" />
-          <div className="cards editorial-cards">
-            <Link className="card" href="/gia-pha"><h3>Gia phả dòng họ</h3><p>Xem nhánh gần và mở sơ đồ khi bạn chủ động chọn.</p></Link>
-            <Link className="card" href="/tra-cuu"><h3>Hồ sơ có nguồn</h3><p>Tìm người bằng tên, mã hồ sơ, chi họ và mốc năm.</p></Link>
-            <Link className="card" href="/tu-lieu"><h3>Tư liệu đối chiếu</h3><p>Mỗi thông tin quan trọng cần có nơi để đọc lại và xác minh.</p></Link>
-          </div>
-        </section>
+        <div className="home-columns">
+          <section className="home-guide" aria-labelledby="family-title">
+            <SectionHeading id="family-title" title="Gia phả của gia đình" />
+            <p>Mỗi người có một hồ sơ riêng, cùng những mối quan hệ và tư liệu đã được ghi nhận.</p>
+            <nav className="home-quick-links" aria-label="Khám phá gia phả">
+              <Link href="/gia-pha"><span><strong>Xem gia đình</strong><small>Bắt đầu từ một người, lần theo các thế hệ.</small></span><SiteIcon name="arrow" /></Link>
+              <Link href="/quan-he"><span><strong>Tìm quan hệ</strong><small>Xem mối liên hệ giữa hai người.</small></span><SiteIcon name="arrow" /></Link>
+              <Link href="/tu-lieu"><span><strong>Đọc tư liệu</strong><small>Xem sổ ghi chép, hình ảnh và nguồn thông tin.</small></span><SiteIcon name="arrow" /></Link>
+            </nav>
+          </section>
+          <section className="home-calendar" aria-labelledby="upcoming-title">
+            <SectionHeading id="upcoming-title" title="Lịch họ" href="/lich-ho" linkLabel="Xem lịch" />
+            <div className="home-events">
+              {demoEvents.slice(0, 3).map((event) => (
+                <article className="home-event" key={event.id}>
+                  <SiteIcon name="calendar" size={24} />
+                  <div><h3>{event.title}</h3><p>{event.lunarLabel}</p><small>{event.reviewStatus === "approved" ? "Đã duyệt nội dung" : "Chờ đối chiếu ngày"}</small></div>
+                </article>
+              ))}
+            </div>
+          </section>
+        </div>
       </main>
-      <footer className="container site-footer"><span>Phan Gia Phả</span><span>Demo mode · Không dùng dữ liệu thật</span></footer>
+      <footer className="container site-footer"><span>Phan Gia Phả</span><Link href="/gioi-thieu">Về gia phả này</Link></footer>
     </SiteShell>
   );
 }

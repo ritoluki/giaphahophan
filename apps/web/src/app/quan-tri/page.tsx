@@ -1,27 +1,23 @@
 import Link from "next/link";
 import { AdminShell } from "../_components/site-chrome";
 
-const previewCards = [
-  { title: "Hàng chờ duyệt", value: "Chưa kết nối", detail: "Đề nghị sẽ hiện tại đây sau khi có phiên và capability review." },
-  { title: "Chất lượng dữ liệu", value: "Demo only", detail: "Duplicate, thiếu nguồn và xung đột quan hệ không được tự sửa." },
-  { title: "Xuất bản", value: "Đang khóa", detail: "Cần review, privacy gate và approval manifest trước khi công bố." },
-  { title: "Vận hành", value: "Degraded", detail: "Health ready chờ Supabase runtime; không ảnh hưởng dữ liệu demo." }
+const workspaces = [
+  { href: "/quan-tri/thanh-vien", title: "Thành viên và quyền", detail: "Xem thành viên, thay đổi vai trò và cấp quyền cho người phụ trách.", action: "Quản lý thành viên" },
+  { href: "/quan-tri/nhap-lieu", title: "Nhập gia phả từ tệp", detail: "Tải tệp, kiểm tra từng dòng và đối chiếu quan hệ trước khi đề nghị áp dụng.", action: "Mở phần nhập liệu" },
+  { href: "/quan-tri/xuat-lieu", title: "Xuất gia phả", detail: "Chọn phạm vi, tạo yêu cầu và tải bản gia phả được phép xuất.", action: "Mở phần xuất gia phả" },
+  { href: "/quan-tri/khuyen-hoc", title: "Báo cáo khuyến học", detail: "Xem các khoản khuyến học trong phạm vi tài khoản được cấp quyền.", action: "Xem báo cáo" },
 ] as const;
 
 export default function AdminPage() {
   return (
     <AdminShell>
       <main id="main-content" tabIndex={-1} className="container page admin-page">
-        <p className="eyebrow">Quản trị · Capability required</p>
-        <h1>Tổng quan quản trị</h1>
-        <p className="page-lede">Không có thao tác thay đổi dữ liệu trong bản preview. Mọi quyền thật sẽ được kiểm tra ở server/DB.</p>
-        <div className="restricted-card admin-restricted"><strong>Truy cập bị giới hạn</strong><p>Phiên hiện tại chưa đăng nhập. Không hiển thị số liệu, tên người hoặc hàng chờ riêng tư.</p><Link className="button-primary" href="/dang-nhap">Đăng nhập theo lời mời</Link></div>
-        <Link className="card admin-members-link" href="/quan-tri/thanh-vien"><h2>Thành viên và quyền</h2><p>Quản lý membership, trạng thái, role và grant theo chi với kiểm tra MFA ở server/DB.</p><span className="button-secondary">Mở khu vực thành viên</span></Link>
-        <Link className="card admin-members-link" href="/quan-tri/xuat-lieu"><h2>Xuất gia phả</h2><p>Yêu cầu, xem phạm vi theo quyền và hủy bản xuất trong môi trường demo.</p><span className="button-secondary">Mở khu vực xuất liệu</span></Link>
-        <section className="admin-grid" aria-label="Các khu vực quản trị preview">
-          {previewCards.map((card) => <article className="card admin-card" key={card.title}><span className="status-label">Preview</span><h2>{card.title}</h2><strong>{card.value}</strong><p>{card.detail}</p></article>)}
+        <h1>Quản lý gia phả</h1>
+        <p className="page-lede">Chọn công việc cần làm. Mỗi khu vực chỉ mở thông tin và thao tác phù hợp với quyền của tài khoản.</p>
+        <section className="admin-grid" aria-label="Công việc quản lý gia phả">
+          {workspaces.map((workspace) => <article className="card admin-card" key={workspace.href}><h2>{workspace.title}</h2><p>{workspace.detail}</p><Link className="button-secondary" href={workspace.href}>{workspace.action}</Link></article>)}
         </section>
-        <section className="card admin-principles"><h2>Nguyên tắc an toàn</h2><ul><li>Ẩn nút không thay thế authorization ở server/DB.</li><li>Không tự nối người trùng tên hoặc tự duyệt đề nghị.</li><li>Export, merge và privacy action luôn cần capability riêng, audit và version check.</li></ul></section>
+        <section className="card admin-principles"><h2>Trước khi thay đổi dữ liệu</h2><ul><li>Kiểm tra đúng người và căn cứ nguồn; người trùng tên có thể là hai người khác nhau.</li><li>Đề nghị cần được một người khác xem xét trước khi áp dụng.</li><li>Các công việc cần quyền quản lý yêu cầu xác thực hai bước.</li></ul></section>
       </main>
     </AdminShell>
   );

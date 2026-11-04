@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type ChangeEvent } from "react";
+import { getUiErrorMessage } from "../../lib/ui-error";
 
 type UploadStatus = "idle" | "reading" | "uploading" | "finalizing" | "success" | "error" | "restricted";
 
@@ -17,7 +18,7 @@ async function sha256(file: File) {
 export function MediaUploadPanel({ treeId, canUpload }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<UploadStatus>(canUpload && treeId ? "idle" : "restricted");
-  const [message, setMessage] = useState("Tệp chỉ được hiển thị sau khi kiểm tra an toàn hoàn tất.");
+  const [message, setMessage] = useState(canUpload && treeId ? "Tệp sẽ được kiểm tra trước khi thêm vào thư viện." : "Bạn cần đăng nhập và có quyền thêm tư liệu để tải tệp lên.");
 
   async function onFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -27,10 +28,15 @@ export function MediaUploadPanel({ treeId, canUpload }: Props) {
       setMessage("Bạn cần đăng nhập và có quyền thêm tư liệu cho gia phả này.");
       return;
     }
+    if (file.size < 1 || file.size > 104857600) {
+      setStatus("error");
+      setMessage("Chọn tệp có dung lượng từ 1 byte đến 100 MB.");
+      if (inputRef.current) inputRef.current.value = "";
+      return;
+    }
     setStatus("reading");
     setMessage("Đang kiểm tra tệp trước khi tải lên…");
     try {
-      if (file.size < 1 || file.size > 104857600) throw new Error("Kích thước tệp không được hỗ trợ.");
       const digest = await sha256(file);
       const intentResponse = await fetch("/api/v1/media/uploads", {
         method: "POST",
@@ -46,7 +52,7 @@ export function MediaUploadPanel({ treeId, canUpload }: Props) {
         })
       });
       const intentBody = await intentResponse.json() as { data?: { assetId: string; uploadUrl: string }; error?: { message?: string } };
-      if (!intentResponse.ok || !intentBody.data) throw new Error(intentBody.error?.message ?? "Không thể tạo phiên tải lên.");
+      if (!intentResponse.ok || !intentBody.data) throw intentBody.error;
       setStatus("uploading");
       setMessage("Đang tải tệp vào vùng lưu trữ riêng tư…");
       const uploadResponse = await fetch(intentBody.data.uploadUrl, {
@@ -63,12 +69,12 @@ export function MediaUploadPanel({ treeId, canUpload }: Props) {
         body: "{}"
       });
       const finalizeBody = await finalizeResponse.json() as { data?: { state?: string }; error?: { message?: string } };
-      if (!finalizeResponse.ok || finalizeBody.data?.state !== "ready") throw new Error(finalizeBody.error?.message ?? "Tệp đang bị giữ lại để kiểm tra.");
+      if (!finalizeResponse.ok || finalizeBody.data?.state !== "ready") throw finalizeBody.error;
       setStatus("success");
       setMessage("Tệp đã được kiểm tra và sẵn sàng sử dụng.");
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Không thể hoàn tất tải lên.");
+      setMessage(getUiErrorMessage(error, "Chưa thể thêm tư liệu. Tệp chưa được đưa vào thư viện; hãy thử lại sau."));
     } finally {
       if (inputRef.current) inputRef.current.value = "";
     }
@@ -78,14 +84,13 @@ export function MediaUploadPanel({ treeId, canUpload }: Props) {
   return (
     <section className="card media-upload-panel" aria-labelledby="media-upload-title">
       <div>
-        <p className="eyebrow">Tải lên an toàn</p>
         <h2 id="media-upload-title">Thêm tư liệu cho gia phả</h2>
-        <p>Ảnh, PDF, âm thanh và video được kiểm tra loại tệp, kích thước, checksum và scanner trước khi hiển thị.</p>
+        <p>Chọn ảnh, tài liệu PDF, bản ghi âm hoặc đoạn phim từ thiết bị của bạn.</p>
       </div>
       <label className="media-upload-dropzone">
         <span>{busy ? "Đang xử lý…" : "Chọn tệp từ thiết bị"}</span>
-        <small>Không nhận SVG, HTML, executable hoặc macro office.</small>
-        <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,application/pdf,audio/mpeg,audio/mp4,video/mp4" disabled={busy || !canUpload || !treeId} onChange={onFileChange} />
+        <small id="media-upload-help">Tối đa 100 MB. Nhận ảnh JPG, PNG, WebP; tài liệu PDF; âm thanh MP3, M4A và phim MP4.</small>
+        <input ref={inputRef} type="file" aria-describedby="media-upload-help" accept="image/jpeg,image/png,image/webp,application/pdf,audio/mpeg,audio/mp4,video/mp4" disabled={busy || !canUpload || !treeId} onChange={onFileChange} />
       </label>
       <p className={"media-upload-status media-upload-status-" + status} aria-live="polite">{message}</p>
     </section>

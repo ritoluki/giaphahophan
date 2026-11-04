@@ -1,8 +1,32 @@
 {
   "schemaVersion": "1.0",
   "canonical": true,
-  "updatedAt": "2026-10-13T16:08:36Z",
+  "updatedAt": "2026-11-04T00:37:29.138Z",
   "tasks": [
+    {
+      "id": "FE-UX-01",
+      "title": "Refactor giao diện tiếng Việt, mobile và gia đình quanh một người",
+      "phase": "P1",
+      "module": "FRONTEND",
+      "dependencies": ["P0-03"],
+      "requirementIds": ["REQ-M03-01", "REQ-M04-01", "REQ-M05-01", "REQ-M06-01"],
+      "outputs": ["apps/web/src/app", "apps/web/src/modules/m04", "reports/FRONTEND_REFACTOR_20261103.md"],
+      "acceptance": [
+        "Một hệ thống chữ/điều hướng/thành phần theo editorial-greeting seed20261103, giữ brand/font; toàn bộ màn hình hiện có dùng được trên điện thoại.",
+        "Gia đình quanh người được chọn, cha mẹ/con từ parentLinks, bạn đời từ unions; sơ đồ React Flow+ELK tải chủ động, URL/Back/reload/focus đúng.",
+        "Mọi nhãn/trạng thái/lỗi hướng người dùng bằng tiếng Việt tự nhiên, không đổi API enums hoặc nội dung tư liệu.",
+        "Có bằng chứng build, unit, E2E, axe, inspector trước/sau; dữ liệu hư cấu, không đổi schema/quyền và không tự đánh dấu H1 approved."
+      ],
+      "testIds": ["TC-M03-01", "TC-M04-01", "TC-M05-01", "TC-M06-01"],
+      "status": "IN_PROGRESS",
+      "approvalRequired": ["H1"],
+      "evidence": [
+        "2026-11-04 delivered local implementation at http://127.0.0.1:3100, web21492, .next-frontend-20261103; worker22896 retained. Shared editorial-greeting seed20261103, mobile reading, family list/lazy React Flow+ELK and typed Vietnamese presentation. See reports/FRONTEND_REFACTOR_20261103.md.",
+        "PASS local312 unit tests,237 browser cases including24-route axe/keyboard and real diagram worker/navigation,7 reflow cases covering25 screens at320/360/390/412/768/1440 plus emulated200percent and long names; build/typecheck/lint/verify/diff checks pass. Four representative screens all0FAIL inspector at390/768/1440;24 final screenshots opened.",
+        "API/schema/RLS/contracts/domain/fixtures/worker unchanged. No hosted access, real data, migration or production deployment. Dependency audit FAIL for existing foundational packages; see report/VERSIONS.md.",
+        "Keep IN_PROGRESS: H1 visual/use acceptance and physical-device/Safari/screen-reader checks pending; no H1-H5 approval inferred. Fictional demo readers remain; full DB search-profile-family-kinship integration is the next separate milestone."
+      ]
+    },
     {
       "id": "P0-01",
       "title": "Kiểm tra môi trường và workspace",

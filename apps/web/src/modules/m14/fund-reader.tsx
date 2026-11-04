@@ -1,5 +1,6 @@
 import type { Fund, Journal, ReconciliationRecord, Report } from "@phan/contracts";
 import { DemoNotice, SectionHeading, SiteShell } from "../../app/_components/site-chrome";
+import { formatDisplayDate, journalStatusLabels } from "../../lib/ui-labels";
 
 export type FundState = "loading" | "empty" | "error" | "restricted";
 
@@ -59,10 +60,10 @@ export function formatVnd(value: string): string {
 
 export function FundStateCard({ status }: { status: FundState }) {
   const copy = {
-    loading: ["Đang tải sổ quỹ", "Giữ bố cục trong khi kiểm tra quyền xem báo cáo."],
+    loading: ["Đang tải sổ quỹ", "Vui lòng chờ trong giây lát."],
     empty: ["Chưa có kỳ quỹ được công bố", "Kỳ quỹ sẽ xuất hiện sau khi được ghi nhận và duyệt."],
-    error: ["Không tải được sổ quỹ", "Thử lại sau; thông tin người đóng góp và chứng từ không nằm trong lỗi."],
-    restricted: ["Sổ quỹ được giới hạn", "Phiên hiện tại chưa có quyền xem số dư hoặc chi tiết giao dịch."],
+    error: ["Không tải được sổ quỹ", "Hãy kiểm tra kết nối rồi thử lại."],
+    restricted: ["Bạn chưa có quyền xem sổ quỹ", "Hãy liên hệ người phụ trách quỹ nếu cần xem báo cáo này."],
   }[status];
   return <div className="fund-state-card" role={status === "error" ? "alert" : "status"}><strong>{copy[0]}</strong><span>{copy[1]}</span></div>;
 }
@@ -73,36 +74,35 @@ export function FundReader({ fund, journals, report = demoReport, reconciliation
   return (
     <SiteShell active="more">
       <main id="main-content" tabIndex={-1} className="container page fund-page">
-        <p className="eyebrow">Sinh hoạt dòng họ · Báo cáo theo quyền</p>
-        <h1>Minh bạch quỹ</h1>
-        <p className="page-lede">Số tiền hiển thị dưới dạng VND nguyên số. Đây là sổ nội bộ minh họa, không phải đồng bộ ngân hàng hay báo cáo tài chính bên ngoài.</p>
+        <h1>Quỹ họ</h1>
+        <p className="page-lede">{fund.name} · Kỳ {formatDisplayDate(report.from)} – {formatDisplayDate(report.to)}</p>
         <DemoNotice />
         <section className="fund-summary" aria-label="Tóm tắt quỹ">
-          <div className="fund-balance-card"><span>Số dư hiện tại</span><strong>{formatVnd(fund.balanceVnd)}</strong><small>{fund.closedThrough ? `Đã khóa đến ${fund.closedThrough}` : "Kỳ hiện tại đang mở"}</small></div>
-          <div className="fund-summary-card"><span>Thu trong fixture</span><strong>{formatVnd(incomeVnd)}</strong></div>
-          <div className="fund-summary-card"><span>Chi trong fixture</span><strong>{formatVnd(expenseVnd)}</strong></div>
+          <div className="fund-balance-card"><span>Số dư quỹ</span><strong>{formatVnd(fund.balanceVnd)}</strong><small>{fund.closedThrough ? `Đã khóa sổ đến ${formatDisplayDate(fund.closedThrough)}` : "Sổ quỹ chưa khóa"}</small></div>
+          <div className="fund-summary-card"><span>Thu trong kỳ</span><strong>{formatVnd(incomeVnd)}</strong></div>
+          <div className="fund-summary-card"><span>Chi trong kỳ</span><strong>{formatVnd(expenseVnd)}</strong></div>
         </section>
         <SectionHeading title="Báo cáo kỳ" />
         <section className="fund-report-grid" aria-label="Báo cáo kỳ">
           <div className="fund-summary-card"><span>Số dư đầu kỳ</span><strong>{formatVnd(report.openingVnd)}</strong></div>
           <div className="fund-summary-card"><span>Tổng thu</span><strong>{formatVnd(report.incomeVnd)}</strong></div>
           <div className="fund-summary-card"><span>Tổng chi</span><strong>{formatVnd(report.expenseVnd)}</strong></div>
-          <div className="fund-summary-card"><span>Số dư cuối kỳ</span><strong>{formatVnd(report.closingVnd)}</strong><small>{report.from} → {report.to}</small></div>
+          <div className="fund-summary-card"><span>Số dư cuối kỳ</span><strong>{formatVnd(report.closingVnd)}</strong></div>
         </section>
         <SectionHeading title="Đối chiếu kỳ" />
         <section className="fund-reconciliation-card" aria-label="Đối chiếu kỳ">
-          <div className="fund-reconciliation-head"><strong>{reconciliation.status === "locked" ? "Kỳ đã khóa" : "Kỳ đang mở"}</strong><span>{reconciliation.from} → {reconciliation.to}</span></div>
-          <p>{reconciliation.postedEntries} phiếu đã ghi sổ · phiên bản snapshot {reconciliation.version}</p>
+          <div className="fund-reconciliation-head"><strong>{reconciliation.status === "locked" ? "Kỳ đã khóa sổ" : "Kỳ đang mở"}</strong><span>{formatDisplayDate(reconciliation.from)} – {formatDisplayDate(reconciliation.to)}</span></div>
+          <p>{reconciliation.postedEntries} phiếu đã ghi sổ</p>
           <dl className="fund-proof-status">
             <div><dt>Chứng từ sẵn sàng</dt><dd>{reconciliation.proof.ready}</dd></div>
             <div><dt>Đang xử lý</dt><dd>{reconciliation.proof.pending}</dd></div>
             <div><dt>Chưa có</dt><dd>{reconciliation.proof.missing}</dd></div>
             <div><dt>Bị từ chối</dt><dd>{reconciliation.proof.rejected}</dd></div>
           </dl>
-          <small>Snapshot nội bộ; không phải đồng bộ ngân hàng hoặc xác nhận kiểm toán.</small>
-        </section>        <SectionHeading title="Phiếu đã ghi sổ" />
-        {journals.length === 0 ? <FundStateCard status="empty" /> : <div className="fund-entry-list">{journals.map((journal) => <article className="fund-entry-card" key={journal.id}><div className="fund-entry-head"><span>{journal.entryDate}</span><span className="fund-status">{journal.status === "posted" ? "Đã ghi sổ" : journal.status}</span></div><h2>{journal.description}</h2><dl className="detail-list"><div><dt>Mã phiếu</dt><dd>{journal.code}</dd></div><div><dt>Tổng dòng</dt><dd>{journal.lines.length} dòng · cân bằng 0 ₫</dd></div></dl></article>)}</div>}
-        <div className="fund-privacy-note"><strong>Quyền riêng tư</strong><span>Người đóng góp và chứng từ không hiển thị trong báo cáo này nếu phiên chưa được cấp quyền phù hợp.</span></div>
+          <small>Đây là báo cáo sổ quỹ nội bộ, chưa phải xác nhận của ngân hàng hay kiểm toán.</small>
+        </section><SectionHeading title="Các phiếu trong kỳ" />
+        {journals.length === 0 ? <FundStateCard status="empty" /> : <div className="fund-entry-list">{journals.map((journal) => <article className="fund-entry-card" key={journal.id}><div className="fund-entry-head"><span>{formatDisplayDate(journal.entryDate)}</span><span className="fund-status">{journalStatusLabels[journal.status]}</span></div><h2>{journal.description}</h2><dl className="detail-list"><div><dt>Mã phiếu</dt><dd>{journal.code}</dd></div><div><dt>Chi tiết</dt><dd>{journal.lines.length} dòng ghi sổ</dd></div><div><dt>Cân đối</dt><dd>{journal.lines.reduce((sum, line) => sum + BigInt(line.signedAmountVnd), 0n) === 0n ? "Phiếu cân bằng" : "Cần kiểm tra lại"}</dd></div></dl></article>)}</div>}
+        <div className="fund-privacy-note"><strong>Thông tin người đóng góp</strong><span>Tên người đóng góp và chứng từ chỉ được chia sẻ với người có quyền xem.</span></div>
       </main>
     </SiteShell>
   );
