@@ -1,5 +1,7 @@
 # Các bước chủ dự án thực sự cần tham gia
 
+2026-11-04 — RESOLVED public repository push: owner trả lời “Cho phép push lên repository công khai này” cho `ritoluki/giaphahophan`, nhánh `main`, commit frontend `812703b` cùng cập nhật bàn giao phiên này. Automatic approval review đã chặn lần push đầu; push sau xác nhận thành công và remote đã được xác minh. Không cần hỏi lại cho phạm vi này. Không suy ra phê duyệt dữ liệu thật, H1–H5, công khai DB hay deploy production.
+
 2026-11-04 — H1 review có bản local cụ thể: http://127.0.0.1:3100, .next-frontend-20261103, reports/FRONTEND_REFACTOR_20261103.md. Owner có thể thử tìm người → Xem gia đình → cha/mẹ/con → Back → Mở sơ đồ → chạm người → đóng trên máy đang chạy dự án. URL loopback chưa truy cập từ điện thoại khác; kiểm tra điện thoại thật vẫn NOT_RUN, cần preview phù hợp khi tới gate đó. Đây là nghiệm thu mức dễ hiểu/dễ thao tác; chưa ghi H1 approved. Không yêu cầu thêm secret hoặc thao tác kỹ thuật. Mốc tiếp theo là DB→UI và bản vá dependency; H2–H5 giữ nguyên.
 
 2026-11-03 — Rà soát tiến độ: không yêu cầu thêm approval, secret hay thao tác kỹ thuật từ chủ dự án trong phiên này. Scoped M16 media policy đã APPROVED ngày14/10, agent có thể tiếp tục triển khai/test local synthetic theo phạm vi đó. H1–H5 tổng thể vẫn pending; chỉ trình quyết định với build/manifest/batch cụ thể khi đến gate. Docker Access Denied của lượt kiểm tra sandbox này chưa phải yêu cầu owner sửa môi trường. Các yêu cầu media-policy cũ bên dưới đã được supersede.
